@@ -24,8 +24,8 @@ message(c(a, b, a))
 paper.info = "Norouzian, R., de Miranda, M. A., & Plonsky, L. (under review). The Bayesian \nrevolution in L2 research: An applied approach.
 
 \nNorouzian, R., de Miranda, M. A., & Plonsky, L. (under review). A Bayesian \napproach to measuring evidence in L2 research: An empirical investigation."
-break = "\n*****************************************************************************\n"
-message(paste0(break, paper.info, break, "\n"))
+Break = "\n*****************************************************************************\n"
+message(paste0(Break, paper.info, Break, "\n"))
 
 
 
