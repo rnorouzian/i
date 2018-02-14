@@ -1,4 +1,31 @@
 
+a = ("\n<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>\n")
+
+   b = ("   \"bayesianL2\", a suite of R functions for Bayesian estimation.
+    Copyright (C) 2018  Reza Norouzian, rnorouzian@gmail.com
+
+    This program is free software: you can redistribute it under the 
+    terms of the GNU General Public License as published by the Free 
+    Software Foundation, either version 3 of the License, or any later 
+    version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.")
+
+
+message(c(a, b, a))
+
+
+paper.info = "Norouzian, R., de Miranda, M. A., & Plonsky, L. (under review). The Bayesian \nrevolution in L2 research: An applied approach.
+
+\nNorouzian, R., de Miranda, M. A., & Plonsky, L. (under review). A Bayesian \napproach to measuring evidence in L2 research: An empirical investigation."
+break = "\n*****************************************************************************\n"
+message(paste0(break, paper.info, break, "\n"))
 
 
 
