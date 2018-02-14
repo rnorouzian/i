@@ -1,3 +1,7 @@
+
+
+
+
 HDI <- function(FUN, ...)
 {
   UseMethod("HDI")
