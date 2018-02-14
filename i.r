@@ -1,7 +1,7 @@
 
 a = ("\n<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>\n")
 
-   b = ("   \"bayesianL2\", a suite of R functions for Bayesian estimation.
+   b = ("   \"bayesL2\", a suite of R functions for Bayesian estimation.
     Copyright (C) 2018  Reza Norouzian, rnorouzian@gmail.com
 
     This program is free software: you can redistribute it under the 
