@@ -27,7 +27,7 @@ paper.info = "For more information see:\n\nNorouzian, R., de Miranda, M. A., & P
 Break = "\n*****************************************************************************\n"
 message(paste0(Break, paper.info, Break, "\n"))
 
-
+#==================================================================================================================
 
 HDI <- function(FUN, ...)
 {
