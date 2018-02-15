@@ -25,7 +25,7 @@ paper.info = "For more information see:\n\nNorouzian, R., de Miranda, M. A., & P
 
 \nNorouzian, R., de Miranda, M. A., & Plonsky, L. (under review). A Bayesian \napproach to measuring evidence in L2 research: An empirical investigation."
 Break = "\n*****************************************************************************\n"
-message(paste0(Break, paper.info, Break, "\n"))
+cat(paste0(Break, paper.info, Break, "\n"))
 
 #==================================================================================================================
 
