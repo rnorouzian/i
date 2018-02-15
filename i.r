@@ -21,11 +21,11 @@ notice = ("   \"bayesL2\", a suite of R functions for Bayesian estimation.
 message(Break, notice, Break)
 
 
-paper.info = "For more information see:\n\nNorouzian, R., de Miranda, M. A., & Plonsky, L. (under review). The Bayesian \nrevolution in L2 research: An applied approach.
+cite = "To cite the package use:\n\nNorouzian, R., de Miranda, M. A., & Plonsky, L. (under review). The Bayesian \nrevolution in L2 research: An applied approach.
 
 \nNorouzian, R., de Miranda, M. A., & Plonsky, L. (under review). A Bayesian \napproach to measuring evidence in L2 research: An empirical investigation."
 Break = "\n*****************************************************************************\n"
-cat(paste0(Break, paper.info, Break, "\n"))
+cat(Break, cite, Break)
 
 #==================================================================================================================
 
