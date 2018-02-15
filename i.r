@@ -1,7 +1,7 @@
 
-a = ("\n<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>\n")
+Break = ("\n<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>\n")
 
-   b = ("   \"bayesL2\", a suite of R functions for Bayesian estimation.
+notice = ("   \"bayesL2\", a suite of R functions for Bayesian estimation.
     Copyright (C) 2018  Reza Norouzian, rnorouzian@gmail.com
 
     This program is free software: you can redistribute it under the 
@@ -18,7 +18,7 @@ a = ("\n<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     along with this program. If not, see <http://www.gnu.org/licenses/>.")
 
 
-message(a, b, a)
+message(Break, notice, Break)
 
 
 paper.info = "For more information see:\n\nNorouzian, R., de Miranda, M. A., & Plonsky, L. (under review). The Bayesian \nrevolution in L2 research: An applied approach.
