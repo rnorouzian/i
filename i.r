@@ -1,7 +1,7 @@
 
 Break = "\n<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>\n"
 
-notice = ("   \"bayesL2\", a suite of R functions for Bayesian estimation.
+notice = "   \"bayesL2\", a suite of R functions for Bayesian estimation.
     Copyright (C) 2018  Reza Norouzian, rnorouzian@gmail.com
 
     This program is free software: you can redistribute it under the 
@@ -15,7 +15,7 @@ notice = ("   \"bayesL2\", a suite of R functions for Bayesian estimation.
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program. If not, see <http://www.gnu.org/licenses/>.")
+    along with this program. If not, see <http://www.gnu.org/licenses/>."
 
 message(Break, notice, Break)
 
