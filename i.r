@@ -18,7 +18,7 @@ a = ("\n<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     along with this program.  If not, see <http://www.gnu.org/licenses/>.")
 
 
-message(c(a, b, a))
+message(a, b, a)
 
 
 paper.info = "Norouzian, R., de Miranda, M. A., & Plonsky, L. (under review). The Bayesian \nrevolution in L2 research: An applied approach.
