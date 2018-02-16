@@ -1478,10 +1478,7 @@ cor.diff.default <- function(r, n, prior.mean = 0, prior.sd = .707, how = c("two
   I = deci(CI, 2); o = deci(mode, 2)
   text(mode, 1:loop, paste0(I[,1], "        ", o, "         ", I[,2]), cex = .75, pos = 3, font = 2, xpd = NA)
   
-  rownames(CI) <- paste0(np, ":")
-  colnames(CI) <- c("lower", "upper")
-  
-  return(round(data.frame(mean = mean, mode = mode, median = median, sd = sd, CI = CI, eq.prob = BB), 6))
+  return(round(data.frame(mean = mean, mode = mode, median = median, sd = sd, lower = CI[,1], upper = CI[,2], eq.prob = BB, row.names = paste0(np, ":")), 6))
 }
 
 #===================================================================================================================
