@@ -648,10 +648,7 @@ prop.diff.default <- function(yes, n, a = 1.2, b = a, how = c("two.one", "one.tw
   I = deci(CI*1e2 , 2); o = deci(mode*1e2, 2)
   text(mode, 1:loop, paste0(I[,1], "%", "      ", o, "%", "      ", I[,2], "%"), cex = .75, pos = 3, font = 2, xpd = NA)
   
-  rownames(CI) <- paste0(np, ":")
-  colnames(CI) <- c("lower", "upper")
-  
-  return(round(data.frame(estimate = estimate, mean = mean, mode = mode, median = median, sd = sd, CI = CI, eq.prob = BB, BF01 = BF01, BF10 = BF10), 6))                                                
+  return(round(data.frame(estimate = estimate, mean = mean, mode = mode, median = median, sd = sd, lower = CI[,1], upper = CI[,2], eq.prob = BB, BF01 = BF01, BF10 = BF10, row.names = paste0(np, ":")), 6))                                                
 }     
 
 #====================================================================================================================
