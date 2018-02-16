@@ -290,8 +290,6 @@ prop.bayes.default <- function(a, b, lo = 0, hi = 1, dist.name, yes = 55, n = 1e
     loop = length(d)
     CI = matrix(NA, loop, 2)
     mode = numeric(loop)
-    mean = numeric(loop)
-    sd = numeric(loop)
     peak = numeric(loop)
     h = list()
     k = numeric(loop)
@@ -1120,7 +1118,7 @@ peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1,
     points(mode, 1:loop, pch = 21, bg = "cyan", cex = 1.3, col = "magenta", xpd = NA)
     I = deci(CI*1e2 , 2); o = deci(mode*1e2, 2)
     text(mode, 1:loop, paste0(I[,1], "%", "    ", o, "%", "    ", I[,2], "%"), cex = .75, pos = 3, font = 2, xpd = NA)
-    return(round(data.frame(estimate = estimate, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, BF10 = BF10, row.names = paste0("P.eta.sq ", 1:loop, " posterior: ")), 6))  
+    return(round(data.frame(estimate = estimate, mode = mode, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, BF10 = BF10, row.names = paste0("P.eta.sq ", 1:loop, " posterior: ")), 6))  
     
 }else{
     p = function(x) { get(d[1])(x, a[1], b[1])*as.integer(x >= lo[1])*as.integer(x <= hi[1]) }
