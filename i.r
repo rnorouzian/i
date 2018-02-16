@@ -1387,8 +1387,8 @@ cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = 
 
   }else{
   
-  p <- function(x) (dnorm(atanh(x), prior.mean[1], prior.sd[1])*1/(1-x^2))*as.integer(x >= lo[1])*as.integer(x <= hi[1])
-  curve(p, -1, 1, yaxt = "n", ylab = NA, xlab = bquote(rho[~("Pearson correlation")]), bty = "n", font.lab = 2, cex.lab = 1.5, lwd = 2, n = 1e3, yaxs = "i", main = bquote(rho*" ~ "*.(if(lo[1] > -1 || hi[1] < 1) "truncated-")*"norm"(.(round(prior.mean[1], 3)), .(round(prior.sd[1], 3)))), xpd = NA) 
+  p <- function(x) dnorm(atanh(x), prior.mean[1], prior.sd[1])*1/(1-x^2)
+  curve(p, -1, 1, yaxt = "n", ylab = NA, xlab = bquote(rho[~("Pearson correlation")]), bty = "n", font.lab = 2, cex.lab = 1.5, lwd = 2, n = 1e4, yaxs = "i", main = bquote("norm"(.(round(prior.mean[1], 3)), .(round(prior.sd[1], 3)))), xpd = NA) 
   }  
 }
 
