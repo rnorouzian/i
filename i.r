@@ -1325,17 +1325,17 @@ cor.bayes <- function(r, ...)
 
 cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1, bottom = 1, scale = .1, margin = 5, legend = "topleft", show.prior = FALSE){ 
   
-  pr <- show.prior  
+  pr <- show.prior    
+  mu <- prior.mean
+  lambda <- 1/(prior.sd^2)
+    
+  if(!pr){   
   eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
   I = eq(n, r, prior.mean, prior.sd)   
   n = I[[1]] ; r = I[[2]] ; prior.mean = I[[3]] ; prior.sd = I[[4]] ;  
   
   deci <- function(x, k = 3) format(round(x, k), nsmall = k)
-  
-  mu <- prior.mean
-  lambda <- 1/(prior.sd^2)
-                              
-  if(!pr){                            
+                       
   lambda.post <- (lambda + (n - 3))
   mu.post <- (lambda*mu + (n - 3)*atanh(r))/lambda.post
   
