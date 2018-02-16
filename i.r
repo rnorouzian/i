@@ -1323,8 +1323,9 @@ cor.bayes <- function(r, ...)
   UseMethod("cor.bayes")
 }
 
-cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1, bottom = 1, scale = .1, margin = 5, legend = "topleft"){ 
+cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1, bottom = 1, scale = .1, margin = 5, legend = "topleft", show.prior = FALSE){ 
   
+  pr <- show.prior  
   eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
   I = eq(n, r, prior.mean, prior.sd)   
   n = I[[1]] ; r = I[[2]] ; prior.mean = I[[3]] ; prior.sd = I[[4]] ;  
@@ -1333,6 +1334,8 @@ cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = 
   
   mu <- prior.mean
   lambda <- 1/(prior.sd^2)
+                              
+  if(!pr){                            
   lambda.post <- (lambda + (n - 3))
   mu.post <- (lambda*mu + (n - 3)*atanh(r))/lambda.post
   
@@ -1381,6 +1384,12 @@ cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = 
   text(mode, 1:loop, paste0(I[,1], "        ", o, "         ", I[,2]), cex = .75, pos = 3, font = 2, xpd = NA)
   
   return(round(data.frame(mean = mean, mode = mode, median = median, sd = sd, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, row.names = paste0("r", 1:loop, " posterior: ")), 6))
+
+  }else{
+  
+  p <- function(x) (dnorm(atanh(x), prior.mean[1], prior.sd[1])*1/(1-x^2))*as.integer(x >= lo[1])*as.integer(x <= hi[1])
+  curve(p, -1, 1, yaxt = "n", ylab = NA, xlab = bquote(rho[~("Pearson correlation")]), bty = "n", font.lab = 2, cex.lab = 1.5, lwd = 2, n = 1e3, yaxs = "i", main = bquote(rho*" ~ "*.(if(lo[1] > -1 || hi[1] < 1) "truncated-")*"norm"(.(round(prior.mean[1], 3)), .(round(prior.sd[1], 3)))), xpd = NA) 
+  }  
 }
 
 #==================================================================================================================
