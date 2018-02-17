@@ -1391,6 +1391,19 @@ cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = 
 
 #==================================================================================================================
 
+cor.ci <- function(r, ...)
+{
+  UseMethod("cor.ci")
+}
+                              
+cor.ci.default <- function(r, n, conf.level = .95){
+  alpha = 1 - ((1 - conf.level)/2)  
+  I = tanh(atanh(r) + c(-1, 1)*qnorm(alpha)*1/sqrt(n - 3))
+data.frame(lower = I[1], upper = I[2], row.names = "Confidence Interval: ")
+}
+                              
+#===================================================================================================================                              
+                              
 cor.diff <- function(r, ...)
 {
   UseMethod("cor.diff")
