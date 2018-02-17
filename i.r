@@ -553,12 +553,12 @@ prop.hyper.default <- function(a, b, lo = 0, hi = 1, dist.name, yes = 55, n = 1e
 
 #===================================================================================================================
 
-ab.prop.hyper <- function(a, ...)
+prop.hyper.ab <- function(a, ...)
 {
-  UseMethod("ab.prop.hyper")
+  UseMethod("prop.hyper.ab")
 }
 
-ab.prop.hyper.default <- function(a, b, lo = 0, hi = 1, dist.name, add = FALSE, 
+prop.hyper.ab.default <- function(a, b, lo = 0, hi = 1, dist.name, add = FALSE, 
                                   yes = 55, n = 1e2, col = 1, show.prior = FALSE){
   
   is.v <- function(...) lengths(list(...)) > 1
@@ -1078,12 +1078,12 @@ d.hyper.default <- function(t, n1, n2 = NA, m, s, lo = -Inf, hi = Inf, dist.name
 
 #===================================================================================================================
 
-ms.d.hyper <- function(t, ...)
+d.hyper.ms <- function(t, ...)
 {
-  UseMethod("ms.d.hyper")
+  UseMethod("d.hyper.ms")
 }
 
-ms.d.hyper.default <- function(t, n1, n2 = NA, m, s, lo = -Inf, hi = Inf, dist.name, add = FALSE, 
+d.hyper.ms.default <- function(t, n1, n2 = NA, m, s, lo = -Inf, hi = Inf, dist.name, add = FALSE, 
                                col = 1, top = 6, margin = 1.01, LL = -3, UL = 3, show.prior = FALSE, prior.left = -6, prior.right = 6){
   
   is.v <- function(...) lengths(list(...)) > 1
@@ -1341,12 +1341,12 @@ peta.hyper.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1,
 
 #===================================================================================================================
 
-ab.peta.hyper <- function(f, ...)
+peta.hyper.ab <- function(f, ...)
 {
-  UseMethod("ab.peta.hyper")
+  UseMethod("ab.peta.hyper.ab")
 }
 
-ab.peta.hyper.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", add = FALSE, 
+peta.hyper.ab.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", add = FALSE, 
                                   col = 1, show.prior = FALSE){
   
   is.v <- function(...) lengths(list(...)) > 1
