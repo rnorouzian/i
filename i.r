@@ -304,7 +304,7 @@ prop.bayes.default <- function(a, b, lo = 0, hi = 1, dist.name, yes = 55, n = 1e
       likelihood = function(x) dbinom(Bi[i], n[i], x)
       k[i] = integrate(function(x) prior(x)*likelihood(x), lo[i], hi[i])[[1]]
       posterior = function(x) prior(x)*likelihood(x) / k[i]    
-      h[i] = list(curve(posterior, type = "n", ann = FALSE, yaxt = "n", xaxt = "n", add = i!= 1, bty = "n", n = 5e2))
+      h[[i]] = list(x = x <- seq(0, 1, length.out = 5e2), y = posterior(x))
       mode[i] = optimize(posterior, c(lo[i], hi[i]), maximum = TRUE)[[1]]
       CI[i,] = HDI(posterior)
       peak[i] = posterior(mode[i])
@@ -373,7 +373,7 @@ prop.priors.default <- function(a, b, lo = 0, hi = 1, dist.name, yes = 55, n = 1
       likelihood = function(x) dbinom(Bi, n, x)
       k = integrate(function(x) prior(x)*likelihood(x), lo[i], hi[i])[[1]]
       posterior = function(x) prior(x)*likelihood(x) / k
-      h[i] = list(curve(posterior, type = "n", ann = FALSE, yaxt = "n", xaxt = "n", add = i!= 1, bty = "n", n = 5e2))
+      h[[i]] = list(x = x <- seq(0, 1, length.out = 5e2), y = posterior(x))
       mode[i] = optimize(posterior, c(lo[i], hi[i]), maximum = TRUE)[[1]]
       CI[i,] = HDI(posterior)
       peak[i] = posterior(mode[i])
@@ -812,7 +812,7 @@ for(i in 1:loop){
       mode[i] = optimize(posterior, c(from[i], to[i]), maximum = TRUE)[[1]]
       peak[i] = posterior(mode[i])
       CI[i,] = HDI(posterior, LL, UL)
-      h[[i]] = curve(posterior, from[i], to[i], type = "n", ann = FALSE, yaxt = "n", xaxt = "n", add = i!= 1, bty = "n", n = 5e2)
+      h[[i]] = list(x = x <- seq(from[i], to[i], length.out = 5e2), y = posterior(x))
    BF10[i] =  k[i] / dt(t[i], df[i])
    eq.prob[i] = integrate(posterior, lo[i], eq.level)[[1]] - integrate(posterior, lo[i], -eq.level)[[1]]
    estimate[i] <- t[i]/sqrt(N[i])
@@ -893,7 +893,7 @@ d.priors.default <- function(t, n1, n2 = NA, m, s, lo = -Inf, hi = Inf, dist.nam
       mode[i] = optimize(posterior, c(from[i], to[i]), maximum = TRUE)[[1]]
       peak[i] = posterior(mode[i])
       CI[i,] = HDI(posterior, LL, UL)
-      h[i] = list(curve(posterior, from[i], to[i], type = "n", ann = FALSE, yaxt = "n", xaxt = "n", add = i!= 1, bty = "n", n = 5e2))
+      h[[i]] = list(x = x <- seq(from[i], to[i], length.out = 5e2), y = posterior(x))
     }
     
     f = peak + 1:loop
@@ -1091,7 +1091,7 @@ peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1,
       likelihood = function(x) df(f[i], df1[i], df2[i], (x * N[i]) / (1 - x) )
       k[i] = integrate(function(x) prior(x)*likelihood(x), lo[i], hi[i])[[1]]
       posterior = function(x) prior(x)*likelihood(x) / k[i]
-      h[i] = list(curve(posterior, type = "n", ann = FALSE, yaxt = "n", xaxt = "n", add = i!= 1, bty = "n", n = 5e2))
+      h[[i]] = list(x = x <- seq(0, 1, length.out = 5e2), y = posterior(x))
       mode[i] = optimize(posterior, c(lo[i], hi[i]), maximum = TRUE)[[1]]
       peak[i] = posterior(mode[i])
       CI[i,] = HDI(posterior, 0, .9999999)
@@ -1160,7 +1160,7 @@ peta.priors.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1
       likelihood = function(x) df(f, df1, df2, (x * N) / (1 - x) )
       k = integrate(function(x) prior(x)*likelihood(x), lo[i], hi[i])[[1]]
       posterior = function(x) prior(x)*likelihood(x) / k
-      h[i] = list(curve(posterior, type = "n", ann = FALSE, yaxt = "n", xaxt = "n", add = i!= 1, bty = "n", n = 5e2))
+      h[[i]] = list(x = x <- seq(0, 1, length.out = 5e2), y = posterior(x))
       mode[i] = optimize(posterior, c(lo[i], hi[i]), maximum = TRUE)[[1]]
       peak[i] = posterior(mode[i])
       CI[i,] = HDI(posterior, 0, .9999999)
