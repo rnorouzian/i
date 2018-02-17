@@ -122,6 +122,98 @@ hdir.default <- function(sample, level = .95){
 
 #==================================================================================================================
 
+prop.ci <- function(k, ...)
+{
+  UseMethod("prop.ci")
+}
+
+prop.ci.default <- function(k, n, conf.level = .95){
+  
+I = as.numeric(binom.test(k, n, conf.level = conf.level)[[4]])
+data.frame(lower = I[1], upper = I[2], conf.level = conf.level, row.names = "Prop CI:")
+}
+
+#==================================================================================================
+
+d.ci <- function(d, ...)
+{
+  UseMethod("d.ci")
+}
+
+d.ci.default <- function(d, n1, n2 = NA, conf.level = .95){
+  
+options(warn = -1)  
+alpha = (1 - conf.level)/2
+    N = ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
+   df = ifelse(is.na(n2), n1 - 1, (n1 + n2) - 2)
+ d.SE = 1/sqrt(N)  ;   t = d/d.SE
+  
+f <- function(ncp, alpha, q, df){
+abs(suppressWarnings(pt(q = t, df = df, ncp, lower.tail = FALSE)) - alpha)
+}
+  
+a = lapply(14:ifelse(d!= 0, d*sqrt(N)+1e2, 30), function(x) c(-x, x))
+           
+CI = matrix(NA, length(a), 2)
+  
+for(i in 1:length(a)){
+CI[i,] = sapply(c(alpha, 1-alpha),
+function(x) optimize(f, interval = a[[i]], alpha = x, q = t, df = df)[[1]]*d.SE)
+}  
+
+I = CI[which.max(ave(1:nrow(CI), do.call(paste, round(data.frame(CI), 3)), FUN = seq_along)), ]  
+data.frame(lower = I[1], upper = I[2], conf.level = conf.level, ncp = t, row.names = "Cohen's d CI:")
+}
+
+#=================================================================================================================================
+
+peta.ci <- function(peta, ...)
+{
+  UseMethod("peta.ci")
+}
+                
+peta.ci.default <- function(peta, N, df1, df2, conf.level = .95){
+
+options(warn = -1) 
+  
+    q = (peta * N) / (1 - peta)  
+alpha = (1 - conf.level)/2
+  
+f <- function (ncp, alpha, q, df1, df2) {
+abs(suppressWarnings(pf(q = q, df1 = df1, df2 = df2, ncp, lower.tail = FALSE)) - alpha)
+}
+
+a = lapply(14:ifelse(peta!= 0, q+1e2, 30), function(x) c(-x, x))
+
+CI = matrix(NA, length(a), 2)
+
+for(i in 1:length(a)){
+CI[i,] <- sapply(c(alpha, 1-alpha), 
+function(x) optimize(f, interval = a[[i]], alpha = x, q = q, df1 = df1, df2 = df2)[[1]])
+}
+
+I = CI[which.max(ave(1:nrow(CI), do.call(paste, round(data.frame(CI), 3)), FUN = seq_along)), ] 
+
+I <- I[1:2] / (I[1:2] + N)
+
+data.frame(lower = I[1], upper = I[2], conf.level = conf.level, ncp = q, row.names = "P.eta.sq CI:")
+}               
+
+#=================================================================================================================================                
+                
+cor.ci <- function(r, ...)
+{
+  UseMethod("cor.ci")
+}
+                              
+cor.ci.default <- function(r, n, conf.level = .95){
+  p = (1 - conf.level) / 2 
+  I = tanh(atanh(r) + qnorm(c(p, 1-p))*1/sqrt(n - 3))
+  data.frame(lower = I[1], upper = I[2], conf.level = conf.level, row.names = "Correlation CI:")
+}                              
+
+#==================================================================================================================
+
 beta.id <- function(Low, ...)
 {
   UseMethod("beta.id")
@@ -1389,21 +1481,8 @@ cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = 
   }  
 }
 
-#==================================================================================================================
+#==================================================================================================================                              
 
-cor.ci <- function(r, ...)
-{
-  UseMethod("cor.ci")
-}
-                              
-cor.ci.default <- function(r, n, conf.level = .95){
-  alpha = 1 - ((1 - conf.level)/2)  
-  I = tanh(atanh(r) + c(-1, 1)*qnorm(alpha)*1/sqrt(n - 3))
-data.frame(lower = I[1], upper = I[2], row.names = "Confidence Interval: ")
-}
-                              
-#===================================================================================================================                              
-                              
 cor.diff <- function(r, ...)
 {
   UseMethod("cor.diff")
