@@ -452,7 +452,7 @@ prop.bayes <- function(a, ...)
   UseMethod("prop.bayes")
 }
 
-prop.bayes.default <- function(a, b, lo = 0, hi = 1, dist.name, yes = 55, n = 1e2, scale = .1, top = 1.5, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .1, h0.ref = .5){
+prop.bayes.default <- function(a, b, lo = 0, hi = 1, dist.name, yes = 55, n = 1e2, scale = .1, top = 1.5, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .1, p.h0 = .5){
   
   d = dist.name
   pr = show.prior
@@ -487,7 +487,7 @@ prop.bayes.default <- function(a, b, lo = 0, hi = 1, dist.name, yes = 55, n = 1e
       CI[i,] = HDI(posterior)
       peak[i] = posterior(mode[i])
       eq.prob[i] = integrate(posterior, lo[i], eq.hi)[[1]] - integrate(posterior, lo[i], eq.lo)[[1]]
-      BF10[i] = k[i]/dbinom(yes[i], n[i], h0.ref)
+      BF10[i] = k[i]/dbinom(yes[i], n[i], p.h0)
       estimate[i] <- yes[i]/n[i]     
     }
     plot(CI, rep(1:loop, 2), type = "n", xlim = 0:1, ylim = c(bottom*1, top*loop), ylab = NA, yaxt = "n", xaxt = "n", xlab = "Credible Interval (Proportion)", font.lab = 2, mgp = c(2, .3, 0))
@@ -948,7 +948,7 @@ d.bayes <- function(t, ...)
   UseMethod("d.bayes")
 }
        
- d.bayes.default <- function(t, n1, n2 = NA, m, s, lo = -Inf, hi = Inf, dist.name, scale = .1, margin = 7, top = .8, show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft", eq.level = .1){
+ d.bayes.default <- function(t, n1, n2 = NA, m, s, lo = -Inf, hi = Inf, dist.name, scale = .1, margin = 7, top = .8, show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft", eq.level = .1, d.h0 = 0){
   
   d = dist.name 
   pr = show.prior
@@ -991,7 +991,7 @@ for(i in 1:loop){
       peak[i] = posterior(mode[i])
       CI[i,] = HDI(posterior, LL, UL)
       h[[i]] = list(x = x <- seq(from[i], to[i], length.out = 5e2), y = posterior(x))
-   BF10[i] =  k[i] / dt(t[i], df[i])
+   BF10[i] =  k[i] / dt(t[i], df[i], d.h0*sqrt(N[i]))
    eq.prob[i] = integrate(posterior, lo[i], eq.level)[[1]] - integrate(posterior, lo[i], -eq.level)[[1]]
    estimate[i] <- t[i]/sqrt(N[i])
 }    
@@ -1239,7 +1239,7 @@ peta.bayes <- function(f, ...)
   UseMethod("peta.bayes")
 }
 
-peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.5, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05){
+peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.5, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0){
   
   d <- dist.name  
   pr <- show.prior
@@ -1273,7 +1273,7 @@ peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1,
       mode[i] = optimize(posterior, c(lo[i], hi[i]), maximum = TRUE)[[1]]
       peak[i] = posterior(mode[i])
       CI[i,] = HDI(posterior, 0, .9999999)
-      BF10[i] =  k[i] / df(f[i], df1[i], df2[i])
+      BF10[i] =  k[i] / df(f[i], df1[i], df2[i], (peta.h0 * N[i]) / (1 - peta.h0))
       eq.prob[i] = integrate(posterior, lo[i], eq.hi)[[1]] - integrate(posterior, lo[i], eq.lo)[[1]]
       estimate[i] <- (f[i]*df1[i]) / ((f[i]*df1[i]) + df2[i])
     } 
@@ -1489,7 +1489,6 @@ peta.hyper.ab.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi =
     axis(1, at = axTicks(1), lab = paste0(axTicks(1)*1e2, "%"), mgp = c(2, .4, 0))
   }
 }
-
 
 #=================================================================================================================
 
