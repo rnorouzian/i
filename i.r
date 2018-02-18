@@ -316,6 +316,49 @@ cauchy.id.default <- Vectorize(function(Low, High, Cover = NA){
 })    
 
 #===============================================================================================
+      
+logis.id <- function(Low, ...)
+{
+  UseMethod("logis.id")
+}
+
+logis.id.default <- Vectorize(function(Low, High, Cover = NA){
+  
+  options(warn = -1)
+  
+  coverage  <- if(is.character(Cover)) as.numeric(substr(Cover, 1, nchar(Cover)-1)) / 1e2 else if(is.na(Cover)) .95 else Cover
+  
+  p1 = (1 - coverage) / 2
+  p2 = 1 - p1
+  
+  if(p1 <= 0 || p2 >= 1 || Low > High || p1 > p2) {
+    
+    stop("\n\tUnable to find such a prior, make sure you have selected the correct values.")
+    
+  } else {
+    
+    f <- function(x) {   
+      y <- c(Low, High) - qlogis(c(p1, p2), location = x[1],  scale = x[2])
+    }
+    
+    parm <- optim(c(1, 1), function(x) sum(f(x)^2), control = list(reltol = (.Machine$double.eps)))[[1]]
+  }
+  
+  q <- qlogis(c(p1, p2), parm[[1]], parm[[2]])
+  
+  is.df = function(a, b, sig = 4) round(a, sig) != round(b, sig)
+  
+  if(is.df(Low, q[1]) || is.df(High, q[2])) {
+    
+    stop("\n\tUnable to find such a prior, make sure you have selected the correct values")
+    
+  } else { 
+    
+    return(c(mode = parm[[1]], scale = parm[[2]])) 
+  }
+})
+      
+#===============================================================================================
 
 norm.id <- function(Low, ...)
 {
