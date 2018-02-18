@@ -397,7 +397,7 @@ tdist.id.default <- Vectorize(function(Low, High, Cover = NA){
     
   } else { 
     
-    return(c(df = round(parm[[1]]), ncp = round(parm[[2]], 6))) 
+    return(c(df = round(parm[[1]], 6), ncp = round(parm[[2]], 6))) 
   }
 }) 
       
