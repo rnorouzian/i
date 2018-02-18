@@ -176,14 +176,14 @@ peta.ci.default <- function(peta, N, df1, df2, conf.level = .95){
 
 options(warn = -1) 
   
-    q = (peta * N) / (1 - peta)  
+    q = (-peta * df2) / ((peta * df1) - df1)  
 alpha = (1 - conf.level)/2
   
 f <- function (ncp, alpha, q, df1, df2) {
 abs(suppressWarnings(pf(q = q, df1 = df1, df2 = df2, ncp, lower.tail = FALSE)) - alpha)
 }
 
-a = lapply(14:ifelse(peta!= 0, q+5e2, 30), function(x) c(-x, x))
+a = lapply(14:ifelse(peta!= 0, q+2e2, 30), function(x) c(-x, x))
 
 CI = matrix(NA, length(a), 2)
 
