@@ -222,13 +222,13 @@ beta.id <- function(Low, ...)
 beta.id.default <- Vectorize(function(Low, High, Cover = NA){
   
   options(warn = -1)
-  L <- if(is.character(Low)) as.numeric(substr(Low, 1, nchar(Low)-1)) / 100 else Low
-  U <- if(is.character(High)) as.numeric(substr(High, 1, nchar(High)-1)) / 100 else High
+  L <- if(is.character(Low)) as.numeric(substr(Low, 1, nchar(Low)-1)) / 1e2 else Low
+  U <- if(is.character(High)) as.numeric(substr(High, 1, nchar(High)-1)) / 1e2 else High
   
   if(L <= 0 || U >= 1) stop("NOTE: The smallest LOWER value that you can choose is \".000001\"AND the largest UPPER value is \".999999\".")
   if(L >= U) stop("Put the smaller value for Low, and the larger value for High")
   
-  coverage  <- if(is.character(Cover)) as.numeric(substr(Cover, 1, nchar(Cover)-1)) / 100 else if(is.na(Cover)) .95 else Cover
+  coverage  <- if(is.character(Cover)) as.numeric(substr(Cover, 1, nchar(Cover)-1)) / 1e2 else if(is.na(Cover)) .95 else Cover
   
   p1 = (1 - coverage) / 2 
   p2 = 1 - p1
@@ -283,7 +283,7 @@ cauchy.id.default <- Vectorize(function(Low, High, Cover = NA){
   
   options(warn = -1)
   
-  coverage  <- if(is.character(Cover)) as.numeric(substr(Cover, 1, nchar(Cover)-1)) / 100 else if(is.na(Cover)) .95 else Cover
+  coverage  <- if(is.character(Cover)) as.numeric(substr(Cover, 1, nchar(Cover)-1)) / 1e2 else if(is.na(Cover)) .95 else Cover
   
   p1 = (1 - coverage) / 2
   p2 = 1 - p1
@@ -358,8 +358,50 @@ logis.id.default <- Vectorize(function(Low, High, Cover = NA){
   }
 })
       
-#===============================================================================================
+#============================================================================================================
 
+tdist.id <- function(Low, ...)
+{
+  UseMethod("tdist.id")
+}
+
+tdist.id.default <- Vectorize(function(Low, High, Cover = NA){
+  
+  options(warn = -1)
+  
+  coverage  <- if(is.character(Cover)) as.numeric(substr(Cover, 1, nchar(Cover)-1)) / 1e2 else if(is.na(Cover)) .95 else Cover
+  
+  p1 = (1 - coverage) / 2
+  p2 = 1 - p1
+  
+  if(p1 <= 0 || p2 >= 1 || Low > High || p1 > p2) {
+    
+    stop("\n\tUnable to find such a prior, make sure you have selected the correct values.")
+    
+  } else {
+    
+    f <- function(x){   
+      y <- c(Low, High) - qt(c(p1, p2), df = x[1], ncp = x[2])
+    }
+    
+    parm <- optim(c(1, 0), function(x) sum(f(x)^2), control = list(reltol = (.Machine$double.eps)))[[1]]
+  }
+  
+  q <- qt(c(p1, p2), parm[[1]], parm[[2]])
+  
+  is.df = function(a, b, sig = 4) round(a, sig) != round(b, sig)
+  
+  if(is.df(Low, q[1]) || is.df(High, q[2])) {
+    
+    stop("\n\tUnable to find such a prior, make sure you have selected the correct values")
+    
+  } else { 
+    
+    return(c(df = round(parm[[1]]), ncp = round(parm[[2]], 6))) 
+  }
+}) 
+      
+#============================================================================================================      
 norm.id <- function(Low, ...)
 {
   UseMethod("norm.id")
@@ -369,7 +411,7 @@ norm.id.default <- Vectorize(function(Low, High, Cover = NA){
   
   options(warn = -1)
   
-  coverage <- if(is.character(Cover)) as.numeric(substr(Cover, 1, nchar(Cover)-1)) / 100 else if(is.na(Cover)) .95 else Cover
+  coverage <- if(is.character(Cover)) as.numeric(substr(Cover, 1, nchar(Cover)-1)) / 1e2 else if(is.na(Cover)) .95 else Cover
   
   p1 <- (1 - coverage) / 2 
   p2 <- 1 - p1
