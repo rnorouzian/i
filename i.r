@@ -152,7 +152,7 @@ f <- function(ncp, alpha, q, df){
 abs(suppressWarnings(pt(q = t, df = df, ncp, lower.tail = FALSE)) - alpha)
 }
   
-a = lapply(14:ifelse(d!= 0, d*sqrt(N)+1e2, 30), function(x) c(-x, x))
+a = lapply(14:ifelse(d!= 0, d*sqrt(N)+2e2, 30), function(x) c(-x, x))
            
 CI = matrix(NA, length(a), 2)
   
@@ -183,7 +183,7 @@ f <- function (ncp, alpha, q, df1, df2) {
 abs(suppressWarnings(pf(q = q, df1 = df1, df2 = df2, ncp, lower.tail = FALSE)) - alpha)
 }
 
-a = lapply(14:ifelse(peta!= 0, q+1e2, 30), function(x) c(-x, x))
+a = lapply(14:ifelse(peta!= 0, q+3e2, 30), function(x) c(-x, x))
 
 CI = matrix(NA, length(a), 2)
 
