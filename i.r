@@ -127,11 +127,11 @@ prop.ci <- function(k, ...)
   UseMethod("prop.ci")
 }
 
-prop.ci.default <- function(k, n, conf.level = .95){
+prop.ci.default <- Vectorize(function(k, n, conf.level = .95){
   
 I = as.numeric(binom.test(k, n, conf.level = conf.level)[[4]])
 data.frame(lower = I[1], upper = I[2], conf.level = conf.level, row.names = "Prop CI:")
-}
+})
 
 #==================================================================================================
 
@@ -140,7 +140,7 @@ d.ci <- function(d, ...)
   UseMethod("d.ci")
 }
 
-d.ci.default <- function(d, n1, n2 = NA, conf.level = .95){
+d.ci.default <- Vectorize(function(d, n1, n2 = NA, conf.level = .95){
   
 options(warn = -1)  
 alpha = (1 - conf.level)/2
@@ -163,7 +163,7 @@ function(x) optimize(f, interval = a[[i]], alpha = x, q = t, df = df)[[1]]*d.SE)
 
 I = CI[which.max(ave(1:nrow(CI), do.call(paste, round(data.frame(CI), 3)), FUN = seq_along)), ]  
 data.frame(lower = I[1], upper = I[2], conf.level = conf.level, ncp = t, row.names = "Cohen's d CI:")
-}
+})
 
 #=================================================================================================================================
 
@@ -172,7 +172,7 @@ peta.ci <- function(peta, ...)
   UseMethod("peta.ci")
 }
                 
-peta.ci.default <- function(peta, N, df1, df2, conf.level = .95){
+peta.ci.default <- Vectorize(function(peta, N, df1, df2, conf.level = .95){
 
 options(warn = -1) 
   
@@ -196,8 +196,8 @@ I = CI[which.max(ave(1:nrow(CI), do.call(paste, round(data.frame(CI), 3)), FUN =
 
 I <- I[1:2] / (I[1:2] + N)
 
-data.frame(lower = I[1], upper = I[2], conf.level = conf.level, ncp = q, row.names = "P.eta.sq CI:")
-}               
+data.frame(lower = I[1], upper = I[2], conf.level = conf.level, ncp = (peta * N) / (1 - peta), F.value = q, row.names = "P.eta.sq CI:")
+})               
 
 #=================================================================================================================================                
                 
@@ -206,11 +206,11 @@ cor.ci <- function(r, ...)
   UseMethod("cor.ci")
 }
                               
-cor.ci.default <- function(r, n, conf.level = .95){
+cor.ci.default <- Vectorize(function(r, n, conf.level = .95){
   p = (1 - conf.level) / 2 
   I = tanh(atanh(r) + qnorm(c(p, 1-p))*1/sqrt(n - 3))
   data.frame(lower = I[1], upper = I[2], conf.level = conf.level, row.names = "Correlation CI:")
-}                              
+})                              
 
 #==================================================================================================================
 
