@@ -1239,7 +1239,7 @@ peta.bayes <- function(f, ...)
   UseMethod("peta.bayes")
 }
 
-peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.5, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0){
+peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name, scale = .1, top = 1.5, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0){
   
   d <- dist.name  
   pr <- show.prior
