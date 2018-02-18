@@ -244,7 +244,7 @@ beta.id.default <- Vectorize(function(Low, High, Cover = NA){
     
     delta <- function(fit, actual) sum((fit-actual)^2)
     
-    objective <- function(theta, x, prob, ...) {
+    objective <- function(theta, x, prob, ...){
       ab <- exp(theta)
       fit <- f.beta(ab[1], ab[2], x, ...)
       return (delta(fit, prob))
@@ -267,7 +267,7 @@ beta.id.default <- Vectorize(function(Low, High, Cover = NA){
       
     }else{
       
-      return(c(alpha = parm[[1]], beta = parm[[2]]))    
+      return(c(alpha = round(parm[[1]], 6), beta = round(parm[[2]], 6)))    
     }
   } 
 })
@@ -311,7 +311,7 @@ cauchy.id.default <- Vectorize(function(Low, High, Cover = NA){
     
   } else { 
     
-    return(c(mode = parm[[1]], scale = parm[[2]])) 
+    return(c(mode = round(parm[[1]], 6), scale = round(parm[[2]], 6))) 
   }
 })    
 
@@ -331,7 +331,7 @@ logis.id.default <- Vectorize(function(Low, High, Cover = NA){
   p1 = (1 - coverage) / 2
   p2 = 1 - p1
   
-  if(p1 <= 0 || p2 >= 1 || Low > High || p1 > p2) {
+  if(p1 <= 0 || p2 >= 1 || Low > High || p1 > p2 || coverage >= 1) {
     
     stop("\n\tUnable to find such a prior, make sure you have selected the correct values.")
     
@@ -354,7 +354,7 @@ logis.id.default <- Vectorize(function(Low, High, Cover = NA){
     
   } else { 
     
-    return(c(mode = parm[[1]], scale = parm[[2]])) 
+    return(c(mode = round(parm[[1]], 6), scale = round(parm[[2]], 6))) 
   }
 })
       
@@ -374,7 +374,7 @@ tdist.id.default <- Vectorize(function(Low, High, Cover = NA){
   p1 = (1 - coverage) / 2
   p2 = 1 - p1
   
-  if(p1 <= 0 || p2 >= 1 || Low > High || p1 > p2) {
+  if(p1 <= 0 || p2 >= 1 || Low > High || p1 > p2 || coverage >= 1) {
     
     stop("\n\tUnable to find such a prior, make sure you have selected the correct values.")
     
@@ -402,6 +402,7 @@ tdist.id.default <- Vectorize(function(Low, High, Cover = NA){
 }) 
       
 #============================================================================================================      
+
 norm.id <- function(Low, ...)
 {
   UseMethod("norm.id")
@@ -439,7 +440,7 @@ norm.id.default <- Vectorize(function(Low, High, Cover = NA){
     stop("\n\tUnable to find such a prior, make sure you have selected the correct values.")
   } else {
     
-    return(c(mean = parm[[1]], sd = parm[[2]]))
+    return(c(mean = round(parm[[1]], 6), sd = round(parm[[2]], 6)))
     
   }
 })
