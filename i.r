@@ -129,7 +129,7 @@ prop.ci <- function(k, ...)
 
 prop.ci.default <- Vectorize(function(k, n, conf.level = .95){
   
-I = as.numeric(binom.test(k, n, conf.level = conf.level)[[4]])
+I = round(as.numeric(binom.test(k, n, conf.level = conf.level)[[4]]), 6)
 data.frame(lower = I[1], upper = I[2], conf.level = conf.level, row.names = "Prop CI:")
 })
 
@@ -161,7 +161,7 @@ CI[i,] = sapply(c(alpha, 1-alpha),
 function(x) optimize(f, interval = a[[i]], alpha = x, q = t, df = df)[[1]]*d.SE)
 }  
 
-I = CI[which.max(ave(1:nrow(CI), do.call(paste, round(data.frame(CI), 3)), FUN = seq_along)), ]  
+I = round(CI[which.max(ave(1:nrow(CI), do.call(paste, round(data.frame(CI), 3)), FUN = seq_along)), ], 6)  
 data.frame(lower = I[1], upper = I[2], conf.level = conf.level, ncp = t, row.names = "Cohen's d CI:")
 })
 
@@ -194,7 +194,7 @@ function(x) optimize(f, interval = a[[i]], alpha = x, q = q, df1 = df1, df2 = df
 
 I = CI[which.max(ave(1:nrow(CI), do.call(paste, round(data.frame(CI), 3)), FUN = seq_along)), ] 
 
-I <- I[1:2] / (I[1:2] + N)
+I <- round(I[1:2] / (I[1:2] + N), 6)
 
 data.frame(lower = I[1], upper = I[2], conf.level = conf.level, ncp = (peta * N) / (1 - peta), F.value = q, row.names = "P.eta.sq CI:")
 })               
@@ -208,7 +208,7 @@ cor.ci <- function(r, ...)
                               
 cor.ci.default <- Vectorize(function(r, n, conf.level = .95){
   p = (1 - conf.level) / 2 
-  I = tanh(atanh(r) + qnorm(c(p, 1-p))*1/sqrt(n - 3))
+  I = round(tanh(atanh(r) + qnorm(c(p, 1-p))*1/sqrt(n - 3)), 6)
   data.frame(lower = I[1], upper = I[2], conf.level = conf.level, row.names = "Correlation CI:")
 })                              
 
