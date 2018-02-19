@@ -140,29 +140,34 @@ d.ci <- function(d, ...)
   UseMethod("d.ci")
 }
 
-d.ci.default <- Vectorize(function(d, n1, n2 = NA, conf.level = .95){
+d.ci.default <- Vectorize(function(d, t = NA, n1, n2 = NA, conf.level = .95){
   
-options(warn = -1)  
-alpha = (1 - conf.level)/2
-    N = ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
-   df = ifelse(is.na(n2), n1 - 1, (n1 + n2) - 2)
- d.SE = 1/sqrt(N)  ;   t = d/d.SE
+  options(warn = -1)  
+  alpha = (1 - conf.level)/2
+  N = ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
+  df = ifelse(is.na(n2), n1 - 1, (n1 + n2) - 2)
+  d.SE = 1/sqrt(N)
+  q = ifelse(is.na(t), d/d.SE, t)
   
-f <- function(ncp, alpha, q, df){
-abs(suppressWarnings(pt(q = t, df = df, ncp, lower.tail = FALSE)) - alpha)
-}
+  f <- function(ncp, alpha, q, df){
+    abs(suppressWarnings(pt(q = q, df = df, ncp, lower.tail = FALSE)) - alpha)
+  }
   
-a = lapply(14:ifelse(d!= 0, d*sqrt(N)+2e2, 30), function(x) c(-x, x))
-           
-CI = matrix(NA, length(a), 2)
+  a = if(is.na(t)){ lapply(14:ifelse(d!= 0, q+2e2, 30), function(x) c(-x, x))
+    }else{ lapply(14:ifelse(t!= 0, q+2e2, 30), function(x) c(-x, x)) }
   
-for(i in 1:length(a)){
-CI[i,] = sapply(c(alpha, 1-alpha),
-function(x) optimize(f, interval = a[[i]], alpha = x, q = t, df = df)[[1]]*d.SE)
-}  
-
-I = round(CI[which.max(ave(1:nrow(CI), do.call(paste, round(data.frame(CI), 3)), FUN = seq_along)), ], 6)  
-data.frame(lower = I[1], upper = I[2], conf.level = conf.level, ncp = t, row.names = "Cohen's d CI:")
+  CI = matrix(NA, length(a), 2)
+  
+  for(i in 1:length(a)){
+    CI[i,] = sapply(c(alpha, 1-alpha),
+    function(x) optimize(f, interval = a[[i]], alpha = x, q = q, df = df)[[1]]*d.SE)
+  }  
+  
+  I = round(CI[which.max(ave(1:nrow(CI), do.call(paste, round(data.frame(CI), 3)), FUN = seq_along)), ], 6)  
+  
+  Cohen.d = ifelse(is.na(t), d, t*d.SE)
+  
+ round(data.frame(Cohen.d = Cohen.d, lower = I[1], upper = I[2], conf.level = conf.level, ncp = q, row.names = "Cohen's d CI:"), 6)
 })
 
 #=================================================================================================================================
@@ -197,9 +202,9 @@ I = CI[which.max(ave(1:nrow(CI), do.call(paste, round(data.frame(CI), 3)), FUN =
 
 I <- I[1:2] / (I[1:2] + N)
 
-peta2 <- if(is.na(F.value)) peta else (F.value * df1)/ ((F.value * df1) + df2)
+P.eta.sq <- if(is.na(F.value)) peta else (F.value * df1)/ ((F.value * df1) + df2)
 
-round(data.frame(lower = I[1], upper = I[2], conf.level = conf.level, P.eta.sq = peta2, ncp = (peta2 * N) / (1 - peta2), F.value = q, row.names = "P.eta.sq CI:"), 6)
+round(data.frame(P.eta.sq = P.eta.sq, lower = I[1], upper = I[2], conf.level = conf.level, ncp = (peta2 * N) / (1 - peta2), F.value = q, row.names = "P.eta.sq CI:"), 6)
 })               
 
 #=================================================================================================================================                
