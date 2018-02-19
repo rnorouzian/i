@@ -204,7 +204,7 @@ I <- I[1:2] / (I[1:2] + N)
 
 P.eta.sq <- if(is.na(F.value)) peta else (F.value * df1)/ ((F.value * df1) + df2)
 
-round(data.frame(P.eta.sq = P.eta.sq, lower = I[1], upper = I[2], conf.level = conf.level, ncp = (peta2 * N) / (1 - peta2), F.value = q, row.names = "P.eta.sq CI:"), 6)
+round(data.frame(P.eta.sq = P.eta.sq, lower = I[1], upper = I[2], conf.level = conf.level, ncp = (P.eta.sq * N) / (1 - P.eta.sq), F.value = q, row.names = "P.eta.sq CI:"), 6)
 })               
 
 #=================================================================================================================================                
