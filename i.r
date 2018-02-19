@@ -172,18 +172,19 @@ peta.ci <- function(peta, ...)
   UseMethod("peta.ci")
 }
                 
-peta.ci.default <- Vectorize(function(peta, N, df1, df2, conf.level = .9){
+peta.ci.default <- Vectorize(function(peta, F.value = NA, N, df1, df2, conf.level = .9){
 
 options(warn = -1) 
   
-    q = (-peta * df2) / ((peta * df1)-df1) 
+    q = ifelse(is.na(F.value), (-peta * df2) / ((peta * df1) - df1), F.value) 
 alpha = (1 - conf.level)/2
 
 f <- function (ncp, alpha, q, df1, df2) {
 abs(suppressWarnings(pf(q = q, df1 = df1, df2 = df2, ncp, lower.tail = FALSE)) - alpha)
 }
 
-a = lapply(20:ifelse(peta!= 0, q+3e2, 30), function(x) c(-x, x))
+a = if(is.na(F.value)){ lapply(20:ifelse(peta!= 0, q+3e2, 30), function(x) c(-x, x))
+  }else{ lapply(20:ifelse(F.value!= 0, q+3e2, 30), function(x) c(-x, x)) }
 
 CI = matrix(NA, length(a), 2)
 
@@ -194,9 +195,11 @@ function(x) optimize(f, interval = a[[i]], alpha = x, q = q, df1 = df1, df2 = df
 
 I = CI[which.max(ave(1:nrow(CI), do.call(paste, round(data.frame(CI), 3)), FUN = seq_along)), ] 
 
-I <- round(I[1:2] / (I[1:2] + N), 6)
+I <- I[1:2] / (I[1:2] + N)
 
-data.frame(lower = I[1], upper = I[2], conf.level = conf.level, ncp = (peta * N) / (1 - peta), F.value = q, row.names = "P.eta.sq CI:")
+peta2 <- if(is.na(F.value)) peta else (F.value * df1)/ ((F.value * df1) + df2)
+
+round(data.frame(lower = I[1], upper = I[2], conf.level = conf.level, P.eta.sq = peta2, ncp = (peta2 * N) / (1 - peta2), F.value = q, row.names = "P.eta.sq CI:"), 6)
 })               
 
 #=================================================================================================================================                
