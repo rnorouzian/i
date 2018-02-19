@@ -130,7 +130,7 @@ prop.ci <- function(k, ...)
 prop.ci.default <- Vectorize(function(k, n, conf.level = .95){
   
 I = round(as.numeric(binom.test(k, n, conf.level = conf.level)[[4]]), 6)
-data.frame(lower = I[1], upper = I[2], conf.level = conf.level, row.names = "Prop CI:")
+data.frame(Prop = k/n, lower = I[1], upper = I[2], conf.level = conf.level, row.names = "Prop CI:")
 })
 
 #==================================================================================================
