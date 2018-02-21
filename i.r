@@ -163,7 +163,7 @@ d.ci.default <- Vectorize(function(d, t = NA, n1, n2 = NA, conf.level = .95){
     function(x) optimize(f, interval = a[[i]], alpha = x, q = q, df = df)[[1]]*d.SE)
   }  
   
-  I = round(CI[which.max(ave(1:nrow(CI), do.call(paste, round(data.frame(CI), 3)), FUN = seq_along)), ], 6)  
+  I = CI[which.max(ave(1:nrow(CI), do.call(paste, round(data.frame(CI), 3)), FUN = seq_along)), ]  
   
   Cohen.d = ifelse(is.na(t), d, t*d.SE)
   
