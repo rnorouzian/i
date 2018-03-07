@@ -2133,7 +2133,7 @@ type.sm.default <- function(d = .1, obs.d = .6, n1 = 20, n2 = NA){
  min.d = qt(1e-4, df)*d.SE  ;  max.d = qt(0.9999, df)*d.SE
   
 `d|H0` = curve( dt(x/d.SE, df)/d.SE, min.d, max.d, n = 1e4, xlab = "Effect Size", 
-                  ylab = NA, font = 2, font.lab = 2, ty = "n", yaxt = "n", bty = "n",
+                  ylab = NA, font = 2, font.lab = 2, type = "n", yaxt = "n", bty = "n",
                   cex.axis = 1, cex.lab = 1, yaxs = "i")
   
     CI = qt(c(.025, .975), df)*d.SE
@@ -2229,7 +2229,7 @@ exaggration = if(d > 0) mean(abs(random.d)[sig])/ d else mean(-abs(random.d)[sig
 exaggration[i] = a$exaggration
   }
   
-  plot(power, type.s, ty = "l", xaxt = "n", lwd = 2, font.lab = 2, col = 2)
+  plot(power, type.s, type = "l", xaxt = "n", lwd = 2, font.lab = 2, col = 2)
   axis(1, at = c(alpha, seq(.2, 1, by = .2)))
   abline(v = alpha, col = 8)
   plot(power, exaggration, ty = "l", ylim = c(1, 10), xaxt = "n", yaxt = "n", lwd = 2, font.lab = 2, col = 4)
