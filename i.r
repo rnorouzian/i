@@ -2066,7 +2066,12 @@ d.eq.test.default <- function(t, n1, n2 = NA, m, s, dist.name, dL = -.1, dU = .1
 if(!require("rstanarm")) install.packages("rstanarm")
 library("rstanarm")                    
 
-R2.bayes <- function(fit, level = .95, scale = .5){
+R2.bayes <- function(fit, ...)
+{
+  UseMethod("R2.bayes")
+}                       
+                       
+R2.bayes.default <- function(fit, level = .95, scale = .5){
   
     y <- rstanarm::get_y(fit)
 ypred <- rstanarm::posterior_linpred(fit, transform = TRUE)
