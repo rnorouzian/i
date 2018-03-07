@@ -2076,7 +2076,7 @@ R2.bayes.default <- function(fit, level = .95, scale = .5){
     y <- rstanarm::get_y(fit)
 ypred <- rstanarm::posterior_linpred(fit, transform = TRUE)
 
-  if(family(fit)$family == "binomial" && NCOL(y) == 2) {
+  if(family(fit)$family == "binomial" && ncol(y) == 2) {
     trials <- rowSums(y)
     y <- y[, 1]
     ypred <- ypred %*% diag(trials)
