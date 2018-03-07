@@ -2179,7 +2179,7 @@ type.sm.default <- function(d = .1, obs.d = .6, n1 = 20, n2 = NA){
           sig = if(d > 0) abs(random.d) > CI[2] else -abs(random.d) < CI[1]
   exaggration = if(d > 0) mean(abs(random.d)[sig])/ d else mean(-abs(random.d)[sig])/ d
   
-  data.frame(exaggration = exaggration, type.s = type.s, power = power, Crit.d = CI[2], p.value = p.value, row.names = "Results: ")
+  round(data.frame(exaggration = exaggration, type.s = type.s, power = power, Crit.d = CI[2], p.value = p.value, row.names = "Results: "), 6)
 }
 
 
