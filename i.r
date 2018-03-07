@@ -2104,7 +2104,7 @@ segments(I[1], 0, I[2], 0, lend = 1, lwd = 6, col = 2)
 points(mode, 0, pch = 21, bg = "cyan", col = "magenta", cex = 2)
 text(c(I, mode), 0, paste0(round(c(I,mode), 4)*1e2, "%"), pos = 3, font = 2)
     
-data.frame(mean = mean(R2), mode = mode, median = median(R2), lower = I[1], upper = I[2], coverage = level, row.names = "R2 posterior: ")
+round(data.frame(mean = mean(R2), mode = mode, median = median(R2), lower = I[1], upper = I[2], coverage = level, row.names = "R2 posterior: "), 6)
 }
 
                
