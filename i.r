@@ -2058,3 +2058,30 @@ d.eq.test.default <- function(t, n1, n2 = NA, m, s, dist.name, dL = -.1, dU = .1
   
   box()  
 }
+
+#======================================================================================================================
+   
+                       
+if(!require("rstanarm")) install.packages("rstanarm")
+library("rstanarm")                    
+
+R2.bayes <- function(fit)
+{
+  UseMethod("R2.bayes")
+}
+                       
+R2.bayes.default <- function(fit){
+    
+  y <- rstanarm::get_y(fit)
+  ypred <- rstanarm::posterior_linpred(fit, transform = TRUE)
+  if (family(fit)$family == "binomial" && NCOL(y) == 2){
+    trials <- rowSums(y)
+    y <- y[, 1]
+    ypred <- ypred %*% diag(trials)
+  }
+  e <- -1 * sweep(ypred, 2, y)
+  var_ypred <- apply(ypred, 1, var)
+  var_e <- apply(e, 1, var)
+  var_ypred / (var_ypred + var_e)
+}                       
+                       
