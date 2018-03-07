@@ -2066,16 +2066,12 @@ d.eq.test.default <- function(t, n1, n2 = NA, m, s, dist.name, dL = -.1, dU = .1
 if(!require("rstanarm")) install.packages("rstanarm")
 library("rstanarm")                    
 
-R2.bayes <- function(fit)
-{
-  UseMethod("R2.bayes")
-}
-                       
-R2.bayes.default <- function(fit){
-    
-  y <- rstanarm::get_y(fit)
-  ypred <- rstanarm::posterior_linpred(fit, transform = TRUE)
-  if (family(fit)$family == "binomial" && NCOL(y) == 2){
+R2.bayes <- function(fit, level = .95, scale = .5){
+  
+    y <- rstanarm::get_y(fit)
+ypred <- rstanarm::posterior_linpred(fit, transform = TRUE)
+
+  if(family(fit)$family == "binomial" && NCOL(y) == 2) {
     trials <- rowSums(y)
     y <- y[, 1]
     ypred <- ypred %*% diag(trials)
@@ -2083,6 +2079,28 @@ R2.bayes.default <- function(fit){
   e <- -1 * sweep(ypred, 2, y)
   var_ypred <- apply(ypred, 1, var)
   var_e <- apply(e, 1, var)
-  var_ypred / (var_ypred + var_e)
-}                       
+R2 <- var_ypred / (var_ypred + var_e)
+
+d <- density(R2, adjust = 2, n = 1e4)
+plot(d, zero.line = FALSE, main = NA, axes = FALSE, xlab = bquote(bold("M.R. coefficient " (R^2))), ylab = NA, bty = "n", type = "n", yaxs = "i")
+axis(1, at = seq(min(d$x), max(d$x), l = 6), labels = paste0(round(seq(min(d$x), max(d$x), l = 6), 4)*1e2, "%"), mgp = c(2, .5, 0))
+polygon(d$x, scale*d$y, border = NA, col = adjustcolor(2, .6))
+mode = d$x[which.max(d$y)]
+peak <- d$y[which.max(d$y)]*scale
+
+segments(mode, 0, mode, peak, lty = 3)
+I = hdir(R2, level = level)
+
+original.par = par(no.readonly = TRUE)
+on.exit(par(original.par))
+
+par(xpd = NA)
+segments(I[1], 0, I[2], 0, lend = 1, lwd = 6, col = 2)
+points(mode, 0, pch = 21, bg = "cyan", col = "magenta", cex = 2)
+text(c(I, mode), 0, paste0(round(c(I,mode), 4)*1e2, "%"), pos = 3, font = 2)
+    
+data.frame(mean = mean(R2), mode = mode, median = median(R2), lower = I[1], upper = I[2], coverage = level, row.names = "R2 posterior: ")
+}
+
+               
                        
