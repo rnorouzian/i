@@ -2107,8 +2107,6 @@ text(c(I, mode), 0, paste0(round(c(I,mode), 4)*1e2, "%"), pos = 3, font = 2)
 round(data.frame(mean = mean(R2), mode = mode, median = median(R2), lower = I[1], upper = I[2], coverage = level, row.names = "R2 posterior: "), 6)
 }
 
-               
-
 
 #=======================================================================
 
@@ -2194,7 +2192,7 @@ type.sm.fun <- function(n1, ...)
 
 type.sm.fun.default <- function(n1, n2 = NA, d.min = 0, d.max = 1.4, alpha = .05){
   
-   type.s.m <- function(n1, n2, d, alpha){
+   type.sm <- function(n1, n2, d, alpha){
     
           N = ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
          df = ifelse(is.na(n2), n1 - 1, (n1 + n2) - 2)
