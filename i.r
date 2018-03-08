@@ -2087,8 +2087,12 @@ ypred <- rstanarm::posterior_linpred(fit, transform = TRUE)
 R2 <- var_ypred / (var_ypred + var_e)
 
 d <- density(R2, adjust = 2, n = 1e4)
+    
+from = if(min(d$x) >= 0) min(d$x) else 0
+  to = if(max(d$x) <= 1) max(d$x) else 1
+      
 plot(d, zero.line = FALSE, main = NA, axes = FALSE, xlab = bquote(bold("M.R. coefficient " (R^2))), ylab = NA, bty = "n", type = "n", yaxs = "i")
-axis(1, at = seq(0, max(d$x), length.out = 6), labels = paste0(round(seq(0, max(d$x), length.out = 6), 4)*1e2, "%"), mgp = c(2, .5, 0))
+axis(1, at = seq(from, to, length.out = 6), labels = paste0(round(seq(from, to, length.out = 6), 4)*1e2, "%"), mgp = c(2, .5, 0))
 polygon(d$x, scale*d$y, border = NA, col = adjustcolor(2, .6))
 mode = d$x[which.max(d$y)]
 peak <- d$y[which.max(d$y)]*scale
