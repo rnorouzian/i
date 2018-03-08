@@ -2228,7 +2228,7 @@ exaggration[i] = a$exaggration
   plot(power, type.s, type = "l", xaxt = "n", lwd = 2, font.lab = 2, col = 2)
   axis(1, at = c(alpha, seq(.2, 1, by = .2)))
   abline(v = alpha, col = 8)
-  plot(power, exaggration, ty = "l", ylim = c(1, 10), xaxt = "n", yaxt = "n", lwd = 2, font.lab = 2, col = 4)
+  plot(power, exaggration, type = "l", ylim = c(1, 10), xaxt = "n", yaxt = "n", lwd = 2, font.lab = 2, col = 4)
   axis(1, at = c(alpha, seq(.2, 1, by = .2)))
   axis(2, at = seq(1, 10, by = 2))
   abline(h = 1, v = alpha, col = 8)
