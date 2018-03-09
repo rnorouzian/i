@@ -2088,19 +2088,19 @@ R2 <- var_ypred / (var_ypred + var_e)
 
 d <- density(R2, adjust = 2, n = 1e4)
     
-from = if(min(d$x) >= 0) min(d$x) else 0
-  to = if(max(d$x) <= 1) max(d$x) else 1
+from <- if(min(d$x) >= 0) min(d$x) else 0
+  to <- if(max(d$x) <= 1) max(d$x) else 1
       
 plot(d, zero.line = FALSE, main = NA, axes = FALSE, xlab = bquote(bold("M.R. coefficient " (R^2))), ylab = NA, bty = "n", type = "n", yaxs = "i")
 axis(1, at = seq(from, to, length.out = 6), labels = paste0(round(seq(from, to, length.out = 6), 4)*1e2, "%"), mgp = c(2, .5, 0))
 polygon(d$x, scale*d$y, border = NA, col = adjustcolor(2, .6))
-mode = d$x[which.max(d$y)]
+mode <- d$x[which.max(d$y)]
 peak <- d$y[which.max(d$y)]*scale
 
 segments(mode, 0, mode, peak, lty = 3)
-I = hdir(R2, level = level)
+I <- hdir(R2, level = level)
 
-original.par = par(no.readonly = TRUE)
+original.par <- par(no.readonly = TRUE)
 on.exit(par(original.par))
 
 par(xpd = NA)
@@ -2108,7 +2108,7 @@ segments(I[1], 0, I[2], 0, lend = 1, lwd = 6, col = 2)
 points(mode, 0, pch = 21, bg = "cyan", col = "magenta", cex = 2)
 text(c(I, mode), 0, paste0(round(c(I,mode), 4)*1e2, "%"), pos = 3, font = 2)
     
-round(data.frame(mean = mean(R2), mode = mode, median = median(R2), lower = I[1], upper = I[2], coverage = level, row.names = "R2 posterior: "), 6)
+round(data.frame(mean = mean(R2), mode = mode, median = median(R2), lower = I[1], upper = I[2], coverage = level, row.names = "R2 posterior:"), 6)
 }
 
 
