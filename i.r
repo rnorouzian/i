@@ -2113,6 +2113,27 @@ round(data.frame(mean = mean(R2), mode = mode, median = median(R2), lower = I[1]
 
 
 #=======================================================================
+                       
+                       
+if(!require("MASS")) install.packages("MASS")
+library("MASS")         
+                       
+lm.sample <- function(fit, n = 1e4, no.names = TRUE){
+  
+output <- as.data.frame(mvrnorm(n = n, mu = coef(fit), Sigma = vcov(fit)))
+ 
+   if(no.names == TRUE){
+    for(i in 1:ncol(output)){
+      if(colnames(output)[i] == "(Intercept)"){
+        colnames(output)[i] <- "Intercept"
+      }
+    }
+  }
+  output
+}
+                       
+                       
+#=======================================================================
 
 
 type.sm <- function(d, ...)
@@ -2240,3 +2261,7 @@ exaggration[i] = a$exaggration
 }
 
                       
+#=================================================================================================================
+
+
+                       
