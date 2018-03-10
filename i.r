@@ -2116,9 +2116,15 @@ round(data.frame(mean = mean(R2), mode = mode, median = median(R2), lower = I[1]
                        
                        
 if(!require("MASS")) install.packages("MASS")
-library("MASS")         
+library("MASS")  
                        
-lm.sample <- function(fit, n = 1e4, no.names = TRUE){
+lm.sample <- function(fit, ...)
+{
+  UseMethod("lm.sample")
+}                       
+                
+                       
+lm.sample.default <- function(fit, n = 1e4, no.names = TRUE){
   
 output <- as.data.frame(mvrnorm(n = n, mu = coef(fit), Sigma = vcov(fit)))
  
