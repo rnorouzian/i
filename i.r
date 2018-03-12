@@ -2119,7 +2119,7 @@ round(data.frame(mean = mean(R2), mode = mode, median = median(R2), lower = I[1]
 if(!require("MASS")) install.packages("MASS")
 library("MASS")  
                        
-lm.sample <- function(fit, ...)
+lm.sample <- function(fit, n = 1e4, no.names = TRUE)
 {
   UseMethod("lm.sample")
 }                       
@@ -2197,7 +2197,7 @@ abline(fit, col = 2, lwd = 2)
 #=======================================================================================
 
 
-type.sm <- function(d, ...)
+type.sm <- function(d = .1, obs.d = .6, n1 = 20, n2 = NA)
 {
   UseMethod("type.sm")
 }
@@ -2269,7 +2269,7 @@ type.sm.default <- function(d = .1, obs.d = .6, n1 = 20, n2 = NA){
 #=======================================================================
 
 
-type.sm.fun <- function(n1, ...)
+type.sm.fun <- function(n1, n2 = NA, d.min = 0, d.max = 1.4, alpha = .05)
 {
   UseMethod("type.sm.fun")
 }
