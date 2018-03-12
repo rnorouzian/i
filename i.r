@@ -29,7 +29,7 @@ cat(Break, cite, Break)
 
 #==================================================================================================================
 
-HDI <- function(FUN, ...)
+HDI <- function(FUN, lower = 0, upper = 1, level = .95, eps = 1e-3)
 {
   UseMethod("HDI")
 }
@@ -70,7 +70,7 @@ HDI.default <- function(FUN, lower = 0, upper = 1, level = .95, eps = 1e-3){
 
 #==================================================================================================================
 
-hdi <- function(x, ...)
+hdi <- function(x, y, level = .95)
 {
   UseMethod("hdi")
 }
@@ -99,7 +99,7 @@ hdi.default <- function(x, y, level = .95){
 
 #==================================================================================================================
 
-hdir <- function(sample, ...)
+hdir <- function(sample, level = .95)
 {
   UseMethod("hdir")
 }
@@ -122,7 +122,7 @@ hdir.default <- function(sample, level = .95){
 
 #==================================================================================================================
 
-prop.ci <- function(k, ...)
+prop.ci <- function(k, n, conf.level = .95)
 {
   UseMethod("prop.ci")
 }
@@ -135,7 +135,7 @@ data.frame(Prop = k/n, lower = I[1], upper = I[2], conf.level = conf.level, row.
 
 #==================================================================================================
 
-d.ci <- function(d, ...)
+d.ci <- function(d, t = NA, n1, n2 = NA, conf.level = .95)
 {
   UseMethod("d.ci")
 }
@@ -172,7 +172,7 @@ d.ci.default <- Vectorize(function(d, t = NA, n1, n2 = NA, conf.level = .95){
 
 #=================================================================================================================================
 
-peta.ci <- function(peta, ...)
+peta.ci <- function(peta, F.value = NA, N, df1, df2, conf.level = .9)
 {
   UseMethod("peta.ci")
 }
@@ -209,7 +209,7 @@ round(data.frame(P.eta.sq = P.eta.sq, lower = I[1], upper = I[2], conf.level = c
 
 #=================================================================================================================================                
                 
-cor.ci <- function(r, ...)
+cor.ci <- function(r, n, conf.level = .95)
 {
   UseMethod("cor.ci")
 }
@@ -222,7 +222,7 @@ cor.ci.default <- Vectorize(function(r, n, conf.level = .95){
 
 #==================================================================================================================
 
-beta.id <- function(Low, ...)
+beta.id <- function(Low, High, Cover = NA)
 {
   UseMethod("beta.id")
 }
@@ -282,7 +282,7 @@ beta.id.default <- Vectorize(function(Low, High, Cover = NA){
 
 #===============================================================================================
 
-cauchy.id <- function(Low, ...)
+cauchy.id <- function(Low, High, Cover = NA)
 {
   UseMethod("cauchy.id")
 }
@@ -325,7 +325,7 @@ cauchy.id.default <- Vectorize(function(Low, High, Cover = NA){
 
 #===============================================================================================
       
-logis.id <- function(Low, ...)
+logis.id <- function(Low, High, Cover = NA)
 {
   UseMethod("logis.id")
 }
@@ -368,7 +368,7 @@ logis.id.default <- Vectorize(function(Low, High, Cover = NA){
       
 #============================================================================================================
 
-tdist.id <- function(Low, ...)
+tdist.id <- function(Low, High, Cover = NA)
 {
   UseMethod("tdist.id")
 }
@@ -411,7 +411,7 @@ tdist.id.default <- Vectorize(function(Low, High, Cover = NA){
       
 #============================================================================================================      
 
-norm.id <- function(Low, ...)
+norm.id <- function(Low, High, Cover = NA)
 {
   UseMethod("norm.id")
 }
@@ -455,7 +455,7 @@ norm.id.default <- Vectorize(function(Low, High, Cover = NA){
 
 #===============================================================================================
 
-prop.bayes <- function(a, ...)
+prop.bayes <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", yes = 55, n = 1e2, scale = .1, top = 1.5, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .1, p.h0 = .5)
 {
   UseMethod("prop.bayes")
 }
@@ -712,7 +712,7 @@ prop.hyper.ab.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = 
 
 #====================================================================================================================
 
-prop.diff <- function(yes, ...)
+prop.diff <- function(yes, n, a = 1.2, b = a, how = c("two.one", "one.two"), level = .95, top = 1, bottom = 1, scale = .1, margin = 6, legend = "topleft", eq.level = "2.5%")
 {
   UseMethod("prop.diff")
 }
@@ -839,7 +839,7 @@ prop.diff.default <- function(yes, n, a = 1.2, b = a, how = c("two.one", "one.tw
 
 #====================================================================================================================
 
-prop.diff.eq <- function(n1, ...)
+prop.diff.eq <- function(n1, n2, yes1, yes2, a1 = 1.2, b1 = 1.2, a2 = a1, b2 = b1, how = c("two.one", "one.two"), pL = -.025, pU = .025, level = .95, scale = .1)
 {
   UseMethod("prop.diff.eq")
 }
@@ -951,7 +951,7 @@ prop.diff.eq.default <- function(n1, n2, yes1, yes2, a1 = 1.2, b1 = 1.2, a2 = a1
 
 #====================================================================================================================              
 
-d.bayes <- function(t, ...)
+d.bayes <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = .8, show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft", eq.level = .1, d.h0 = 0)
 {
   UseMethod("d.bayes")
 }
@@ -1242,7 +1242,7 @@ d.hyper.ms.default <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf
 
 #==================================================================================================================
 
-peta.bayes <- function(f, ...)
+peta.bayes <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.5, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0)
 {
   UseMethod("peta.bayes")
 }
@@ -1312,7 +1312,7 @@ peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1,
 
 #===================================================================================================================
 
-peta.priors <- function(f, ...)
+peta.priors <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.5, show.prior = FALSE, bottom = 1, legend = "topleft")
 {
   UseMethod("peta.priors")
 }
@@ -1376,7 +1376,7 @@ peta.priors.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1
 
 #===================================================================================================================
 
-peta.hyper <- function(f, ...)
+peta.hyper <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", show.prior = FALSE, pos = 3, top = 1.01)
 {
   UseMethod("peta.hyper")
 }
@@ -1435,7 +1435,8 @@ peta.hyper.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1,
 
 #===================================================================================================================
 
-peta.hyper.ab <- function(f, ...)
+peta.hyper.ab <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", add = FALSE, 
+                                  col = 1, show.prior = FALSE)
 {
   UseMethod("ab.peta.hyper.ab")
 }
@@ -1500,7 +1501,7 @@ peta.hyper.ab.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi =
 
 #=================================================================================================================
 
-cor.bayes <- function(r, ...)
+cor.bayes <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1, bottom = 1, scale = .1, margin = 5, legend = "topleft", show.prior = FALSE)
 {
   UseMethod("cor.bayes")
 }
@@ -1576,7 +1577,7 @@ cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = 
 
 #==================================================================================================================                              
 
-cor.diff <- function(r, ...)
+cor.diff <- function(r, n, prior.mean = 0, prior.sd = .707, how = c("two.one", "one.two"), eq.bound = .05, level = .95, top = 1, bottom = 1, scale = .1, margin = 5, legend = "topleft")
 {
   UseMethod("cor.diff")
 }
@@ -1665,7 +1666,7 @@ cor.diff.default <- function(r, n, prior.mean = 0, prior.sd = .707, how = c("two
 
 #===================================================================================================================
 
-prop.update <- function(n, ...)
+prop.update <- function(n = 100, yes = 55, top = 5, scale = .1, lo = 0, hi = 1, a = 1.2, b = 1.2, dist.name = "dbeta", prior.scale = 1, level = .95, show.prior = FALSE, tol = 1e5)
 {
   UseMethod("prop.update")
 }
@@ -1737,7 +1738,7 @@ prop.update.default <- function(n = 100, yes = 55, top = 5, scale = .1, lo = 0, 
 
 #=======================================================================================================================
 
-d.update <- function(t, ...)
+d.update <- function(t, n1, n2 = NA, top = 5, scale = .1, m = 0, s = 1, dist.name = "dnorm", prior.scale = 1, level = .95, show.prior = FALSE, lo = -2, hi = 2, tol = 1e4, margin = hi)
 {
   UseMethod("d.update")
 }
@@ -1814,7 +1815,7 @@ d.update.default <- function(t, n1, n2 = NA, top = 5, scale = .1, m = 0, s = 1, 
 
 #==================================================================================================================
 
-peta.update <- function(f, ...)
+peta.update <- function(f, N, df1, df2, top = 5, scale = .1, a = 2, b = 2, lo = 0, hi = 1, dist.name = "dbeta", prior.scale = 1, level = .95, show.prior = FALSE, tol = 1e5)
 {
   UseMethod("peta.update")
 }
@@ -1883,7 +1884,7 @@ peta.update.default <- function(f, N, df1, df2, top = 5, scale = .1, a = 2, b = 
 
 #===================================================================================================================
 
-d.eq.test <- function(t, ...)
+d.eq.test <- function(t, n1, n2 = NA, m = 0, s = 1, dist.name = "dnorm", dL = -.1, dU = .1, lo = -Inf, hi = Inf)
 {
   UseMethod("d.eq.test")
 }
@@ -2066,7 +2067,7 @@ d.eq.test.default <- function(t, n1, n2 = NA, m = 0, s = 1, dist.name = "dnorm",
 if(!require("rstanarm")) install.packages("rstanarm")
 library("rstanarm")                    
 
-R2.bayes <- function(fit, ...)
+R2.bayes <- function(fit, level = .95, scale = .5)
 {
   UseMethod("R2.bayes")
 }                       
@@ -2138,8 +2139,62 @@ output <- as.data.frame(mvrnorm(n = n, mu = coef(fit), Sigma = vcov(fit)))
   output
 }
                        
+#======================================================================================
+
                        
-#=======================================================================
+predict.bayes <- function(fit, xlab = deparse(substitute(x)), ylab = deparse(substitute(y)), ...)
+{
+  UseMethod("predict.bayes")
+} 
+    
+                       
+predict.bayes <- function(fit, xlab = deparse(substitute(x)), ylab = deparse(substitute(y)), ...){
+
+if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
+  
+X <- rstanarm::get_x(fit)
+pred <- X[, 2]
+dep <- fit$y  
+
+plot(dep ~ pred, xlab = xlab, ylab = ylab, type = "n", las = 1, ...)
+
+pred_lin <- rstanarm::posterior_predict(fit)
+
+loop <- length(pred)
+
+I <- matrix(NA, loop, 2)
+for(i in 1:loop){
+  I[i,] = hdir(pred_lin[,i])
+}
+
+OK <- I[,1] < dep & dep < I[,2]
+
+points(dep ~ pred, pch = 19, col = ifelse(OK, adjustcolor(4, .5), 2))
+
+x <- sort(pred)
+y <- I[,1][order(pred)]
+z <- I[,2][order(pred)]
+
+polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor('gray', .5), border = NA)
+
+pred_lin2 <- rstanarm::posterior_linpred(fit)
+
+loop <- length(pred)
+I2 <- matrix(NA, loop, 2)
+for(i in 1:loop){
+I2[i,] = hdir(pred_lin2[,i])
+}
+
+x <- sort(pred)
+y <- I2[,1][order(pred)]
+z <- I2[,2][order(pred)]
+
+polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor('magenta', .4), border = NA)
+
+abline(fit, col = 2, lwd = 2)
+}                       
+                       
+#=======================================================================================
 
 
 type.sm <- function(d, ...)
