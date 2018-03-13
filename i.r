@@ -2067,49 +2067,97 @@ d.eq.test.default <- function(t, n1, n2 = NA, m = 0, s = 1, dist.name = "dnorm",
 if(!require("rstanarm")) install.packages("rstanarm")
 library("rstanarm", quietly = TRUE, warn.conflicts = FALSE)                    
 
-R2.bayes <- function(fit, level = .95, scale = .5)
+R <- function(fit)
 {
-  UseMethod("R2.bayes")
-}                       
+  UseMethod("R")
+}                        
                        
-R2.bayes.default <- function(fit, level = .95, scale = .5){
+R.default <- function(fit){
   
-    y <- rstanarm::get_y(fit)
-ypred <- rstanarm::posterior_linpred(fit, transform = TRUE)
-
+      y <- rstanarm::get_y(fit)
+  ypred <- rstanarm::posterior_linpred(fit, transform = TRUE)
+ 
   if(family(fit)$family == "binomial" && ncol(y) == 2) {
     trials <- rowSums(y)
     y <- y[, 1]
     ypred <- ypred %*% diag(trials)
   }
   e <- -1 * sweep(ypred, 2, y)
-  var_ypred <- apply(ypred, 1, var)
-  var_e <- apply(e, 1, var)
-R2 <- var_ypred / (var_ypred + var_e)
+  var.ypred <- apply(ypred, 1, var)
+  var.e <- apply(e, 1, var)
+  var.ypred / (var.ypred + var.e)
 
-d <- density(R2, adjust = 2, n = 1e4)
+}                       
+                       
+#==============================================================================================================                       
+
+
+R2.bayes <- function(..., scale = .02, bottom = 1, top = 1, margin = 5, legend = "topleft", level = .95, eq.lo = 0, eq.hi = .1)
+{
+  UseMethod("R2.bayes")
+}                        
+                                           
+                       
+R2.bayes.default <- function(..., scale = .02, bottom = 1, top = 1, margin = 5, legend = "topleft", level = .95, eq.lo = 0, eq.hi = .1)
+{
+  
+Rs <- lapply(list(...), R)
+loop <- length(Rs)
+
+deci <- function(x, k = 3) format(round(x, k), nsmall = k) 
+
+d <- list()
+I <- matrix(NA, loop, 2)
+mean <- numeric(loop)
+median <- numeric(loop)
+sd <- numeric(loop)
+mad <- numeric(loop)
+mode <- numeric(loop)
+peak <- numeric(loop)
+from <- numeric(loop)                  
+to <- numeric(loop)
+eq.prob <- numeric(loop)
+
+for(i in 1:loop){
     
-from <- if(min(d$x) >= 0) min(d$x) else 0
-  to <- if(max(d$x) <= 1) max(d$x) else 1
-      
-plot(d, zero.line = FALSE, main = NA, axes = FALSE, xlab = bquote(bold("M.R. coefficient " (R^2))), ylab = NA, bty = "n", type = "n", yaxs = "i")
-axis(1, at = seq(from, to, length.out = 6), labels = paste0(round(seq(from, to, length.out = 6), 4)*1e2, "%"), mgp = c(2, .5, 0))
-polygon(d$x, scale*d$y, border = NA, col = adjustcolor(2, .6))
-mode <- d$x[which.max(d$y)]
-peak <- d$y[which.max(d$y)]*scale
+d[[i]] <- density(Rs[[i]], adjust = 2, n = 1e3)
+I[i,] <- hdir(Rs[[i]], level = level)
+mean[i] <- mean(Rs[[i]])
+median[i] <- median(Rs[[i]])
+sd[i] <-  sd(Rs[[i]])
+mad[i] <- mad(Rs[[i]])
+mode[i] <- d[[i]]$x[which.max(d[[i]]$y)]
+peak[i] <- d[[i]]$y[which.max(d[[i]]$y)]
+eq.prob[i] <- mean(eq.lo <= Rs[[i]] & Rs[[i]] <= eq.hi)
+from[i] <- mean[i] - margin * sd[i]
+to[i] <- mean[i] + margin * sd[i]
+}
 
-segments(mode, 0, mode, peak, lty = 3)
-I <- hdir(R2, level = level)
+a = if(min(from) >= 0) min(from) else 0
+b = if(max(to) <= 1) max(to) else 1
 
-original.par <- par(no.readonly = TRUE)
-on.exit(par(original.par))
+plot(1, loop, type = "n", xlim = c(a, b), ylim = c(bottom*1, top*loop), ylab = NA, xaxt = "n", yaxt = "n", xlab = bquote(bold("Regression Coefficient " (R^2))), mgp = c(2, .3, 0))
+abline(h = 1:loop, col = 8, lty = 3)
 
-par(xpd = NA)
-segments(I[1], 0, I[2], 0, lend = 1, lwd = 6, col = 2)
-points(mode, 0, pch = 21, bg = "cyan", col = "magenta", cex = 2)
-text(c(I, mode), 0, paste0(round(c(I,mode), 4)*1e2, "%"), pos = 3, font = 2)
-    
-round(data.frame(mean = mean(R2), mode = mode, median = median(R2), lower = I[1], upper = I[2], coverage = level, row.names = "R2 posterior:"), 6)
+for(i in 1:loop){
+polygon(x = d[[i]]$x, y = scale*d[[i]]$y + i, col = adjustcolor(i, .55), border = NA, xpd = NA)
+}
+
+axis(1, at = seq(a, b, length.out = 4), labels = paste0(round(seq(a, b, length.out = 4), 4)*1e2, "%"), mgp = c(2, .5, 0))
+axis(2, at = 1:loop, labels = paste0("Model ", 1:loop), font = 2, las = 1, cex.axis = .8, tck = -.006, mgp = c(2, .3, 0))
+
+legend(legend, rev(paste0("Model ", loop:1)), pch = 22, title = "Models ", pt.bg = loop:1, col = loop:1, cex = .7, pt.cex = .6, bg = 0, box.col = 0, xpd = NA, x.intersp = .5)
+segments(I[, 1], 1:loop, I[, 2], 1:loop, lend = 1, lwd = 4, col = 1:loop, xpd = NA)
+box()
+
+m = scale*peak + 1:loop
+segments(mode, 1:loop, mode, m, lty = 3, xpd = NA, lend = 1)  
+points(mode, 1:loop, pch = 21, bg = "cyan", cex = 1.5, col = "magenta", xpd = NA)
+
+q = deci(I*1e2 , 2); o = deci(mode*1e2, 2)
+text(mode, 1:loop, paste0(q[,1], "%", "    ", o, "%", "    ", q[,2], "%"), cex = .75, pos = 3, font = 2, xpd = NA)
+
+round(data.frame(mode = mode, mean = mean, sd = sd, MAD = mad, lower = I[,1], upper = I[,2], eq.prob = eq.prob, row.names = paste0("Model-", 1:loop, " posterior:")), 6)
 }
 
 
@@ -2225,6 +2273,7 @@ z <- I2[,2][order(pred)]
 polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor('magenta', .4), border = NA)
 
 abline(fit, col = 2, lwd = 2)
+box()    
 }                       
                        
 #==================================================================================
