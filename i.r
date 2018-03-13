@@ -2159,7 +2159,7 @@ mus_at_xi = post[,1] + post[,2] * xi
 
 d <- density(mus_at_xi, adjust = 2, n = 1e3)
 plot(d, type = "n", ylab = NA, main = NA, yaxt = "n", bty = "n", las = 1, zero.line = FALSE, yaxs = "i",
-     xlab = bquote(bold((mu[i] *" | "* x[i] == .(xi)))), ...)
+     xlab = bquote(bold((mu[i] *" | "* .(names(fit$model)[2])[i] == .(xi)))), ...)
 
   I <- hdir(mus_at_xi, level = level)
 med <- mean(mus_at_xi)
