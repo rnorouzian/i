@@ -2177,13 +2177,13 @@ text(c(I, med), 0, round(c(I, med), 2), pos = 3, font = 2)
 #======================================================================================                       
 
                        
-predict.bayes <- function(fit, xlab = deparse(substitute(x)), ylab = deparse(substitute(y)), level = .95, ...)
+predict.bayes <- function(fit, xlab = NA, ylab = NA, level = .95, ...)
 {
   UseMethod("predict.bayes")
 } 
     
                        
-predict.bayes.default <- function(fit, xlab = deparse(substitute(x)), ylab = deparse(substitute(y)), level = .95, ...){
+predict.bayes.default <- function(fit, xlab = NA, ylab = NA, level = .95, ...){
 
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
 if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")
@@ -2191,7 +2191,7 @@ if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor."
 pred <- fit$model[, 2]
  dep <- fit$model[, 1]  
 
-plot(dep ~ pred, xlab = xlab, ylab = ylab, type = "n", las = 1, ...)
+plot(dep ~ pred, xlab = ifelse(is.na(xlab), names(fit$model)[2], xlab), ylab = ifelse(is.na(ylab), names(fit$model)[1], ylab), type = "n", las = 1, ...)
 
 pred_lin <- rstanarm::posterior_predict(fit, transform = TRUE)
 
