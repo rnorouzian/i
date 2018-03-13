@@ -2157,11 +2157,12 @@ post <- lm.sample(fit)
 
 mus_at_xi = post[,1] + post[,2] * xi
 
-d <- density(mus_at_120, adjust = 2, n = 1e3)
-plot(d, type = "n", ann = FALSE, yaxt = "n", bty = "n", las = 1, zero.line = FALSE, yaxs = "i", ...)
+d <- density(mus_at_xi, adjust = 2, n = 1e3)
+plot(d, type = "n", ylab = NA, main = NA, yaxt = "n", bty = "n", las = 1, zero.line = FALSE, yaxs = "i",
+     xlab = bquote(bold((mu[i] *" | "* x[i] == .(xi)))), ...)
 
   I <- hdir(mus_at_xi)
-med <- median(mus_at_xi)
+med <- mean(mus_at_xi)
 peak <- d$y[which.max(d$y)]*scale
 
 polygon(d$x, scale*d$y, col = adjustcolor(2, .5), border = NA)
