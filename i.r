@@ -2272,7 +2272,7 @@ z <- I2[,2][order(pred)]
 
 polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor('magenta', .4), border = NA)
 
-abline(fit, col = 2, lwd = 2)
+abline(fit, col = "cyan", lwd = 2)
 box()    
 }                       
                        
