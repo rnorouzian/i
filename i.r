@@ -2142,13 +2142,13 @@ output <- as.data.frame(mvrnorm(n = n, mu = coef(fit), Sigma = vcov(fit)))
 #======================================================================================
 
  
-lm.cond.mean <- function(fit, xi, scale = .5, ...)
+lm.cond.mean <- function(fit, xi, scale = .5, level = .95, ...)
 {
   UseMethod("lm.cond.mean")
 } 
        
                        
-lm.cond.mean.default <- function(fit, xi, scale = .5, ...){
+lm.cond.mean.default <- function(fit, xi, scale = .5, level = .95, ...){
   
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
 if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")  
@@ -2161,7 +2161,7 @@ d <- density(mus_at_xi, adjust = 2, n = 1e3)
 plot(d, type = "n", ylab = NA, main = NA, yaxt = "n", bty = "n", las = 1, zero.line = FALSE, yaxs = "i",
      xlab = bquote(bold((mu[i] *" | "* x[i] == .(xi)))), ...)
 
-  I <- hdir(mus_at_xi)
+  I <- hdir(mus_at_xi, level = level)
 med <- mean(mus_at_xi)
 peak <- d$y[which.max(d$y)]*scale
 
@@ -2177,13 +2177,13 @@ text(c(I, med), 0, round(c(I, med), 2), pos = 3, font = 2)
 #======================================================================================                       
 
                        
-predict.bayes <- function(fit, xlab = deparse(substitute(x)), ylab = deparse(substitute(y)), ...)
+predict.bayes <- function(fit, xlab = deparse(substitute(x)), ylab = deparse(substitute(y)), level = .95, ...)
 {
   UseMethod("predict.bayes")
 } 
     
                        
-predict.bayes.default <- function(fit, xlab = deparse(substitute(x)), ylab = deparse(substitute(y)), ...){
+predict.bayes.default <- function(fit, xlab = deparse(substitute(x)), ylab = deparse(substitute(y)), level = .95, ...){
 
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
 if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")
@@ -2199,7 +2199,7 @@ loop <- length(pred)
 
 I <- matrix(NA, loop, 2)
 for(i in 1:loop){
-  I[i,] = hdir(pred_lin[,i])
+  I[i,] = hdir(pred_lin[,i], level = level)
 }
 
 OK <- I[,1] < dep & dep < I[,2]
@@ -2216,7 +2216,7 @@ pred_lin2 <- rstanarm::posterior_linpred(fit, transform = TRUE)
 
 I2 <- matrix(NA, loop, 2)
 for(i in 1:loop){
-I2[i,] = hdir(pred_lin2[,i])
+I2[i,] = hdir(pred_lin2[,i], level = level)
 }
 
 y <- I2[,1][order(pred)]
