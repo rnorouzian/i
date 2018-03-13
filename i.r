@@ -2064,9 +2064,9 @@ d.eq.test.default <- function(t, n1, n2 = NA, m = 0, s = 1, dist.name = "dnorm",
 #======================================================================================================================
    
                        
-if(!require("rstanarm")) install.packages("rstanarm")
-try(library("rstanarm"), silent = TRUE)                       
-
+if(!require("rstanarm")) install.packages("rstanarm")                      
+suppressMessages(suppressWarnings(require("rstanarm")))
+                       
 R <- function(fit)
 {
   UseMethod("R")
@@ -2165,7 +2165,7 @@ round(data.frame(mode = mode, mean = mean, sd = sd, MAD = mad, lower = I[,1], up
                        
                        
 if(!require("MASS")) install.packages("MASS")
-try(library("MASS"), silent = TRUE)   
+suppressMessages(suppressWarnings(require("MASS")))   
                        
 lm.sample <- function(fit, n = 1e4, no.names = TRUE)
 {
