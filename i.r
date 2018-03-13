@@ -2189,11 +2189,11 @@ if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm
 if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")
     
 pred <- fit$model[, 2]
-dep <- fit$y  
+ dep <- fit$model[, 1]  
 
 plot(dep ~ pred, xlab = xlab, ylab = ylab, type = "n", las = 1, ...)
 
-pred_lin <- rstanarm::posterior_predict(fit)
+pred_lin <- rstanarm::posterior_predict(fit, transform = TRUE)
 
 loop <- length(pred)
 
@@ -2212,14 +2212,13 @@ z <- I[,2][order(pred)]
 
 polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor('gray', .5), border = NA)
 
-pred_lin2 <- rstanarm::posterior_linpred(fit)
+pred_lin2 <- rstanarm::posterior_linpred(fit, transform = TRUE)
 
 I2 <- matrix(NA, loop, 2)
 for(i in 1:loop){
 I2[i,] = hdir(pred_lin2[,i])
 }
 
-x <- sort(pred)
 y <- I2[,1][order(pred)]
 z <- I2[,2][order(pred)]
 
