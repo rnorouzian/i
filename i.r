@@ -2065,7 +2065,7 @@ d.eq.test.default <- function(t, n1, n2 = NA, m = 0, s = 1, dist.name = "dnorm",
    
                        
 if(!require("rstanarm")) install.packages("rstanarm")
-library("rstanarm")                    
+library("rstanarm", quietly = TRUE, warn.conflicts = FALSE)                    
 
 R2.bayes <- function(fit, level = .95, scale = .5)
 {
@@ -2117,7 +2117,7 @@ round(data.frame(mean = mean(R2), mode = mode, median = median(R2), lower = I[1]
                        
                        
 if(!require("MASS")) install.packages("MASS")
-library("MASS")  
+library("MASS", quietly = TRUE, warn.conflicts = FALSE)  
                        
 lm.sample <- function(fit, n = 1e4, no.names = TRUE)
 {
