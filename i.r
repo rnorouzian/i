@@ -2180,7 +2180,6 @@ polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor('gray', .5), border = NA)
 
 pred_lin2 <- rstanarm::posterior_linpred(fit)
 
-loop <- length(pred)
 I2 <- matrix(NA, loop, 2)
 for(i in 1:loop){
 I2[i,] = hdir(pred_lin2[,i])
