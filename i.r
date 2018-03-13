@@ -2151,7 +2151,8 @@ predict.bayes <- function(fit, xlab = deparse(substitute(x)), ylab = deparse(sub
 predict.bayes <- function(fit, xlab = deparse(substitute(x)), ylab = deparse(substitute(y)), ...){
 
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
-  
+if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")
+    
 X <- rstanarm::get_x(fit)
 pred <- X[, 2]
 dep <- fit$y  
