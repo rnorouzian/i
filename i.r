@@ -2157,7 +2157,7 @@ points(mode, 1:loop, pch = 21, bg = "cyan", cex = 1.5, col = "magenta", xpd = NA
 q = deci(I*1e2 , 2); o = deci(mode*1e2, 2)
 text(mode, 1:loop, paste0(q[,1], "%", "    ", o, "%", "    ", q[,2], "%"), cex = .75, pos = 3, font = 2, xpd = NA)
 
-round(data.frame(mode = mode, mean = mean, sd = sd, MAD = mad, lower = I[,1], upper = I[,2], eq.prob = eq.prob, row.names = paste0("Model-", 1:loop, " posterior:")), 6)
+round(data.frame(mode = mode, mean = mean, sd = sd, MAD = mad, lower = I[,1], upper = I[,2], coverage = level, eq.prob = eq.prob, row.names = paste0("Model-", 1:loop, " posterior:")), 6)
 }
 
 
