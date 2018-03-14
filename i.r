@@ -2369,7 +2369,7 @@ compare.R2.default <- function(..., how = c("two.one", "one.two"), scale = .02, 
   q = deci(CI*1e2 , 2); o = deci(mode*1e2, 2)
   text(mode, 1:loop, paste0(q[,1], "%", "         ", o, "%", "         ", q[,2], "%"), cex = .75, pos = 3, font = 2, xpd = NA)
   
-  return(round(data.frame(mean = mean, mode = mode, median = median, sd = sd, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, row.names = paste0(np, ":")), 6))
+  return(round(data.frame(mean = mean, mode = mode, median = median, sd = sd, lower = CI[,1], upper = CI[,2], coverage = level, eq.prob = eq.prob, row.names = paste0(np, ":")), 6))
 }
 
                        
