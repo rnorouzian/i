@@ -2286,7 +2286,7 @@ box()
                        
 #==================================================================================
                   
-compare.R2 <- function(..., how = c("two.one", "one.two"), scale = .02, bottom = 1, top = 1, margin = 5, legend = "topleft", level = .95, eq.level = "5%")
+compare.R2 <- function(..., how = c("two.one", "one.two"), scale = .02, bottom = 1, top = 1, margin = 5, legend = "topleft", level = .95, eq.level = "2.5%")
 {
   UseMethod("compare.R2")
 } 
