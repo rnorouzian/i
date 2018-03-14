@@ -2109,7 +2109,7 @@ R2.bayes <- function(..., scale = .02, bottom = 1, top = 1, margin = 5, legend =
 R2.bayes.default <- function(..., scale = .02, bottom = 1, top = 1, margin = 5, legend = "topleft", level = .95, eq.lo = 0, eq.hi = .1)
 {
 
-if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")    
+if(!(all(sapply(list(...), inherits, "stanreg")))) stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")    
     
 Rs <- lapply(list(...), R)
 loop <- length(Rs)
@@ -2285,8 +2285,97 @@ box()
 }                       
                        
 #==================================================================================
+                  
+compare.R2 <- function(..., how = c("two.one", "one.two"), scale = .02, bottom = 1, top = 1, margin = 5, legend = "topleft", level = .95, eq.level = "5%")
+{
+  UseMethod("compare.R2")
+} 
+
                        
+compare.R2.default <- function(..., how = c("two.one", "one.two"), scale = .02, bottom = 1, top = 1, margin = 5, legend = "topleft", level = .95, eq.level = "5%"){
+  
+  if(!(all(sapply(list(...), inherits, "stanreg")))) stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")
+  
+  eq.bound <- if(is.character(eq.level)) as.numeric(substr(eq.level, 1, nchar(eq.level)-1)) / 1e2 else eq.level
+  
+  Rs <- lapply(list(...), R)
+  
+  if(length(Rs) < 2) stop("Error: You need to have a least '2' fitted models (from 'rstanarm' package) for comparison!")
+  
+  deci <- function(x, k = 3) format(round(x, k), nsmall = k)
+  
+  how <- match.arg(how)
+  
+  delta <- switch(how,
+                  one.two = function(x) x[[1]] - x[[2]], 
+                  two.one = function(x) x[[2]] - x[[1]])
+  
+  ps <- combn(Rs, 2, FUN = delta)
+  
+  loop <- ncol(ps)
+   
+  CI <- matrix(NA, loop, 2)
+  den <- list()
+  mode <- numeric(loop)
+  peak <- numeric(loop)
+  mean <- numeric(loop)
+  median <- numeric(loop)                  
+  sd <- numeric(loop)
+  eq.prob <- numeric(loop)
+  from <- numeric(loop)                  
+  to <- numeric(loop)
+  
+                  
+  for(i in 1:loop){
+      
+    CI[i,] <- hdir(ps[, i], level = level)
+    den[[i]] <- density(ps[, i], adjust = 2, n = 1e3)
+    mode[i] <- den[[i]]$x[which.max(den[[i]]$y)]
+    peak[i] <- den[[i]]$y[which.max(den[[i]]$y)]
+    mean[i] <- mean(ps[, i])
+    median[i] <- median(ps[, i])
+    eq.prob[i] <- mean(abs(ps[, i]) <= eq.bound)
+    sd[i] <- sd(ps[, i])
+    from[i] <- mean[i] - margin * sd[i]
+    to[i] <- mean[i] + margin * sd[i]
+  }
+  
+  np <- combn(seq_along(Rs), 2, FUN = function(x){if(how == "one.two") paste0('Model ', x[1], ' - Model ', x[2]) else paste0('Model ', x[2], ' - Model ', x[1])})
+  
+  
+  a <- if(min(from) >= -1) min(from) else -1
+  b <- if(max(to) <= 1) max(to) else 1
+  
+  original.par = par(no.readonly = TRUE)
+  on.exit(par(original.par))
+  
+  par(mar = c(5.1, 6.1, 4.1, 2.1))
+  
+  plot(1, loop, type = "n", xlim = c(a, b), ylim = c(bottom*1, top*loop), ylab = NA, xaxt = "n", yaxt = "n", xlab = bquote(bold(Delta~R^2~("Model Comparison"))), mgp = c(2, .3, 0))
+  abline(h = 1:loop, col = 8, lty = 3)
+  axis(1, at = seq(a, b, length.out = 4), labels = paste0(round(seq(a, b, length.out = 4), 4)*1e2, "%"), mgp = c(2, .5, 0))
+  axis(2, at = 1:loop, labels = np, font = 2, las = 1, cex.axis = .7, tck = -.006, mgp = c(2, .3, 0))
+  legend(legend, rev(paste0(np)), pch = 22, title = "Comparisons", pt.bg = loop:1, col = loop:1, cex = .7, pt.cex = .6, bg = 0, box.col = 0, xpd = NA, x.intersp = .5)
+  segments(CI[, 1], 1:loop, CI[, 2], 1:loop, lend = 1, lwd = 4, col = 1:loop, xpd = NA)
+  box()
+  
+  for(i in 1:loop){
+    polygon(x = den[[i]]$x, y = scale*den[[i]]$y +i, col = adjustcolor(i, .55), border = NA, xpd = NA)
+  }
+  
+  m = scale*peak + 1:loop
+  segments(mode, 1:loop, mode, m, lty = 3, xpd = NA, lend = 1)  
+  points(mode, 1:loop, pch = 21, bg = "cyan", cex = 1.4, col = "magenta", xpd = NA)
+  q = deci(CI*1e2 , 2); o = deci(mode*1e2, 2)
+  text(mode, 1:loop, paste0(q[,1], "%", "         ", o, "%", "         ", q[,2], "%"), cex = .75, pos = 3, font = 2, xpd = NA)
+  
+  return(round(data.frame(mean = mean, mode = mode, median = median, sd = sd, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, row.names = paste0(np, ":")), 6))
+}
+
                        
+#=================================================================================== 
+              
+              
 type.sm <- function(d = .1, obs.d = .6, n1 = 20, n2 = NA)
 {
   UseMethod("type.sm")
