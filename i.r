@@ -2080,6 +2080,8 @@ R <- function(fit)
                        
 R.default <- function(fit){
   
+if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")
+    
       y <- rstanarm::get_y(fit)
   ypred <- rstanarm::posterior_linpred(fit, transform = TRUE)
  
@@ -2106,7 +2108,9 @@ R2.bayes <- function(..., scale = .02, bottom = 1, top = 1, margin = 5, legend =
                        
 R2.bayes.default <- function(..., scale = .02, bottom = 1, top = 1, margin = 5, legend = "topleft", level = .95, eq.lo = 0, eq.hi = .1)
 {
-  
+
+if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")    
+    
 Rs <- lapply(list(...), R)
 loop <- length(Rs)
 
@@ -2233,7 +2237,7 @@ predict.bayes <- function(fit, xlab = NA, ylab = NA, level = .95, ...)
 {
   UseMethod("predict.bayes")
 } 
-    
+
                        
 predict.bayes.default <- function(fit, xlab = NA, ylab = NA, level = .95, ...){
 
