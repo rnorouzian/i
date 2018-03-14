@@ -2290,7 +2290,7 @@ compare.R2 <- function(..., how = c("two.one", "one.two"), scale = .02, bottom =
 } 
 
                        
-compare.R2.default <- function(..., how = c("two.one", "one.two"), scale = .02, bottom = 1, top = 1, margin = 5, legend = "topleft", level = .95, eq.level = "5%"){
+compare.R2.default <- function(..., how = c("two.one", "one.two"), scale = .02, bottom = 1, top = 1, margin = 5, legend = "topleft", level = .95, eq.level = "2.5%"){
   
   if(!(all(sapply(list(...), inherits, "stanreg")))) stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")
   
