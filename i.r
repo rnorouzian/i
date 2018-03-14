@@ -2183,7 +2183,7 @@ lm.sample <- function(fit, n = 1e4, no.names = TRUE)
                        
 lm.sample.default <- function(fit, n = 1e4, no.names = TRUE){
   
-output <- as.data.frame(mvrnorm(n = n, mu = coef(fit), Sigma = vcov(fit)))
+output <- as.data.frame(MASS::mvrnorm(n = n, mu = coef(fit), Sigma = vcov(fit)))
  
    if(no.names == TRUE){
     for(i in 1:ncol(output)){
