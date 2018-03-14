@@ -2066,12 +2066,11 @@ d.eq.test.default <- function(t, n1, n2 = NA, m = 0, s = 1, dist.name = "dnorm",
                        
 if(!require("rstanarm")) install.packages("rstanarm")
 if(!require("MASS")) install.packages("MASS")                       
-#suppressMessages(suppressWarnings(require("rstanarm")))
-                       
-suppressPackageStartupMessages({
-  require("rstanarm")
-  require("MASS")
-}) 
+
+invisible(suppressPackageStartupMessages({
+try(require("rstanarm", quietly = TRUE), silent = TRUE)
+try(require("MASS", quietly = TRUE), silent = TRUE)
+ }) )                       
                        
 R <- function(fit)
 {
@@ -2172,8 +2171,7 @@ round(data.frame(mode = mode, mean = mean, sd = sd, MAD = mad, lower = I[,1], up
 
 
 #=======================================================================
-                       
-#suppressMessages(suppressWarnings(require("MASS")))   
+                         
                        
 lm.sample <- function(fit, n = 1e4, no.names = TRUE)
 {
