@@ -2284,6 +2284,7 @@ box()
                        
 #==================================================================================
                   
+                       
 compare.R2 <- function(..., how = c("two.one", "one.two"), scale = .02, bottom = 1, top = 1, margin = 5, legend = "topleft", level = .95, eq.level = "2.5%")
 {
   UseMethod("compare.R2")
@@ -2373,7 +2374,7 @@ compare.R2.default <- function(..., how = c("two.one", "one.two"), scale = .02, 
                        
 #=================================================================================== 
 
-reg <- function(x, y, col) abline(lm(y~x), col = "cyan", lty = 2) 
+reg <- function(x, y, col) abline(lm(y~x), col = "cyan", lty = 2, lwd = 2) 
 
 panel.lm <- function (x, y, col = par("col"), bg = NA, pch = par("pch"), 
                       cex = 1, col.smooth = "red", span = 2/3, iter = 3, ...){
