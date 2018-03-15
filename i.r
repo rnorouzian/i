@@ -2372,6 +2372,74 @@ compare.R2.default <- function(..., how = c("two.one", "one.two"), scale = .02, 
 
                        
 #=================================================================================== 
+
+reg <- function(x, y, col) abline(lm(y~x), col = "cyan") 
+
+panel.lm <- function (x, y, col = par("col"), bg = NA, pch = par("pch"), 
+                      cex = 1, col.smooth = "red", span = 2/3, iter = 3, ...){
+                      points(x, y, pch = pch, col = col, bg = bg, cex = cex)
+                      ok <- is.finite(x) & is.finite(y)
+                      if (any(ok)) reg(x[ok], y[ok], col.smooth)
+                      }
+  
+              
+panel.cor <- function(x, y, ...)
+{
+  usr <- par("usr"); on.exit(par(usr))
+  par(usr = c(0, 1, 0, 1))
+  r <- (cor(x, y))
+  txt <- paste0("r = ", round(r, 2))
+  text(.5, .5, txt, cex = 1.4, font = 4)
+}
+
+
+lm.check.plot <- function(fit, pch = 19, cex = 1.6, col = adjustcolor("magenta", .4), 
+                          gap = .15, panel = panel.lm, lower.panel = panel.cor, 
+                          cex.labels = 2, font.labels = 2, font = 2, ...)
+{
+  UseMethod("lm.check.plot")
+}
+
+
+lm.check.plot.default <- function(fit, pch = 19, cex = 1.6, col = adjustcolor("magenta", .4), 
+                          gap = .15, panel = panel.lm, lower.panel = panel.cor, 
+                          cex.labels = 2, font.labels = 2, font = 2, ...){
+ 
+if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
+
+pairs(fit$formula, data = fit$data, pch = pch, cex = cex, col = col, gap = gap, panel = panel, 
+      cex.labels = cex.labels, font.labels = font.labels, lower.panel = lower.panel, font = font, ...)
+ 
+}
+              
+             
+#===================================================================================
+     
+              
+lm.post.plot <- function(fit, n = 1e3, pch = 19, cex = 1.6, col = adjustcolor("magenta", .4), 
+                          gap = .15, panel = panel.lm, lower.panel = panel.cor, 
+                          cex.labels = 2, font.labels = 2, font = 2, ...)
+{
+  UseMethod("lm.post.plot")
+}
+
+
+
+lm.post.plot.default <- function(fit, n = 1e3, pch = 19, cex = 1.6, col = adjustcolor("magenta", .4), 
+                         gap = .15, panel = panel.lm, lower.panel = panel.cor, 
+                         cex.labels = 2, font.labels = 2, font = 2, ...){
+
+if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")
+
+post <- lm.sample(fit, n = n)
+
+pairs(post, pch = pch, cex = cex, col = col, gap = gap, panel = panel, 
+      cex.labels = cex.labels, font.labels = font.labels, lower.panel = lower.panel, 
+      font = font, ...)
+}
+              
+              
+#===================================================================================
               
               
 type.sm <- function(d = .1, obs.d = .6, n1 = 20, n2 = NA)
