@@ -2385,6 +2385,7 @@ compare.R2.default <- function(..., how = c("two.one", "one.two"), scale = .02, 
 
 reg <- function(x, y, col) abline(lm(y~x), col = "cyan", lwd = 2) 
 
+              
 panel.lm <- function (x, y, col = par("col"), bg = NA, pch = par("pch"), 
                       cex = 1, col.smooth = "red", span = 2/3, iter = 3, ...){
                       points(x, y, pch = pch, col = col, bg = bg, cex = cex)
@@ -2393,13 +2394,21 @@ panel.lm <- function (x, y, col = par("col"), bg = NA, pch = par("pch"),
                       }
   
               
+get.asp <- function(){
+  uy <- diff(grconvertY(1:2, "user", "inches"))
+  ux <- diff(grconvertX(1:2, "user", "inches"))
+  uy/ux
+}
+
+              
 panel.cor <- function(x, y, ...)
 {
   usr <- par("usr"); on.exit(par(usr))
   par(usr = c(0, 1, 0, 1))
+  asp <- get.asp()
   r <- (cor(x, y))
   txt <- paste0("r = ", round(r, 2))
-  text(.5, .5, txt, cex = 1.3, font = 4)
+  text(.5, .5, txt, cex = 1.3, font = 4, srt = 180/pi*atan(r*asp))
 }
 
               
