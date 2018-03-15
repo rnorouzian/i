@@ -2392,7 +2392,7 @@ panel.cor <- function(x, y, ...)
   par(usr = c(0, 1, 0, 1))
   r <- (cor(x, y))
   txt <- paste0("r = ", round(r, 2))
-  text(.5, .5, txt, cex = 1.4, font = 4)
+  text(.5, .5, txt, cex = 1.3, font = 4)
 }
 
               
@@ -2426,7 +2426,7 @@ if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm
 
 pairs(fit$formula, data = fit$data, pch = pch, cex = cex, col = col, gap = gap, panel = panel, 
       cex.labels = cex.labels, font.labels = font.labels, lower.panel = lower.panel, font = font, 
-      diag.panel = panel.hist, ...)
+      diag.panel = diag.panel, ...)
  
 }
               
