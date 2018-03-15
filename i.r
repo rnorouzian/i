@@ -2068,8 +2068,10 @@ need <- c("rstanarm", "MASS")
 have <- need %in% rownames(installed.packages())
 if(any(!have)){ install.packages( need[!have] ) }
                        
- try(library("rstanarm"))
- try(library("MASS"))
+suppressMessages({ 
+    library("rstanarm")
+    library("MASS")
+})
                       
                        
 R <- function(fit)
