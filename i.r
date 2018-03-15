@@ -2586,5 +2586,35 @@ exaggration[i] = a$exaggration
                       
 #=================================================================================================================
 
-
-                       
+              
+index <- function(...)
+{
+  UseMethod("index")
+}
+              
+index.default <- function(...){
+  
+  L <- list(...)
+  if(is.list(L[[1]]) && length(L) == 1L) L <- L[[1L]]
+  if(length(L) == 1L){
+  return(as.integer(as.factor(as.character(L[[1L]]))))
+    
+  }else{
+    
+    var.names <- match.call()
+    var.names <- as.character(var.names)[2L:(length(L) + 1L)]
+    
+    M <- L
+    for(i in 1L:length(L)) M[[i]] <- as.character(L[[i]])
+    Mall <- M[[1L]]
+    for(i in 2L:length(L)) Mall <- c(Mall, M[[i]])
+    Mall <- unique(Mall)
+    new.levels <- levels(as.factor(Mall))
+    for(i in 1L:length(L)){
+      M[[i]] <- factor(M[[i]], levels = new.levels)
+      M[[i]] <- as.integer(M[[i]])
+    }
+    names(M) <- paste(var.names, ".idx", sep = "")
+    return(M)
+  } 
+}                       
