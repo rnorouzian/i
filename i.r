@@ -2262,9 +2262,10 @@ OK <- I[,1] < dep & dep < I[,2]
 
 points(dep ~ pred, pch = 19, col = ifelse(OK, adjustcolor(4, .55), 2))
 
+x <- sort(pred)
+    
 if(pred.int){   
     
-x <- sort(pred)
 y <- I[,1][order(pred)]
 z <- I[,2][order(pred)]
 
