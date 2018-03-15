@@ -2373,7 +2373,7 @@ compare.R2.default <- function(..., how = c("two.one", "one.two"), scale = .02, 
                        
 #=================================================================================== 
 
-reg <- function(x, y, col) abline(lm(y~x), col = "cyan") 
+reg <- function(x, y, col) abline(lm(y~x), col = "cyan", lty = 2) 
 
 panel.lm <- function (x, y, col = par("col"), bg = NA, pch = par("pch"), 
                       cex = 1, col.smooth = "red", span = 2/3, iter = 3, ...){
@@ -2392,10 +2392,24 @@ panel.cor <- function(x, y, ...)
   text(.5, .5, txt, cex = 1.4, font = 4)
 }
 
-
+              
+panel.hist <- function(x, col.hist = "khaki", ...)
+{
+  usr <- par("usr"); on.exit(par(usr))
+  par(usr = c(usr[1:2], 0, 1.5) )
+  h <- hist(x, plot = FALSE)
+  breaks <- h$breaks; nB <- length(breaks)
+  y <- h$counts; y <- y/max(y)
+  rect(breaks[-nB], 0, breaks[-1], y, col = col.hist, ...)
+}
+              
+              
+#=====================================================================================
+              
+              
 lm.check.plot <- function(fit, pch = 19, cex = 1.6, col = adjustcolor("magenta", .4), 
                           gap = .15, panel = panel.lm, lower.panel = panel.cor, 
-                          cex.labels = 2, font.labels = 2, font = 2, ...)
+                          cex.labels = 1.3, font.labels = 2, font = 2, diag.panel = panel.hist, ...)
 {
   UseMethod("lm.check.plot")
 }
@@ -2403,12 +2417,13 @@ lm.check.plot <- function(fit, pch = 19, cex = 1.6, col = adjustcolor("magenta",
 
 lm.check.plot.default <- function(fit, pch = 19, cex = 1.6, col = adjustcolor("magenta", .4), 
                           gap = .15, panel = panel.lm, lower.panel = panel.cor, 
-                          cex.labels = 2, font.labels = 2, font = 2, ...){
+                          cex.labels = 1.3, font.labels = 2, font = 2, diag.panel = panel.hist, ...){
  
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
 
 pairs(fit$formula, data = fit$data, pch = pch, cex = cex, col = col, gap = gap, panel = panel, 
-      cex.labels = cex.labels, font.labels = font.labels, lower.panel = lower.panel, font = font, ...)
+      cex.labels = cex.labels, font.labels = font.labels, lower.panel = lower.panel, font = font, 
+      diag.panel = panel.hist, ...)
  
 }
               
@@ -2417,17 +2432,16 @@ pairs(fit$formula, data = fit$data, pch = pch, cex = cex, col = col, gap = gap, 
      
               
 lm.post.plot <- function(fit, n = 1e3, pch = 19, cex = 1.6, col = adjustcolor("magenta", .4), 
-                          gap = .15, panel = panel.lm, lower.panel = panel.cor, 
-                          cex.labels = 2, font.labels = 2, font = 2, ...)
+                          gap = .15, panel = panel.lm, lower.panel = panel.cor, diag.panel = panel.hist,
+                          cex.labels = 1.3, font.labels = 2, font = 2, ...)
 {
   UseMethod("lm.post.plot")
 }
 
 
-
 lm.post.plot.default <- function(fit, n = 1e3, pch = 19, cex = 1.6, col = adjustcolor("magenta", .4), 
-                         gap = .15, panel = panel.lm, lower.panel = panel.cor, 
-                         cex.labels = 2, font.labels = 2, font = 2, ...){
+                         gap = .15, panel = panel.lm, lower.panel = panel.cor, diag.panel = panel.hist,
+                         cex.labels = 1.3, font.labels = 2, font = 2, ...){
 
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")
 
@@ -2435,8 +2449,9 @@ post <- lm.sample(fit, n = n)
 
 pairs(post, pch = pch, cex = cex, col = col, gap = gap, panel = panel, 
       cex.labels = cex.labels, font.labels = font.labels, lower.panel = lower.panel, 
-      font = font, ...)
+      diag.panel = panel.hist, font = font, ...)
 }
+
               
               
 #===================================================================================
