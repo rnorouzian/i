@@ -2233,13 +2233,13 @@ text(c(I, med), 0, round(c(I, med), 2), pos = 3, font = 2)
 #======================================================================================                       
 
                        
-predict.bayes <- function(fit, xlab = NA, ylab = NA, level = .95, ...)
+predict.bayes <- function(fit, xlab = NA, ylab = NA, level = .95, line.int = TRUE, pred.int = TRUE, ...)
 {
   UseMethod("predict.bayes")
 } 
 
                        
-predict.bayes.default <- function(fit, xlab = NA, ylab = NA, level = .95, ...){
+predict.bayes.default <- function(fit, xlab = NA, ylab = NA, level = .95, line.int = TRUE, pred.int = TRUE, ...){
 
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
 if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")
@@ -2260,14 +2260,17 @@ for(i in 1:loop){
 
 OK <- I[,1] < dep & dep < I[,2]
 
-points(dep ~ pred, pch = 19, col = ifelse(OK, adjustcolor(4, .5), 2))
+points(dep ~ pred, pch = 19, col = ifelse(OK, adjustcolor(4, .55), 2))
 
+if(pred.int){   
+    
 x <- sort(pred)
 y <- I[,1][order(pred)]
 z <- I[,2][order(pred)]
 
 polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor('gray', .5), border = NA)
-
+}
+    
 pred_lin2 <- rstanarm::posterior_linpred(fit, transform = TRUE)
 
 I2 <- matrix(NA, loop, 2)
@@ -2275,11 +2278,14 @@ for(i in 1:loop){
 I2[i,] = hdir(pred_lin2[,i], level = level)
 }
 
+if(line.int){
+    
 y <- I2[,1][order(pred)]
 z <- I2[,2][order(pred)]
 
 polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor('magenta', .4), border = NA)
-
+}
+    
 abline(fit, col = "cyan", lwd = 2)
 box()    
 }                       
