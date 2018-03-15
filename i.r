@@ -2065,12 +2065,15 @@ d.eq.test.default <- function(t, n1, n2 = NA, m = 0, s = 1, dist.name = "dnorm",
    
                        
 if(!require("rstanarm")) install.packages("rstanarm")
-if(!require("MASS")) install.packages("MASS")                       
-
- invisible(suppressPackageStartupMessages({
- try(require("rstanarm", quietly = TRUE), silent = TRUE)
- try(require("MASS", quietly = TRUE), silent = TRUE)
- }) )                      
+if(!require("MASS")) install.packages("MASS") 
+                       
+want <- c("rstanarm", "MASS")
+have <- want %in% rownames(installed.packages())
+if(any(!have)){ install.packages( want[!have] ) }
+                       
+ try(library("rstanarm"))
+ try(library("MASS"))
+                      
                        
 R <- function(fit)
 {
