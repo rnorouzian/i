@@ -2453,8 +2453,7 @@ pairs(post, pch = pch, cex = cex, col = col, gap = gap, panel = panel,
       diag.panel = panel.hist, font = font, ...)
 }
 
-              
-              
+                           
 #===================================================================================
               
               
