@@ -2452,7 +2452,7 @@ post <- lm.sample(fit, n = n)
 
 pairs(post, pch = pch, cex = cex, col = col, gap = gap, panel = panel, 
       cex.labels = cex.labels, font.labels = font.labels, lower.panel = lower.panel, 
-      diag.panel = panel.hist, font = font, ...)
+      diag.panel = diag.panel, font = font, ...)
 }
 
                            
