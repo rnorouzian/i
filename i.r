@@ -2432,7 +2432,7 @@ panel.hist <- function(x, col.hist = "khaki", ...)
               
 lm.check.plot <- function(fit, pch = 19, cex = 1.6, col = adjustcolor("magenta", .4), 
                           gap = .15, panel = panel.lm, lower.panel = panel.cor, 
-                          cex.labels = 1.3, font.labels = 2, font = 2, diag.panel = panel.hist, ...)
+                          cex.labels = 1.3, font.labels = 2, font = 2, diag.panel = panel.hist, las = 1, ...)
 {
   UseMethod("lm.check.plot")
 }
@@ -2440,7 +2440,7 @@ lm.check.plot <- function(fit, pch = 19, cex = 1.6, col = adjustcolor("magenta",
 
 lm.check.plot.default <- function(fit, pch = 19, cex = 1.6, col = adjustcolor("magenta", .4), 
                           gap = .15, panel = panel.lm, lower.panel = panel.cor, 
-                          cex.labels = 1.3, font.labels = 2, font = 2, diag.panel = panel.hist, ...){
+                          cex.labels = 1.3, font.labels = 2, font = 2, diag.panel = panel.hist, las = 1, ...){
  
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
 
@@ -2456,7 +2456,7 @@ pairs(fit$formula, data = fit$data, pch = pch, cex = cex, col = col, gap = gap, 
               
 lm.post.plot <- function(fit, n = 1e3, pch = 19, cex = 1.6, col = adjustcolor("magenta", .4), 
                           gap = .15, panel = panel.lm, lower.panel = panel.cor, diag.panel = panel.hist,
-                          cex.labels = 1.3, font.labels = 2, font = 2, ...)
+                          cex.labels = 1.3, font.labels = 2, font = 2, las = 1, ...)
 {
   UseMethod("lm.post.plot")
 }
@@ -2464,7 +2464,7 @@ lm.post.plot <- function(fit, n = 1e3, pch = 19, cex = 1.6, col = adjustcolor("m
 
 lm.post.plot.default <- function(fit, n = 1e3, pch = 19, cex = 1.6, col = adjustcolor("magenta", .4), 
                          gap = .15, panel = panel.lm, lower.panel = panel.cor, diag.panel = panel.hist,
-                         cex.labels = 1.3, font.labels = 2, font = 2, ...){
+                         cex.labels = 1.3, font.labels = 2, font = 2, las = 1, ...){
 
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")
 
