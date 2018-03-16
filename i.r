@@ -2450,7 +2450,7 @@ if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm
 
 pairs(fit$formula, data = fit$data, pch = pch, cex = cex, col = col, gap = gap, panel = panel, 
       cex.labels = cex.labels, font.labels = font.labels, lower.panel = lower.panel, font = font, 
-      diag.panel = diag.panel, ...)
+      diag.panel = diag.panel, mgp = mgp, las = las, ...)
  
 }
               
@@ -2476,7 +2476,7 @@ post <- lm.sample(fit, n = n)
 
 pairs(post, pch = pch, cex = cex, col = col, gap = gap, panel = panel, 
       cex.labels = cex.labels, font.labels = font.labels, lower.panel = lower.panel, 
-      diag.panel = diag.panel, font = font, ...)
+      diag.panel = diag.panel, font = font, mgp = mgp, las = las, ...)
 }
 
                            
