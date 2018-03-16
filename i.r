@@ -2182,7 +2182,9 @@ lm.sample <- function(fit, n = 1e4, no.names = TRUE)
                 
                        
 lm.sample.default <- function(fit, n = 1e4, no.names = TRUE){
-  
+ 
+if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")
+    
   output <- as.data.frame(MASS::mvrnorm(n = n, mu = c(coef(fit), sigma(fit)), Sigma = cov(as.matrix(fit))))
   
   if(no.names == TRUE){
