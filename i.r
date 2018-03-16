@@ -2183,17 +2183,21 @@ lm.sample <- function(fit, n = 1e4, no.names = TRUE)
                        
 lm.sample.default <- function(fit, n = 1e4, no.names = TRUE){
   
-output <- as.data.frame(MASS::mvrnorm(n = n, mu = coef(fit), Sigma = vcov(fit)))
- 
-   if(no.names == TRUE){
+  output <- as.data.frame(MASS::mvrnorm(n = n, mu = c(coef(fit), sigma(fit)), Sigma = cov(as.matrix(fit))))
+  
+  if(no.names == TRUE){
     for(i in 1:ncol(output)){
       if(colnames(output)[i] == "(Intercept)"){
         colnames(output)[i] <- "Intercept"
+      }
+      if(colnames(output)[i] == paste0("V", ncol(output))){
+        colnames(output)[i] <- "Sigma"
       }
     }
   }
   output
 }
+                     
                        
 #======================================================================================
 
