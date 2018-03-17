@@ -2671,9 +2671,10 @@ return(data)
   
   if(!inherits(data, "data.frame")){
 
-d <- as.data.frame(data)  
-colnames(d) <- paste0("Var", ncol(d), ".s")
-data <- as.data.frame(scale(d, center = center, scale = scale))
+data <- as.data.frame(data)
+names(data) <- "V1"
+d <- as.data.frame(scale(data, center = center, scale = scale))  
+data[, paste0(names(d), ".s") ] <- d
 return(data)
   }
 }
