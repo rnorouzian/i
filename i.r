@@ -2673,7 +2673,7 @@ return(data)
 
 d <- as.data.frame(data)  
 colnames(d) <- paste0("Var", ncol(d), ".s")
-data <- scale(d, center = center, scale = scale)
+data <- as.data.frame(scale(d, center = center, scale = scale))
 return(data)
   }
 }
