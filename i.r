@@ -2642,3 +2642,59 @@ index.default <- function(...){
     return(M)
   } 
 }                       
+
+
+#=================================================================================================================
+              
+
+standard <- function(dataframe = mtcars, center = TRUE, scale = TRUE)
+{
+  UseMethod("standard")
+}
+
+standard.default <- function(dataframe = mtcars, center = TRUE, scale = TRUE){
+  
+if(class(dataframe) != "data.frame") stop("Error: 'dataframe' must be of class 'data.frame'.")
+  
+var.names <- names(dataframe)
+  
+dataframe$s <- as.data.frame(lapply(dataframe[, var.names], scale, center = center, scale = scale))
+
+dataframe
+}
+   
+
+#=================================================================================================================              
+              
+              
+standard.fit <- function(fit, level = .95, digit = 6)
+{
+  UseMethod("standard.fit")
+}
+
+
+standard.fit.default <- function(fit, level = .95, digit = 6){
+
+if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")
+  
+X <- model.matrix(fit)
+sd_X <- apply(X, MARGIN = 2, FUN = sd)[-1]
+sd_Y <- apply(rstanarm::posterior_predict(fit), MARGIN = 1, FUN = sd)
+beta <- as.matrix(fit)[ , 2:ncol(X), drop = FALSE]
+b <- sweep(sweep(beta, MARGIN = 2, STATS = sd_X, FUN = `*`), 
+           MARGIN = 1, STATS = sd_Y, FUN = `/`)
+
+loop <- ncol(b)
+mean <- numeric(loop)
+sd <- numeric(loop)
+
+I <- matrix(NA, loop, 2)
+for(i in 1:loop){
+I[i,] <- hdir(b[, i], level = level)
+mean[i] <- mean(b[, i])
+sd[i] <- sd(b[, i])
+}
+
+round(data.frame(standard.coef = mean, sd = sd, lower = I[,1], upper = I[,2], coverage = level, row.names = colnames(b)), digit = digit)
+}
+              
