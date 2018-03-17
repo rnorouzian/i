@@ -2647,20 +2647,35 @@ index.default <- function(...){
 #=================================================================================================================
               
 
-standard <- function(dataframe = mtcars, center = TRUE, scale = TRUE)
+standard <- function(data = mtcars, center = TRUE, scale = TRUE)
 {
   UseMethod("standard")
 }
 
-standard.default <- function(dataframe = mtcars, center = TRUE, scale = TRUE){
+              
+standard.default <- function(data, scale = TRUE, center = TRUE){
   
-if(class(dataframe) != "data.frame") stop("Error: 'dataframe' must be of class 'data.frame'.")
+  if(inherits(data, "data.frame") && ncol(data) > 1){ 
   
-var.names <- names(dataframe)
+data[paste0(names(data), ".s")] <- scale(data, center = center, scale = scale)
+message("Note: You now have new column(s) in your 'data' with suffix '.s' ('.s' for standardized).")
+return(data)
+}
   
-dataframe$s <- as.data.frame(lapply(dataframe[, var.names], scale, center = center, scale = scale))
+  if(inherits(data, "data.frame") && ncol(data) == 1){
+  
+ d <- scale(data, center = center, scale = scale)
+ data[, paste0(names(data), ".s") ] <- c(d)
+ return(data)
+}  
+  
+  if(!inherits(data, "data.frame")){
 
-dataframe
+d <- as.data.frame(data)  
+colnames(d) <- paste0("Var", ncol(d), ".s")
+data <- scale(d, center = center, scale = scale)
+return(data)
+  }
 }
    
 
