@@ -2714,3 +2714,26 @@ sd[i] <- sd(b[, i])
 round(data.frame(standard.coef = mean, sd = sd, lower = I[,1], upper = I[,2], coverage = level, row.names = colnames(b)), digit = digit)
 }
               
+
+#==========================================================================================================
+              
+              
+newdata <- function(fit.data, focus.var, n = 1e2)
+{
+  UseMethod("newdata")
+}
+
+              
+newdata.default <- function(fit.data, focus.var, n = 1e2){
+    
+  tgt <- fit.data[, focus.var]
+  focus.var.new <- seq(min(tgt), max(tgt), length.out = n)
+  fit.data2 <- data.frame(focus.var.new)
+  names(fit.data2) <- focus.var
+  for (i in names(fit.data)[!names(fit.data) %in% focus.var]){
+    fit.data2[[i]] <- mean(fit.data[[i]]) 
+  }
+  fit.data2 <- fit.data2[, names(fit.data)]
+  return(fit.data2[,-1])
+}
+              
