@@ -2718,22 +2718,34 @@ round(data.frame(standard.coef = mean, sd = sd, lower = I[,1], upper = I[,2], co
 #==========================================================================================================
               
               
-newdata <- function(fit.data, focus.var, n = 1e2)
+newdata <- function(fit.data, focus.var, n = 1e2, FUN = mean, hold.at = NA)
 {
   UseMethod("newdata")
 }
 
-              
-newdata.default <- function(fit.data, focus.var, n = 1e2){
-    
+newdata.default <- function(fit.data, focus.var, n = 1e2, FUN = mean, hold.at = NA){
+  
   tgt <- fit.data[, focus.var]
   focus.var.new <- seq(min(tgt), max(tgt), length.out = n)
   fit.data2 <- data.frame(focus.var.new)
   names(fit.data2) <- focus.var
-  for (i in names(fit.data)[!names(fit.data) %in% focus.var]){
-    fit.data2[[i]] <- mean(fit.data[[i]]) 
+  
+  for(i in names(fit.data)[!names(fit.data) %in% focus.var]){
+    
+    if(is.na(hold.at)){
+      
+    fit.data2[[i]] <- FUN(fit.data[[i]]) 
+    
+    } else { 
+      
+    fit.data2[[i]] <- rep(hold.at, 1)
+      
+      }
   }
+  
   fit.data2 <- fit.data2[, names(fit.data)]
+  
   return(fit.data2[,-1])
 }
+              
               
