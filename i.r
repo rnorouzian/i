@@ -2749,3 +2749,79 @@ newdata.default <- function(fit.data, focus.var, n = 1e2, FUN = mean, hold.at = 
 }
               
               
+#=========================================================================================================
+              
+ 
+count.plot <- function(fit.data, focus.var, n = 1e2, FUN = mean, hold.at = NA)
+{
+  UseMethod("count.plot")
+}
+
+
+count.plot.default <- function(fit, xlab = NA, ylab = NA, line.int = TRUE, pred.int = TRUE, level = .95,
+                       focus.pred = "hp", n = 2e2, FUN = mean, hold.at = NA, ...){
+  
+if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
+if(length(coef(fit)) < 3) stop("Error: 'fit' must contain only 'two' predictors.")
+  
+  m <- stats::model.frame(fit)
+  
+  pred <- range(m[focus.pred])
+   dep <- range(m[names(m)[1]])
+  
+  pred <- seq(pred[1], pred[2], length.out = n)
+   dep <- seq(dep[1], dep[2], length.out = n)
+  
+nd <- newdata(m, focus.pred, n = n, FUN = FUN, hold.at = hold.at)   
+   
+  pred_lin <- rstanarm::posterior_predict(fit, newdata = nd)
+
+xlab <- ifelse(is.na(xlab), focus.pred, xlab)
+ylab <- ifelse(is.na(ylab), names(m)[1], ylab)
+
+loop <- n
+
+v1 <- deparse(substitute(FUN))
+main <- if(is.na(hold.at)) v1 else hold.at
+
+plot(dep ~ pred, xlab = xlab, ylab = ylab, type = "n", las = 1, main = paste0("Other predictors held at: ", dQuote(main)), ...)
+
+
+I <- matrix(NA, loop, 2)
+for(i in 1:loop){
+  I[i,] = hdir(pred_lin[,i], level = level)
+}
+
+x <- sort(pred)
+
+if(pred.int){   
+  
+  y <- I[,1][order(pred)]
+  z <- I[,2][order(pred)]
+  
+  polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor('gray', .5), border = NA)
+}
+
+pred_lin2 <- rstanarm::posterior_linpred(fit, newdata = nd)
+
+I2 <- matrix(NA, loop, 2)
+for(i in 1:loop){
+  I2[i,] = hdir(pred_lin2[,i], level = level)
+}
+
+if(line.int){
+  
+  y <- I2[,1][order(pred)]
+  z <- I2[,2][order(pred)]
+  
+  polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor('magenta', .4), border = NA)
+}
+
+E.mu <- apply(pred_lin2, 2, mean)
+
+lines(pred, E.mu, col = "cyan", lwd = 2)
+
+box()
+}              
+              
+              
