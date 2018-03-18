@@ -2458,7 +2458,7 @@ pairs(fit$formula, data = fit$data, pch = pch, cex = cex, col = col, gap = gap, 
 #===================================================================================
      
               
-lm.post.plot <- function(fit, n = 1e3, pch = 19, cex = 1.6, col = adjustcolor("magenta", .4), 
+lm.post.plot <- function(fit, n = 1e3, pch = 19, cex = 1.6, col = adjustcolor(4, .3), 
                           gap = .15, panel = panel.lm, lower.panel = panel.cor, diag.panel = panel.hist,
                           cex.labels = 1.3, font.labels = 2, font = 2, mgp = c(2, .6, 0), las = 1, ...)
 {
@@ -2466,7 +2466,7 @@ lm.post.plot <- function(fit, n = 1e3, pch = 19, cex = 1.6, col = adjustcolor("m
 }
 
 
-lm.post.plot.default <- function(fit, n = 1e3, pch = 19, cex = 1.6, col = adjustcolor("magenta", .4), 
+lm.post.plot.default <- function(fit, n = 1e3, pch = 19, cex = 1.6, col = adjustcolor(4, .3), 
                          gap = .15, panel = panel.lm, lower.panel = panel.cor, diag.panel = panel.hist,
                          cex.labels = 1.3, font.labels = 2, font = 2, mgp = c(2, .6, 0), las = 1, ...){
 
