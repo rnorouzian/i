@@ -2673,8 +2673,8 @@ return(data)
 
 data <- as.data.frame(data)
 names(data) <- "V1"
-d <- as.data.frame(scale(data, center = center, scale = scale))  
-data[, paste0(names(d), ".s") ] <- d
+d <- scale(data, center = center, scale = scale)  
+data[, paste0(names(d), ".s") ] <- c(d)
 return(data)
   }
 }
@@ -2763,7 +2763,7 @@ count.plot.default <- function(fit, xlab = NA, ylab = NA, line.int = TRUE, pred.
                                focus.pred, n = 2e2, FUN = mean, hold.at = NA, ...){
   
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
-if(length(coef(fit)) < 3) stop("Error: 'fit' must contain only 'two' predictors.")
+if(length(coef(fit)) < 3) stop("Error: 'fit' must contain at least 'two' predictors.")
   
   m <- stats::model.frame(fit)
   
