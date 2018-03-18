@@ -2752,14 +2752,15 @@ newdata.default <- function(fit.data, focus.var, n = 1e2, FUN = mean, hold.at = 
 #=========================================================================================================
               
  
-count.plot <- function(fit.data, focus.var, n = 1e2, FUN = mean, hold.at = NA)
+count.plot <- function(fit, xlab = NA, ylab = NA, line.int = TRUE, pred.int = TRUE, level = .95,
+                       focus.pred = "hp", n = 2e2, FUN = mean, hold.at = NA, ...)
 {
   UseMethod("count.plot")
 }
 
 
 count.plot.default <- function(fit, xlab = NA, ylab = NA, line.int = TRUE, pred.int = TRUE, level = .95,
-                       focus.pred = "hp", n = 2e2, FUN = mean, hold.at = NA, ...){
+                               focus.pred = "hp", n = 2e2, FUN = mean, hold.at = NA, ...){
   
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
 if(length(coef(fit)) < 3) stop("Error: 'fit' must contain only 'two' predictors.")
