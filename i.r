@@ -2673,8 +2673,8 @@ return(data)
 
 data <- as.data.frame(data)
 names(data) <- "V1"
-d <- scale(data, center = center, scale = scale)  
-data[, paste0(names(d), ".s") ] <- c(d)
+d <- as.data.frame(scale(data, center = center, scale = scale))  
+data[, paste0(names(d), ".s") ] <- d
 return(data)
   }
 }
