@@ -2828,3 +2828,58 @@ box()
 }              
               
               
+#=======================================================================================================
+              
+              
+case.fit.plot <- function(fit, level = .95)
+{
+  UseMethod("case.fit.plot")
+} 
+
+
+case.fit.plot.default <- function(fit, level = .95){
+  
+if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
+  
+m <- model.frame(fit)
+y <- m[, 1]
+
+loop <- nrow(m)
+
+mus <- rstanarm::posterior_linpred(fit, transform = TRUE)
+ys <-rstanarm::posterior_predict(fit, transform = TRUE)
+
+E.mus <- apply(mus, 2, mean)  
+CI.reg <- apply(mus, 2, hdir, level = level)
+CI.y <- apply(ys, 2, hdir, level = level)
+
+e <- y - E.mus
+o <- order(e)
+
+CI.e <- matrix(NA, loop, 2)
+PI.e <- matrix(NA, loop, 2)
+
+for(i in 1:loop){
+  j <- o[i]
+  CI.e[i,] <- c(y[j] - c(CI.reg[1,j], CI.reg[2,j]))
+  PI.e[i,] <- c(y[j] - c(CI.y[1,j], CI.y[2,j]))
+}
+
+out1 <- e[o][which.min(e[o])]
+out2 <- e[o][which.max(e[o])]
+
+OK <- out1 < e[o] & e[o] < out2
+
+plot(e[o], 1:loop, cex = .6, xlim = range(PI.e), pch = 19, ylab = NA, yaxt = "n", mgp = c(2, .3, 0), type = "n", xlab = "Credible Interval (Residuals)", font.lab = 2)
+abline(v = 0, h = 1:loop, lty = 3, col = 8)
+axis(2, at = 1:loop, labels = paste0("subj ", (1:loop)[o]), las = 1, cex.axis = .8, tck = -.006, mgp = c(2, .3, 0))
+
+
+segments(PI.e[, 1], 1:loop, PI.e[, 2], 1:loop, lend = 1, lwd = 2, xpd = NA, col = 8)
+
+segments(CI.e[, 1], 1:loop, CI.e[, 2], 1:loop, lend = 1, lwd = 2, xpd = NA, col = ifelse(OK, 1, 2))
+points(e[o], 1:loop, pch = 21, bg = "cyan", col = "magenta", xpd = NA)
+
+text(.8*par('usr')[1:2], par('usr')[4], c("Low", "High"), pos = 3, cex = 1.5, xpd = NA, font = 2, col = 2)
+
+}              
