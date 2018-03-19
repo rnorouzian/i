@@ -2767,7 +2767,9 @@ if(length(coef(fit)) < 3) stop("Error: 'fit' must contain at least 'two' predict
   
   m <- stats::model.frame(fit)
   
-  pred <- range(m[focus.pred])
+if(names(m)[1] == focus.pred) message("\nYou're looking at effect of the changing 'dep.var' against itself on the original prediction! This leads to a horizontal line showing 'No Change'!")    
+  
+    pred <- range(m[focus.pred])
    dep <- range(m[names(m)[1]])
   
   pred <- seq(pred[1], pred[2], length.out = n)
