@@ -2841,7 +2841,7 @@ case.fit.plot.default <- function(fit, level = .95){
   
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
   
-m <- model.frame(fit)
+m <- stats::model.frame(fit)
 y <- m[, 1]
 
 loop <- nrow(m)
@@ -2872,8 +2872,11 @@ OK <- out1 < e[o] & e[o] < out2
 
 plot(e[o], 1:loop, cex = .6, xlim = range(PI.e), pch = 19, ylab = NA, yaxt = "n", mgp = c(2, .3, 0), type = "n", xlab = "Credible Interval (Residuals)", font.lab = 2)
 abline(v = 0, h = 1:loop, lty = 3, col = 8)
-axis(2, at = 1:loop, labels = paste0("subj ", (1:loop)[o]), las = 1, cex.axis = .8, tck = -.006, mgp = c(2, .3, 0))
 
+pos <- (1:loop)[o]
+
+axis(2, at = (1:loop)[-range(1:loop)], labels = paste0("subj ", pos[-range(pos)]), las = 1, cex.axis = .8, tck = -.006, mgp = c(2, .3, 0))
+axis(2, at = range(1:loop), labels = paste0("subj ", c(pos[1], rev(pos)[1])), las = 1, cex.axis = .8, tck = -.006, mgp = c(2, .3, 0), col.axis = 2)
 
 segments(PI.e[, 1], 1:loop, PI.e[, 2], 1:loop, lend = 1, lwd = 2, xpd = NA, col = 8)
 
