@@ -2831,10 +2831,10 @@ box()
 #=======================================================================================================
               
               
-case.fit.plot <- function(fit, level = .95)
+case.fit.plot <- function(fit, level = .95, legend = "topleft")
 {
   UseMethod("case.fit.plot")
-} 
+}  
 
 
 case.fit.plot.default <- function(fit, level = .95, legend = "topleft"){
