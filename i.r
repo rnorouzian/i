@@ -2837,11 +2837,11 @@ case.fit.plot <- function(fit, level = .95)
 } 
 
 
-case.fit.plot.default <- function(fit, level = .95){
+case.fit.plot.default <- function(fit, level = .95, legend = "topleft"){
   
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
   
-m <- stats::model.frame(fit)
+m <- model.frame(fit)
 y <- m[, 1]
 
 loop <- nrow(m)
@@ -2865,10 +2865,10 @@ for(i in 1:loop){
   PI.e[i,] <- c(y[j] - c(CI.y[1,j], CI.y[2,j]))
 }
 
-out1 <- e[o][which.min(e[o])]
-out2 <- e[o][which.max(e[o])]
 
-OK <- out1 < e[o] & e[o] < out2
+hope <- 0 > CI.e[,2] & CI.e[,1] > 0
+
+out <- min(e[o]) < e[o] & e[o] < max(e[o])
 
 plot(e[o], 1:loop, cex = .6, xlim = range(PI.e), pch = 19, ylab = NA, yaxt = "n", mgp = c(2, .3, 0), type = "n", xlab = "Credible Interval (Residuals)", font.lab = 2)
 abline(v = 0, h = 1:loop, lty = 3, col = 8)
@@ -2878,11 +2878,17 @@ pos <- (1:loop)[o]
 axis(2, at = (1:loop)[-range(1:loop)], labels = paste0("subj ", pos[-range(pos)]), las = 1, cex.axis = .8, tck = -.006, mgp = c(2, .3, 0))
 axis(2, at = range(1:loop), labels = paste0("subj ", c(pos[1], rev(pos)[1])), las = 1, cex.axis = .8, tck = -.006, mgp = c(2, .3, 0), col.axis = 2)
 
-segments(PI.e[, 1], 1:loop, PI.e[, 2], 1:loop, lend = 1, lwd = 2, xpd = NA, col = 8)
+segments(PI.e[, 1], 1:loop, PI.e[, 2], 1:loop, lend = 1, lwd = 2, col = 8)
 
-segments(CI.e[, 1], 1:loop, CI.e[, 2], 1:loop, lend = 1, lwd = 2, xpd = NA, col = ifelse(OK, 1, 2))
-points(e[o], 1:loop, pch = 21, bg = "cyan", col = "magenta", xpd = NA)
+segments(CI.e[, 1], 1:loop, CI.e[, 2], 1:loop, lend = 1, lwd = 2, col = ifelse(hope, "green4", 1))
+
+points(e[o], 1:loop, pch = 21, bg = ifelse(out, "cyan", 2), col = "magenta")
 
 text(.8*par('usr')[1:2], par('usr')[4], c("Low", "High"), pos = 3, cex = 1.5, xpd = NA, font = 2, col = 2)
 
-}              
+legend(legend, c("Worst fit", "Good fit", "Fair-Bad fit"), pch = 22, title = "Person Fit", 
+       pt.bg = c(2, "green3", 1), col = c(2, "green3", 1), cex = .7, pt.cex = .6, bg = 0, 
+       box.col = 0, xpd = NA, x.intersp = .5)
+box()
+}
+              
