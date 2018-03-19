@@ -2647,35 +2647,37 @@ index.default <- function(...){
 #=================================================================================================================
               
 
-standard <- function(data = mtcars, center = TRUE, scale = TRUE)
+standard <- function(data = mtcars, center = TRUE, scale = TRUE, na.rm = TRUE)
 {
   UseMethod("standard")
 }
 
               
-standard.default <- function(data, scale = TRUE, center = TRUE){
+standard.default <- function(data, scale = TRUE, center = TRUE, na.rm = TRUE){
+  
+data <- if(na.rm) c(data)[complete.cases(c(data))]  
   
   if(inherits(data, "data.frame") && ncol(data) > 1){ 
-  
-data[paste0(names(data), ".s")] <- scale(data, center = center, scale = scale)
-message("Note: You now have new column(s) in your 'data' with suffix '.s' ('.s' for standardized).")
-return(data)
-}
+    
+    data[paste0(names(data), ".s")] <- scale(data, center = center, scale = scale)
+    message("Note: You now have new column(s) in your 'data' with suffix '.s' ('.s' for standardized).")
+    return(data)
+  }
   
   if(inherits(data, "data.frame") && ncol(data) == 1){
-  
- d <- scale(data, center = center, scale = scale)
- data[, paste0(names(data), ".s") ] <- c(d)
- return(data)
-}  
+    
+    d <- scale(data, center = center, scale = scale)
+    data[, paste0(names(data), ".s") ] <- c(d)
+    return(data)
+  }  
   
   if(!inherits(data, "data.frame")){
-
-data <- as.data.frame(c(data))
-names(data) <- "V1"
-d <- as.data.frame(scale(data, center = center, scale = scale))  
-data[, paste0(names(d), ".s") ] <- d
-return(data)
+    
+    data <- as.data.frame(c(data))
+    names(data) <- "V1"
+    d <- as.data.frame(scale(data, center = center, scale = scale))  
+    data[, paste0(names(d), ".s") ] <- d
+    return(data)
   }
 }
    
