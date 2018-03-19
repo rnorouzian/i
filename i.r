@@ -2787,7 +2787,7 @@ loop <- n
 v1 <- deparse(substitute(FUN))
 main <- if(is.na(hold.at)) v1 else hold.at
 
-plot(dep ~ pred, xlab = xlab, ylab = ylab, type = "n", las = 1, main = paste0("Other predictors held at: ", dQuote(main)), ...)
+plot(dep ~ pred, xlab = xlab, ylab = ylab, type = "n", las = 1, main = paste0("Other predictor(s) held at: ", dQuote(main)), ...)
 
 
 I <- matrix(NA, loop, 2)
