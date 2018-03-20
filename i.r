@@ -2738,6 +2738,8 @@ newdata <- function(fit.data, focus.var, n = 1e2, FUN = mean, hold.at = NA)
 
 newdata.default <- function(fit.data, focus.var, n = 1e2, FUN = mean, hold.at = NA){
   
+if(!inherits(fit.data, "data.frame") || ncol(fit.data) < 2) stop("Error: 'data.fit' must be 'data.frame' with '>= 2' columns.")
+    
   tgt <- fit.data[, focus.var]
   focus.var.new <- seq(min(tgt), max(tgt), length.out = n)
   fit.data2 <- data.frame(focus.var.new)
@@ -2884,7 +2886,7 @@ for(i in 1:loop){
 out <- min(e[o]) < e[o] & e[o] < max(e[o])
 
 plot(e[o], 1:loop, cex = .6, xlim = range(PI.e), pch = 19, ylab = NA, yaxt = "n", mgp = c(2, .4, 0), type = "n", xlab = "Credible Interval (Residuals)", font.lab = 2)
-rect(-criterion*sd(e), par('usr')[3], criterion*sd(e), par('usr')[4], border = NA, col = adjustcolor("yellow", .3), lend = 1)
+rect(-criterion*sd(e), par('usr')[3], criterion*sd(e), par('usr')[4], border = NA, col = adjustcolor("yellow", .4), lend = 1)
 
 abline(v = 0, h = 1:loop, lty = 3, col = 8)
 
