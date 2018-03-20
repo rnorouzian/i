@@ -2881,8 +2881,6 @@ for(i in 1:loop){
 }
 
 
-hope <- 0 > CI.e[,2] & CI.e[,1] > 0
-
 out <- min(e[o]) < e[o] & e[o] < max(e[o])
 
 plot(e[o], 1:loop, cex = .6, xlim = range(PI.e), pch = 19, ylab = NA, yaxt = "n", mgp = c(2, .4, 0), type = "n", xlab = "Credible Interval (Residuals)", font.lab = 2)
