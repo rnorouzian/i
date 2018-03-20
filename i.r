@@ -2653,7 +2653,7 @@ standard <- function(data = mtcars, center = TRUE, scale = TRUE, na.rm = TRUE)
 }
 
 
-standard.default <- function(data, scale = TRUE, center = TRUE, na.rm = TRUE){
+standard.default <- function(data = mtcars, scale = TRUE, center = TRUE, na.rm = TRUE){
     
   
   if(inherits(data, "data.frame") && ncol(data) > 1){ 
