@@ -2848,7 +2848,7 @@ box()
 #=======================================================================================================
               
               
-case.fit.plot <- function(fit, level = .95, legend = "topleft", lwd = 2, criterion = .75)
+case.fit.plot <- function(fit, level = .95, legend = "topleft", lwd = 2, criterion = 1)
 {
   UseMethod("case.fit.plot")
 }  
