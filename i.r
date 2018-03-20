@@ -2854,7 +2854,7 @@ case.fit.plot <- function(fit, level = .95, legend = "topleft", lwd = 2, criteri
 }  
 
 
-case.fit.plot.default <- function(fit, level = .95, legend = "topleft", lwd = 2, criterion = .75){
+case.fit.plot.default <- function(fit, level = .95, legend = "topleft", lwd = 2, criterion = 1){
   
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
   
