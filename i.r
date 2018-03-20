@@ -2905,7 +2905,7 @@ text(.8*par('usr')[1:2], par('usr')[4], c("High", "High"), pos = 3, cex = 1.5, x
 
 legend(legend, c("Worst fit", "Perfect-Good fit", "Fair-Bad fit"), pch = 22, title = "Person Fit", 
        pt.bg = c(2, "green3", 1), col = c(2, "green3", 1), cex = .7, pt.cex = .6, bg = 0, 
-       box.col = 0, xpd = NA, x.intersp = .5, title.adj = .5)
+       box.col = 0, xpd = NA, x.intersp = .5, title.adj = .2)
 box()
 }
               
