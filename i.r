@@ -2846,13 +2846,13 @@ box()
 #=======================================================================================================
               
               
-case.fit.plot <- function(fit, level = .95, legend = "topleft", lwd = 2)
+case.fit.plot <- function(fit, level = .95, legend = "topleft", lwd = 2, criterion = .75)
 {
   UseMethod("case.fit.plot")
 }  
 
 
-case.fit.plot.default <- function(fit, level = .95, legend = "topleft", lwd = 2){
+case.fit.plot.default <- function(fit, level = .95, legend = "topleft", lwd = 2, criterion = .75){
   
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
   
@@ -2886,10 +2886,12 @@ hope <- 0 > CI.e[,2] & CI.e[,1] > 0
 out <- min(e[o]) < e[o] & e[o] < max(e[o])
 
 plot(e[o], 1:loop, cex = .6, xlim = range(PI.e), pch = 19, ylab = NA, yaxt = "n", mgp = c(2, .4, 0), type = "n", xlab = "Credible Interval (Residuals)", font.lab = 2)
-rect(-.5*sd(e), par('usr')[3], .5*sd(e), par('usr')[4], border = NA, col = adjustcolor("yellow", .3), lend = 1)
+rect(-criterion*sd(e), par('usr')[3], criterion*sd(e), par('usr')[4], border = NA, col = adjustcolor("yellow", .3), lend = 1)
 
 abline(v = 0, h = 1:loop, lty = 3, col = 8)
 
+good <- -criterion*sd(e) < e[o] & e[o] < criterion*sd(e)
+    
 pos <- (1:loop)[o]
 
 axis(2, at = (1:loop)[-range(1:loop)], labels = paste0("subj ", pos[-range(pos)]), las = 1, cex.axis = .8, tck = -.006, mgp = c(2, .3, 0))
@@ -2897,13 +2899,13 @@ axis(2, at = range(1:loop), labels = paste0("subj ", c(pos[1], rev(pos)[1])), la
 
 segments(PI.e[, 1], 1:loop, PI.e[, 2], 1:loop, lend = 1, lwd = 2, col = 8, lwd = lwd)
 
-segments(CI.e[, 1], 1:loop, CI.e[, 2], 1:loop, lend = 1, lwd = lwd, col = ifelse(hope, "green4", 1))
+segments(CI.e[, 1], 1:loop, CI.e[, 2], 1:loop, lend = 1, lwd = lwd, col = ifelse(good, "green3", 1))
 
 points(e[o], 1:loop, pch = 21, bg = ifelse(out, "cyan", 2), col = "magenta")
 
 text(.8*par('usr')[1:2], par('usr')[4], c("High", "High"), pos = 3, cex = 1.5, xpd = NA, font = 2, col = 2)
 
-legend(legend, c("Worst fit", "Good fit", "Fair-Bad fit"), pch = 22, title = "Person Fit", 
+legend(legend, c("Worst fit", "Perfect-Good fit", "Fair-Bad fit"), pch = 22, title = "Person Fit", 
        pt.bg = c(2, "green3", 1), col = c(2, "green3", 1), cex = .7, pt.cex = .6, bg = 0, 
        box.col = 0, xpd = NA, x.intersp = .5, title.adj = .3)
 box()
