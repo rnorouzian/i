@@ -2885,8 +2885,8 @@ hope <- 0 > CI.e[,2] & CI.e[,1] > 0
 
 out <- min(e[o]) < e[o] & e[o] < max(e[o])
 
-plot(e[o], 1:loop, cex = .6, xlim = range(PI.e), pch = 19, ylab = NA, yaxt = "n", mgp = c(2, .3, 0), type = "n", xlab = "Credible Interval (Residuals)", font.lab = 2)
-rect(-sd(e), par('usr')[3], sd(e), par('usr')[4], border = NA, col = adjustcolor("yellow", .15))
+plot(e[o], 1:loop, cex = .6, xlim = range(PI.e), pch = 19, ylab = NA, yaxt = "n", mgp = c(2, .4, 0), type = "n", xlab = "Credible Interval (Residuals)", font.lab = 2)
+rect(-.5*sd(e), par('usr')[3], .5*sd(e), par('usr')[4], border = NA, col = adjustcolor("yellow", .3), lend = 1)
 
 abline(v = 0, h = 1:loop, lty = 3, col = 8)
 
