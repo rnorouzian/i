@@ -2657,7 +2657,7 @@ standard.default <- function(data = mtcars, scale = TRUE, center = TRUE, na.rm =
     
  
 message("Note: You now have new column(s) in your 'data' with suffix '.s' ('.s' for standardized).\n
-         Also, 'NA's are cleaned by default. Use 'na.rm = FALSE' for otherwise.") 
+         Also, 'NA's are removed by default. Use 'na.rm = FALSE' for otherwise.") 
     
   if(inherits(data, "data.frame") && ncol(data) > 1){ 
     
@@ -2766,14 +2766,14 @@ newdata.default <- function(fit.data, focus.var, n = 1e2, FUN = mean, hold.at = 
               
  
 count.plot <- function(fit, xlab = NA, ylab = NA, line.int = TRUE, pred.int = TRUE, level = .95,
-                       focus.pred, n = 2e2, FUN = mean, hold.at = NA, ...)
+                       focus.pred, n = 2e2, FUN = mean, hold.at = NA, legend = "topleft", ...)
 {
   UseMethod("count.plot")
 }
 
 
 count.plot.default <- function(fit, xlab = NA, ylab = NA, line.int = TRUE, pred.int = TRUE, level = .95,
-                               focus.pred, n = 2e2, FUN = mean, hold.at = NA, ...){
+                               focus.pred, n = 2e2, FUN = mean, hold.at = NA, legend = "topleft", ...){
   
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
 if(length(coef(fit)) < 3) stop("Error: 'fit' must contain at least 'two' predictors.")
@@ -2837,6 +2837,8 @@ E.mu <- apply(pred_lin2, 2, mean)
 
 lines(pred, E.mu, col = "cyan", lwd = 2)
 
+legend(legend, "Counterfactual Plot\n(prediction analysis)", text.font = 4,
+      cex = .9, bg = 0, box.col = 0)    
 box()
 }              
               
@@ -2844,13 +2846,13 @@ box()
 #=======================================================================================================
               
               
-case.fit.plot <- function(fit, level = .95, legend = "topleft")
+case.fit.plot <- function(fit, level = .95, legend = "topleft", lwd = 2)
 {
   UseMethod("case.fit.plot")
 }  
 
 
-case.fit.plot.default <- function(fit, level = .95, legend = "topleft"){
+case.fit.plot.default <- function(fit, level = .95, legend = "topleft", lwd = 2){
   
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
   
@@ -2884,6 +2886,8 @@ hope <- 0 > CI.e[,2] & CI.e[,1] > 0
 out <- min(e[o]) < e[o] & e[o] < max(e[o])
 
 plot(e[o], 1:loop, cex = .6, xlim = range(PI.e), pch = 19, ylab = NA, yaxt = "n", mgp = c(2, .3, 0), type = "n", xlab = "Credible Interval (Residuals)", font.lab = 2)
+rect(-sd(e), par('usr')[3], sd(e), par('usr')[4], border = NA, col = adjustcolor("yellow", .15))
+
 abline(v = 0, h = 1:loop, lty = 3, col = 8)
 
 pos <- (1:loop)[o]
@@ -2891,13 +2895,13 @@ pos <- (1:loop)[o]
 axis(2, at = (1:loop)[-range(1:loop)], labels = paste0("subj ", pos[-range(pos)]), las = 1, cex.axis = .8, tck = -.006, mgp = c(2, .3, 0))
 axis(2, at = range(1:loop), labels = paste0("subj ", c(pos[1], rev(pos)[1])), las = 1, cex.axis = .8, tck = -.006, mgp = c(2, .3, 0), col.axis = 2)
 
-segments(PI.e[, 1], 1:loop, PI.e[, 2], 1:loop, lend = 1, lwd = 2, col = 8)
+segments(PI.e[, 1], 1:loop, PI.e[, 2], 1:loop, lend = 1, lwd = 2, col = 8, lwd = lwd)
 
-segments(CI.e[, 1], 1:loop, CI.e[, 2], 1:loop, lend = 1, lwd = 2, col = ifelse(hope, "green4", 1))
+segments(CI.e[, 1], 1:loop, CI.e[, 2], 1:loop, lend = 1, lwd = lwd, col = ifelse(hope, "green4", 1))
 
 points(e[o], 1:loop, pch = 21, bg = ifelse(out, "cyan", 2), col = "magenta")
 
-text(.8*par('usr')[1:2], par('usr')[4], c("Low", "High"), pos = 3, cex = 1.5, xpd = NA, font = 2, col = 2)
+text(.8*par('usr')[1:2], par('usr')[4], c("High", "High"), pos = 3, cex = 1.5, xpd = NA, font = 2, col = 2)
 
 legend(legend, c("Worst fit", "Good fit", "Fair-Bad fit"), pch = 22, title = "Person Fit", 
        pt.bg = c(2, "green3", 1), col = c(2, "green3", 1), cex = .7, pt.cex = .6, bg = 0, 
