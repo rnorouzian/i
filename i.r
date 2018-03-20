@@ -2883,7 +2883,7 @@ for(i in 1:loop){
 }
 
 
-out <- min(e[o]) < e[o] & e[o] < max(e[o])
+ok <- min(e[o]) < e[o] & e[o] < max(e[o])
 
 unit <- fit.tol*sd(e)
     
@@ -2903,7 +2903,7 @@ segments(PI.e[, 1], 1:loop, PI.e[, 2], 1:loop, lend = 1, col = 8, lwd = lwd)
 
 segments(CI.e[, 1], 1:loop, CI.e[, 2], 1:loop, lend = 1, lwd = lwd, col = ifelse(good, "green3", 1))
 
-points(e[o], 1:loop, pch = 21, bg = ifelse(out, "cyan", 2), col = "magenta", cex = pt.cex)
+points(e[o], 1:loop, pch = 21, bg = ifelse(ok, "cyan", 2), col = ifelse(ok, "magenta", 2), cex = pt.cex)
 
 text(.8*par('usr')[1:2], par('usr')[4], c("High", "High"), pos = 3, cex = 1.5, xpd = NA, font = 2, col = 2)
 
