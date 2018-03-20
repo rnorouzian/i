@@ -2897,7 +2897,7 @@ pos <- (1:loop)[o]
 axis(2, at = (1:loop)[-range(1:loop)], labels = paste0("subj ", pos[-range(pos)]), las = 1, cex.axis = .8, tck = -.006, mgp = c(2, .3, 0))
 axis(2, at = range(1:loop), labels = paste0("subj ", c(pos[1], rev(pos)[1])), las = 1, cex.axis = .8, tck = -.006, mgp = c(2, .3, 0), col.axis = 2)
 
-segments(PI.e[, 1], 1:loop, PI.e[, 2], 1:loop, lend = 1, lwd = 2, col = 8, lwd = lwd)
+segments(PI.e[, 1], 1:loop, PI.e[, 2], 1:loop, lend = 1, col = 8, lwd = lwd)
 
 segments(CI.e[, 1], 1:loop, CI.e[, 2], 1:loop, lend = 1, lwd = lwd, col = ifelse(good, "green3", 1))
 
