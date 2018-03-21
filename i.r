@@ -2884,7 +2884,6 @@ for(i in 1:loop){
   PI.e[i,] <- c(y[j] - c(CI.y[1,j], CI.y[2,j]))
 }
 
-
 ok <- min(e[o]) < e[o] & e[o] < max(e[o])
 
 unit <- fit.tol*sd(e)
