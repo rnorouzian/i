@@ -2850,17 +2850,17 @@ box()
 #=======================================================================================================
               
               
-case.fit.plot <- function(fit, level = .95, legend = "topleft", lwd = 2, fit.tol = 1, pt.cex = 1)
+case.fit.plot <- function(fit, level = .95, legend = "topleft", lwd = 2, fit.tol = 1, pt.cex = 1, cex.axis = .8)
 {
   UseMethod("case.fit.plot")
 }  
 
 
-case.fit.plot.default <- function(fit, level = .95, legend = "topleft", lwd = 2, fit.tol = 1, pt.cex = 1){
+case.fit.plot.default <- function(fit, level = .95, legend = "topleft", lwd = 2, fit.tol = 1, pt.cex = 1, cex.axis = .8){
   
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
   
-m <- model.frame(fit)
+m <- stats::model.frame(fit)
 y <- m[, 1]
 
 loop <- nrow(m)
@@ -2898,8 +2898,8 @@ good <- -unit < e[o] & e[o] < unit
     
 pos <- (1:loop)[o]
 
-axis(2, at = (1:loop)[-range(1:loop)], labels = paste0("subj ", pos[-range(pos)]), las = 1, cex.axis = .8, tck = -.006, mgp = c(2, .2, 0))
-axis(2, at = range(1:loop), labels = paste0("subj ", c(pos[1], rev(pos)[1])), las = 1, cex.axis = .8, tck = -.006, mgp = c(2, .2, 0), col.axis = 2)
+axis(2, at = (1:loop)[-range(1:loop)], labels = paste0("subj ", pos[-range(pos)]), las = 1, cex.axis = cex.axis, tck = -.006, mgp = c(2, .2, 0))
+axis(2, at = range(1:loop), labels = paste0("subj ", c(pos[1], rev(pos)[1])), las = 1, cex.axis = cex.axis, tck = -.006, mgp = c(2, .2, 0), col.axis = 2)
 
 segments(PI.e[, 1], 1:loop, PI.e[, 2], 1:loop, lend = 1, col = 8, lwd = lwd)
 
