@@ -2907,7 +2907,11 @@ segments(CI.e[, 1], 1:loop, CI.e[, 2], 1:loop, lend = 1, lwd = lwd, col = ifelse
 
 points(e[o], 1:loop, pch = 21, bg = ifelse(ok, "cyan", 2), col = ifelse(ok, "magenta", 2), cex = pt.cex)
 
-text(.8*par('usr')[1:2], par('usr')[4], c("High", "High"), pos = 3, cex = 1.5, xpd = NA, font = 2, col = 2)
+a <- par('usr')[1:2] ; b <- par('usr')[4]
+    
+text(mean(a), b, "Fit Corridor", pos = 3, cex = 1, xpd = NA, font = 2, col = 3)
+    
+text(.8*a, b, rep("Misfit", 2), pos = 3, cex = 1.5, xpd = NA, font = 2, col = 2)
 
 legend(legend, c("Worst fit", "Perfect-Good fit", "Fair-Bad fit"), pch = 22, title = "Person Fit", 
        pt.bg = c(2, "green3", 1), col = c(2, "green3", 1), cex = .7, pt.cex = .6, bg = 0, 
