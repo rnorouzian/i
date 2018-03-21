@@ -2656,8 +2656,8 @@ standard <- function(data = mtcars, center = TRUE, scale = TRUE, na.rm = TRUE)
 standard.default <- function(data = mtcars, scale = TRUE, center = TRUE, na.rm = TRUE){
     
  
-message("Note: You now have new column(s) in your 'data' with suffix '.s' ('.s' for standardized).\n
-         Also, 'NA's are removed by default. Use 'na.rm = FALSE' for otherwise.") 
+message("\nNote: You now have new column(s) in your 'data' with suffix '.s' ('.s' for standardized).
+      Also, 'NA's are removed by default. Use 'na.rm = FALSE' for otherwise.") 
     
   if(inherits(data, "data.frame") && ncol(data) > 1){ 
     
