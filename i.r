@@ -2269,11 +2269,12 @@ OK <- I[,1] < dep & dep < I[,2]
 points(dep ~ pred, pch = 19, col = ifelse(OK, adjustcolor(4, .55), 2))
 
 x <- sort(pred)
+o <- order(pred)
     
 if(pred.int){   
     
-y <- I[,1][order(pred)]
-z <- I[,2][order(pred)]
+y <- I[,1][o]
+z <- I[,2][o]
 
 polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor('gray', .5), border = NA)
 }
@@ -2287,8 +2288,8 @@ I2[i,] = hdir(pred_lin2[,i], level = level)
 
 if(line.int){
     
-y <- I2[,1][order(pred)]
-z <- I2[,2][order(pred)]
+y <- I2[,1][o]
+z <- I2[,2][o]
 
 polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor('magenta', .4), border = NA)
 }
@@ -2811,11 +2812,12 @@ for(i in 1:loop){
 }
 
 x <- sort(pred)
-
+o <- order(pred)
+    
 if(pred.int){   
   
-  y <- I[,1][order(pred)]
-  z <- I[,2][order(pred)]
+  y <- I[,1][o]
+  z <- I[,2][o]
   
   polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor('gray', .5), border = NA)
 }
@@ -2829,10 +2831,10 @@ for(i in 1:loop){
 
 if(line.int){
   
-  y <- I2[,1][order(pred)]
-  z <- I2[,2][order(pred)]
+  y <- I2[,1][o]
+  z <- I2[,2][o]
   
-  polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor('magenta', .4), border = NA)
+  polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor('magenta', .35), border = NA)
 }
 
 E.mu <- apply(pred_lin2, 2, mean)
