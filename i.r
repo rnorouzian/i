@@ -2909,7 +2909,7 @@ points(e[o], 1:loop, pch = 21, bg = ifelse(ok, "cyan", 2), col = ifelse(ok, "mag
 
 a <- par('usr')[1:2] ; b <- par('usr')[4]
     
-text(mean(a), b, "Fit Corridor", pos = 3, cex = 1, xpd = NA, font = 2, col = 3)
+text(.1*mean(a), b, "Fit Corridor", pos = 3, cex = 1, xpd = NA, font = 2, col = 3)
     
 text(.8*a, b, rep("Misfit", 2), pos = 3, cex = 1.5, xpd = NA, font = 2, col = 2)
 
