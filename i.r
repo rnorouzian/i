@@ -2251,7 +2251,7 @@ plot(d, type = "n", ylab = NA, main = NA, yaxt = "n", bty = "n", las = 1, zero.l
 
   I <- hdir(mus_at_xi, level = level)
 med <- mean(mus_at_xi)
-peak <- d$y[which.max(d$y)]*scale
+peak <- approx(d$x, d$y, xout = med)[[2]]*scale
 
 polygon(d$x, scale*d$y, col = adjustcolor('magenta', .35), border = NA)
 segments(med, 0, med, peak, lty = 3)
@@ -2288,7 +2288,7 @@ lm.cond.case.default <- function(fit, predi, scale = .5, level = .95, ...){
   
   I <- hdir(case_at_xi, level = level)
   med <- mean(case_at_xi)
-  peak <- d$y[which.max(d$y)]*scale
+  peak <- approx(d$x, d$y, xout = med)[[2]]*scale
   
   polygon(d$x, scale*d$y, col = 8, border = NA)
   segments(med, 0, med, peak, lty = 3)
