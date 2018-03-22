@@ -2496,7 +2496,7 @@ panel.hist <- function(x, col.hist = "khaki", ...)
 #=====================================================================================
               
               
-lm.check.plot <- function(fit, pch = 19, cex = 1.6, col = adjustcolor("magenta", .4), 
+lm.check.plot <- function(data, pch = 19, cex = 1.6, col = adjustcolor("magenta", .05), 
                           gap = .15, panel = panel.lm, lower.panel = panel.cor, 
                           cex.labels = 1.3, font.labels = 2, font = 2, diag.panel = panel.hist, 
                           mgp = c(2, .6, 0), las = 1, ...)
@@ -2505,14 +2505,12 @@ lm.check.plot <- function(fit, pch = 19, cex = 1.6, col = adjustcolor("magenta",
 }
 
 
-lm.check.plot.default <- function(fit, pch = 19, cex = 1.6, col = adjustcolor("magenta", .4), 
+lm.check.plot.default <- function(data, pch = 19, cex = 1.6, col = adjustcolor("magenta", .05), 
                           gap = .15, panel = panel.lm, lower.panel = panel.cor, 
                           cex.labels = 1.3, font.labels = 2, font = 2, diag.panel = panel.hist, 
-                          mgp = c(2, .6, 0), las = 1, ...){
- 
-if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
+                          mgp = c(2, .6, 0), las = 1, ...){ 
 
-pairs(fit$formula, data = fit$data, pch = pch, cex = cex, col = col, gap = gap, panel = panel, 
+pairs(data, pch = pch, cex = cex, col = col, gap = gap, panel = panel, 
       cex.labels = cex.labels, font.labels = font.labels, lower.panel = lower.panel, font = font, 
       diag.panel = diag.panel, mgp = mgp, las = las, ...)
  
