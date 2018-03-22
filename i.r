@@ -2175,13 +2175,13 @@ round(data.frame(mode = mode, mean = mean, sd = sd, MAD = mad, lower = I[,1], up
 #=======================================================================
                          
                        
-lm.sample <- function(fit, n = 1e4, no.names = TRUE)
+lm.sample2 <- function(fit, n = 1e4, no.names = TRUE)
 {
   UseMethod("lm.sample")
 }                       
                 
                        
-lm.sample.default <- function(fit, n = 1e4, no.names = TRUE){
+lm.sample2.default <- function(fit, n = 1e4, no.names = TRUE){
  
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")
     
@@ -2200,6 +2200,32 @@ if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm
   output
 }
                      
+                       
+#======================================================================================
+                       
+                       
+lm.sample <- function(fit, no.names = TRUE)
+{
+  UseMethod("lm.sample")
+}                       
+                
+                       
+lm.sample.default <- function(fit, no.names = TRUE){
+ 
+if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")
+    
+  output <- as.data.frame(as.matrix(fit))
+  
+  if(no.names == TRUE){
+    for(i in 1:ncol(output)){
+      if(colnames(output)[i] == "(Intercept)"){
+        colnames(output)[i] <- "Intercept"
+      }
+    }
+  }
+  output
+}
+                       
                        
 #======================================================================================
 
