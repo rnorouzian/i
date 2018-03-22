@@ -2064,13 +2064,13 @@ d.eq.test.default <- function(t, n1, n2 = NA, m = 0, s = 1, dist.name = "dnorm",
 #======================================================================================================================
    
                        
-need <- c("rstanarm", "MASS")
+need <- c("rstanarm") #, "MASS")
 have <- need %in% rownames(installed.packages())
 if(any(!have)){ install.packages( need[!have] ) }
                        
 suppressMessages({ 
     library("rstanarm")
-    library("MASS")
+  # library("MASS")
 })
                       
                        
@@ -2175,30 +2175,30 @@ round(data.frame(mode = mode, mean = mean, sd = sd, MAD = mad, lower = I[,1], up
 #=======================================================================
                          
                        
-lm.sample2 <- function(fit, n = 1e4, no.names = TRUE)
-{
-  UseMethod("lm.sample2")
-}                       
+#lm.sample2 <- function(fit, n = 1e4, no.names = TRUE)
+#{
+#  UseMethod("lm.sample2")
+#}                       
                 
                        
-lm.sample2.default <- function(fit, n = 1e4, no.names = TRUE){
+#lm.sample2.default <- function(fit, n = 1e4, no.names = TRUE){
  
-if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")
+#if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")
     
-  output <- as.data.frame(MASS::mvrnorm(n = n, mu = c(coef(fit), sigma(fit)), Sigma = cov(as.matrix(fit))))
+#  output <- as.data.frame(MASS::mvrnorm(n = n, mu = c(coef(fit), sigma(fit)), Sigma = cov(as.matrix(fit))))
   
-  if(no.names == TRUE){
-    for(i in 1:ncol(output)){
-      if(colnames(output)[i] == "(Intercept)"){
-        colnames(output)[i] <- "Intercept"
-      }
-      if(colnames(output)[i] == paste0("V", ncol(output))){
-        colnames(output)[i] <- "Sigma"
-      }
-    }
-  }
-  output
-}
+#  if(no.names == TRUE){
+#    for(i in 1:ncol(output)){
+#      if(colnames(output)[i] == "(Intercept)"){
+#        colnames(output)[i] <- "Intercept"
+#      }
+#      if(colnames(output)[i] == paste0("V", ncol(output))){
+#        colnames(output)[i] <- "Sigma"
+#      }
+#    }
+#  }
+#  output
+#}
                      
                        
 #======================================================================================
@@ -2522,7 +2522,7 @@ pairs(fit$formula, data = fit$data, pch = pch, cex = cex, col = col, gap = gap, 
 #===================================================================================
      
               
-lm.post.plot <- function(fit, n = 1e3, pch = 19, cex = 1.6, col = adjustcolor(4, .3), 
+lm.post.plot <- function(fit, pch = 19, cex = 1.6, col = adjustcolor(4, .3), 
                           gap = .15, panel = panel.lm, lower.panel = panel.cor, diag.panel = panel.hist,
                           cex.labels = 1.3, font.labels = 2, font = 2, mgp = c(2, .6, 0), las = 1, ...)
 {
@@ -2530,13 +2530,13 @@ lm.post.plot <- function(fit, n = 1e3, pch = 19, cex = 1.6, col = adjustcolor(4,
 }
 
 
-lm.post.plot.default <- function(fit, n = 1e3, pch = 19, cex = 1.6, col = adjustcolor(4, .3), 
+lm.post.plot.default <- function(fit, pch = 19, cex = 1.6, col = adjustcolor(4, .3), 
                          gap = .15, panel = panel.lm, lower.panel = panel.cor, diag.panel = panel.hist,
                          cex.labels = 1.3, font.labels = 2, font = 2, mgp = c(2, .6, 0), las = 1, ...){
 
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")
 
-post <- lm.sample(fit, n = n)
+post <- lm.sample(fit)
 
 pairs(post, pch = pch, cex = cex, col = col, gap = gap, panel = panel, 
       cex.labels = cex.labels, font.labels = font.labels, lower.panel = lower.panel, 
