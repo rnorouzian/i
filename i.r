@@ -2204,38 +2204,75 @@ if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm
 #======================================================================================
 
  
-lm.cond.mean <- function(fit, xi, scale = .5, level = .95, ...)
+lm.cond.mean <- function(fit, predi, scale = .5, level = .95, ...)
 {
   UseMethod("lm.cond.mean")
 } 
        
                        
-lm.cond.mean.default <- function(fit, xi, scale = .5, level = .95, ...){
+lm.cond.mean.default <- function(fit, predi, scale = .5, level = .95, ...){
   
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
 if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")  
 
 post <- lm.sample(fit)
 
-mus_at_xi = post[,1] + post[,2] * xi
+mus_at_xi = post[,1] + post[,2] * predi
 
 d <- density(mus_at_xi, adjust = 2, n = 1e3)
 plot(d, type = "n", ylab = NA, main = NA, yaxt = "n", bty = "n", las = 1, zero.line = FALSE, yaxs = "i",
-     xlab = bquote(bold((mu[i] *" | "* .(names(fit$model)[2])[i] == .(xi)))), ...)
+     xlab = bquote(bold((mu[i] *" | "* .(names(fit$model)[2])[i] == .(predi)))), ...)
 
   I <- hdir(mus_at_xi, level = level)
 med <- mean(mus_at_xi)
 peak <- d$y[which.max(d$y)]*scale
 
-polygon(d$x, scale*d$y, col = adjustcolor(2, .5), border = NA)
+polygon(d$x, scale*d$y, col = adjustcolor('magenta', .35), border = NA)
 segments(med, 0, med, peak, lty = 3)
 
-segments(I[1], 0, I[2], 0, lend = 1, lwd = 6, col = 2, xpd = NA)
+segments(I[1], 0, I[2], 0, lend = 1, lwd = 6, col = 'magenta', xpd = NA)
 points(med, 0, pch = 21, bg = "cyan", col = 'magenta', cex = 2, xpd = NA)
 text(c(I, med), 0, round(c(I, med), 2), pos = 3, font = 2)
 }                       
                        
  
+                       
+#======================================================================================                       
+
+                       
+                       
+lm.cond.case <- function(fit, predi, scale = .5, level = .95, ...)
+{
+  UseMethod("lm.cond.case")
+} 
+                       
+                       
+lm.cond.case.default <- function(fit, predi, scale = .5, level = .95, ...){
+  
+  if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
+  if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")  
+  
+  post <- lm.sample(fit)
+  
+  case_at_xi = post[,1] + post[,2] * predi + post[,3]
+  
+  d <- density(case_at_xi, adjust = 2, n = 1e3)
+  plot(d, type = "n", ylab = NA, main = NA, yaxt = "n", bty = "n", las = 1, zero.line = FALSE, yaxs = "i",
+       xlab = bquote(bold((subj[i] *" | "* .(names(fit$model)[2])[i] == .(predi)))), ...)
+  
+  I <- hdir(case_at_xi, level = level)
+  med <- mean(case_at_xi)
+  peak <- d$y[which.max(d$y)]*scale
+  
+  polygon(d$x, scale*d$y, col = 8, border = NA)
+  segments(med, 0, med, peak, lty = 3)
+  
+  segments(I[1], 0, I[2], 0, lend = 1, lwd = 6, xpd = NA)
+  points(med, 0, pch = 21, bg = "cyan", col = 'magenta', cex = 2, xpd = NA)
+  text(c(I, med), 0, round(c(I, med), 2), pos = 3, font = 2)
+} 
+                       
+                       
 #======================================================================================                       
 
                        
