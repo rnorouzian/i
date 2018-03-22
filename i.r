@@ -2177,7 +2177,7 @@ round(data.frame(mode = mode, mean = mean, sd = sd, MAD = mad, lower = I[,1], up
                        
 lm.sample2 <- function(fit, n = 1e4, no.names = TRUE)
 {
-  UseMethod("lm.sample")
+  UseMethod("lm.sample2")
 }                       
                 
                        
