@@ -2776,7 +2776,7 @@ newdata <- function(fit.data, focus.var, n = 1e2, FUN = mean, hold.at = NA)
 
 newdata.default <- function(fit.data, focus.var, n = 1e2, FUN = mean, hold.at = NA){
   
-if(!inherits(fit.data, "data.frame") || ncol(fit.data) < 2) stop("Error: 'data.fit' must be 'data.frame' with '>= 2' columns.")
+if(!inherits(fit.data, "data.frame") || ncol(fit.data) < 2) stop("Error: 'fit.data' must be 'data.frame' with '>= 2' columns.")
     
   tgt <- fit.data[, focus.var]
   focus.var.new <- seq(min(tgt), max(tgt), length.out = n)
