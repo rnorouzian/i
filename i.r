@@ -462,7 +462,8 @@ prop.bayes <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", ye
 
 prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", yes = 55, n = 1e2, scale = .1, top = 1.5, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .1, p.h0 = .5){
   
-  d = dist.name
+  d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name)) 
+      
   pr = show.prior
   eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
   I = eq(a, b, d, lo, hi, yes, n)
@@ -532,7 +533,7 @@ prop.priors <- function(a, ...)
 
 prop.priors.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", yes = 55, n = 1e2, scale = .1, top = 1.5, show.prior = FALSE, bottom = 1, legend = "topleft"){
   
-  d = dist.name
+  d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name)) 
   pr = show.prior
   is.v <- function(...) lengths(list(...)) > 1  
   eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
@@ -598,7 +599,7 @@ prop.hyper.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "db
   is.v <- function(...) lengths(list(...)) > 1
   
   pr = show.prior
-  d = dist.name  
+  d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name))   
   eq <- function(...) { lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
   I = eq(a, b, d, lo, hi)
   a = I[[1]] ; b = I[[2]] ; d = I[[3]] ; lo = I[[4]] ; hi = I[[5]]
@@ -657,7 +658,7 @@ prop.hyper.ab.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = 
   
   is.v <- function(...) lengths(list(...)) > 1
   pr = show.prior    
-  d = dist.name
+  d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name)) 
   
   eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
   I = eq(a, b, d, lo, hi)
@@ -958,7 +959,7 @@ d.bayes <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf, dist.name
        
  d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = .8, show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft", eq.level = .1, d.h0 = 0){
   
-  d = dist.name 
+  d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name)) 
   pr = show.prior
   eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
   I = eq(m, s, d, lo, hi, t, n1, n2)
@@ -1038,7 +1039,7 @@ d.priors <- function(t, ...)
 d.priors.default <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = .8, show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft"){
   
   is.v <- function(...) lengths(list(...)) > 1
-  d = dist.name 
+  d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name))  
   pr = show.prior
   eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
   I = eq(m, s, d, lo, hi)
@@ -1115,7 +1116,7 @@ d.hyper.default <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf, d
   
   is.v <- function(...) lengths(list(...)) > 1
   
-  d = dist.name 
+  d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name)) 
   pr = show.prior
   eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
   I = eq(m, s, d, lo, hi)
@@ -1182,7 +1183,7 @@ d.hyper.ms.default <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf
   
   is.v <- function(...) lengths(list(...)) > 1
   
-  d = dist.name 
+  d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name))  
   pr = show.prior
   eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
   I = eq(m, s, d, lo, hi)
@@ -1249,7 +1250,7 @@ peta.bayes <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.na
 
 peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.5, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0){
   
-  d <- dist.name  
+  d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name))   
   pr <- show.prior
   eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
   I <- eq(a, b, d, lo, hi, f, N, df1, df2)
@@ -1321,7 +1322,7 @@ peta.priors.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1
   
   is.v <- function(...) lengths(list(...)) > 1
   
-  d <- dist.name  
+  d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name))  
   pr <- show.prior
   eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
   I <- eq(a, b, d, lo, hi)
@@ -1385,7 +1386,7 @@ peta.hyper.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1,
   
   is.v <- function(...) lengths(list(...)) > 1
   
-  d <- dist.name
+  d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name)) 
   pr <- show.prior
   
   eq <- function(...) { lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
@@ -1446,7 +1447,7 @@ peta.hyper.ab.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi =
   
   is.v <- function(...) lengths(list(...)) > 1
   
-  d <- dist.name
+  d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name)) 
   pr <- show.prior    
   
   eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
@@ -1676,7 +1677,7 @@ prop.update.default <- function(n = 100, yes = 55, top = 5, scale = .1, lo = 0, 
   pri <- show.prior
   s <- round(yes)
   n <- round(n)  
-  d <- dist.name 
+  d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name))  
   is.v <- function(...) lengths(list(...)) > 1
   if(any(is.v(a, b, d))) stop("Error: Choose only 'one' prior knowledge base at a time.")
   if(any(yes > n)) stop("Error: 'yes' cannot be larger than 'n'.")  
@@ -1746,7 +1747,7 @@ d.update <- function(t, n1, n2 = NA, top = 5, scale = .1, m = 0, s = 1, dist.nam
 d.update.default <- function(t, n1, n2 = NA, top = 5, scale = .1, m = 0, s = 1, dist.name = "dnorm", prior.scale = 1, level = .95, show.prior = FALSE, lo = -2, hi = 2, tol = 1e4, margin = hi){
   
   pri <- show.prior
-  d <- dist.name
+  d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name)) 
   if(is.infinite(lo)) lo <- -6
   if(is.infinite(hi)) hi <- 6
   if(tol < 1e4) stop("'tol' must be '10,000' or larger.")
@@ -1823,7 +1824,7 @@ peta.update <- function(f, N, df1, df2, top = 5, scale = .1, a = 2, b = 2, lo = 
 peta.update.default <- function(f, N, df1, df2, top = 5, scale = .1, a = 2, b = 2, lo = 0, hi = 1, dist.name = "dbeta", prior.scale = 1, level = .95, show.prior = FALSE, tol = 1e5){
   
   pri <- show.prior
-  d <- dist.name
+  d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name)) 
   if(hi == 1) hi <- .9999999 ;
   if(tol < 1e4) stop("'tol' must be '10,000' or larger.")
   is.v <- function(...) lengths(list(...)) > 1
@@ -1891,7 +1892,7 @@ d.eq.test <- function(t, n1, n2 = NA, m = 0, s = 1, dist.name = "dnorm", dL = -.
 
 d.eq.test.default <- function(t, n1, n2 = NA, m = 0, s = 1, dist.name = "dnorm", dL = -.1, dU = .1, lo = -Inf, hi = Inf){
   
-  d <- dist.name
+  d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name)) 
   
   if(any(lengths(list(get(formalArgs(d.eq.test))))) > 1) stop("Error: Only 'one' equivalence testing at a time is allowed.")
   if(dL >= dU) stop("Your Upper value must be larger than your Lower value")
