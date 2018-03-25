@@ -453,8 +453,10 @@ norm.id.default <- Vectorize(function(Low, High, Cover = NA){
   }
 })
 
+      
 #===============================================================================================
 
+      
 prop.bayes <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", yes = 55, n = 1e2, scale = .1, top = 1.5, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .1, p.h0 = .5)
 {
   UseMethod("prop.bayes")
@@ -523,8 +525,10 @@ prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "db
     axis(1, at = axTicks(1), lab = paste0(axTicks(1)*1e2, "%"), mgp = c(2, .4, 0))
   }
 }      
-      
+    
+    
 #================================================================================================      
+      
       
 prop.priors <- function(a, ...)
 {
@@ -587,7 +591,9 @@ prop.priors.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "d
   }
 }
 
+
 #==========================================================================================================================
+
 
 prop.hyper <- function(a, ...)
 {
@@ -646,7 +652,9 @@ prop.hyper.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "db
   }
 }
 
+
 #===================================================================================================================
+
 
 prop.hyper.ab <- function(a, ...)
 {
@@ -711,7 +719,9 @@ prop.hyper.ab.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = 
   }
 }
 
+
 #====================================================================================================================
+
 
 prop.diff <- function(yes, n, a = 1.2, b = a, how = c("two.one", "one.two"), level = .95, top = 1, bottom = 1, scale = .1, margin = 6, legend = "topleft", eq.level = "2.5%")
 {
@@ -838,8 +848,10 @@ prop.diff.default <- function(yes, n, a = 1.2, b = a, how = c("two.one", "one.tw
   return(round(data.frame(estimate = estimate, mean = mean, mode = mode, median = median, sd = sd, lower = CI[,1], upper = CI[,2], eq.prob = BB, BF01 = BF01, BF10 = BF10, row.names = paste0(np, ":")), 6))                                                
 }     
 
+              
 #====================================================================================================================
 
+              
 prop.diff.eq <- function(n1, n2, yes1, yes2, a1 = 1.2, b1 = 1.2, a2 = a1, b2 = b1, how = c("two.one", "one.two"), pL = -.025, pU = .025, level = .95, scale = .1)
 {
   UseMethod("prop.diff.eq")
@@ -950,8 +962,10 @@ prop.diff.eq.default <- function(n1, n2, yes1, yes2, a1 = 1.2, b1 = 1.2, a2 = a1
     }
 }             
 
+       
 #====================================================================================================================              
 
+       
 d.bayes <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = .8, show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft", eq.level = .1, d.h0 = 0)
 {
   UseMethod("d.bayes")
@@ -1028,8 +1042,10 @@ for(i in 1:loop){
     curve(p, prior.left, prior.right, yaxt = "n", ylab = NA, xlab = bquote(bold("Effect Size "(delta))), bty = "n", font.lab = 2, lwd = 2, n = 1e3, main = bquote(delta*" ~ "*.(if(lo[1] > -Inf || hi[1] < Inf) "truncated-")*.(substring(d[1], 2))(.(round(m[1], 2)), .(round(s[1], 2)))), mgp = c(2, .5, 0))
   }
 }       
-       
+   
+   
 #====================================================================================================================
+       
        
 d.priors <- function(t, ...)
 {
@@ -1105,7 +1121,9 @@ d.priors.default <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf, 
   }
 }
 
+
 #========================================================================================================================
+
 
 d.hyper <- function(t, ...)
 {
@@ -1171,7 +1189,9 @@ d.hyper.default <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf, d
   }  
 }
 
+
 #===================================================================================================================
+
 
 d.hyper.ms <- function(t, ...)
 {
@@ -1241,7 +1261,9 @@ d.hyper.ms.default <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf
   }
 }
 
+
 #==================================================================================================================
+
 
 peta.bayes <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.5, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0)
 {
@@ -1311,7 +1333,9 @@ peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1,
   }
 }
 
+
 #===================================================================================================================
+
 
 peta.priors <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.5, show.prior = FALSE, bottom = 1, legend = "topleft")
 {
@@ -1375,7 +1399,9 @@ peta.priors.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1
   }
 }
 
+
 #===================================================================================================================
+
 
 peta.hyper <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", show.prior = FALSE, pos = 3, top = 1.01)
 {
@@ -1434,12 +1460,14 @@ peta.hyper.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1,
   }
 }
 
+
 #===================================================================================================================
+
 
 peta.hyper.ab <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", add = FALSE, 
                                   col = 1, show.prior = FALSE)
 {
-  UseMethod("ab.peta.hyper.ab")
+  UseMethod("peta.hyper.ab")
 }
 
 peta.hyper.ab.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", add = FALSE, 
@@ -1500,7 +1528,9 @@ peta.hyper.ab.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi =
   }
 }
 
+
 #=================================================================================================================
+
 
 cor.bayes <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1, bottom = 1, scale = .1, margin = 5, legend = "topleft", show.prior = FALSE)
 {
@@ -1576,8 +1606,10 @@ cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = 
   }  
 }
 
+                              
 #==================================================================================================================                              
 
+                              
 cor.diff <- function(r, n, prior.mean = 0, prior.sd = .707, how = c("two.one", "one.two"), eq.bound = .05, level = .95, top = 1, bottom = 1, scale = .1, margin = 5, legend = "topleft")
 {
   UseMethod("cor.diff")
@@ -1665,8 +1697,10 @@ cor.diff.default <- function(r, n, prior.mean = 0, prior.sd = .707, how = c("two
   return(round(data.frame(mean = mean, mode = mode, median = median, sd = sd, lower = CI[,1], upper = CI[,2], eq.prob = BB, row.names = paste0(np, ":")), 6))
 }
 
+              
 #===================================================================================================================
 
+              
 prop.update <- function(n = 100, yes = 55, top = 5, scale = .1, lo = 0, hi = 1, a = 1.2, b = 1.2, dist.name = "dbeta", prior.scale = 1, level = .95, show.prior = FALSE, tol = 1e5)
 {
   UseMethod("prop.update")
@@ -2740,6 +2774,7 @@ message("\nNote: You now have new column(s) in your 'data' with suffix '.s' ('.s
     d <- scale(data, center = center, scale = scale)
     
     data[, paste0(names(data), ".s") ] <- c(d)
+      
     return(data)
   }  
   
@@ -2748,9 +2783,13 @@ message("\nNote: You now have new column(s) in your 'data' with suffix '.s' ('.s
     data <- if(na.rm) data[complete.cases(data), drop = FALSE]
     
     data <- as.data.frame(data)
+      
     names(data) <- "V1"
+      
     d <- as.data.frame(scale(data, center = center, scale = scale))  
+      
     data[, paste0(names(d), ".s") ] <- d
+      
     return(data)
   }
 }
