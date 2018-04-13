@@ -2264,7 +2264,7 @@ lm.sample.default <- function(fit, no.names = TRUE){
  
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")
     
-  output <- as.data.frame(as.matrix(fit))
+  output <- as.data.frame(fit)
   
   if(no.names == TRUE){
     for(i in 1:ncol(output)){
@@ -2291,7 +2291,7 @@ lm.cond.mean.default <- function(fit, predi, scale = .5, level = .95, ...){
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
 if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")  
 
-post <- lm.sample2(fit)
+post <- lm.sample(fit)
 
 mus_at_xi = post[,1] + post[,2] * predi
 
@@ -2328,7 +2328,7 @@ lm.cond.case.default <- function(fit, predi, scale = .5, level = .95, ...){
   if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
   if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")  
   
-  post <- lm.sample2(fit)
+  post <- lm.sample(fit)
   
   case_at_xi = post[,1] + post[,2] * predi + post[,3]
   
