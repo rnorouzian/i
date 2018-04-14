@@ -3009,8 +3009,12 @@ for(i in 1:loop){
 ok <- min(e[o]) < e[o] & e[o] < max(e[o])
 
 unit <- fit.tol*sd(e)
+
+original.par = par(no.readonly = TRUE)
+on.exit(par(original.par))    
+par(mar = c(2.6, 4, 2.2, 4))
     
-plot(e[o], 1:loop, cex = .6, xlim = range(PI.e), pch = 19, ylab = NA, yaxt = "n", mgp = c(2, .4, 0), type = "n", xlab = "Credible Interval (Residuals)", font.lab = 2)
+plot(e[o], 1:loop, cex = .6, xlim = range(PI.e), pch = 19, ylab = NA, yaxt = "n", mgp = c(1.3, .4, 0), type = "n", xlab = "Credible Interval (Residuals)", font.lab = 2)
 rect(-unit, par('usr')[3], unit, par('usr')[4], border = NA, col = adjustcolor("yellow", .4), lend = 1)
 
 abline(v = 0, h = 1:loop, lty = 3, col = 8)
