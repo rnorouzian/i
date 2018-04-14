@@ -2352,13 +2352,13 @@ lm.cond.case.default <- function(fit, predi, scale = .5, level = .95, ...){
 #======================================================================================                       
 
                        
-predict.bayes <- function(fit, xlab = NA, ylab = NA, level = .95, line.int = TRUE, pred.int = TRUE, ...)
+predict.bayes <- function(fit, xlab = NA, ylab = NA, level = .95, line.int = TRUE, pred.int = TRUE, pt.cex = 1, pt.col = 4, ...)
 {
   UseMethod("predict.bayes")
 } 
 
                        
-predict.bayes.default <- function(fit, xlab = NA, ylab = NA, level = .95, line.int = TRUE, pred.int = TRUE, ...){
+predict.bayes.default <- function(fit, xlab = NA, ylab = NA, level = .95, line.int = TRUE, pred.int = TRUE, pt.cex = 1, pt.col = 4, ...){
 
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
 if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")
@@ -2379,7 +2379,7 @@ for(i in 1:loop){
 
 OK <- I[,1] < dep & dep < I[,2]
 
-points(dep ~ pred, pch = 19, col = ifelse(OK, adjustcolor(4, .55), 2))
+points(dep ~ pred, pch = 19, col = ifelse(OK, adjustcolor(pt.col, .55), 2), cex = pt.cex)
 
 x <- sort(pred)
 o <- order(pred)
