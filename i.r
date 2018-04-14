@@ -2595,7 +2595,7 @@ lm.post.plot.default <- function(fit, pch = 19, cex = 1.6, col = adjustcolor(4, 
 
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")
 
-post <- as.data.frame(fit)
+post <- lm.sample(fit)
 
 pairs(post, pch = pch, cex = cex, col = col, gap = gap, panel = panel, 
       cex.labels = cex.labels, font.labels = font.labels, lower.panel = lower.panel, 
