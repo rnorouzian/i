@@ -2543,6 +2543,16 @@ panel.hist <- function(x, col.hist = "khaki", ...)
   rect(breaks[-nB], 0, breaks[-1], y, col = col.hist, ...)
 }
               
+
+panel.dens <- function(x, col.dens = adjustcolor(2, .2), ...)
+{
+  usr <- par("usr"); on.exit(par(usr))
+  par(usr = c(usr[1:2], 0, 1.5) )
+  hist(x, plot = FALSE)
+  d <- density(x); y <- d$y/max(d$y)
+  polygon(x = d$x, y = y, col = col.dens, border = NA, ...)
+}
+              
               
 #=====================================================================================
               
@@ -2572,7 +2582,7 @@ pairs(data, pch = pch, cex = cex, col = col, gap = gap, panel = panel,
      
               
 lm.post.plot <- function(fit, pch = 19, cex = 1.6, col = adjustcolor(4, .3), 
-                          gap = .15, panel = panel.lm, lower.panel = panel.cor, diag.panel = panel.hist,
+                          gap = .15, panel = panel.lm, lower.panel = panel.cor, diag.panel = panel.dens,
                           cex.labels = 1.3, font.labels = 2, font = 2, mgp = c(2, .6, 0), las = 1, ...)
 {
   UseMethod("lm.post.plot")
@@ -2580,12 +2590,12 @@ lm.post.plot <- function(fit, pch = 19, cex = 1.6, col = adjustcolor(4, .3),
 
 
 lm.post.plot.default <- function(fit, pch = 19, cex = 1.6, col = adjustcolor(4, .3), 
-                         gap = .15, panel = panel.lm, lower.panel = panel.cor, diag.panel = panel.hist,
+                         gap = .15, panel = panel.lm, lower.panel = panel.cor, diag.panel = panel.dens,
                          cex.labels = 1.3, font.labels = 2, font = 2, mgp = c(2, .6, 0), las = 1, ...){
 
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")
 
-post <- lm.sample(fit)
+post <- as.data.frame(fit)
 
 pairs(post, pch = pch, cex = cex, col = col, gap = gap, panel = panel, 
       cex.labels = cex.labels, font.labels = font.labels, lower.panel = lower.panel, 
