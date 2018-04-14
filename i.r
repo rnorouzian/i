@@ -3043,4 +3043,26 @@ legend(x = leg, legend = c("Worst fit", "Perfect-Good fit", "Fair-Bad fit"), pch
        box.col = 0, xpd = NA, x.intersp = .5, title.adj = .2)
 box()
 }
+        
+              
+#====================================================================================================================
+      
+              
+cor.fit <- function(fit, cor = TRUE){
+  
+  UseMethod("cor.fit")
+}
+
+cor.fit.default <- function(fit, cor = TRUE){
+
+if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")    
+
+m <- if(cor) cov2cor(cov(as.matrix(fit))) else cov(as.matrix(fit))
+
+colnames(m)[1] <- "intercept"
+rownames(m)[1] <- "intercept"
+
+return(round(data.frame(m), 6))
+}
+              
               
