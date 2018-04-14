@@ -3076,3 +3076,17 @@ return(round(data.frame(m), 6))
 }
               
               
+#============================================================================================================================
+  
+              
+cor.norm <- function(x, r, m = 95, s = 4){
+  e  = rnorm(length(x), m, s)
+  return(y = round(r*x + e))
+}
+
+prof <- {
+set.seed(1170)  
+data.frame(LAA = LAA <- round(rnorm(60, 32, 4)), TOEFL = cor.norm(LAA, .3)  )
+
+}        
+              
