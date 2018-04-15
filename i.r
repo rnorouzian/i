@@ -2352,13 +2352,13 @@ lm.cond.case.default <- function(fit, predi, scale = .5, level = .95, ...){
 #======================================================================================                       
 
                        
-predict.bayes <- function(fit, xlab = NA, ylab = NA, level = .95, line.int = TRUE, pred.int = TRUE, pt.cex = 1, pt.col = 4, ...)
+predict.bayes <- function(fit, xlab = NA, ylab = NA, level = .95, line.int = TRUE, pred.int = TRUE, pt.cex = 1, pt.col = 4, col.depth = .3, ...)
 {
   UseMethod("predict.bayes")
 } 
 
                        
-predict.bayes.default <- function(fit, xlab = NA, ylab = NA, level = .95, line.int = TRUE, pred.int = TRUE, pt.cex = 1, pt.col = 4, ...){
+predict.bayes.default <- function(fit, xlab = NA, ylab = NA, level = .95, line.int = TRUE, pred.int = TRUE, pt.cex = 1, pt.col = 4, col.depth = .3, ...){
 
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
 if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")
@@ -2404,7 +2404,7 @@ if(line.int){
 y <- I2[,1][o]
 z <- I2[,2][o]
 
-polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor('cyan', .4), border = NA)
+polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor('cyan', col.depth), border = NA)
 }
     
 abline(fit, col = "cyan", lwd = 2)
