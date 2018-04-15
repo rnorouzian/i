@@ -2280,13 +2280,13 @@ if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm
 #======================================================================================
 
  
-lm.cond.mean <- function(fit, predi, scale = .5, level = .95, ...)
+lm.cond.mean <- function(fit, predi, scale = .5, level = .95, col.hump = "cyan", ...)
 {
   UseMethod("lm.cond.mean")
 } 
        
                        
-lm.cond.mean.default <- function(fit, predi, scale = .5, level = .95, ...){
+lm.cond.mean.default <- function(fit, predi, scale = .5, level = .95, col.hump = "cyan", ...){
   
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
 if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")  
@@ -2303,7 +2303,7 @@ plot(d, type = "n", ylab = NA, main = NA, yaxt = "n", bty = "n", las = 1, zero.l
 med <- mean(mus_at_xi)
 peak <- approx(d$x, d$y, xout = med)[[2]]*scale
 
-polygon(d$x, scale*d$y, col = adjustcolor('magenta', .35), border = NA)
+polygon(d$x, scale*d$y, col = adjustcolor(col.hump, .35), border = NA)
 segments(med, 0, med, peak, lty = 3)
 
 segments(I[1], 0, I[2], 0, lend = 1, lwd = 6, col = 'magenta', xpd = NA)
@@ -2317,13 +2317,13 @@ text(c(I, med), 0, round(c(I, med), 2), pos = 3, font = 2)
 
                        
                        
-lm.cond.case <- function(fit, predi, scale = .5, level = .95, ...)
+lm.cond.case <- function(fit, predi, scale = .5, level = .95, col.hump = "gray", ...)
 {
   UseMethod("lm.cond.case")
 } 
                        
                        
-lm.cond.case.default <- function(fit, predi, scale = .5, level = .95, ...){
+lm.cond.case.default <- function(fit, predi, scale = .5, level = .95, col.hump = "gray", ...){
   
   if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
   if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")  
@@ -2340,7 +2340,7 @@ lm.cond.case.default <- function(fit, predi, scale = .5, level = .95, ...){
   med <- mean(case_at_xi)
   peak <- approx(d$x, d$y, xout = med)[[2]]*scale
   
-  polygon(d$x, scale*d$y, col = 8, border = NA)
+  polygon(d$x, scale*d$y, col = col.hump, border = NA)
   segments(med, 0, med, peak, lty = 3)
   
   segments(I[1], 0, I[2], 0, lend = 1, lwd = 6, xpd = NA)
