@@ -2280,13 +2280,13 @@ if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm
 #======================================================================================
 
  
-predict.mean <- function(fit, predi, scale = .5, level = .95, col.hump = "cyan", ...)
+predict.mean <- function(fit, predi, scale = .5, level = .95, col.hump = "cyan", integer = FALSE, ...)
 {
   UseMethod("predict.mean")
 } 
        
                        
-predict.mean.default <- function(fit, predi, scale = .5, level = .95, col.hump = "cyan", ...){
+predict.mean.default <- function(fit, predi, scale = .5, level = .95, col.hump = "cyan", integer = FALSE, ...){
   
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
 if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")  
@@ -2308,7 +2308,7 @@ segments(med, 0, med, peak, lty = 3)
 
 segments(I[1], 0, I[2], 0, lend = 1, lwd = 6, col = 'magenta', xpd = NA)
 points(med, 0, pch = 21, bg = "cyan", col = 'magenta', cex = 2, xpd = NA)
-text(c(I, med), 0, round(c(I, med), 2), pos = 3, font = 2)
+text(c(I, med), 0, if(integer) round(c(I, med)) else round(c(I, med), 2), pos = 3, font = 2)
 }                       
                        
  
@@ -2317,13 +2317,13 @@ text(c(I, med), 0, round(c(I, med), 2), pos = 3, font = 2)
 
                        
                        
-predict.case <- function(fit, predi, scale = .5, level = .95, col.hump = "gray", ...)
+predict.case <- function(fit, predi, scale = .5, level = .95, col.hump = "gray", integer = FALSE, ...)
 {
   UseMethod("predict.case")
 } 
                        
                        
-predict.case.default <- function(fit, predi, scale = .5, level = .95, col.hump = "gray", ...){
+predict.case.default <- function(fit, predi, scale = .5, level = .95, col.hump = "gray", integer = FALSE, ...){
   
   if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
   if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")  
@@ -2345,7 +2345,7 @@ predict.case.default <- function(fit, predi, scale = .5, level = .95, col.hump =
   
   segments(I[1], 0, I[2], 0, lend = 1, lwd = 6, xpd = NA)
   points(med, 0, pch = 21, bg = "cyan", col = 'magenta', cex = 2, xpd = NA)
-  text(c(I, med), 0, round(c(I, med), 2), pos = 3, font = 2)
+  text(c(I, med), 0, if(integer) round(c(I, med)) else round(c(I, med), 2), pos = 3, font = 2)
 } 
                        
                        
