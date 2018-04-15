@@ -2280,13 +2280,13 @@ if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm
 #======================================================================================
 
  
-lm.cond.mean <- function(fit, predi, scale = .5, level = .95, col.hump = "cyan", ...)
+pred.mean <- function(fit, predi, scale = .5, level = .95, col.hump = "cyan", ...)
 {
   UseMethod("lm.cond.mean")
 } 
        
                        
-lm.cond.mean.default <- function(fit, predi, scale = .5, level = .95, col.hump = "cyan", ...){
+pred.mean.default <- function(fit, predi, scale = .5, level = .95, col.hump = "cyan", ...){
   
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
 if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")  
@@ -2317,13 +2317,13 @@ text(c(I, med), 0, round(c(I, med), 2), pos = 3, font = 2)
 
                        
                        
-lm.cond.case <- function(fit, predi, scale = .5, level = .95, col.hump = "gray", ...)
+pred.case <- function(fit, predi, scale = .5, level = .95, col.hump = "gray", ...)
 {
   UseMethod("lm.cond.case")
 } 
                        
                        
-lm.cond.case.default <- function(fit, predi, scale = .5, level = .95, col.hump = "gray", ...){
+pred.case.default <- function(fit, predi, scale = .5, level = .95, col.hump = "gray", ...){
   
   if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
   if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")  
