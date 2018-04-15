@@ -2404,7 +2404,7 @@ if(line.int){
 y <- I2[,1][o]
 z <- I2[,2][o]
 
-polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor('magenta', .4), border = NA)
+polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor('cyan', .4), border = NA)
 }
     
 abline(fit, col = "cyan", lwd = 2)
