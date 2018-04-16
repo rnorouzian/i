@@ -3089,4 +3089,26 @@ set.seed(1170)
 data.frame(LAA = LAA <- round(rnorm(60, 32, 4)), TOEFL = cor.norm(LAA, .3)  )
 
 }        
+  
+              
+#=================================================================================================================================
+     
+              
+lm.hdi <- function(fit, level = .95, digits = 6)
+{
+ UseMethod("lm.hdi")
+}
+
+
+lm.hdi.default <- function(fit, level = .95, digits = 6){
+    
+if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")     
+
+m <- round(data.frame(t(apply(as.matrix(fit), 2, hdir, level = level)), level), digits = digits)
+
+colnames(m) <- c("lower", "upper", "level")
+
+return(m)
+
+}             
               
