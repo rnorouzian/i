@@ -2291,9 +2291,7 @@ predict.mean.default <- function(fit, predi, scale = .5, level = .95, col.hump =
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
 if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")  
 
-post <- lm.sample(fit)
-
-mus_at_xi = post[,1] + post[,2] * predi
+mus_at_xi = rstanarm::posterior_linpred(fit, newdata = setNames(data.frame(tmp = predi), names(fit$model)[2]))
 
 d <- density(mus_at_xi, adjust = 2, n = 1e3)
 plot(d, type = "n", ylab = NA, main = NA, yaxt = "n", bty = "n", las = 1, zero.line = FALSE, yaxs = "i",
@@ -2311,11 +2309,9 @@ points(med, 0, pch = 21, bg = "cyan", col = 'magenta', cex = 2, xpd = NA)
 text(c(I, med), 0, if(integer) round(c(I, med)) else round(c(I, med), 2), pos = 3, font = 2)
 }                       
                        
- 
-                       
+                      
 #======================================================================================                       
 
-                       
                        
 predict.case <- function(fit, predi, scale = .5, level = .95, col.hump = "gray", integer = FALSE, ...)
 {
@@ -2328,9 +2324,8 @@ predict.case.default <- function(fit, predi, scale = .5, level = .95, col.hump =
   if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
   if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")  
   
-  post <- lm.sample(fit)
   
-  case_at_xi = post[,1] + post[,2] * predi + post[,3]
+case_at_xi <- rstanarm::posterior_predict(fit, newdata = setNames(data.frame(tmp = predi), names(fit$model)[2]))
   
   d <- density(case_at_xi, adjust = 2, n = 1e3)
   plot(d, type = "n", ylab = NA, main = NA, yaxt = "n", bty = "n", las = 1, zero.line = FALSE, yaxs = "i",
@@ -2346,7 +2341,7 @@ predict.case.default <- function(fit, predi, scale = .5, level = .95, col.hump =
   segments(I[1], 0, I[2], 0, lend = 1, lwd = 6, xpd = NA)
   points(med, 0, pch = 21, bg = "cyan", col = 'magenta', cex = 2, xpd = NA)
   text(c(I, med), 0, if(integer) round(c(I, med)) else round(c(I, med), 2), pos = 3, font = 2)
-} 
+}  
                        
                        
 #======================================================================================                       
@@ -2981,13 +2976,13 @@ box()
 #=======================================================================================================
               
               
-case.fit.plot <- function(fit, level = .95, legend = "topleft", lwd = 2, fit.tol = 1, pt.cex = 1, cex.axis = .8)
+case.fit <- function(fit, level = .95, legend = "topleft", lwd = 2, fit.tol = 1, pt.cex = 1, cex.axis = .8)
 {
-  UseMethod("case.fit.plot")
+  UseMethod("case.fit")
 }  
 
 
-case.fit.plot.default <- function(fit, level = .95, legend = "topleft", lwd = 2, fit.tol = 1, pt.cex = 1, cex.axis = .8){
+case.fit.default <- function(fit, level = .95, legend = "topleft", lwd = 2, fit.tol = 1, pt.cex = 1, cex.axis = .8){
   
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
 
@@ -3094,13 +3089,13 @@ data.frame(LAA = LAA <- round(rnorm(60, 32, 4)), TOEFL = cor.norm(LAA, .3)  )
 #=================================================================================================================================
      
               
-lm.hdi <- function(fit, level = .95, digits = 6)
+hdi.fit <- function(fit, level = .95, digits = 6)
 {
- UseMethod("lm.hdi")
+ UseMethod("hdi.fit")
 }
 
 
-lm.hdi.default <- function(fit, level = .95, digits = 6){
+hdi.fit.default <- function(fit, level = .95, digits = 6){
     
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")     
 
