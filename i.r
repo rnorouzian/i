@@ -2297,7 +2297,7 @@ mus_at_xi <- rstanarm::posterior_linpred(fit, newdata = setNames(data.frame(tmp 
 
 d <- density(mus_at_xi, adjust = 2, n = 1e3)
 
-xlab = ifelse(is.na(xlab), bquote(bold(bolditalic(p)*(Ave.*.(names(fit$model)[1])[i] *" | "* .(names(fit$model)[2])[i] == .(predi)))), xlab)   
+xlab = if(is.na(xlab)) bquote(bold(bolditalic(p)*(Ave.*.(names(fit$model)[1])[i] *" | "* .(names(fit$model)[2])[i] == .(predi)))) else xlab   
 
 plot(d, type = "n", ylab = NA, main = NA, yaxt = "n", bty = "n", las = 1, zero.line = FALSE, yaxs = "i",
      xlab = xlab, ...)
@@ -2334,7 +2334,7 @@ case_at_xi <- rstanarm::posterior_predict(fit, newdata = setNames(data.frame(tmp
   
   d <- density(case_at_xi, adjust = 2, n = 1e3)
     
-  xlab = ifelse(is.na(xlab), bquote(bold(bolditalic(p)*(.(names(fit$model)[1])[i] *" | "* .(names(fit$model)[2])[i] == .(predi)))), xlab)  
+  xlab = if(is.na(xlab)) bquote(bold(bolditalic(p)*(.(names(fit$model)[1])[i] *" | "* .(names(fit$model)[2])[i] == .(predi)))) else xlab  
   plot(d, type = "n", ylab = NA, main = NA, yaxt = "n", bty = "n", las = 1, zero.line = FALSE, yaxs = "i",
        xlab = xlab, ...)
   
