@@ -2160,7 +2160,8 @@ R2.bayes <- function(..., scale = .02, bottom = 1, top = 1, margin = 5, legend =
 R2.bayes.default <- function(..., scale = .02, bottom = 1, top = 1, margin = 5, legend = "topleft", level = .95, eq.lo = 0, eq.hi = .1)
 {
 
-if(!(all(sapply(list(...), inherits, "stanreg")))) stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")    
+if(!(all(sapply(list(...), inherits, "stanreg")))) stop("Error: all '...' must be models from package 'rstanarm's 'stan_glm()'.")  
+    
 leg <- if(is.character(legend)) legend else deparse(substitute(legend))   
 Rs <- lapply(list(...), R)
 loop <- length(Rs)
@@ -2291,7 +2292,7 @@ predict.mean.default <- function(fit, predi, scale = .5, level = .95, col.hump =
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
 if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")  
 
-mus_at_xi = rstanarm::posterior_linpred(fit, newdata = setNames(data.frame(tmp = predi), names(fit$model)[2]))
+mus_at_xi <- rstanarm::posterior_linpred(fit, newdata = setNames(data.frame(tmp = predi), names(fit$model)[2]))
 
 d <- density(mus_at_xi, adjust = 2, n = 1e3)
 plot(d, type = "n", ylab = NA, main = NA, yaxt = "n", bty = "n", las = 1, zero.line = FALSE, yaxs = "i",
@@ -2417,7 +2418,7 @@ compare.R2 <- function(..., how = c("two.one", "one.two"), scale = .02, bottom =
                        
 compare.R2.default <- function(..., how = c("two.one", "one.two"), scale = .02, bottom = 1, top = 1, margin = 5, legend = "topleft", level = .95, eq.level = "2.5%"){
   
-  if(!(all(sapply(list(...), inherits, "stanreg")))) stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")
+if(!(all(sapply(list(...), inherits, "stanreg")))) stop("Error: all '...' must be models from package 'rstanarm's 'stan_glm()'.")  
   
   eq.bound <- if(is.character(eq.level)) as.numeric(substr(eq.level, 1, nchar(eq.level)-1)) / 1e2 else eq.level
   leg <- if(is.character(legend)) legend else deparse(substitute(legend))
@@ -3106,4 +3107,24 @@ colnames(m) <- c("lower", "upper", "level")
 return(m)
 
 }             
+              
+
+#===================================================================================================================================
+      
+              
+model.interval <- function(..., level = .95, digits = 6)
+{
+  UseMethod("model.interval")
+}
+
+
+model.interval.default <- function(..., level = .95, digits = 6){
+  
+if(!(all(sapply(list(...), inherits, "stanreg")))) stop("Error: all '...' must be models from package 'rstanarm's 'stan_glm()'.")  
+
+m <- lapply(list(...), hdi.fit, level = level, digits = digits)  
+
+return(m)
+}
+
               
