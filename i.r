@@ -2291,7 +2291,7 @@ predict.mean.default <- function(fit, predi, scale = .5, level = .95, col.hump =
   
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
 if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")  
-if(!(predi %in% fit$model[, 2])) message("WARNING: \nYou have not data on ", dQuote(names(fit$model)[2]), " = ", predi, ". Prediction is not reliable.")
+if(!(predi %in% fit$model[, 2])) message("WARNING: \nYou have no data on ", dQuote(names(fit$model)[2]), " = ", predi, ". Prediction is not reliable.")
 
 mus_at_xi <- rstanarm::posterior_linpred(fit, newdata = setNames(data.frame(tmp = predi), names(fit$model)[2]))
 
@@ -2325,7 +2325,7 @@ predict.case.default <- function(fit, predi, scale = .5, level = .95, col.hump =
   
   if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
   if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")  
-  if(!(predi %in% fit$model[, 2])) message("WARNING: \nYou have not data on ", dQuote(names(fit$model)[2]), " = ", predi, ". Prediction is not reliable.")
+  if(!(predi %in% fit$model[, 2])) message("WARNING: \nYou have no data on ", dQuote(names(fit$model)[2]), " = ", predi, ". Prediction is not reliable.")
   
 case_at_xi <- rstanarm::posterior_predict(fit, newdata = setNames(data.frame(tmp = predi), names(fit$model)[2]))
   
