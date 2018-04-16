@@ -2281,23 +2281,26 @@ if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm
 #======================================================================================
 
  
-predict.mean <- function(fit, predi, scale = .5, level = .95, col.hump = "cyan", integer = FALSE, ...)
+predict.mean <- function(fit, predi, scale = .5, level = .95, col.hump = "cyan", integer = FALSE, xlab = NA, ...)
 {
   UseMethod("predict.mean")
 } 
        
                        
-predict.mean.default <- function(fit, predi, scale = .5, level = .95, col.hump = "cyan", integer = FALSE, ...){
+predict.mean.default <- function(fit, predi, scale = .5, level = .95, col.hump = "cyan", integer = FALSE, xlab = NA, ...){
   
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
 if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")  
-if(!(predi %in% fit$model[, 2])) message("WARNING: \nYou have no data on ", dQuote(names(fit$model)[2]), " = ", predi, ". Prediction is not reliable.")
+if(!(predi %in% fit$model[, 2])) message("WARNING: \nYou have no data on ", dQuote(names(fit$model)[2]), " = ", predi, ". Prediction is not highly reliable.")
 
 mus_at_xi <- rstanarm::posterior_linpred(fit, newdata = setNames(data.frame(tmp = predi), names(fit$model)[2]))
 
 d <- density(mus_at_xi, adjust = 2, n = 1e3)
+
+xlab = ifelse(is.na(xlab), bquote(bold(bolditalic(p)*(Ave.*.(names(fit$model)[1])[i] *" | "* .(names(fit$model)[2])[i] == .(predi)))), xlab)   
+
 plot(d, type = "n", ylab = NA, main = NA, yaxt = "n", bty = "n", las = 1, zero.line = FALSE, yaxs = "i",
-     xlab = bquote(bold(bolditalic(p)*(Ave.*.(names(fit$model)[1])[i] *" | "* .(names(fit$model)[2])[i] == .(predi)))), ...)
+     xlab = xlab, ...)
 
   I <- hdir(mus_at_xi, level = level)
 med <- mean(mus_at_xi)
@@ -2315,23 +2318,25 @@ text(c(I, med), 0, if(integer) round(c(I, med)) else round(c(I, med), 2), pos = 
 #======================================================================================                       
 
                        
-predict.case <- function(fit, predi, scale = .5, level = .95, col.hump = "gray", integer = FALSE, ...)
+predict.case <- function(fit, predi, scale = .5, level = .95, col.hump = "gray", integer = FALSE, xlab = NA, ...)
 {
   UseMethod("predict.case")
 } 
                        
                        
-predict.case.default <- function(fit, predi, scale = .5, level = .95, col.hump = "gray", integer = FALSE, ...){
+predict.case.default <- function(fit, predi, scale = .5, level = .95, col.hump = "gray", integer = FALSE, xlab = NA, ...){
   
   if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
   if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")  
-  if(!(predi %in% fit$model[, 2])) message("WARNING: \nYou have no data on ", dQuote(names(fit$model)[2]), " = ", predi, ". Prediction is not reliable.")
+  if(!(predi %in% fit$model[, 2])) message("WARNING: \nYou have no data on ", dQuote(names(fit$model)[2]), " = ", predi, ". Prediction is not highly reliable.")
   
 case_at_xi <- rstanarm::posterior_predict(fit, newdata = setNames(data.frame(tmp = predi), names(fit$model)[2]))
   
   d <- density(case_at_xi, adjust = 2, n = 1e3)
+    
+  xlab = ifelse(is.na(xlab), bquote(bold(bolditalic(p)*(.(names(fit$model)[1])[i] *" | "* .(names(fit$model)[2])[i] == .(predi)))), xlab)  
   plot(d, type = "n", ylab = NA, main = NA, yaxt = "n", bty = "n", las = 1, zero.line = FALSE, yaxs = "i",
-       xlab = bquote(bold(bolditalic(p)*(.(names(fit$model)[1])[i] *" | "* .(names(fit$model)[2])[i] == .(predi)))), ...)
+       xlab = xlab, ...)
   
   I <- hdir(case_at_xi, level = level)
   med <- mean(case_at_xi)
