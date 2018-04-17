@@ -2354,64 +2354,66 @@ case_at_xi <- rstanarm::posterior_predict(fit, newdata = setNames(data.frame(tmp
 #======================================================================================                       
 
                        
-predict.bayes <- function(fit, xlab = NA, ylab = NA, level = .95, line.int = TRUE, pred.int = TRUE, pt.cex = 1, pt.col = 4, col.depth = .3, col.line = "cyan", col.pred = "gray", col.reg = "cyan", ...)
+predict.bayes <- function(fit, xlab = NA, ylab = NA, ylim = NA, level = .95, line.int = TRUE, pred.int = TRUE, pt.cex = 1, pt.col = 4, col.depth = .3, col.line = "cyan", col.pred = "gray", col.reg = "cyan", ...)
 {
   UseMethod("predict.bayes")
 } 
 
                        
-predict.bayes.default <- function(fit, xlab = NA, ylab = NA, level = .95, line.int = TRUE, pred.int = TRUE, pt.cex = 1, pt.col = 4, col.depth = .3, col.line = "cyan", col.pred = "gray", col.reg = "cyan", ...){
-
-if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
-if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")
+predict.bayes.default <- function(fit, xlab = NA, ylab = NA, ylim = NA, level = .95, line.int = TRUE, pred.int = TRUE, pt.cex = 1, pt.col = 4, col.depth = .3, col.line = "cyan", col.pred = "gray", col.reg = "cyan", ...){
+  
+  if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
+  if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")
+  
+  pred <- fit$model[, 2]
+  dep <- fit$model[, 1]  
+  
+  pred_lin <- rstanarm::posterior_predict(fit, transform = TRUE)
+  pred_lin2 <- rstanarm::posterior_linpred(fit, transform = TRUE)
+   
+  r <- range(pred_lin2)  
+  ylim <- if(is.na(ylim)) c(.97*r[1], 1.03*r[2]) else ylim 
+  
+  plot(dep ~ pred, xlab = ifelse(is.na(xlab), names(fit$model)[2], xlab), ylab = ifelse(is.na(ylab), names(fit$model)[1], ylab), type = "n", las = 1, ylim = ylim, ...)
+  
+  loop <- length(pred)
+  
+  I <- matrix(NA, loop, 2)
+  for(i in 1:loop){
+    I[i,] = hdir(pred_lin[,i], level = level)
+  }
+  
+  OK <- I[,1] < dep & dep < I[,2]
+  
+  points(dep ~ pred, pch = 19, col = ifelse(OK, adjustcolor(pt.col, .55), 2), cex = pt.cex)
+  
+  x <- sort(pred)
+  o <- order(pred)
+  
+  if(pred.int){   
     
-pred <- fit$model[, 2]
- dep <- fit$model[, 1]  
-
-plot(dep ~ pred, xlab = ifelse(is.na(xlab), names(fit$model)[2], xlab), ylab = ifelse(is.na(ylab), names(fit$model)[1], ylab), type = "n", las = 1, ...)
-
-pred_lin <- rstanarm::posterior_predict(fit, transform = TRUE)
-
-loop <- length(pred)
-
-I <- matrix(NA, loop, 2)
-for(i in 1:loop){
-  I[i,] = hdir(pred_lin[,i], level = level)
-}
-
-OK <- I[,1] < dep & dep < I[,2]
-
-points(dep ~ pred, pch = 19, col = ifelse(OK, adjustcolor(pt.col, .55), 2), cex = pt.cex)
-
-x <- sort(pred)
-o <- order(pred)
+    y <- I[,1][o]
+    z <- I[,2][o]
     
-if(pred.int){   
+    polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor(col.pred, col.depth), border = NA)
+  }
+  
+  I2 <- matrix(NA, loop, 2)
+  for(i in 1:loop){
+    I2[i,] = hdir(pred_lin2[,i], level = level)
+  }
+  
+  if(line.int){
     
-y <- I[,1][o]
-z <- I[,2][o]
-
-polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor(col.pred, .5), border = NA)
-}
+    y <- I2[,1][o]
+    z <- I2[,2][o]
     
-pred_lin2 <- rstanarm::posterior_linpred(fit, transform = TRUE)
-
-I2 <- matrix(NA, loop, 2)
-for(i in 1:loop){
-I2[i,] = hdir(pred_lin2[,i], level = level)
-}
-
-if(line.int){
-    
-y <- I2[,1][o]
-z <- I2[,2][o]
-
-polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor(col.line, col.depth), border = NA)
-}
-    
-abline(fit, col = col.reg, lwd = 2)
-box()    
-}                       
+    polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor(col.line, col.depth), border = NA)
+  }
+  
+  abline(fit, col = col.reg, lwd = 2)
+  box()    
+}                                              
                        
 #==================================================================================
                   
