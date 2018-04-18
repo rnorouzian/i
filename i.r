@@ -3046,18 +3046,18 @@ axis(2, at = range(1:loop), labels = paste0("subj ", c(pos[1], rev(pos)[1])), la
 
 segments(PI.e[, 1], 1:loop, PI.e[, 2], 1:loop, lend = 1, col = 8, lwd = lwd)
 
-segments(CI.e[, 1], 1:loop, CI.e[, 2], 1:loop, lend = 1, lwd = lwd, col = ifelse(good, "green3", 1))
+segments(CI.e[, 1], 1:loop, CI.e[, 2], 1:loop, lend = 1, lwd = lwd, col = ifelse(good, "green4", 1))
 
 points(e[o], 1:loop, pch = 21, bg = ifelse(ok, "cyan", 2), col = ifelse(ok, "magenta", 2), cex = pt.cex)
 
 a <- par('usr')[1:2] ; b <- par('usr')[4]
     
-text(.1*mean(a), b, "Fit Corridor", pos = 3, cex = 1, xpd = NA, font = 2, col = 3)
+text(.1*mean(a), b, "Fit Corridor", pos = 3, cex = 1, xpd = NA, font = 2, col = "green4")
     
 text(.8*a, b, rep("Misfit", 2), pos = 3, cex = 1.5, xpd = NA, font = 2, col = 2)
 
 legend(x = leg, legend = c("Worst fit", "Perfect-Good fit", "Fair-Bad fit"), pch = 22, title = "Person Fit", 
-       pt.bg = c(2, "green3", 1), col = c(2, "green3", 1), cex = .7, pt.cex = .6, bg = 0, 
+       pt.bg = c(2, "green4", 1), col = c(2, "green4", 1), cex = .7, pt.cex = .6, bg = 0, 
        box.col = 0, xpd = NA, x.intersp = .5, title.adj = .2)
 box()
 }
