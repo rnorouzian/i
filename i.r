@@ -2825,35 +2825,42 @@ message("\nNote: You now have new column(s) in your 'data' with suffix '.s' ('.s
 #=================================================================================================================              
               
               
-standard.fit <- function(fit, level = .95, digit = 6)
+model.standard <- function(..., level = .95, digits = 6)
 {
-  UseMethod("standard.fit")
+  UseMethod("model.standard")
 }
 
 
-standard.fit.default <- function(fit, level = .95, digit = 6){
-
-if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")
+model.standard.default <- function(..., level = .95, digits = 6){
   
-X <- model.matrix(fit)
-sd_X <- apply(X, MARGIN = 2, FUN = sd)[-1]
-sd_Y <- apply(rstanarm::posterior_predict(fit), MARGIN = 1, FUN = sd)
-beta <- as.matrix(fit)[ , 2:ncol(X), drop = FALSE]
-b <- sweep(sweep(beta, MARGIN = 2, STATS = sd_X, FUN = `*`), 
-           MARGIN = 1, STATS = sd_Y, FUN = `/`)
+if(!(all(sapply(list(...), inherits, "stanreg")))) stop("Error: all '...' must be models from package 'rstanarm's 'stan_glm()'.")  
+  
+stand.fit <- function(fit, level, digits){
+  
+  X <- model.matrix(fit)
+  sd_X <- apply(X, MARGIN = 2, FUN = sd)[-1]
+  sd_Y <- apply(rstanarm::posterior_predict(fit), MARGIN = 1, FUN = sd)
+  beta <- as.matrix(fit)[ , 2:ncol(X), drop = FALSE]
+  b <- sweep(sweep(beta, MARGIN = 2, STATS = sd_X, FUN = `*`), 
+             MARGIN = 1, STATS = sd_Y, FUN = `/`)
+  
+  loop <- ncol(b)
+  mean <- numeric(loop)
+  sd <- numeric(loop)
+  
+  I <- matrix(NA, loop, 2)
+  for(i in 1:loop){
+    I[i,] <- hdir(b[, i], level = level)
+    mean[i] <- mean(b[, i])
+    sd[i] <- sd(b[, i])
+  }
+  
+return(round(data.frame(standard.coef = mean, sd = sd, lower = I[,1], upper = I[,2], level = level, row.names = colnames(b)), digits = digits))
+ }
 
-loop <- ncol(b)
-mean <- numeric(loop)
-sd <- numeric(loop)
+b <- lapply(list(...), stand.fit, level = level, digits = digits)  
 
-I <- matrix(NA, loop, 2)
-for(i in 1:loop){
-I[i,] <- hdir(b[, i], level = level)
-mean[i] <- mean(b[, i])
-sd[i] <- sd(b[, i])
-}
-
-round(data.frame(standard.coef = mean, sd = sd, lower = I[,1], upper = I[,2], coverage = level, row.names = colnames(b)), digit = digit)
+return(b)
 }
               
 
@@ -3059,21 +3066,28 @@ box()
 #====================================================================================================================
       
               
-cor.fit <- function(fit, cor = TRUE){
+model.cor <- function(..., cor = TRUE, digits = 6)
+{
+  UseMethod("model.cor")
+}
+              
+              
+model.cor.default <- function(..., cor = TRUE, digits = 6){
   
-  UseMethod("cor.fit")
+if(!(all(sapply(list(...), inherits, "stanreg")))) stop("Error: all '...' must be models from package 'rstanarm's 'stan_glm()'.")  
+  
+cor.fit <- function(fit, cor, digits){
+  
+m <- if(cor) cov2cor(cov(as.matrix(fit))) else cov(as.matrix(fit))
+  
+return(round(m, digits = digits))
+
 }
 
-cor.fit.default <- function(fit, cor = TRUE){
+b <- lapply(list(...), cor.fit, cor = cor, digits = digits)  
 
-if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")    
+return(b)
 
-m <- if(cor) cov2cor(cov(as.matrix(fit))) else cov(as.matrix(fit))
-
-colnames(m)[1] <- "intercept"
-rownames(m)[1] <- "intercept"
-
-return(round(data.frame(m), 6))
 }
               
               
