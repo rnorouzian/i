@@ -3094,41 +3094,29 @@ data.frame(LAA = LAA <- round(rnorm(60, 32, 4)), TOEFL = cor.norm(LAA, .3)  )
               
 #=================================================================================================================================
      
+                  
               
-hdi.fit <- function(fit, level = .95, digits = 6)
+model.hdi <- function(..., level = .95, digits = 6)
 {
- UseMethod("hdi.fit")
+  UseMethod("model.hdi")
 }
 
 
-hdi.fit.default <- function(fit, level = .95, digits = 6){
-    
-if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")     
-
-m <- round(data.frame(t(apply(as.matrix(fit), 2, hdir, level = level)), level), digits = digits)
-
-colnames(m) <- c("lower", "upper", "level")
-
-return(m)
-
-}             
-              
-
-#===================================================================================================================================
-      
-              
-model.interval <- function(..., level = .95, digits = 6)
-{
-  UseMethod("model.interval")
-}
-
-
-model.interval.default <- function(..., level = .95, digits = 6){
+model.hdi.default <- function(..., level = .95, digits = 6){
   
 if(!(all(sapply(list(...), inherits, "stanreg")))) stop("Error: all '...' must be models from package 'rstanarm's 'stan_glm()'.")  
 
-m <- lapply(list(...), hdi.fit, level = level, digits = digits)  
+hdi.fit <- function(fit, level, digits){
+  
+m <- round(data.frame(t(apply(as.matrix(fit), 2, hdir, level = level)), level), digits = digits)
+  
+colnames(m) <- c("lower", "upper", "level")
+  
+return(m)
+}  
 
+m <- lapply(list(...), hdi.fit, level = level, digits = digits)  
+  
 return(m)
 }
 
