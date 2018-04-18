@@ -457,12 +457,12 @@ norm.id.default <- Vectorize(function(Low, High, Cover = NA){
 #===============================================================================================
 
       
-prop.bayes <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", yes = 55, n = 1e2, scale = .1, top = 1.5, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .1, p.h0 = .5)
+prop.bayes <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", yes = 55, n = 1e2, scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .1, p.h0 = .5)
 {
   UseMethod("prop.bayes")
 }
 
-prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", yes = 55, n = 1e2, scale = .1, top = 1.5, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .1, p.h0 = .5){
+prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", yes = 55, n = 1e2, scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .1, p.h0 = .5){
   
   d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name)) 
   leg <- if(is.character(legend)) legend else deparse(substitute(legend))
@@ -726,12 +726,12 @@ prop.hyper.ab.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = 
 #====================================================================================================================
 
 
-prop.diff <- function(yes, n, a = 1.2, b = a, how = c("two.one", "one.two"), level = .95, top = 1, bottom = 1, scale = .1, margin = 6, legend = "topleft", eq.level = "2.5%")
+prop.diff <- function(yes, n, a = 1.2, b = a, how = c("two.one", "one.two"), level = .95, top = 1.1, bottom = 1, scale = .1, margin = 6, legend = "topleft", eq.level = "2.5%")
 {
   UseMethod("prop.diff")
 }
 
-prop.diff.default <- function(yes, n, a = 1.2, b = a, how = c("two.one", "one.two"), level = .95, top = 1, bottom = 1, scale = .1, margin = 6, legend = "topleft", eq.level = "2.5%"){
+prop.diff.default <- function(yes, n, a = 1.2, b = a, how = c("two.one", "one.two"), level = .95, top = 1.1, bottom = 1, scale = .1, margin = 6, legend = "topleft", eq.level = "2.5%"){
   
   n <- round(n)
   yes <- round(yes)  
@@ -970,12 +970,12 @@ prop.diff.eq.default <- function(n1, n2, yes1, yes2, a1 = 1.2, b1 = 1.2, a2 = a1
 #====================================================================================================================              
 
        
-d.bayes <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = .8, show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft", eq.level = .1, d.h0 = 0)
+d.bayes <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = 1.1, show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft", eq.level = .1, d.h0 = 0)
 {
   UseMethod("d.bayes")
 }
        
- d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = .8, show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft", eq.level = .1, d.h0 = 0){
+ d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = 1.1, show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft", eq.level = .1, d.h0 = 0){
   
   d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name))
   leg <- if(is.character(legend)) legend else deparse(substitute(legend))
@@ -1058,7 +1058,7 @@ d.priors <- function(t, ...)
   UseMethod("d.priors")
 }
 
-d.priors.default <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = .8, show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft"){
+d.priors.default <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = 1.1, show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft"){
   
   is.v <- function(...) lengths(list(...)) > 1
   d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name))  
@@ -1273,12 +1273,12 @@ d.hyper.ms.default <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf
 #==================================================================================================================
 
 
-peta.bayes <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.5, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0)
+peta.bayes <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0)
 {
   UseMethod("peta.bayes")
 }
 
-peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.5, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0){
+peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0){
   
   d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name))
   leg <- if(is.character(legend)) legend else deparse(substitute(legend))
@@ -1347,12 +1347,12 @@ peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1,
 #===================================================================================================================
 
 
-peta.priors <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.5, show.prior = FALSE, bottom = 1, legend = "topleft")
+peta.priors <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft")
 {
   UseMethod("peta.priors")
 }
 
-peta.priors.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.5, show.prior = FALSE, bottom = 1, legend = "topleft"){
+peta.priors.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft"){
   
   is.v <- function(...) lengths(list(...)) > 1
   
@@ -1544,12 +1544,12 @@ peta.hyper.ab.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi =
 #=================================================================================================================
 
 
-cor.bayes <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1, bottom = 1, scale = .1, margin = 5, legend = "topleft", show.prior = FALSE)
+cor.bayes <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 5, legend = "topleft", show.prior = FALSE)
 {
   UseMethod("cor.bayes")
 }
 
-cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1, bottom = 1, scale = .1, margin = 5, legend = "topleft", show.prior = FALSE){ 
+cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 5, legend = "topleft", show.prior = FALSE){ 
   
   pr <- show.prior    
   mu <- prior.mean
@@ -1623,12 +1623,12 @@ cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = 
 #==================================================================================================================                              
 
                               
-cor.diff <- function(r, n, prior.mean = 0, prior.sd = .707, how = c("two.one", "one.two"), eq.bound = .05, level = .95, top = 1, bottom = 1, scale = .1, margin = 5, legend = "topleft")
+cor.diff <- function(r, n, prior.mean = 0, prior.sd = .707, how = c("two.one", "one.two"), eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 5, legend = "topleft")
 {
   UseMethod("cor.diff")
 }
 
-cor.diff.default <- function(r, n, prior.mean = 0, prior.sd = .707, how = c("two.one", "one.two"), eq.bound = .05, level = .95, top = 1, bottom = 1, scale = .1, margin = 5, legend = "topleft"){ 
+cor.diff.default <- function(r, n, prior.mean = 0, prior.sd = .707, how = c("two.one", "one.two"), eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 5, legend = "topleft"){ 
   
   is.s <- function(...)lengths(list(...)) < 2
   if(any(is.s(n, r))) stop("Error: 'r' & 'n' must each have a length of '2' or larger.")
@@ -2151,13 +2151,13 @@ if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm
 #==============================================================================================================                       
 
 
-R2.bayes <- function(..., scale = .02, bottom = 1, top = 1, margin = 5, legend = "topleft", level = .95, eq.lo = 0, eq.hi = .1)
+R2.bayes <- function(..., scale = .02, bottom = 1, top = 1.1, margin = 5, legend = "topleft", level = .95, eq.lo = 0, eq.hi = .1)
 {
   UseMethod("R2.bayes")
 }                        
                                            
                        
-R2.bayes.default <- function(..., scale = .02, bottom = 1, top = 1, margin = 5, legend = "topleft", level = .95, eq.lo = 0, eq.hi = .1)
+R2.bayes.default <- function(..., scale = .02, bottom = 1, top = 1.1, margin = 5, legend = "topleft", level = .95, eq.lo = 0, eq.hi = .1)
 {
 
 if(!(all(sapply(list(...), inherits, "stanreg")))) stop("Error: all '...' must be models from package 'rstanarm's 'stan_glm()'.")  
@@ -2354,13 +2354,13 @@ case_at_xi <- rstanarm::posterior_predict(fit, newdata = setNames(data.frame(tmp
 #======================================================================================                       
 
                        
-predict.bayes <- function(fit, xlab = NA, ylab = NA, ylim = NA, level = .95, line.int = TRUE, pred.int = TRUE, pt.cex = 1, pt.col = 4, col.depth = .3, col.line = "cyan", col.pred = "gray", col.reg = "cyan", ...)
+predict.bayes <- function(fit, xlab = NA, ylab = NA, level = .95, line.int = TRUE, pred.int = TRUE, pt.cex = 1, pt.col = 4, col.depth = .3, col.line = "cyan", col.pred = "gray", col.reg = "cyan", ...)
 {
   UseMethod("predict.bayes")
 } 
 
                        
-predict.bayes.default <- function(fit, xlab = NA, ylab = NA, ylim = NA, level = .95, line.int = TRUE, pred.int = TRUE, pt.cex = 1, pt.col = 4, col.depth = .3, col.line = "cyan", col.pred = "gray", col.reg = "cyan", ...){
+predict.bayes.default <- function(fit, xlab = NA, ylab = NA, level = .95, line.int = TRUE, pred.int = TRUE, pt.cex = 1, pt.col = 4, col.depth = .3, col.line = "cyan", col.pred = "gray", col.reg = "cyan", ...){
   
   if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
   if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")
@@ -2370,11 +2370,8 @@ predict.bayes.default <- function(fit, xlab = NA, ylab = NA, ylim = NA, level = 
   
   pred_lin <- rstanarm::posterior_predict(fit, transform = TRUE)
   pred_lin2 <- rstanarm::posterior_linpred(fit, transform = TRUE)
-   
-  r <- range(pred_lin2)  
-  ylim <- if(is.na(ylim)) c(.97*r[1], 1.03*r[2]) else ylim 
   
-  plot(dep ~ pred, xlab = ifelse(is.na(xlab), names(fit$model)[2], xlab), ylab = ifelse(is.na(ylab), names(fit$model)[1], ylab), type = "n", las = 1, ylim = ylim, ...)
+  plot(dep ~ pred, xlab = ifelse(is.na(xlab), names(fit$model)[2], xlab), ylab = ifelse(is.na(ylab), names(fit$model)[1], ylab), type = "n", las = 1, ...)
   
   loop <- length(pred)
   
@@ -2418,13 +2415,13 @@ predict.bayes.default <- function(fit, xlab = NA, ylab = NA, ylim = NA, level = 
 #==================================================================================
                   
                        
-compare.R2 <- function(..., how = c("two.one", "one.two"), scale = .02, bottom = 1, top = 1, margin = 5, legend = "topleft", level = .95, eq.level = "2.5%")
+compare.R2 <- function(..., how = c("two.one", "one.two"), scale = .02, bottom = 1, top = 1.1, margin = 5, legend = "topleft", level = .95, eq.level = "2.5%")
 {
   UseMethod("compare.R2")
 } 
 
                        
-compare.R2.default <- function(..., how = c("two.one", "one.two"), scale = .02, bottom = 1, top = 1, margin = 5, legend = "topleft", level = .95, eq.level = "2.5%"){
+compare.R2.default <- function(..., how = c("two.one", "one.two"), scale = .02, bottom = 1, top = 1.1, margin = 5, legend = "topleft", level = .95, eq.level = "2.5%"){
   
 if(!(all(sapply(list(...), inherits, "stanreg")))) stop("Error: all '...' must be models from package 'rstanarm's 'stan_glm()'.")  
   
