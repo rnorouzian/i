@@ -122,25 +122,25 @@ hdir.default <- function(sample, level = .95){
 
 #==================================================================================================================
 
-prop.ci <- function(k, n, conf.level = .95)
+prop.ci <- function(k, n, conf.level = .95, digits = 6)
 {
   UseMethod("prop.ci")
 }
 
-prop.ci.default <- Vectorize(function(k, n, conf.level = .95){
+prop.ci.default <- Vectorize(function(k, n, conf.level = .95, digits = 6){
   
-I = round(as.numeric(binom.test(k, n, conf.level = conf.level)[[4]]), 6)
+I = round(as.numeric(binom.test(k, n, conf.level = conf.level)[[4]]), digits = digits)
 data.frame(Prop = k/n, lower = I[1], upper = I[2], conf.level = conf.level, row.names = "Prop CI:")
 })
 
 #==================================================================================================
 
-d.ci <- function(d, t = NA, n1, n2 = NA, conf.level = .95)
+d.ci <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 6)
 {
   UseMethod("d.ci")
 }
 
-d.ci.default <- Vectorize(function(d, t = NA, n1, n2 = NA, conf.level = .95){
+d.ci.default <- Vectorize(function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 6){
   
   options(warn = -1)  
   alpha = (1 - conf.level)/2
@@ -167,17 +167,17 @@ d.ci.default <- Vectorize(function(d, t = NA, n1, n2 = NA, conf.level = .95){
   
   Cohen.d = ifelse(is.na(t), d, t*d.SE)
   
- round(data.frame(Cohen.d = Cohen.d, lower = I[1], upper = I[2], conf.level = conf.level, ncp = q, row.names = "Cohen's d CI:"), 6)
+ round(data.frame(Cohen.d = Cohen.d, lower = I[1], upper = I[2], conf.level = conf.level, ncp = q, row.names = "Cohen's d CI:"), digits = digits)
 })
 
 #=================================================================================================================================
 
-peta.ci <- function(peta, F.value = NA, N, df1, df2, conf.level = .9)
+peta.ci <- function(peta, F.value = NA, N, df1, df2, conf.level = .9, digits = 6)
 {
   UseMethod("peta.ci")
 }
                 
-peta.ci.default <- Vectorize(function(peta, F.value = NA, N, df1, df2, conf.level = .9){
+peta.ci.default <- Vectorize(function(peta, F.value = NA, N, df1, df2, conf.level = .9, digits = 6){
 
 options(warn = -1) 
   
@@ -204,30 +204,30 @@ I <- I[1:2] / (I[1:2] + N)
 
 P.eta.sq <- if(is.na(F.value)) peta else (F.value * df1)/ ((F.value * df1) + df2)
 
-round(data.frame(P.eta.sq = P.eta.sq, lower = I[1], upper = I[2], conf.level = conf.level, ncp = (P.eta.sq * N) / (1 - P.eta.sq), F.value = q, row.names = "P.eta.sq CI:"), 6)
+round(data.frame(P.eta.sq = P.eta.sq, lower = I[1], upper = I[2], conf.level = conf.level, ncp = (P.eta.sq * N) / (1 - P.eta.sq), F.value = q, row.names = "P.eta.sq CI:"), digits = digits)
 })               
 
 #=================================================================================================================================                
                 
-cor.ci <- function(r, n, conf.level = .95)
+cor.ci <- function(r, n, conf.level = .95, digits = digits)
 {
   UseMethod("cor.ci")
 }
                               
-cor.ci.default <- Vectorize(function(r, n, conf.level = .95){
+cor.ci.default <- Vectorize(function(r, n, conf.level = .95, digits = digits){
   p = (1 - conf.level) / 2 
-  I = round(tanh(atanh(r) + qnorm(c(p, 1-p))*1/sqrt(n - 3)), 6)
+  I = round(tanh(atanh(r) + qnorm(c(p, 1-p))*1/sqrt(n - 3)), digits = 6)
   data.frame(lower = I[1], upper = I[2], conf.level = conf.level, row.names = "Correlation CI:")
 })                              
 
 #==================================================================================================================
 
-beta.id <- function(Low, High, Cover = NA)
+beta.id <- function(Low, High, Cover = NA, digits = 6)
 {
   UseMethod("beta.id")
 }
 
-beta.id.default <- Vectorize(function(Low, High, Cover = NA){
+beta.id.default <- Vectorize(function(Low, High, Cover = NA, digits = 6){
   
   options(warn = -1)
   L <- if(is.character(Low)) as.numeric(substr(Low, 1, nchar(Low)-1)) / 1e2 else Low
@@ -275,7 +275,7 @@ beta.id.default <- Vectorize(function(Low, High, Cover = NA){
       
     }else{
       
-      return(c(alpha = round(parm[[1]], 6), beta = round(parm[[2]], 6)))    
+      return(c(alpha = round(parm[[1]], digits = digits), beta = round(parm[[2]], digits = digits)))    
     }
   } 
 })
@@ -411,12 +411,12 @@ tdist.id.default <- Vectorize(function(Low, High, Cover = NA){
       
 #============================================================================================================      
 
-norm.id <- function(Low, High, Cover = NA)
+norm.id <- function(Low, High, Cover = NA, digits = 6)
 {
   UseMethod("norm.id")
 }
 
-norm.id.default <- Vectorize(function(Low, High, Cover = NA){
+norm.id.default <- Vectorize(function(Low, High, Cover = NA, digits = 6){
   
   options(warn = -1)
   
@@ -448,7 +448,7 @@ norm.id.default <- Vectorize(function(Low, High, Cover = NA){
     stop("\n\tUnable to find such a prior, make sure you have selected the correct values.")
   } else {
     
-    return(c(mean = round(parm[[1]], 6), sd = round(parm[[2]], 6)))
+    return(c(mean = round(parm[[1]], digits = digits), sd = round(parm[[2]], digits = digits)))
     
   }
 })
@@ -457,12 +457,12 @@ norm.id.default <- Vectorize(function(Low, High, Cover = NA){
 #===============================================================================================
 
       
-prop.bayes <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", yes = 55, n = 1e2, scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .1, p.h0 = .5)
+prop.bayes <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", yes = 55, n = 1e2, scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .1, p.h0 = .5, digits = digits)
 {
   UseMethod("prop.bayes")
 }
 
-prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", yes = 55, n = 1e2, scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .1, p.h0 = .5){
+prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", yes = 55, n = 1e2, scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .1, p.h0 = .5, digits = digits){
   
   d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name)) 
   leg <- if(is.character(legend)) legend else deparse(substitute(legend))
@@ -518,7 +518,7 @@ prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "db
     I = deci(CI*1e2 , 2); o = deci(mode*1e2, 2)
     text(mode, 1:loop, paste0(I[,1], "%", "    ", o, "%", "    ", I[,2], "%"), cex = .75, pos = 3, font = 2, xpd = NA)
   
-    return(round(data.frame(estimate = estimate, mode = mode, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, BF10 = BF10, row.names = paste0("Prop ", 1:loop, " posterior: ")), 6))    
+    return(round(data.frame(estimate = estimate, mode = mode, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, BF10 = BF10, row.names = paste0("Prop ", 1:loop, " posterior: ")), digits = digits))    
 
 }else{
     p = function(x) get(d[1])(x, a[1], b[1])*as.integer(x >= lo[1])*as.integer(x <= hi[1])
@@ -726,12 +726,12 @@ prop.hyper.ab.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = 
 #====================================================================================================================
 
 
-prop.diff <- function(yes, n, a = 1.2, b = a, how = c("two.one", "one.two"), level = .95, top = 1.1, bottom = 1, scale = .1, margin = 6, legend = "topleft", eq.level = "2.5%")
+prop.diff <- function(yes, n, a = 1.2, b = a, how = c("two.one", "one.two"), level = .95, top = 1.1, bottom = 1, scale = .1, margin = 6, legend = "topleft", eq.level = "2.5%", digits = 6)
 {
   UseMethod("prop.diff")
 }
 
-prop.diff.default <- function(yes, n, a = 1.2, b = a, how = c("two.one", "one.two"), level = .95, top = 1.1, bottom = 1, scale = .1, margin = 6, legend = "topleft", eq.level = "2.5%"){
+prop.diff.default <- function(yes, n, a = 1.2, b = a, how = c("two.one", "one.two"), level = .95, top = 1.1, bottom = 1, scale = .1, margin = 6, legend = "topleft", eq.level = "2.5%", digits = 6){
   
   n <- round(n)
   yes <- round(yes)  
@@ -849,7 +849,7 @@ prop.diff.default <- function(yes, n, a = 1.2, b = a, how = c("two.one", "one.tw
   I = deci(CI*1e2 , 2); o = deci(mode*1e2, 2)
   text(mode, 1:loop, paste0(I[,1], "%", "      ", o, "%", "      ", I[,2], "%"), cex = .75, pos = 3, font = 2, xpd = NA)
   
-  return(round(data.frame(estimate = estimate, mean = mean, mode = mode, median = median, sd = sd, lower = CI[,1], upper = CI[,2], eq.prob = BB, BF01 = BF01, BF10 = BF10, row.names = paste0(np, ":")), 6))                                                
+  return(round(data.frame(estimate = estimate, mean = mean, mode = mode, median = median, sd = sd, lower = CI[,1], upper = CI[,2], eq.prob = BB, BF01 = BF01, BF10 = BF10, row.names = paste0(np, ":")), digits = digits))                                                
 }     
 
               
@@ -970,12 +970,12 @@ prop.diff.eq.default <- function(n1, n2, yes1, yes2, a1 = 1.2, b1 = 1.2, a2 = a1
 #====================================================================================================================              
 
        
-d.bayes <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = 1.1, show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft", eq.level = .1, d.h0 = 0)
+d.bayes <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = 1.1, show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft", eq.level = .1, d.h0 = 0, digits = 6)
 {
   UseMethod("d.bayes")
 }
        
- d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = 1.1, show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft", eq.level = .1, d.h0 = 0){
+ d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = 1.1, show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft", eq.level = .1, d.h0 = 0, digits = 6){
   
   d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name))
   leg <- if(is.character(legend)) legend else deparse(substitute(legend))
@@ -1041,7 +1041,7 @@ for(i in 1:loop){
     I = deci(CI) ; o = deci(mode)
     text(c(CI[,1], o, CI[,2]), 1:loop, c(I[,1], o, I[,2]), pos = 3, font = 2, cex = .8, xpd = NA)
   
-    return(round(data.frame(estimate = estimate, mode = mode, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, BF10 = BF10, row.names = paste0("Cohen's d ", 1:loop, " posterior: ")), 6))
+    return(round(data.frame(estimate = estimate, mode = mode, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, BF10 = BF10, row.names = paste0("Cohen's d ", 1:loop, " posterior: ")), digits = digits))
         
 }else{
     p = function(x) { get(d[1])(x, m[1], s[1])*as.integer(x >= lo[1])*as.integer(x <= hi[1]) }
@@ -1273,12 +1273,12 @@ d.hyper.ms.default <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf
 #==================================================================================================================
 
 
-peta.bayes <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0)
+peta.bayes <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0, digits = 6)
 {
   UseMethod("peta.bayes")
 }
 
-peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0){
+peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0, digits = 6){
   
   d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name))
   leg <- if(is.character(legend)) legend else deparse(substitute(legend))
@@ -1334,7 +1334,7 @@ peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi = 1,
     points(mode, 1:loop, pch = 21, bg = "cyan", cex = 1.3, col = "magenta", xpd = NA)
     I = deci(CI*1e2 , 2); o = deci(mode*1e2, 2)
     text(mode, 1:loop, paste0(I[,1], "%", "    ", o, "%", "    ", I[,2], "%"), cex = .75, pos = 3, font = 2, xpd = NA)
-    return(round(data.frame(estimate = estimate, mode = mode, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, BF10 = BF10, row.names = paste0("P.eta.sq ", 1:loop, " posterior: ")), 6))  
+    return(round(data.frame(estimate = estimate, mode = mode, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, BF10 = BF10, row.names = paste0("P.eta.sq ", 1:loop, " posterior: ")), digits = digits))  
     
 }else{
     p = function(x) { get(d[1])(x, a[1], b[1])*as.integer(x >= lo[1])*as.integer(x <= hi[1]) }
@@ -1544,12 +1544,12 @@ peta.hyper.ab.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi =
 #=================================================================================================================
 
 
-cor.bayes <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 5, legend = "topleft", show.prior = FALSE)
+cor.bayes <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 5, legend = "topleft", show.prior = FALSE, digits = digits)
 {
   UseMethod("cor.bayes")
 }
 
-cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 5, legend = "topleft", show.prior = FALSE){ 
+cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 5, legend = "topleft", show.prior = FALSE, digits = digits){ 
   
   pr <- show.prior    
   mu <- prior.mean
@@ -1610,7 +1610,7 @@ cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = 
   I = deci(CI, 2); o = deci(mode, 2)
   text(mode, 1:loop, paste0(I[,1], "        ", o, "         ", I[,2]), cex = .75, pos = 3, font = 2, xpd = NA)
   
-  return(round(data.frame(mean = mean, mode = mode, median = median, sd = sd, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, row.names = paste0("r", 1:loop, " posterior: ")), 6))
+  return(round(data.frame(mean = mean, mode = mode, median = median, sd = sd, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, row.names = paste0("r", 1:loop, " posterior: ")), digits = digits))
 
   }else{
   
@@ -1623,12 +1623,12 @@ cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = 
 #==================================================================================================================                              
 
                               
-cor.diff <- function(r, n, prior.mean = 0, prior.sd = .707, how = c("two.one", "one.two"), eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 5, legend = "topleft")
+cor.diff <- function(r, n, prior.mean = 0, prior.sd = .707, how = c("two.one", "one.two"), eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 5, legend = "topleft", digits = 6)
 {
   UseMethod("cor.diff")
 }
 
-cor.diff.default <- function(r, n, prior.mean = 0, prior.sd = .707, how = c("two.one", "one.two"), eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 5, legend = "topleft"){ 
+cor.diff.default <- function(r, n, prior.mean = 0, prior.sd = .707, how = c("two.one", "one.two"), eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 5, legend = "topleft", digits = 6){ 
   
   is.s <- function(...)lengths(list(...)) < 2
   if(any(is.s(n, r))) stop("Error: 'r' & 'n' must each have a length of '2' or larger.")
@@ -1709,7 +1709,7 @@ cor.diff.default <- function(r, n, prior.mean = 0, prior.sd = .707, how = c("two
   I = deci(CI, 2); o = deci(mode, 2)
   text(mode, 1:loop, paste0(I[,1], "        ", o, "         ", I[,2]), cex = .75, pos = 3, font = 2, xpd = NA)
   
-  return(round(data.frame(mean = mean, mode = mode, median = median, sd = sd, lower = CI[,1], upper = CI[,2], eq.prob = BB, row.names = paste0(np, ":")), 6))
+  return(round(data.frame(mean = mean, mode = mode, median = median, sd = sd, lower = CI[,1], upper = CI[,2], eq.prob = BB, row.names = paste0(np, ":")), digits = digits))
 }
 
               
@@ -2151,13 +2151,13 @@ if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm
 #==============================================================================================================                       
 
 
-R2.bayes <- function(..., scale = .02, bottom = 1, top = 1.1, margin = 5, legend = "topleft", level = .95, eq.lo = 0, eq.hi = .1)
+R2.bayes <- function(..., scale = .02, bottom = 1, top = 1.1, margin = 5, legend = "topleft", level = .95, eq.lo = 0, eq.hi = .1, digits = 6)
 {
   UseMethod("R2.bayes")
 }                        
                                            
                        
-R2.bayes.default <- function(..., scale = .02, bottom = 1, top = 1.1, margin = 5, legend = "topleft", level = .95, eq.lo = 0, eq.hi = .1)
+R2.bayes.default <- function(..., scale = .02, bottom = 1, top = 1.1, margin = 5, legend = "topleft", level = .95, eq.lo = 0, eq.hi = .1, digits = 6)
 {
 
 if(!(all(sapply(list(...), inherits, "stanreg")))) stop("Error: all '...' must be models from package 'rstanarm's 'stan_glm()'.")  
@@ -2219,7 +2219,7 @@ points(mode, 1:loop, pch = 21, bg = "cyan", cex = 1.5, col = "magenta", xpd = NA
 q = deci(I*1e2 , 2); o = deci(mode*1e2, 2)
 text(mode, 1:loop, paste0(q[,1], "%", "    ", o, "%", "    ", q[,2], "%"), cex = .75, pos = 3, font = 2, xpd = NA)
 
-round(data.frame(mode = mode, mean = mean, sd = sd, MAD = mad, lower = I[,1], upper = I[,2], coverage = level, eq.prob = eq.prob, row.names = paste0("Model-", 1:loop, " posterior:")), 6)
+round(data.frame(mode = mode, mean = mean, sd = sd, MAD = mad, lower = I[,1], upper = I[,2], coverage = level, eq.prob = eq.prob, row.names = paste0("Model-", 1:loop, " posterior:")), digits = digits)
 }
 
 
@@ -2415,13 +2415,13 @@ predict.bayes.default <- function(fit, xlab = NA, ylab = NA, level = .95, line.i
 #==================================================================================
                   
                        
-compare.R2 <- function(..., how = c("two.one", "one.two"), scale = .02, bottom = 1, top = 1.1, margin = 5, legend = "topleft", level = .95, eq.level = "2.5%")
+compare.R2 <- function(..., how = c("two.one", "one.two"), scale = .02, bottom = 1, top = 1.1, margin = 5, legend = "topleft", level = .95, eq.level = "2.5%", digits = digits)
 {
   UseMethod("compare.R2")
 } 
 
                        
-compare.R2.default <- function(..., how = c("two.one", "one.two"), scale = .02, bottom = 1, top = 1.1, margin = 5, legend = "topleft", level = .95, eq.level = "2.5%"){
+compare.R2.default <- function(..., how = c("two.one", "one.two"), scale = .02, bottom = 1, top = 1.1, margin = 5, legend = "topleft", level = .95, eq.level = "2.5%", digits = digits){
   
 if(!(all(sapply(list(...), inherits, "stanreg")))) stop("Error: all '...' must be models from package 'rstanarm's 'stan_glm()'.")  
   
@@ -2499,7 +2499,7 @@ if(!(all(sapply(list(...), inherits, "stanreg")))) stop("Error: all '...' must b
   q = deci(CI*1e2 , 2); o = deci(mode*1e2, 2)
   text(mode, 1:loop, paste0(q[,1], "%", "         ", o, "%", "         ", q[,2], "%"), cex = .75, pos = 3, font = 2, xpd = NA)
   
-  return(round(data.frame(mean = mean, mode = mode, median = median, sd = sd, lower = CI[,1], upper = CI[,2], coverage = level, eq.prob = eq.prob, row.names = paste0(np, ":")), 6))
+  return(round(data.frame(mean = mean, mode = mode, median = median, sd = sd, lower = CI[,1], upper = CI[,2], coverage = level, eq.prob = eq.prob, row.names = paste0(np, ":")), digits = digits))
 }
 
                        
@@ -2607,12 +2607,12 @@ pairs(post, pch = pch, cex = cex, col = col, gap = gap, panel = panel,
 #===================================================================================
               
               
-type.sm <- function(d = .1, obs.d = .6, n1 = 20, n2 = NA)
+type.sm <- function(d = .1, obs.d = .6, n1 = 20, n2 = NA, digits = 6)
 {
   UseMethod("type.sm")
 }
 
-type.sm.default <- function(d = .1, obs.d = .6, n1 = 20, n2 = NA){
+type.sm.default <- function(d = .1, obs.d = .6, n1 = 20, n2 = NA, digits = 6){
   
   original.par = par(no.readonly = TRUE)
   on.exit(par(original.par))
@@ -2672,7 +2672,7 @@ type.sm.default <- function(d = .1, obs.d = .6, n1 = 20, n2 = NA){
           sig = if(d > 0) abs(random.d) > CI[2] else -abs(random.d) < CI[1]
   exaggration = if(d > 0) mean(abs(random.d)[sig])/ d else mean(-abs(random.d)[sig])/ d
   
-  round(data.frame(exaggration = exaggration, type.s = type.s, power = power, Crit.d = CI[2], p.value = p.value, row.names = "Results:"), 6)
+  round(data.frame(exaggration = exaggration, type.s = type.s, power = power, Crit.d = CI[2], p.value = p.value, row.names = "Results:"), digits = digits)
 }
 
 
