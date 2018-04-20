@@ -127,11 +127,15 @@ prop.ci <- function(k, n, conf.level = .95, digits = 6)
   UseMethod("prop.ci")
 }
 
-prop.ci.default <- Vectorize(function(k, n, conf.level = .95, digits = 6){
+prop.ci.default <- function(k, n, conf.level = .95, digits = 6){
+
+ci <- Vectorize(function(k, n, conf.level, digits){
   
 I = round(as.numeric(binom.test(k, n, conf.level = conf.level)[[4]]), digits = digits)
-data.frame(Prop = k/n, lower = I[1], upper = I[2], conf.level = conf.level, row.names = "Prop CI:")
+data.frame(Prop = k/n, lower = I[1], upper = I[2], conf.level = conf.level)
 })
+data.frame(t(ci(k = k, n = n, conf.level = conf.level, digits = digits)))
+}
 
 #==================================================================================================
 
@@ -214,11 +218,15 @@ cor.ci <- function(r, n, conf.level = .95, digits = digits)
   UseMethod("cor.ci")
 }
                               
-cor.ci.default <- Vectorize(function(r, n, conf.level = .95, digits = digits){
+cor.ci.default <- function(r, n, conf.level = .95, digits = 6){
+
+ci <- Vectorize(function(r, n, conf.level, digits){
   p = (1 - conf.level) / 2 
   I = round(tanh(atanh(r) + qnorm(c(p, 1-p))*1/sqrt(n - 3)), digits = 6)
-  data.frame(lower = I[1], upper = I[2], conf.level = conf.level, row.names = "Correlation CI:")
-})                              
+  data.frame(r = r, lower = I[1], upper = I[2], conf.level = conf.level)
+}) 
+data.frame(t(ci(r = r, n = n, conf.level = conf.level, digits = digits)))
+}                             
 
 #==================================================================================================================
 
