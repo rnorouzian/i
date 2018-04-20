@@ -144,7 +144,9 @@ d.ci <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 6)
   UseMethod("d.ci")
 }
 
-d.ci.default <- Vectorize(function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 6){
+d.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 6){
+
+ci <- Vectorize(function(d, t, n1, n2, conf.level, digits){
   
   options(warn = -1)  
   alpha = (1 - conf.level)/2
@@ -158,21 +160,26 @@ d.ci.default <- Vectorize(function(d, t = NA, n1, n2 = NA, conf.level = .95, dig
   }
   
   a = if(is.na(t)){ lapply(14:ifelse(d!= 0, q+2e2, 30), function(x) c(-x, x))
-    }else{ lapply(14:ifelse(t!= 0, q+2e2, 30), function(x) c(-x, x)) }
+  }else{ lapply(14:ifelse(t!= 0, q+2e2, 30), function(x) c(-x, x)) }
   
   CI = matrix(NA, length(a), 2)
   
   for(i in 1:length(a)){
     CI[i,] = sapply(c(alpha, 1-alpha),
-    function(x) optimize(f, interval = a[[i]], alpha = x, q = q, df = df)[[1]]*d.SE)
+                    function(x) optimize(f, interval = a[[i]], alpha = x, q = q, df = df)[[1]]*d.SE)
   }  
   
   I = CI[which.max(ave(1:nrow(CI), do.call(paste, round(data.frame(CI), 3)), FUN = seq_along)), ]  
   
   Cohen.d = ifelse(is.na(t), d, t*d.SE)
   
- round(data.frame(Cohen.d = Cohen.d, lower = I[1], upper = I[2], conf.level = conf.level, ncp = q, row.names = "Cohen's d CI:"), digits = digits)
+  round(data.frame(Cohen.d = Cohen.d, lower = I[1], upper = I[2], conf.level = conf.level, ncp = q, row.names = "Cohen's d CI:"), digits = digits)
 })
+
+d <- if(missing(d)) NA else d
+
+data.frame(t(ci(d = d, t = t, n1 = n1, n2 = n2, conf.level = conf.level, digits = digits)))
+}
 
 #=================================================================================================================================
 
