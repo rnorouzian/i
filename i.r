@@ -3011,13 +3011,13 @@ box()
 #=======================================================================================================
               
               
-case.fit.plot <- function(fit, level = .95, legend = "topleft", lwd = 2, fit.tol = 1, pt.cex = 1, cex.axis = .8)
+case.fit.plot <- function(fit, level = .95, legend = "topleft", lwd = 2, fit.tol = 1, pt.cex = 1, cex.axis = .8, col.corridor = "yellow", col.depth = .4)
 {
   UseMethod("case.fit.plot")
 }  
 
 
-case.fit.plot.default <- function(fit, level = .95, legend = "topleft", lwd = 2, fit.tol = 1, pt.cex = 1, cex.axis = .8){
+case.fit.plot.default <- function(fit, level = .95, legend = "topleft", lwd = 2, fit.tol = 1, pt.cex = 1, cex.axis = .8, col.corridor = "yellow", col.depth = .4){
   
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
 
@@ -3055,7 +3055,7 @@ on.exit(par(original.par))
 par(mar = c(2.6, 4, 2.2, 4))
     
 plot(e[o], 1:loop, cex = .6, xlim = range(PI.e), pch = 19, ylab = NA, yaxt = "n", mgp = c(1.3, .4, 0), type = "n", xlab = "Credible Interval (Residuals)", font.lab = 2)
-rect(-unit, par('usr')[3], unit, par('usr')[4], border = NA, col = adjustcolor("yellow", .4), lend = 1)
+rect(-unit, par('usr')[3], unit, par('usr')[4], border = NA, col = adjustcolor(col.corridor, col.depth), lend = 1)
 
 abline(v = 0, h = 1:loop, lty = 3, col = 8)
 
