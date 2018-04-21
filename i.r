@@ -183,46 +183,46 @@ data.frame(t(ci(d = d, t = t, n1 = n1, n2 = n2, conf.level = conf.level, digits 
 
 #=================================================================================================================================
 
-peta.ci <- function(peta, F.value = NA, N, df1, df2, conf.level = .9, digits = 6)
+peta.ci <- function(peta, f = NA, N, df1, df2, conf.level = .9, digits = 6)
 {
   UseMethod("peta.ci")
 }
-                
-peta.ci.default <- function(peta, F.value = NA, N, df1, df2, conf.level = .9, digits = 6){
 
-ci <- Vectorize(function(peta, F.value, N, df1, df2, conf.level, digits){
+peta.ci.default <- function(peta, f = NA, N, df1, df2, conf.level = .9, digits = 6){
   
-  options(warn = -1) 
+  ci <- Vectorize(function(peta, f, N, df1, df2, conf.level, digits){
+    
+    options(warn = -1) 
+    
+    q = ifelse(is.na(f), (-peta * df2) / ((peta * df1) - df1), f) 
+    alpha = (1 - conf.level)/2
+    
+    u <- function (ncp, alpha, q, df1, df2) {
+      abs(suppressWarnings(pf(q = q, df1 = df1, df2 = df2, ncp, lower.tail = FALSE)) - alpha)
+    }
+    
+    a = if(is.na(f)){ lapply(20:ifelse(peta!= 0, q+3e2, 30), function(x) c(-x, x))
+    }else{ lapply(20:ifelse(f!= 0, q+3e2, 30), function(x) c(-x, x)) }
+    
+    CI = matrix(NA, length(a), 2)
+    
+    for(i in 1:length(a)){
+      CI[i,] <- sapply(c(alpha, 1-alpha), 
+                       function(x) optimize(u, interval = a[[i]], alpha = x, q = q, df1 = df1, df2 = df2)[[1]])
+    }
+    
+    I <- CI[which.max(ave(1:nrow(CI), do.call(paste, round(data.frame(CI), 3)), FUN = seq_along)), ] 
+    
+    I <- I[1:2] / (I[1:2] + N)
+    
+    P.eta.sq <- if(is.na(f)) peta else (f * df1)/ ((f * df1) + df2)
+    
+    round(data.frame(P.eta.sq = P.eta.sq, lower = I[1], upper = I[2], conf.level = conf.level, ncp = (P.eta.sq * N) / (1 - P.eta.sq), F.value = q), digits = digits)
+  })  
   
-  q = ifelse(is.na(F.value), (-peta * df2) / ((peta * df1) - df1), F.value) 
-  alpha = (1 - conf.level)/2
+  peta <- if(missing(peta)) NA else peta
   
-  f <- function (ncp, alpha, q, df1, df2) {
-    abs(suppressWarnings(pf(q = q, df1 = df1, df2 = df2, ncp, lower.tail = FALSE)) - alpha)
-  }
-  
-  a = if(is.na(F.value)){ lapply(20:ifelse(peta!= 0, q+3e2, 30), function(x) c(-x, x))
-  }else{ lapply(20:ifelse(F.value!= 0, q+3e2, 30), function(x) c(-x, x)) }
-  
-  CI = matrix(NA, length(a), 2)
-  
-  for(i in 1:length(a)){
-    CI[i,] <- sapply(c(alpha, 1-alpha), 
-    function(x) optimize(f, interval = a[[i]], alpha = x, q = q, df1 = df1, df2 = df2)[[1]])
-  }
-  
-  I <- CI[which.max(ave(1:nrow(CI), do.call(paste, round(data.frame(CI), 3)), FUN = seq_along)), ] 
-  
-  I <- I[1:2] / (I[1:2] + N)
-  
-  P.eta.sq <- if(is.na(F.value)) peta else (F.value * df1)/ ((F.value * df1) + df2)
-  
-  round(data.frame(P.eta.sq = P.eta.sq, lower = I[1], upper = I[2], conf.level = conf.level, ncp = (P.eta.sq * N) / (1 - P.eta.sq), F.value = q), digits = digits)
-})  
-
-peta <- if(missing(peta)) NA else peta
-
-data.frame(t(ci(peta = peta, F.value = F.value, N = N, df1 = df1, df2 = df2, conf.level = conf.level, digits = digits)))
+  data.frame(t(ci(peta = peta, f = f, N = N, df1 = df1, df2 = df2, conf.level = conf.level, digits = digits)))
 }               
 
 #=================================================================================================================================                
