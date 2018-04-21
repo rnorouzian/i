@@ -227,7 +227,7 @@ data.frame(t(ci(peta = peta, F.value = F.value, N = N, df1 = df1, df2 = df2, con
 
 #=================================================================================================================================                
                 
-cor.ci <- function(r, n, conf.level = .95, digits = digits)
+cor.ci <- function(r, n, conf.level = .95, digits = 6)
 {
   UseMethod("cor.ci")
 }
@@ -236,7 +236,7 @@ cor.ci.default <- function(r, n, conf.level = .95, digits = 6){
 
 ci <- Vectorize(function(r, n, conf.level, digits){
   p = (1 - conf.level) / 2 
-  I = round(tanh(atanh(r) + qnorm(c(p, 1-p))*1/sqrt(n - 3)), digits = 6)
+  I = round(tanh(atanh(r) + qnorm(c(p, 1-p))*1/sqrt(n - 3)), digits = digits)
   data.frame(r = r, lower = I[1], upper = I[2], conf.level = conf.level)
 }) 
 data.frame(t(ci(r = r, n = n, conf.level = conf.level, digits = digits)))
