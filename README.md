@@ -1,2 +1,2 @@
 # i
-A suite of R functions for univariate Bayesian estimation
+A suite of R functions for applied Bayesian estimation
