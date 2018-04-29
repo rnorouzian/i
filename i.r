@@ -524,6 +524,7 @@ prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "db
       BF10[i] = k[i]/dbinom(yes[i], n[i], p.h0)
       estimate[i] <- yes[i]/n[i]     
     }
+    graphics.off()                   
     plot(CI, rep(1:loop, 2), type = "n", xlim = 0:1, ylim = c(bottom*1, top*loop), ylab = NA, yaxt = "n", xaxt = "n", xlab = "Credible Interval (Proportion)", font.lab = 2, mgp = c(2, .3, 0))
     abline(h = 1:loop, col = 8, lty = 3)
     axis(1, at = axTicks(1), lab = paste0(axTicks(1)*1e2, "%"), mgp = c(2, .3, 0))
@@ -1046,6 +1047,7 @@ for(i in 1:loop){
    eq.prob[i] = integrate(posterior, lo[i], eq.level)[[1]] - integrate(posterior, lo[i], -eq.level)[[1]]
    estimate[i] <- t[i]/sqrt(N[i])
 }    
+    graphics.off()                         
     f = peak + 1:loop
     plot(CI, rep(1:loop, 2), type = "n", xlim = c(min(from), max(to)), ylim = c(bottom*1, top*max(f)), ylab = NA, yaxt = "n", xlab = bquote(bold("Credible Interval "(delta))), font.lab = 2, mgp = c(2, .5, 0))
     abline(h = 1:loop, col = 8, lty = 3)
@@ -1340,7 +1342,7 @@ peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo
       eq.prob[i] = integrate(posterior, lo[i], eq.hi)[[1]] - integrate(posterior, lo[i], eq.lo)[[1]]
       estimate[i] <- (f[i]*df1[i]) / ((f[i]*df1[i]) + df2[i])
     } 
-    
+    graphics.off()
     plot(CI, rep(1:loop, 2), type = "n", xlim = 0:1, ylim = c(bottom*1, top*loop), ylab = NA, yaxt = "n", xaxt = "n", xlab = bquote(bold("Credible Interval"~(eta[p]^2))), font.lab = 2, mgp = c(2, .5, 0))
     abline(h = 1:loop, col = 8, lty = 3)
     axis(1, at = axTicks(1), lab = paste0(axTicks(1)*1e2, "%"), mgp = c(2, .3, 0)) 
@@ -1614,7 +1616,7 @@ cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = 
     from[i] <- mean[i] - margin * sd[i]
     to[i] <- mean[i] + margin * sd[i]
   }
-  
+  graphics.off()
   plot(CI, rep(1:loop, 2), type = "n", xlim = c(min(from), max(to)), ylim = c(bottom*1, top*loop), ylab = NA, yaxt = "n", xlab = "Credible Interval (Pearson correlation)", font.lab = 2, mgp = c(2, .3, 0))
   axis(2, at = 1:loop, labels = paste0("r", 1:loop), font = 2, las = 1, cex.axis = .8, tck = -.006, mgp = c(2, .3, 0))
   abline(h = 1:loop, col = 8, lty = 3)
@@ -1765,6 +1767,7 @@ prop.update.default <- function(n = 100, yes = 55, top = 5, scale = .1, lo = 0, 
   prx <- get(d)(props, a, b)*as.integer(props >= lo)*as.integer(props <= hi)
   pr <- tol * prx / sum(prx)
   
+  graphics.off()                            
   original.par = par(no.readonly = TRUE)
   on.exit(par(original.par))
   
@@ -1837,6 +1840,7 @@ d.update.default <- function(t, n1, n2 = NA, top = 5, scale = .1, m = 0, s = 1, 
   prx <- get(d)(ds, m, s)*as.integer(ds >= lo)*as.integer(ds <= hi)
   pr <- tol * prx / sum(prx)
   
+  graphics.off()                            
   original.par = par(no.readonly = TRUE)
   on.exit(par(original.par))
   
@@ -1910,6 +1914,7 @@ peta.update.default <- function(f, N, df1, df2, top = 5, scale = .1, a = 2, b = 
   prx <- get(d)(peta, a, b)*as.integer(peta >= lo)*as.integer(peta <= hi)
   pr <- tol * prx / sum(prx)
   
+  graphics.off()                            
   original.par = par(no.readonly = TRUE)
   on.exit(par(original.par))
   
@@ -2220,6 +2225,7 @@ to[i] <- mean[i] + margin * sd[i]
 a = if(min(from) >= 0) min(from) else 0
 b = if(max(to) <= 1) max(to) else 1
 
+graphics.off()    
 plot(1, loop, type = "n", xlim = c(a, b), ylim = c(bottom*1, top*loop), ylab = NA, xaxt = "n", yaxt = "n", xlab = bquote(bold("Regression Coefficient " (R^2))), mgp = c(2, .3, 0))
 abline(h = 1:loop, col = 8, lty = 3)
 
@@ -2321,6 +2327,7 @@ d <- density(mus_at_xi, adjust = 2, n = 1e3)
 
 xlab = if(is.na(xlab)) bquote(bold(bolditalic(p)*(Ave.*.(names(fit$model)[1])[i] *" | "* .(names(fit$model)[2])[i] == .(predi)))) else xlab   
 
+graphics.off()    
 plot(d, type = "n", ylab = NA, main = NA, yaxt = "n", bty = "n", las = 1, zero.line = FALSE, yaxs = "i",
      xlab = xlab, ...)
 
@@ -2357,6 +2364,7 @@ case_at_xi <- rstanarm::posterior_predict(fit, newdata = setNames(data.frame(tmp
   d <- density(case_at_xi, adjust = 2, n = 1e3)
     
   xlab = if(is.na(xlab)) bquote(bold(bolditalic(p)*(.(names(fit$model)[1])[i] *" | "* .(names(fit$model)[2])[i] == .(predi)))) else xlab  
+  graphics.off()
   plot(d, type = "n", ylab = NA, main = NA, yaxt = "n", bty = "n", las = 1, zero.line = FALSE, yaxs = "i",
        xlab = xlab, ...)
   
@@ -2392,7 +2400,7 @@ predict.bayes.default <- function(fit, xlab = NA, ylab = NA, level = .95, line.i
   
   pred_lin <- rstanarm::posterior_predict(fit, transform = TRUE)
   pred_lin2 <- rstanarm::posterior_linpred(fit, transform = TRUE)
-  
+  graphics.off()
   plot(dep ~ pred, xlab = ifelse(is.na(xlab), names(fit$model)[2], xlab), ylab = ifelse(is.na(ylab), names(fit$model)[1], ylab), type = "n", las = 1, ...)
   
   loop <- length(pred)
@@ -2498,6 +2506,7 @@ if(!(all(sapply(list(...), inherits, "stanreg")))) stop("Error: all '...' must b
   a <- if(min(from) >= -1) min(from) else -1
   b <- if(max(to) <= 1) max(to) else 1
   
+  graphics.off()    
   original.par = par(no.readonly = TRUE)
   on.exit(par(original.par))
   
@@ -2636,6 +2645,7 @@ type.sm <- function(d = .1, obs.d = .6, n1 = 20, n2 = NA, digits = 6)
 
 type.sm.default <- function(d = .1, obs.d = .6, n1 = 20, n2 = NA, digits = 6){
   
+  graphics.off()  
   original.par = par(no.readonly = TRUE)
   on.exit(par(original.par))
   
@@ -2725,6 +2735,7 @@ exaggration = if(d > 0) mean(abs(random.d)[sig])/ d else mean(-abs(random.d)[sig
     list(exaggration = exaggration, type.s = type.s, power = power)
   }
   
+  graphics.off()  
   original.par = par(no.readonly = TRUE)
   on.exit(par(original.par))
   
@@ -2963,7 +2974,7 @@ loop <- n
 
 v1 <- deparse(substitute(FUN))
 main <- if(is.na(hold.at)) v1 else hold.at
-
+graphics.off()
 plot(dep ~ pred, xlab = xlab, ylab = ylab, type = "n", las = 1, main = paste0("Other predictor(s) held at: ", dQuote(main)), ...)
 
 
@@ -3050,6 +3061,7 @@ ok <- min(e[o]) < e[o] & e[o] < max(e[o])
 
 unit <- fit.tol*sd(e)
 
+graphics.off()    
 original.par = par(no.readonly = TRUE)
 on.exit(par(original.par))    
 par(mar = c(2.6, 4, 2.2, 4))
