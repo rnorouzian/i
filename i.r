@@ -249,7 +249,9 @@ beta.id <- function(Low, High, Cover = NA, digits = 6)
   UseMethod("beta.id")
 }
 
-beta.id.default <- Vectorize(function(Low, High, Cover = NA, digits = 6){
+beta.id.default <- function(Low, High, Cover = NA, digits = 6){
+
+bet <- Vectorize(function(Low, High, Cover){
   
   options(warn = -1)
   L <- if(is.character(Low)) as.numeric(substr(Low, 1, nchar(Low)-1)) / 1e2 else Low
@@ -297,10 +299,12 @@ beta.id.default <- Vectorize(function(Low, High, Cover = NA, digits = 6){
       
     }else{
       
-      return(c(alpha = round(parm[[1]], digits = digits), beta = round(parm[[2]], digits = digits)))    
+      return(c(a = parm[1], b = parm[2], Cover = Cover))   
     }
   } 
 })
+    round(data.frame(t(bet(Low = Low, High = High, Cover = Cover))), digits = digits)
+}
 
 #===============================================================================================
 
