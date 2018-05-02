@@ -3225,12 +3225,12 @@ return(list(model.hdi = hdi.fit(fit = fit, level = level, digits = digits),
 #============================================================================================================================
               
 
-many.model.info <- function(..., cor = TRUE, level = .95, digits = 6)
+models.info <- function(..., cor = TRUE, level = .95, digits = 6)
 {
-  UseMethod("many.model.info")
+  UseMethod("models.info")
 }  
 
-many.model.info.default <- function(..., cor = TRUE, level = .95, digits = 6){
+models.info.default <- function(..., cor = TRUE, level = .95, digits = 6){
 
 return(list(model.hdi = model.hdi(... = ..., level = level, digits = digits), 
            model.cor = model.cor(... = ..., cor = cor, digits = digits), 
