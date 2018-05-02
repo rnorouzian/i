@@ -1814,12 +1814,12 @@ prop.update.default <- function(n = 100, yes = 55, top = 5, scale = .1, lo = 0, 
 
 #=======================================================================================================================
 
-d.update <- function(t, n1, n2 = NA, top = 5, scale = .1, m = 0, s = 1, dist.name = "dnorm", prior.scale = 1, level = .95, show.prior = FALSE, lo = -2, hi = 2, tol = 1e4, margin = hi)
+d.update <- function(t = 3.35, n1 = 30, n2 = NA, top = 5, scale = .1, m = 0, s = 1, dist.name = "dnorm", prior.scale = 1, level = .95, show.prior = FALSE, lo = -2, hi = 2, tol = 1e4, margin = hi)
 {
   UseMethod("d.update")
 }
 
-d.update.default <- function(t, n1, n2 = NA, top = 5, scale = .1, m = 0, s = 1, dist.name = "dnorm", prior.scale = 1, level = .95, show.prior = FALSE, lo = -2, hi = 2, tol = 1e4, margin = hi){
+d.update.default <- function(t = 3.35, n1 = 30, n2 = NA, top = 5, scale = .1, m = 0, s = 1, dist.name = "dnorm", prior.scale = 1, level = .95, show.prior = FALSE, lo = -2, hi = 2, tol = 1e4, margin = hi){
   
   pri <- show.prior
   d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name)) 
@@ -1892,12 +1892,12 @@ d.update.default <- function(t, n1, n2 = NA, top = 5, scale = .1, m = 0, s = 1, 
 
 #==================================================================================================================
 
-peta.update <- function(f, N, df1, df2, top = 5, scale = .1, a = 2, b = 2, lo = 0, hi = 1, dist.name = "dbeta", prior.scale = 1, level = .95, show.prior = FALSE, tol = 1e5)
+peta.update <- function(f = 50, N = 120, df1 = 3, df2 = 116, top = 5, scale = .1, a = 2, b = 2, lo = 0, hi = 1, dist.name = "dbeta", prior.scale = 1, level = .95, show.prior = FALSE, tol = 1e5)
 {
   UseMethod("peta.update")
 }
 
-peta.update.default <- function(f, N, df1, df2, top = 5, scale = .1, a = 2, b = 2, lo = 0, hi = 1, dist.name = "dbeta", prior.scale = 1, level = .95, show.prior = FALSE, tol = 1e5){
+peta.update.default <- function(f = 50, N = 120, df1 = 3, df2 = 116, top = 5, scale = .1, a = 2, b = 2, lo = 0, hi = 1, dist.name = "dbeta", prior.scale = 1, level = .95, show.prior = FALSE, tol = 1e5){
   
   pri <- show.prior
   d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name)) 
