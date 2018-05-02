@@ -1006,13 +1006,14 @@ d.bayes <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf, hi = I
   
   d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name))
   leg <- if(is.character(legend)) legend else deparse(substitute(legend))
-      
-  pr = show.prior
+  deci <- function(x, k = 3) format(round(x, k), nsmall = k)
+  pr <- show.prior
+
+if(!pr){    
   eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
   I = eq(m, s, d, lo, hi, t, n1, n2)
   m = I[[1]] ; s = I[[2]] ; d = I[[3]] ; lo = I[[4]] ; hi = I[[5]] ; t = I[[6]] ; n1 = I[[7]] ; n2 = I[[8]]
   
-  deci <- function(x, k = 3) format(round(x, k), nsmall = k)                           
   loop = length(d) 
   CI = matrix(NA, loop, 2)
   mode = numeric(loop)
@@ -1027,13 +1028,11 @@ d.bayes <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf, hi = I
   BF10 = numeric(loop)
   estimate = numeric(loop)
   
- if(!pr){    
-    
     N = ifelse(is.na(n2), n1, (n1 * n2) / (n1 + n2))
     df = ifelse(is.na(n2), n1 - 1, n1 + n2 - 2)    
     options(warn = -1)
     
-for(i in 1:loop){
+    for(i in 1:loop){
       p = function(x) get(d[i])(x, m[i], s[i])*as.integer(x >= lo[i])*as.integer(x <= hi[i])
       prior = function(x) p(x)/integrate(p, lo[i], hi[i])[[1]]        
       likelihood = function(x) dt(t[i], df[i], x*sqrt(N[i]))
@@ -1047,10 +1046,10 @@ for(i in 1:loop){
       peak[i] = posterior(mode[i])
       CI[i,] = HDI(posterior, LL, UL, level = level)
       h[[i]] = list(x = x <- seq(from[i], to[i], length.out = 5e2), y = posterior(x))
-   BF10[i] =  k[i] / dt(t[i], df[i], d.h0*sqrt(N[i]))
-   eq.prob[i] = integrate(posterior, lo[i], eq.level)[[1]] - integrate(posterior, lo[i], -eq.level)[[1]]
-   estimate[i] <- t[i]/sqrt(N[i])
-}    
+      BF10[i] =  k[i] / dt(t[i], df[i], d.h0*sqrt(N[i]))
+      eq.prob[i] = integrate(posterior, lo[i], eq.level)[[1]] - integrate(posterior, lo[i], -eq.level)[[1]]
+      estimate[i] <- t[i]/sqrt(N[i])
+    }    
     graphics.off()                         
     f = peak + 1:loop
     plot(CI, rep(1:loop, 2), type = "n", xlim = c(min(from), max(to)), ylim = c(bottom*1, top*max(f)), ylab = NA, yaxt = "n", xlab = bquote(bold("Credible Interval "(delta))), font.lab = 2, mgp = c(2, .5, 0))
@@ -1068,14 +1067,14 @@ for(i in 1:loop){
     points(mode, 1:loop, pch = 21, bg = "cyan", cex = 1.1, col = 4, xpd = NA)
     I = deci(CI) ; o = deci(mode)
     text(c(CI[,1], o, CI[,2]), 1:loop, c(I[,1], o, I[,2]), pos = 3, font = 2, cex = .8, xpd = NA)
-  
+    
     return(round(data.frame(estimate = estimate, mode = mode, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, BF10 = BF10, row.names = paste0("Cohen's d ", 1:loop, " posterior: ")), digits = digits))
-        
-}else{
+    
+  }else{
     p = function(x) { get(d[1])(x, m[1], s[1])*as.integer(x >= lo[1])*as.integer(x <= hi[1]) }
-    curve(p, prior.left, prior.right, yaxt = "n", ylab = NA, xlab = bquote(bold("Effect Size "(delta))), bty = "n", font.lab = 2, lwd = 2, n = 1e3, main = bquote(delta*" ~ "*.(if(lo[1] > -Inf || hi[1] < Inf) "truncated-")*.(substring(d[1], 2))(.(round(m[1], 2)), .(round(s[1], 2)))), mgp = c(2, .5, 0))
+    curve(p, prior.left, prior.right, yaxt = "n", ylab = NA, xlab = bquote(bold("Effect Size "(delta))), bty = "n", font.lab = 2, lwd = 2, n = 1e3, main = bquote(delta*" ~ "*.(if(lo[1] > -Inf || hi[1] < Inf) "truncated-")*.(substring(d[1], 2))(.(round(m[1], 2)), .(round(s[1], 2)))), mgp = c(2, .5, 0), yaxs = "i")
   }
-}       
+}           
    
    
 #====================================================================================================================
@@ -1310,14 +1309,14 @@ peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo
   
   d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name))
   leg <- if(is.character(legend)) legend else deparse(substitute(legend))
-      
+  deci <- function(x, k = 3) format(round(x, k), nsmall = k)      
   pr <- show.prior
+    
+  if(!pr){    
   eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
   I <- eq(a, b, d, lo, hi, f, N, df1, df2)
   a = I[[1]] ; b = I[[2]] ; d = I[[3]] ; lo = I[[4]] ; hi = I[[5]] ; f = I[[6]] ; N = I[[7]] ; df1 = I[[8]] ; df2 = I[[9]] 
-  
-  deci <- function(x, k = 3) format(round(x, k), nsmall = k)                                                                                                                           
-  
+                                                                                                                          
   loop <- length(a)
   CI <- matrix(NA, loop, 2)
   mode <- numeric(loop)
@@ -1327,9 +1326,7 @@ peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo
   eq.prob = numeric(loop)
   BF10 = numeric(loop)
   estimate = numeric(loop)
-  
-  if(!pr){  
-    
+ 
     options(warn = -1)
     
     for(i in 1:loop){
@@ -1366,7 +1363,7 @@ peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo
     
 }else{
     p = function(x) { get(d[1])(x, a[1], b[1])*as.integer(x >= lo[1])*as.integer(x <= hi[1]) }
-    curve(p, 0, 1, yaxt = "n", xaxt = "n", ylab = NA, xlab = bquote(bold("Partial Eta.Sq"~(eta[p]^2))), bty = "n", font.lab = 2, lwd = 2, n = 1e3, main = bquote(eta[p]^2*" ~ "*.(if(lo[1] > 0 || hi[1] < 1) "truncated-")*.(substring(d[1], 2))(.(round(a[1], 2)), .(round(b[1], 2)))))
+    curve(p, 0, 1, yaxt = "n", xaxt = "n", ylab = NA, xlab = bquote(bold("Partial Eta.Sq"~(eta[p]^2))), bty = "n", font.lab = 2, lwd = 2, n = 1e3, main = bquote(eta[p]^2*" ~ "*.(if(lo[1] > 0 || hi[1] < 1) "truncated-")*.(substring(d[1], 2))(.(round(a[1], 2)), .(round(b[1], 2)))), yaxs = "i")
     axis(1, at = axTicks(1), lab = paste0(axTicks(1)*1e2, "%"), mgp = c(2, .4, 0))
   }
 }
