@@ -3217,8 +3217,24 @@ stand.fit <- function(fit, level, digits){
   return(round(data.frame(standard.coef = mean, sd = sd, lower = I[,1], upper = I[,2], level = level, row.names = colnames(b)), digits = digits))
 }
 
-print(list(model.hdi = hdi.fit(fit = fit, level = level, digits = digits), 
+return(list(model.hdi = hdi.fit(fit = fit, level = level, digits = digits), 
            model.cor = cor.fit(fit = fit, cor = cor, digits = digits), 
            model.standard = stand.fit(fit = fit, level = level, digits = digits)))
 }
+              
+#============================================================================================================================
+              
+
+many.model.info <- function(..., cor = TRUE, level = .95, digits = 6)
+{
+  UseMethod("many.model.info")
+}  
+
+many.model.info.default <- function(..., cor = TRUE, level = .95, digits = 6){
+
+return(list(model.hdi = model.hdi(... = ..., level = level, digits = digits), 
+           model.cor = model.cor(... = ..., cor = cor, digits = digits), 
+           model.standard = model.standard(... = ..., level = level, digits = digits)))
+}
+              
               
