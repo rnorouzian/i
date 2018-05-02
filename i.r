@@ -3167,3 +3167,58 @@ return(m)
 }
 
               
+#==================================================================================================================
+      
+              
+model.info <- function(fit, cor = TRUE, level = .95, digits = 6)
+{
+  UseMethod("model.info")
+}  
+
+              
+model.info.default <- function(fit, cor = TRUE, level = .95, digits = 6){
+  
+  hdi.fit <- function(fit, level, digits){
+    
+    m <- round(data.frame(t(apply(as.matrix(fit), 2, hdir, level = level)), level), digits = digits)
+    
+    colnames(m) <- c("lower", "upper", "level")
+    
+    return(m)
+  }  
+
+cor.fit <- function(fit, cor, digits){
+  
+  m <- if(cor) cov2cor(cov(as.matrix(fit))) else cov(as.matrix(fit))
+  
+  return(round(m, digits = digits))
+}
+
+stand.fit <- function(fit, level, digits){
+  
+  X <- model.matrix(fit)
+  sd_X <- apply(X, MARGIN = 2, FUN = sd)[-1]
+  sd_Y <- apply(rstanarm::posterior_predict(fit), MARGIN = 1, FUN = sd)
+  beta <- as.matrix(fit)[ , 2:ncol(X), drop = FALSE]
+  b <- sweep(sweep(beta, MARGIN = 2, STATS = sd_X, FUN = `*`), 
+             MARGIN = 1, STATS = sd_Y, FUN = `/`)
+  
+  loop <- ncol(b)
+  mean <- numeric(loop)
+  sd <- numeric(loop)
+  I <- matrix(NA, loop, 2)
+  
+  for(i in 1:loop){
+    I[i,] <- hdir(b[, i], level = level)
+    mean[i] <- mean(b[, i])
+    sd[i] <- sd(b[, i])
+  }
+  
+  return(round(data.frame(standard.coef = mean, sd = sd, lower = I[,1], upper = I[,2], level = level, row.names = colnames(b)), digits = digits))
+}
+
+print(list(model.hdi = hdi.fit(fit = fit, level = level, digits = digits), 
+           model.cor = cor.fit(fit = fit, cor = cor, digits = digits), 
+           model.standard = stand.fit(fit = fit, level = level, digits = digits)))
+}
+              
