@@ -3246,12 +3246,13 @@ icc <- function(a = 1, b = 0, c = 0, from = -4, to = 4, legend = "topleft")
   UseMethod("icc")
 }
 
-
+              
 icc.default <- function(a = 1, b = 0, c = 0, from = -4, to = 4, legend = "topleft"){
   
-  if(c > 1 || c < 0) stop("Error: 'Gussing' parameter 'c' must be between '0' and '1'.")
+  if(any(c > 1) || any(c < 0)) stop("Error: 'Gussing' parameter 'c' must be between '0' and '1'.")
+  
   eq <- function(...){ lapply(list(...), 
-                              function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
+  function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
   
   I <- eq(a, b, c)
   
@@ -3259,20 +3260,29 @@ icc.default <- function(a = 1, b = 0, c = 0, from = -4, to = 4, legend = "toplef
   
   loop <- seq_along(a)
   
-  for(i in loop){
-    
-    p <- function(x) c[i] + ((1 - c[i])/(1 + exp(-a[i]*(x - b[i]))))  
-    
-    curve(p, from, to, add = i!= 1, col = i, lwd = 2, n = 1e3, las = 1, 
-          font.lab = 2, xlab = bquote(bold("Person Ability"~(theta))), 
-          ylab = bquote(p(theta)), mgp = c(2, .5, 0), tck = -.015)
-  }  
+  h <- list()
   
-  abline(h = c(0, 1), col = 8, lty = 3)
+for(i in loop){
+p <- function(x) c[i] + ((1 - c[i])/(1 + exp(-a[i]*(x - b[i]))))  
+h[[i]] <- curve(p, from, to, add = i!= 1, n = 1e3, las = 1, ylim = 0:1,
+          font.lab = 2, xlab = bquote(bold("Person Ability"~(theta))),
+          type = "n", ylab = bquote(p(theta)), mgp = c(2, .5, 0), tck = -.015)
+}  
+                              
+  u <- par('usr')
+  abline(h = c(0, 1, .5), col = 8, lty = c(3, 3, 2))
+  axis(2, at = .5, col = 2, col.axis = 2, mgp = c(2, .5, 0), tck = -.015, las = 1)
+  
+for(i in loop){
+  lines(h[[i]], col = i, lwd = 2)
+  segments(b[i], u[3], b[i], .5, col = i, lty = 3)  
+  points(b[i], .5, pch = 21, col = i, font = 2, cex = 1.5, bg = "cyan", lwd = 2)
+}
   
   legend(legend, paste0("a = ", round(a, 2), ", b = ", round(b, 2), ", c = ", round(c, 2)), 
          pch = 22, title = "IRT Parameters", pt.bg = loop, col = loop, cex = .7, pt.cex = .6, 
-         bg = 0, box.col = 0, x.intersp = .5, title.adj = .45, title.col = "red4")
+         bg = 0, box.col = 0, x.intersp = .5, title.adj = .5, title.col = "red4")
   box()
 }
+                              
                             
