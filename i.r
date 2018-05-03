@@ -3248,29 +3248,31 @@ icc <- function(a = 1, b = 0, c = 0, from = -4, to = 4, legend = "topleft")
 
 
 icc.default <- function(a = 1, b = 0, c = 0, from = -4, to = 4, legend = "topleft"){
-
-if(c > 1 || c < 0) stop("Error: 'Gussing' parameter 'c' must be between '0' and '1'.")
-eq <- function(...){ lapply(list(...), 
-function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
-
-I <- eq(a, b, c)
-
-a = I[[1]] ; b = I[[2]] ; c = I[[3]]
   
-loop <- seq_along(a)
+  if(c > 1 || c < 0) stop("Error: 'Gussing' parameter 'c' must be between '0' and '1'.")
+  eq <- function(...){ lapply(list(...), 
+                              function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
   
-for(i in loop){
+  I <- eq(a, b, c)
   
-p <- function(x) c[i] + ((1 - c[i])/(1 + exp(-a[i]*(x - b[i]))))  
-
-curve(p, from, to, add = i!= 1, col = i, lwd = 2, n = 1e3, las = 1, 
-      font.lab = 2, xlab = bquote(bold("Person Ability"~(theta))), 
-      ylab = bquote(p(theta)), mgp = c(2, .5, 0))
-}  
-
-legend(legend, paste0("a = ", round(a, 2), ", b = ", round(b, 2), ", c = ", round(c, 2)), 
-       pch = 22, title = "IRT Parameters", pt.bg = loop, col = loop, cex = .7, pt.cex = .6, 
-       bg = 0, box.col = 0, x.intersp = .5, title.adj = .45, title.col = "red4")
-box()
+  a = I[[1]] ; b = I[[2]] ; c = I[[3]]
+  
+  loop <- seq_along(a)
+  
+  for(i in loop){
+    
+    p <- function(x) c[i] + ((1 - c[i])/(1 + exp(-a[i]*(x - b[i]))))  
+    
+    curve(p, from, to, add = i!= 1, col = i, lwd = 2, n = 1e3, las = 1, 
+          font.lab = 2, xlab = bquote(bold("Person Ability"~(theta))), 
+          ylab = bquote(p(theta)), mgp = c(2, .5, 0), tck = -.015)
+  }  
+  
+  abline(h = c(0, 1), col = 8, lty = 3)
+  
+  legend(legend, paste0("a = ", round(a, 2), ", b = ", round(b, 2), ", c = ", round(c, 2)), 
+         pch = 22, title = "IRT Parameters", pt.bg = loop, col = loop, cex = .7, pt.cex = .6, 
+         bg = 0, box.col = 0, x.intersp = .5, title.adj = .45, title.col = "red4")
+  box()
 }
                             
