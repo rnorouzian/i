@@ -128,13 +128,13 @@ prop.ci <- function(k, n, conf.level = .95, digits = 6)
 }
 
 prop.ci.default <- function(k, n, conf.level = .95, digits = 6){
-
-ci <- Vectorize(function(k, n, conf.level){
   
-I = as.numeric(binom.test(k, n, conf.level = conf.level)[[4]])
-return(c(Prop = k/n, lower = I[1], upper = I[2], conf.level = conf.level))
-})
-data.frame(t(ci(k = k, n = n, conf.level = conf.level, digits = digits)))
+  ci <- Vectorize(function(k, n, conf.level){
+    
+    I = as.numeric(binom.test(k, n, conf.level = conf.level)[[4]])
+    return(c(Prop = k/n, lower = I[1], upper = I[2], conf.level = conf.level))
+  })
+  round(data.frame(t(ci(k = k, n = n, conf.level = conf.level))), digits = digits)
 }
 
 #==================================================================================================
