@@ -2184,13 +2184,13 @@ if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm
 #==============================================================================================================                       
 
 
-R2.bayes <- function(..., scale = .02, bottom = 1, top = 1.1, margin = 5, legend = "topleft", level = .95, eq.lo = 0, eq.hi = .1, digits = 6)
+R2.bayes <- function(..., scale = .02, bottom = 1, top = 1.1, margin = 5, legend = "topleft", level = .95, eq.lo = 0, eq.hi = .1, digits = 6, labels = NA)
 {
   UseMethod("R2.bayes")
 }                        
                                            
                        
-R2.bayes.default <- function(..., scale = .02, bottom = 1, top = 1.1, margin = 5, legend = "topleft", level = .95, eq.lo = 0, eq.hi = .1, digits = 6)
+R2.bayes.default <- function(..., scale = .02, bottom = 1, top = 1.1, margin = 5, legend = "topleft", level = .95, eq.lo = 0, eq.hi = .1, digits = 6, labels = NA)
 {
 
 if(!(all(sapply(list(...), inherits, "stanreg")))) stop("Error: all '...' must be models from package 'rstanarm's 'stan_glm()'.")  
@@ -2238,9 +2238,9 @@ abline(h = 1:loop, col = 8, lty = 3)
 for(i in 1:loop){
 polygon(x = d[[i]]$x, y = scale*d[[i]]$y + i, col = adjustcolor(i, .55), border = NA, xpd = NA)
 }
-
+labels <- if(is.na(labels)) paste0("Model ", 1:loop) else labels
 axis(1, at = seq(a, b, length.out = 4), labels = paste0(round(seq(a, b, length.out = 4), 4)*1e2, "%"), mgp = c(2, .5, 0))
-axis(2, at = 1:loop, labels = paste0("Model ", 1:loop), font = 2, las = 1, cex.axis = .8, tck = -.006, mgp = c(2, .3, 0))
+axis(2, at = 1:loop, labels = labels, font = 2, las = 1, cex.axis = .8, tck = -.006, mgp = c(2, .3, 0))
 
 legend(x = leg, legend = rev(paste0("Model ", loop:1)), pch = 22, title = "Models ", pt.bg = loop:1, col = loop:1, cex = .7, pt.cex = .6, bg = 0, box.col = 0, xpd = NA, x.intersp = .5)
 segments(I[, 1], 1:loop, I[, 2], 1:loop, lend = 1, lwd = 4, col = 1:loop, xpd = NA)
@@ -2451,13 +2451,13 @@ predict.bayes.default <- function(fit, xlab = NA, ylab = NA, level = .95, line.i
 #==================================================================================
                   
                        
-compare.R2 <- function(..., how = c("two.one", "one.two"), scale = .02, bottom = 1, top = 1.1, margin = 5, legend = "topleft", level = .95, eq.level = "2.5%", digits = digits)
+compare.R2 <- function(..., how = c("two.one", "one.two"), scale = .02, bottom = 1, top = 1.1, margin = 5, legend = "topleft", level = .95, eq.level = "2.5%", digits = 6, labels = NA)
 {
   UseMethod("compare.R2")
 } 
 
                        
-compare.R2.default <- function(..., how = c("two.one", "one.two"), scale = .02, bottom = 1, top = 1.1, margin = 5, legend = "topleft", level = .95, eq.level = "2.5%", digits = digits){
+compare.R2.default <- function(..., how = c("two.one", "one.two"), scale = .02, bottom = 1, top = 1.1, margin = 5, legend = "topleft", level = .95, eq.level = "2.5%", digits = 6, labels = NA){
   
 if(!(all(sapply(list(...), inherits, "stanreg")))) stop("Error: all '...' must be models from package 'rstanarm's 'stan_glm()'.")  
   
@@ -2517,11 +2517,11 @@ if(!(all(sapply(list(...), inherits, "stanreg")))) stop("Error: all '...' must b
   on.exit(par(original.par))
   
   par(mar = c(5.1, 6.1, 4.1, 2.1))
-  
+  labels <- if(is.na(labels)) np else labels
   plot(1, loop, type = "n", xlim = c(a, b), ylim = c(bottom*1, top*loop), ylab = NA, xaxt = "n", yaxt = "n", xlab = bquote(bold(Delta~R^2~("Model Comparison"))), mgp = c(2, .3, 0))
   abline(h = 1:loop, col = 8, lty = 3)
   axis(1, at = seq(a, b, length.out = 4), labels = paste0(round(seq(a, b, length.out = 4), 4)*1e2, "%"), mgp = c(2, .5, 0))
-  axis(2, at = 1:loop, labels = np, font = 2, las = 1, cex.axis = .7, tck = -.006, mgp = c(2, .3, 0))
+  axis(2, at = 1:loop, labels = labels, font = 2, las = 1, cex.axis = .7, tck = -.006, mgp = c(2, .3, 0))
   legend(x = leg, legend = rev(paste0(np)), pch = 22, title = "Comparisons", pt.bg = loop:1, col = loop:1, cex = .7, pt.cex = .6, bg = 0, box.col = 0, xpd = NA, x.intersp = .5)
   segments(CI[, 1], 1:loop, CI[, 2], 1:loop, lend = 1, lwd = 4, col = 1:loop, xpd = NA)
   box()
