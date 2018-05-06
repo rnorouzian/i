@@ -483,12 +483,12 @@ norm.id.default <- Vectorize(function(Low, High, Cover = NA, digits = 6){
 #===============================================================================================
 
       
-prop.bayes <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", yes = 55, n = 1e2, level = .95, scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .1, p.h0 = .5, digits = 6, col.depth = .55, labels = NA)
+prop.bayes <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", yes = 55, n = 1e2, level = .95, scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .1, p.h0 = .5, digits = 6, col.depth = .55, labels = NA, cex.lab = .8)
 {
   UseMethod("prop.bayes")
 }
 
-prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", yes = 55, n = 1e2, level = .95, scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .1, p.h0 = .5, digits = 6, col.depth = .55, labels = NA){
+prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", yes = 55, n = 1e2, level = .95, scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .1, p.h0 = .5, digits = 6, col.depth = .55, labels = NA, cex.lab = .8){
   
   d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name)) 
   leg <- if(is.character(legend)) legend else deparse(substitute(legend))
@@ -533,7 +533,7 @@ prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "db
     plot(CI, rep(1:loop, 2), type = "n", xlim = 0:1, ylim = c(bottom*1, top*loop), ylab = NA, yaxt = "n", xaxt = "n", xlab = "Credible Interval (Proportion)", font.lab = 2, mgp = c(2, .3, 0))
     abline(h = 1:loop, col = 8, lty = 3)
     axis(1, at = axTicks(1), labels = paste0(axTicks(1)*1e2, "%"), mgp = c(2, .3, 0))
-    axis(2, at = 1:loop, labels = labels, font = 2, las = 1, cex.axis = .8, tck = -.006, mgp = c(2, .3, 0))
+    axis(2, at = 1:loop, labels = labels, font = 2, las = 1, cex.axis = cex.lab, tck = -.006, mgp = c(2, .3, 0))
     legend(x = leg, legend = rev(paste0(substring(d, 2), "(", round(a, 2), ", ", round(b, 2), ")")), pch = 22, title = "Priors", pt.bg = loop:1, col = loop:1, cex = .7, pt.cex = .6, bg = 0, box.col = 0, xpd = NA, x.intersp = .5, title.adj = .4)
     segments(CI[, 1], 1:loop, CI[, 2], 1:loop, lend = 1, lwd = 4, col = 1:loop, xpd = NA)
     box()
