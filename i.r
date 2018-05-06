@@ -2245,9 +2245,9 @@ abline(h = 1:loop, col = 8, lty = 3)
 for(i in 1:loop){
 polygon(x = d[[i]]$x, y = scale*d[[i]]$y + i, col = adjustcolor(i, .55), border = NA, xpd = NA)
 }
-labels <- if(is.na(labels)) paste0("Model ", 1:loop) else labels
+lab <- if(is.na(labels)) paste0("Model ", 1:loop) else labels
 axis(1, at = seq(a, b, length.out = 4), labels = paste0(round(seq(a, b, length.out = 4), 4)*1e2, "%"), mgp = c(2, .5, 0))
-axis(2, at = 1:loop, labels = labels, font = 2, las = 1, cex.axis = cex.lab, tck = -.006, mgp = c(2, .3, 0))
+axis(2, at = 1:loop, labels = lab, font = 2, las = 1, cex.axis = cex.lab, tck = -.006, mgp = c(2, .3, 0))
 
 legend(x = leg, legend = rev(paste0("Model ", loop:1)), pch = 22, title = "Models ", pt.bg = loop:1, col = loop:1, cex = .7, pt.cex = .6, bg = 0, box.col = 0, xpd = NA, x.intersp = .5)
 segments(I[, 1], 1:loop, I[, 2], 1:loop, lend = 1, lwd = 4, col = 1:loop, xpd = NA)
@@ -2260,7 +2260,8 @@ points(mode, 1:loop, pch = 21, bg = "cyan", cex = 1.5, col = "magenta", xpd = NA
 q = deci(I*1e2 , 2); o = deci(mode*1e2, 2)
 text(mode, 1:loop, paste0(q[,1], "%", "    ", o, "%", "    ", q[,2], "%"), cex = .75, pos = 3, font = 2, xpd = NA)
 
-round(data.frame(mode = mode, mean = mean, sd = sd, MAD = mad, lower = I[,1], upper = I[,2], coverage = level, eq.prob = eq.prob, row.names = paste0("Model-", 1:loop, " posterior:")), digits = digits)
+rownames <- if(is.na(labels)) paste0("Model-", 1:loop, " posterior:") else paste0(labels, " posterior:")    
+round(data.frame(mode = mode, mean = mean, sd = sd, mad = mad, lower = I[,1], upper = I[,2], coverage = level, eq.prob = eq.prob, row.names = rownames), digits = digits)
 }
 
 
@@ -3035,7 +3036,7 @@ box()
 #=======================================================================================================
               
               
-case.fit.plot <- function(fit, level = .95, legend = "topleft", lwd = 2, fit.tol = 1, pt.cex = 1, cex.axis = .8, col.corridor = "yellow", col.depth = .4)
+case.fit.plot <- function(fit, level = .95, legend = "topleft", lwd = 2, fit.tol = 1, pt.cex = 1, cex.lab = .8, col.corridor = "yellow", col.depth = .4)
 {
   UseMethod("case.fit.plot")
 }  
