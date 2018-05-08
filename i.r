@@ -303,7 +303,7 @@ bet <- Vectorize(function(Low, High, Cover){
     }
   } 
 })
-    round(data.frame(t(bet(Low = Low, High = High, Cover = Cover))), digits = digits)
+    round(data.frame(t(bet(Low = Low, High = High, Cover = Cover)), row.names = NULL), digits = digits)
 }
 
 #===============================================================================================
