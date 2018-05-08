@@ -543,8 +543,9 @@ prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "db
     axis(2, at = 1:loop, labels = lab, font = 2, las = 1, cex.axis = cex.lab, tck = -.006, mgp = c(2, .3, 0))
     legend(x = leg, legend = rev(paste0(substring(d, 2), "(", round(a, 2), ", ", round(b, 2), ")")), pch = 22, title = "Priors", pt.bg = loop:1, col = loop:1, cex = .7, pt.cex = .6, bg = 0, box.col = 0, xpd = NA, x.intersp = .5, title.adj = .4)
     box()
-    col <- if(is.na(col.hump)) i else col.hump[i]
+    
     for(i in 1:loop){
+    col <- if(is.na(col.hump)) i else col.hump[i]    
       polygon(x = h[[i]]$x, y = scale*h[[i]]$y +i, col = adjustcolor(col, col.depth), border = NA, xpd = NA)
     }
     col <- if(is.na(col.hump)) 1:loop else col.hump
@@ -1071,9 +1072,9 @@ d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf
     legend(x = leg, legend = rev(paste0(substring(d, 2), "(", round(m, 2), ", ", round(s, 2), ")")), pch = 22, title = "Priors", pt.bg = loop:1, col = loop:1, cex = .7, pt.cex = .6, bg = 0, box.col = 0, xpd = NA, x.intersp = .5, title.adj = .4)
     box()
     axis(2, at = 1:loop, labels = lab, font = 2, las = 1, cex.axis = cex.lab, tck = -.006, mgp = c(2, .3, 0))
-    
-    col <- if(is.na(col.hump)) i else col.hump[i]                         
+                         
     for(i in 1:loop){
+    col <- if(is.na(col.hump)) i else col.hump[i]    
       polygon(x = h[[i]]$x, y = scale*h[[i]]$y +i, col = adjustcolor(col, col.depth), border = NA, xpd = NA)
     }
     a = scale*(f-1:loop)+1:loop
@@ -1371,9 +1372,9 @@ peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo
     axis(2, at = 1:loop, labels = lab, font = 2, las = 1, cex.axis = cex.lab, tck = -.006, mgp = c(2, .3, 0))
     legend(x = leg, legend = rev(paste0(substring(d, 2), "(", round(a, 2), ", ", round(b, 2), ")")), pch = 22, title = "Priors", pt.bg = loop:1, col = loop:1, cex = .7, pt.cex = .6, bg = 0, box.col = 0, xpd = NA, x.intersp = .5, title.adj = .4)
     box()
-    
-    col <- if(is.na(col.hump)) i else col.hump[i]                   
+                      
     for(i in 1:loop){
+    col <- if(is.na(col.hump)) i else col.hump[i]     
       polygon(x = h[[i]]$x, y = scale*h[[i]]$y +i, col = adjustcolor(col, col.depth), border = NA, xpd = NA)
     }
     m = scale*peak + 1:loop
@@ -1651,8 +1652,9 @@ cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = 
   abline(h = 1:loop, col = 8, lty = 3)
   legend(x = leg, legend = rev(paste0("s.norm", "(", round(prior.mean, 2), ", ", round(prior.sd, 2), ")")), pch = 22, title = "Priors", pt.bg = loop:1, col = loop:1, cex = .7, pt.cex = .6, bg = 0, box.col = 0, xpd = NA, x.intersp = .5, title.adj = .4)
   box()
-  col <- if(is.na(col.hump)) i else col.hump[i]
+  
   for(i in 1:loop){
+  col <- if(is.na(col.hump)) i else col.hump[i]    
     polygon(x = den[[i]]$x, y = scale*den[[i]]$y +i, col = adjustcolor(col, col.depth), border = NA, xpd = NA)
   }
   
