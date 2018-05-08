@@ -483,14 +483,16 @@ norm.id.default <- Vectorize(function(Low, High, Cover = NA, digits = 6){
 #===============================================================================================
 
       
-prop.bayes <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", yes = 55, n = 1e2, level = .95, scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .1, p.h0 = .5, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, ...)
+prop.bayes <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", yes = 55, n = 1e2, level = .95, scale = .1, top = 1.1, 
+                       show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .1, p.h0 = .5, digits = 6, 
+                       col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, col.hump = NA, ...)
 {
   UseMethod("prop.bayes")
 }
 
 prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", yes = 55, n = 1e2, 
-  level = .95, scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .1,
-  p.h0 = .5, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, ...){
+                               level = .95, scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .1,
+                               p.h0 = .5, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, col.hump = NA, ...){
   
   d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name)) 
   leg <- if(is.character(legend)) legend else deparse(substitute(legend))
@@ -534,17 +536,19 @@ prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "db
     lab <- if(is.na(labels)) substring(d, 2) else labels
     xlab <- if(is.na(xlab)) "Credible Interval (Proportion)" else xlab
     ylab <- if(is.na(ylab)) NA else ylab
-        
+    
     plot(CI, rep(1:loop, 2), type = "n", xlim = 0:1, ylim = c(bottom*1, top*loop), ylab = ylab, yaxt = "n", xaxt = "n", xlab = xlab, font.lab = 2, mgp = c(2, .3, 0), ...)
     abline(h = 1:loop, col = 8, lty = 3)
     axis(1, at = axTicks(1), labels = paste0(axTicks(1)*1e2, "%"), mgp = c(2, .3, 0))
     axis(2, at = 1:loop, labels = lab, font = 2, las = 1, cex.axis = cex.lab, tck = -.006, mgp = c(2, .3, 0))
     legend(x = leg, legend = rev(paste0(substring(d, 2), "(", round(a, 2), ", ", round(b, 2), ")")), pch = 22, title = "Priors", pt.bg = loop:1, col = loop:1, cex = .7, pt.cex = .6, bg = 0, box.col = 0, xpd = NA, x.intersp = .5, title.adj = .4)
-    segments(CI[, 1], 1:loop, CI[, 2], 1:loop, lend = 1, lwd = 4, col = 1:loop, xpd = NA)
     box()
+    col <- if(is.na(col.hump)) i else col.hump[i]
     for(i in 1:loop){
-      polygon(x = h[[i]]$x, y = scale*h[[i]]$y +i, col = adjustcolor(i, col.depth), border = NA, xpd = NA)
+      polygon(x = h[[i]]$x, y = scale*h[[i]]$y +i, col = adjustcolor(col, col.depth), border = NA, xpd = NA)
     }
+    col <- if(is.na(col.hump)) 1:loop else col.hump
+    segments(CI[, 1], 1:loop, CI[, 2], 1:loop, lend = 1, lwd = 4, col = col, xpd = NA)
     m = scale*peak + 1:loop
     segments(mode, 1:loop, mode, m, lty = 3, xpd = NA, lend = 1)  
     points(mode, 1:loop, pch = 21, bg = "cyan", cex = 1.3, col = "magenta", xpd = NA)
@@ -1004,12 +1008,12 @@ prop.diff.eq.default <- function(n1, n2, yes1, yes2, a1 = 1.2, b1 = 1.2, a2 = a1
 #====================================================================================================================              
 
        
-d.bayes <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = 1.1, show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft", eq.level = .1, d.h0 = 0, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, ...){
+d.bayes <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = 1.1, show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft", eq.level = .1, d.h0 = 0, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, col.hump = NA, ...){
   UseMethod("d.bayes")
 }
        
 
-d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = 1.1, show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft", eq.level = .1, d.h0 = 0, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, ...){
+d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = 1.1, show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft", eq.level = .1, d.h0 = 0, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, col.hump = NA, ...){
   
   d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name))
   leg <- if(is.character(legend)) legend else deparse(substitute(legend))
@@ -1066,13 +1070,16 @@ d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf
     abline(h = 1:loop, col = 8, lty = 3)
     legend(x = leg, legend = rev(paste0(substring(d, 2), "(", round(m, 2), ", ", round(s, 2), ")")), pch = 22, title = "Priors", pt.bg = loop:1, col = loop:1, cex = .7, pt.cex = .6, bg = 0, box.col = 0, xpd = NA, x.intersp = .5, title.adj = .4)
     box()
-    segments(CI[, 1], 1:loop, CI[, 2], 1:loop, lend = 1, lwd = 4, col = 1:loop)
     axis(2, at = 1:loop, labels = lab, font = 2, las = 1, cex.axis = cex.lab, tck = -.006, mgp = c(2, .3, 0))
     
+    col <- if(is.na(col.hump)) i else col.hump[i]                         
     for(i in 1:loop){
-      polygon(x = h[[i]]$x, y = scale*h[[i]]$y +i, col = adjustcolor(i, col.depth), border = NA, xpd = NA)
+      polygon(x = h[[i]]$x, y = scale*h[[i]]$y +i, col = adjustcolor(col, col.depth), border = NA, xpd = NA)
     }
     a = scale*(f-1:loop)+1:loop
+    
+    col <- if(is.na(col.hump)) 1:loop else col.hump                         
+    segments(CI[, 1], 1:loop, CI[, 2], 1:loop, lend = 1, lwd = 4, col = col, xpd = NA)                         
     segments(mode, 1:loop, mode, a, lty = 3, xpd = NA, lend = 1)
     points(mode, 1:loop, pch = 21, bg = "cyan", cex = 1.1, col = 4, xpd = NA)
     I = deci(CI) ; o = deci(mode)
@@ -1311,11 +1318,11 @@ d.hyper.ms.default <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf
 #==================================================================================================================
 
 
-peta.bayes <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, ...){ 
+peta.bayes <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, col.hump = NA, ...){ 
   UseMethod("peta.bayes")
 }
 
-peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, ...){
+peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, col.hump = NA, ...){
   
   d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name))
   leg <- if(is.character(legend)) legend else deparse(substitute(legend))
@@ -1356,18 +1363,22 @@ peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo
     graphics.off()
     lab <- if(is.na(labels)) substring(d, 2) else labels
     xlab <- if(is.na(xlab)) bquote(bold("Credible Interval"~(eta[p]^2))) else xlab
-    ylab <- if(is.na(ylab)) NA else ylab    
+    ylab <- if(is.na(ylab)) NA else ylab  
+        
     plot(CI, rep(1:loop, 2), type = "n", xlim = 0:1, ylim = c(bottom*1, top*loop), ylab = ylab, yaxt = "n", xaxt = "n", xlab = xlab, font.lab = 2, mgp = c(2, .5, 0), ...)
     abline(h = 1:loop, col = 8, lty = 3)
     axis(1, at = axTicks(1), labels = paste0(axTicks(1)*1e2, "%"), mgp = c(2, .3, 0)) 
     axis(2, at = 1:loop, labels = lab, font = 2, las = 1, cex.axis = cex.lab, tck = -.006, mgp = c(2, .3, 0))
     legend(x = leg, legend = rev(paste0(substring(d, 2), "(", round(a, 2), ", ", round(b, 2), ")")), pch = 22, title = "Priors", pt.bg = loop:1, col = loop:1, cex = .7, pt.cex = .6, bg = 0, box.col = 0, xpd = NA, x.intersp = .5, title.adj = .4)
     box()
-    segments(CI[, 1], 1:loop, CI[, 2], 1:loop, lend = 1, lwd = 4, col = 1:loop, xpd = NA)
+    
+    col <- if(is.na(col.hump)) i else col.hump[i]                   
     for(i in 1:loop){
-      polygon(x = h[[i]]$x, y = scale*h[[i]]$y +i, col = adjustcolor(i, col.depth), border = NA, xpd = NA)
+      polygon(x = h[[i]]$x, y = scale*h[[i]]$y +i, col = adjustcolor(col, col.depth), border = NA, xpd = NA)
     }
     m = scale*peak + 1:loop
+    col <- if(is.na(col.hump)) 1:loop else col.hump
+    segments(CI[, 1], 1:loop, CI[, 2], 1:loop, lend = 1, lwd = 4, col = col, xpd = NA)                   
     segments(mode, 1:loop, mode, m, lty = 3, xpd = NA, lend = 1)  
     points(mode, 1:loop, pch = 21, bg = "cyan", cex = 1.3, col = "magenta", xpd = NA)
     I = deci(CI*1e2 , 2); o = deci(mode*1e2, 2)
@@ -1584,11 +1595,11 @@ peta.hyper.ab.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi =
 #=================================================================================================================
 
 
-cor.bayes <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 5, legend = "topleft", show.prior = FALSE, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, ...){
+cor.bayes <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 5, legend = "topleft", show.prior = FALSE, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, col.hump = NA, ...){
   UseMethod("cor.bayes")
 }
 
-cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 5, legend = "topleft", show.prior = FALSE, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, ...){ 
+cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 5, legend = "topleft", show.prior = FALSE, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, col.hump = NA, ...){ 
   
   pr <- show.prior    
   mu <- prior.mean
@@ -1639,14 +1650,15 @@ cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = 
   axis(2, at = 1:loop, labels = lab, font = 2, las = 1, cex.axis = cex.lab, tck = -.006, mgp = c(2, .3, 0))
   abline(h = 1:loop, col = 8, lty = 3)
   legend(x = leg, legend = rev(paste0("s.norm", "(", round(prior.mean, 2), ", ", round(prior.sd, 2), ")")), pch = 22, title = "Priors", pt.bg = loop:1, col = loop:1, cex = .7, pt.cex = .6, bg = 0, box.col = 0, xpd = NA, x.intersp = .5, title.adj = .4)
-  segments(CI[, 1], 1:loop, CI[, 2], 1:loop, lend = 1, lwd = 4, col = 1:loop, xpd = NA)
   box()
-  
+  col <- if(is.na(col.hump)) i else col.hump[i]
   for(i in 1:loop){
-    polygon(x = den[[i]]$x, y = scale*den[[i]]$y +i, col = adjustcolor(i, col.depth), border = NA, xpd = NA)
+    polygon(x = den[[i]]$x, y = scale*den[[i]]$y +i, col = adjustcolor(col, col.depth), border = NA, xpd = NA)
   }
   
   m = scale*peak + 1:loop
+  col <- if(is.na(col.hump)) 1:loop else col.hump
+  segments(CI[, 1], 1:loop, CI[, 2], 1:loop, lend = 1, lwd = 4, col = col, xpd = NA)                            
   segments(mode, 1:loop, mode, m, lty = 3, xpd = NA, lend = 1)  
   points(mode, 1:loop, pch = 21, bg = "cyan", cex = 1.3, col = "magenta", xpd = NA)
   I = deci(CI, 2); o = deci(mode, 2)
