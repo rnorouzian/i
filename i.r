@@ -1067,8 +1067,8 @@ d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf
     }    
     graphics.off()  
     lab <- if(is.na(labels)) substring(d, 2) else labels
-    xlab <- if(is.na(xlab)) "Credible Interval (Proportion)" else xlab
-    ylab <- if(is.na(ylab)) bquote(bold("Credible Interval "(delta))) else ylab    
+    xlab <- if(is.na(xlab)) bquote(bold("Credible Interval "(delta))) else xlab
+    ylab <- if(is.na(ylab)) NA else ylab    
     f = peak + 1:loop
     plot(CI, rep(1:loop, 2), type = "n", xlim = c(min(from), max(to)), ylim = c(bottom*1, top*max(f)), ylab = ylab, yaxt = "n", xlab = xlab, font.lab = 2, mgp = c(2, .5, 0), ...)
     abline(h = 1:loop, col = 8, lty = 3)
