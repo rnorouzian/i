@@ -1599,7 +1599,7 @@ peta.hyper.ab.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi =
 #=================================================================================================================
 
 
-cor.bayes <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 5, legend = "topleft", show.prior = FALSE, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, col.hump = NA, ...){
+cor.bayes <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 7, legend = "topleft", show.prior = FALSE, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, col.hump = NA, ...){
   UseMethod("cor.bayes")
 }
 
