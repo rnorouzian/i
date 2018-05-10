@@ -3320,7 +3320,7 @@ icc.default <- function(a = 1, b = 0, c = 0, from = -4, to = 4, legend = "toplef
   loop <- seq_along(a)
   
   h <- list()
-  
+graphics.off()  
 for(i in loop){
 p <- function(x) c[i] + ((1 - c[i])/(1 + exp(-a[i]*(x - b[i]))))  
 h[[i]] <- curve(p, from, to, add = i!= 1, n = 1e3, las = 1, ylim = 0:1,
