@@ -3350,17 +3350,21 @@ for(i in loop){
                               
 logit <- function(x){ 
     
-    return(log(x) - log(1 - x)) 
+ return(log(x) - log(1 - x)) 
+    
 }
 
 
 #===========================================================================================================================
                               
                               
-inv.logit <- function(x){
-    
-  pr <- 1/(1 + exp(-x))
-  return(ifelse(x == Inf, 1, pr))
+inv.logit <- function(x, percent = FALSE, digits = 4){
+  
+  p <- 1/(1 + exp(-x))
+  p <- ifelse(x == Inf, 1, p)
+  return(if(percent) 
+  noquote(paste0(round(p*1e2, digits = digits), "%")) else p)
+  
 }             
                               
                               
