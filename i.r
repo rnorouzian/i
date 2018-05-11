@@ -3350,7 +3350,7 @@ for(i in loop){
                               
 logit <- function(x){ 
     
- return(log(x) - log(1 - x)) 
+ return(stats::qlogis(x)) 
     
 }
 
