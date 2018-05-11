@@ -3360,11 +3360,10 @@ logit <- function(x){
                               
 inv.logit <- function(x, percent = FALSE, digits = 4){
   
-  p <- 1/(1 + exp(-x))
-  p <- ifelse(x == Inf, 1, p)
+  p <- stats::plogis(x)
   return(if(percent) 
   noquote(paste0(round(p*1e2, digits = digits), "%")) else p)
   
-}             
+}            
                               
                               
