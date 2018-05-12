@@ -289,7 +289,7 @@ bet <- Vectorize(function(Low, High, Cover){
     
     parm <- as.numeric(exp(sol$estimate))
     
-    q <- qbeta(p = c(p1, p2), parm[[1]], parm[[2]])
+    q <- qbeta(p = c(p1, p2), parm[1], parm[2])
     
     is.df <- function(a, b, sig = 3) round(a, sig) != round(b, sig)
     
