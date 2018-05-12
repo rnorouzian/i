@@ -3237,7 +3237,9 @@ model.info <- function(fit, cor = TRUE, level = .95, digits = 6)
               
 model.info.default <- function(fit, cor = TRUE, level = .95, digits = 6){
   
-  hdi.fit <- function(fit, level, digits){
+ if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be a fitted model from package 'rstanarm's 'stan_glm()'.") 
+    
+ hdi.fit <- function(fit, level, digits){
     
     m <- round(data.frame(t(apply(as.matrix(fit), 2, hdir, level = level)), level), digits = digits)
     
