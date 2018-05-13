@@ -559,7 +559,7 @@ prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "db
     I = deci(CI*1e2 , 2); o = deci(mode*1e2, 2)
     text(mode, 1:loop, paste0(I[,1], "%", "    ", o, "%", "    ", I[,2], "%"), cex = .75, pos = 3, font = 2, xpd = NA)
     
-    rownames <- if(is.na(labels)) {paste0("Prop ", 1:loop, " posterior: ")} else {paste0(labels, " posterior:")}
+    rownames <- if(is.na(labels)) {paste0("Prop ", 1:loop, " posterior: ")} else {paste0(1:loop, " ", labels, " posterior:")}
     return(round(data.frame(estimate = estimate, mode = mode, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, BF10 = BF10, row.names = rownames), digits = digits))    
     
   }else{
