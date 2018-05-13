@@ -1669,7 +1669,7 @@ cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = 
   I = deci(CI, 2); o = deci(mode, 2)
   text(mode, 1:loop, paste0(I[,1], "        ", o, "         ", I[,2]), cex = .75, pos = 3, font = 2, xpd = NA)
   
-  rownames <- if(is.na(labels)) paste0("r", 1:loop, " posterior:") else paste0("r ", labels, " posterior:")                            
+  rownames <- if(is.na(labels)) paste0("r", 1:loop, " posterior:") else paste0(1:loop, " r ", labels, " posterior:")                            
   return(round(data.frame(mean = mean, mode = mode, median = median, sd = sd, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, row.names = rownames), digits = digits))
 
   }else{
