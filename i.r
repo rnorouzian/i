@@ -533,7 +533,7 @@ prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "db
       estimate[i] <- yes[i]/n[i]     
     }
     graphics.off()
-    lab <- if(is.na(labels)) substring(d, 2) else labels
+    lab <- if(any(is.na(labels))) substring(d, 2) else labels
     xlab <- if(is.na(xlab)) "Credible Interval (Proportion)" else xlab
     ylab <- if(is.na(ylab)) NA else ylab
     
@@ -543,10 +543,10 @@ prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "db
     axis(2, at = 1:loop, labels = lab, font = 2, las = 1, cex.axis = cex.lab, tck = -.006, mgp = c(2, .3, 0))
     
     for(i in 1:loop){
-      col <- if(is.na(col.hump)) i else col.hump[i]    
+      col <- if(any(is.na(col.hump))) i else col.hump[i]    
       polygon(x = h[[i]]$x, y = scale*h[[i]]$y +i, col = adjustcolor(col, col.depth), border = NA, xpd = NA)
     }
-    col <- if(is.na(col.hump)) 1:loop else col.hump
+    col <- if(any(is.na(col.hump))) 1:loop else col.hump
     
     legend(x = leg, legend = rev(paste0(substring(d, 2), "(", round(a, 2), ", ", round(b, 2), ")")), 
            pch = 22, title = "Priors", pt.bg = rev(col), col = rev(col), cex = .7, pt.cex = .6, bg = 0, 
@@ -1066,7 +1066,7 @@ d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf
       estimate[i] <- t[i]/sqrt(N[i])
     }    
     graphics.off()  
-    lab <- if(is.na(labels)) substring(d, 2) else labels
+    lab <- if(any(is.na(labels))) substring(d, 2) else labels
     xlab <- if(is.na(xlab)) bquote(bold("Credible Interval "(delta))) else xlab
     ylab <- if(is.na(ylab)) NA else ylab    
     f = peak + 1:loop
@@ -1075,12 +1075,12 @@ d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf
     axis(2, at = 1:loop, labels = lab, font = 2, las = 1, cex.axis = cex.lab, tck = -.006, mgp = c(2, .3, 0))
                          
     for(i in 1:loop){
-    col <- if(is.na(col.hump)) i else col.hump[i]    
+    col <- if(any(is.na(col.hump))) i else col.hump[i]    
       polygon(x = h[[i]]$x, y = scale*h[[i]]$y +i, col = adjustcolor(col, col.depth), border = NA, xpd = NA)
     }
     a = scale*(f-1:loop)+1:loop
     
-    col <- if(is.na(col.hump)) 1:loop else col.hump 
+    col <- if(any(is.na(col.hump))) 1:loop else col.hump 
     legend(x = leg, legend = rev(paste0(substring(d, 2), "(", round(m, 2), ", ", round(s, 2), ")")), pch = 22, title = "Priors", pt.bg = rev(col), col = rev(col), cex = .7, pt.cex = .6, bg = 0, box.col = 0, xpd = NA, x.intersp = .5, title.adj = .4)
     box()  
     segments(CI[, 1], 1:loop, CI[, 2], 1:loop, lend = 1, lwd = 4, col = col, xpd = NA)                         
@@ -1089,7 +1089,7 @@ d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf
     I = deci(CI) ; o = deci(mode)
     text(c(CI[,1], o, CI[,2]), 1:loop, c(I[,1], o, I[,2]), pos = 3, font = 2, cex = .8, xpd = NA)
     
-    rownames <- if(is.na(labels)) paste0("Cohen's d ", 1:loop, " posterior:") else paste0(labels, " posterior:")
+    rownames <- if(is.na(labels)) paste0("Cohen's d ", 1:loop, " posterior:") else paste0(1:loop, " ", labels, " posterior:")
     return(round(data.frame(estimate = estimate, mode = mode, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, BF10 = BF10, row.names = rownames), digits = digits))
     
   }else{
@@ -1365,7 +1365,7 @@ peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo
       estimate[i] <- (f[i]*df1[i]) / ((f[i]*df1[i]) + df2[i])
     } 
     graphics.off()
-    lab <- if(is.na(labels)) substring(d, 2) else labels
+    lab <- if(any(is.na(labels))) substring(d, 2) else labels
     xlab <- if(is.na(xlab)) bquote(bold("Credible Interval"~(eta[p]^2))) else xlab
     ylab <- if(is.na(ylab)) NA else ylab  
         
@@ -1375,11 +1375,11 @@ peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo
     axis(2, at = 1:loop, labels = lab, font = 2, las = 1, cex.axis = cex.lab, tck = -.006, mgp = c(2, .3, 0))
                       
     for(i in 1:loop){
-    col <- if(is.na(col.hump)) i else col.hump[i]     
+    col <- if(any(is.na(col.hump))) i else col.hump[i]     
       polygon(x = h[[i]]$x, y = scale*h[[i]]$y +i, col = adjustcolor(col, col.depth), border = NA, xpd = NA)
     }
     m = scale*peak + 1:loop
-    col <- if(is.na(col.hump)) 1:loop else col.hump
+    col <- if(any(is.na(col.hump))) 1:loop else col.hump
     legend(x = leg, legend = rev(paste0(substring(d, 2), "(", round(a, 2), ", ", round(b, 2), ")")), pch = 22, title = "Priors", pt.bg = rev(col), col = rev(col), cex = .7, pt.cex = .6, bg = 0, box.col = 0, xpd = NA, x.intersp = .5, title.adj = .4)
     box()
     segments(CI[, 1], 1:loop, CI[, 2], 1:loop, lend = 1, lwd = 4, col = col, xpd = NA)                   
@@ -1388,7 +1388,7 @@ peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo
     I = deci(CI*1e2 , 2); o = deci(mode*1e2, 2)
     text(mode, 1:loop, paste0(I[,1], "%", "    ", o, "%", "    ", I[,2], "%"), cex = .75, pos = 3, font = 2, xpd = NA)
     
-    rownames <- if(is.na(labels)) paste0("P.eta.sq ", 1:loop, " posterior:") else paste0(labels, " posterior:")                   
+    rownames <- if(is.na(labels)) paste0("P.eta.sq ", 1:loop, " posterior:") else paste0(1:loop, " ", labels, " posterior:")                   
     return(round(data.frame(estimate = estimate, mode = mode, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, BF10 = BF10, row.names = rownames), digits = digits))  
     
 }else{
@@ -1655,12 +1655,12 @@ cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = 
   abline(h = 1:loop, col = 8, lty = 3)
   
   for(i in 1:loop){
-  col <- if(is.na(col.hump)) i else col.hump[i]    
+  col <- if(any(is.na(col.hump))) i else col.hump[i]    
     polygon(x = den[[i]]$x, y = scale*den[[i]]$y +i, col = adjustcolor(col, col.depth), border = NA, xpd = NA)
   }
   
   m = scale*peak + 1:loop
-  col <- if(is.na(col.hump)) 1:loop else col.hump
+  col <- if(any(is.na(col.hump))) 1:loop else col.hump
   legend(x = leg, legend = rev(paste0("s.norm", "(", round(prior.mean, 2), ", ", round(prior.sd, 2), ")")), pch = 22, title = "Priors", pt.bg = rev(col), col = rev(col), cex = .7, pt.cex = .6, bg = 0, box.col = 0, xpd = NA, x.intersp = .5, title.adj = .4)
   box()
   segments(CI[, 1], 1:loop, CI[, 2], 1:loop, lend = 1, lwd = 4, col = col, xpd = NA)                            
@@ -1819,7 +1819,7 @@ prop.update.default <- function(n = 100, yes = 55, top = 5, scale = .1, lo = 0, 
   axis(1, at = axTicks(1), lab = paste0(axTicks(1)*1e2, "%"), mgp = c(2, .3, 0))
   
   if(!pri){  
-    labels <- if(is.na(labels)) paste0("Study ", 1:loop) else labels  
+    labels <- if(any(is.na(labels))) paste0("Study ", 1:loop) else labels  
     abline(h = 1:loop+1, col = 8, lty = 3)
     axis(2, at = 0:loop+1, labels = c("Base knowledge", labels), las = 1, font = 2, cex.axis = cex.lab, mgp = c(2, .2, 0), tick = FALSE, xpd = NA)
   }  
@@ -1894,7 +1894,7 @@ d.update.default <- function(t = 3.35, n1 = 30, n2 = NA, top = 5, scale = .1, m 
   plot(pr~ds, ylim = c(0, top*loop), xlim = c(-margin, margin), type = "n", xaxs = "i", yaxs = "i", ylab = ylab, xlab = xlab, font.lab = 2, mgp = c(2, .4, 0), main = if(pri) bquote("Effect Size"*" ~ "*.(if(lo > -Inf || hi < Inf) "truncated-")*.(substring(d, 2))(.(round(m, 2)), .(round(s, 2)))) else NA, yaxt = "n", bty = "n")
   
   if(!pri){
-    labels <- if(is.na(labels)) paste0("Study ", 1:loop) else labels  
+    labels <- if(any(is.na(labels))) paste0("Study ", 1:loop) else labels  
     abline(h = 1:loop+1, col = 8, lty = 3)
     axis(2, at = 0:loop+1, labels = c("Base knowledge", labels), las = 1, font = 2, cex.axis = cex.lab, mgp = c(2, .2, 0), tick = FALSE, xpd = NA)
   }  
@@ -1972,7 +1972,7 @@ peta.update.default <- function(f = 50, N = 120, df1 = 3, df2 = 116, top = 5, sc
   axis(1, at = axTicks(1), lab = paste0(axTicks(1)*1e2, "%"), mgp = c(2, .3, 0))
   
   if(!pri){
-    labels <- if(is.na(labels)) paste0("Study ", 1:loop) else labels  
+    labels <- if(any(is.na(labels))) paste0("Study ", 1:loop) else labels  
     abline(h = 1:loop+1, col = 8, lty = 3)
     axis(2, at = 0:loop+1, labels = c("Base knowledge", labels), las = 1, font = 2, cex.axis = cex.lab, mgp = c(2, .2, 0), tick = FALSE, xpd = NA)
   }  
@@ -2284,7 +2284,7 @@ abline(h = 1:loop, col = 8, lty = 3)
 for(i in 1:loop){
 polygon(x = d[[i]]$x, y = scale*d[[i]]$y + i, col = adjustcolor(i, .55), border = NA, xpd = NA)
 }
-lab <- if(is.na(labels)) paste0("Model ", 1:loop) else labels
+lab <- if(any(is.na(labels))) paste0("Model ", 1:loop) else labels
 axis(1, at = seq(a, b, length.out = 4), labels = paste0(round(seq(a, b, length.out = 4), 4)*1e2, "%"), mgp = c(2, .5, 0))
 axis(2, at = 1:loop, labels = lab, font = 2, las = 1, cex.axis = cex.lab, tck = -.006, mgp = c(2, .3, 0))
 
@@ -2299,7 +2299,7 @@ points(mode, 1:loop, pch = 21, bg = "cyan", cex = 1.5, col = "magenta", xpd = NA
 q = deci(I*1e2 , 2); o = deci(mode*1e2, 2)
 text(mode, 1:loop, paste0(q[,1], "%", "    ", o, "%", "    ", q[,2], "%"), cex = .75, pos = 3, font = 2, xpd = NA)
 
-rownames <- if(is.na(labels)) paste0("Model-", 1:loop, " posterior:") else paste0(labels, " posterior:")    
+rownames <- if(is.na(labels)) paste0("Model-", 1:loop, " posterior:") else paste0(1:loop, " ", labels, " posterior:")    
 round(data.frame(mode = mode, mean = mean, sd = sd, mad = mad, lower = I[,1], upper = I[,2], coverage = level, eq.prob = eq.prob, row.names = rownames), digits = digits)
 }
 
