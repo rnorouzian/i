@@ -3369,3 +3369,33 @@ inv.logit <- function(x, percent = FALSE, digits = 4){
 }            
                               
                               
+#==============================================================================================================================
+         
+         
+multilogit <- function(...)
+{
+  UseMethod("multilogit")
+}
+
+
+multilogit.default <- function (...){
+  
+  X <- list(...)
+  K <- length(X)
+  X <- as.data.frame(X)
+  N <- nrow(X)
+  if(N == 1){
+    f <- exp(X[1, ])
+    below <- sum(f)
+    as.numeric(f/below)
+  } else {
+    f <- lapply(1:N, function(i) exp(X[i, ]))
+    below <- sapply(1:N, function(i) sum(f[[i]]))
+    p <- sapply(1:N, function(i) unlist(f[[i]])/below[i])
+    p <- t(as.matrix(p))
+    colnames(p) <- NULL
+    p
+  }
+}
+                
+                
