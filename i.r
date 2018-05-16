@@ -3402,30 +3402,67 @@ multilogit.default <- function (...){
 #====================================================================================================================
                 
  
-pomega.sq <- function(f, df1, df2, N, digits = 6, percent = FALSE){
+pomega.sq <- function(fit = NA, f, df1, df2, N, digits = 6){
   
- pomega <- (df1 * (f - 1)) / ((df1 * (f - 1)) + N)
- 
- res <- round(data.frame(pomega.sq = pomega), digits = digits)
- 
- return(if(percent) 
-   noquote(paste0(round(res$pomega.sq*1e2, 2), "%")) else res)
+  if(!is.na(fit)){  
+    N <- nobs(fit)
+    fit <- summary(fit)
+    f <- head(fit[[1]]$'F value', -1)
+    df1 <- head(fit[[1]]$Df, -1)
+    df2 <- tail(fit[[1]]$Df, 1)
+  }  
+  
+  pomega <- (df1 * (f - 1)) / ((df1 * (f - 1)) + N)
+  
+  res <- round(data.frame(pomega.sq = pomega), digits = digits)
+  
+if(is.na(fit)){  
+    
+    return(res)
+    
+}else{
+    
+    res <- unlist(res)
+    
+    fit[[1]] <- cbind(fit[[1]], pomega.sq = c(res, NA))
+    
+    return(fit)
+  } 
 }
+
 
 
 #====================================================================================================================
 
 
-omega.sq <- function(f, df1, df2, N, digits = 6, percent = FALSE){
-    
+omega.sq <- function(fit = NA, f, df1, df2, N, digits = 6){
+  
+if(!is.na(fit)){  
+  N <- nobs(fit)
+  fit <- summary(fit)
+  f <- head(fit[[1]]$'F value', -1)
+  df1 <- head(fit[[1]]$Df, -1)
+  df2 <- tail(fit[[1]]$Df, 1)
+  }
+  
   denom <- as.numeric(crossprod(df1, f) + df2 + 1)
   
   numer <- (df1 * (f - 1))
-  
-  res <- round(data.frame(omega.sq = numer / denom), digits = digits)
 
-return(if(percent) 
-  noquote(paste0(round(res$omega.sq*1e2, 2), "%")) else res)
+  res <- round(data.frame(omega.sq = numer / denom), digits = digits)
+  
+if(is.na(fit)){  
+
+  return(res)
+  
+}else{
+  
+    res <- unlist(res)
+
+    fit[[1]] <- cbind(fit[[1]], omega.sq = c(res, NA))
+
+    return(fit)
+  } 
 }  
        
        
