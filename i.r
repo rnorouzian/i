@@ -3418,7 +3418,7 @@ pomega.sq <- function(f, df1, df2, N, digits = 6, percent = FALSE){
 
 omega.sq <- function(f, df1, df2, N, digits = 6, percent = FALSE){
     
-  denom <- crossprod(df1, f) + df2 + 1
+  denom <- as.numeric(crossprod(df1, f) + df2 + 1)
   
   numer <- (df1 * (f - 1))
   
