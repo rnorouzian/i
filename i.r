@@ -3410,7 +3410,7 @@ anova.es <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits = 6)
                 
 anova.es.default <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits = 6){
   
-  if(!is.na(fit)){  
+  if(!(any(is.na(fit)))){  
     N <- nobs(fit)
     fit <- summary(fit)
     f <- head(fit[[1]]$'F value', -1)
@@ -3427,7 +3427,7 @@ anova.es.default <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits =
                           upper.P.eta.sq = peta[,3], conf.level = peta[,4], omega.sq = omega, 
                           P.omega.sq = pomega), digits = digits)
   
-  if(is.na(fit)){  
+  if(any(is.na(fit))){  
     
     return(result)
     
