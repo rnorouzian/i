@@ -3402,7 +3402,13 @@ multilogit.default <- function (...){
 #====================================================================================================================
                 
  
-pomega.sq <- function(fit = NA, f, df1, df2, N, digits = 6){
+anova.es <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits = 6)
+{
+  UseMethod("anova.es")
+}
+  
+                
+anova.es.default <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits = 6){
   
   if(!is.na(fit)){  
     N <- nobs(fit)
@@ -3410,59 +3416,29 @@ pomega.sq <- function(fit = NA, f, df1, df2, N, digits = 6){
     f <- head(fit[[1]]$'F value', -1)
     df1 <- head(fit[[1]]$Df, -1)
     df2 <- tail(fit[[1]]$Df, 1)
-  }  
+  }
   
+  omega <- (df1 * (f - 1)) / as.numeric(crossprod(df1, f) + df2 + 1)
+  eta <- (df1 * f) / as.numeric(crossprod(df1, f) + df2)
   pomega <- (df1 * (f - 1)) / ((df1 * (f - 1)) + N)
+  peta <- peta.ci(f = f, df1 = df1, df2 = df2, N = N, conf.level = conf.level, digits = digits)
   
-  res <- round(data.frame(pomega.sq = pomega), digits = digits)
+  res <- round(data.frame(eta.sq = eta, P.eta.sq = peta[,1], lowerP.eta.sq = peta[,2], 
+                          upperP.eta.sq = peta[,3], conf.level = peta[,4], omega.sq = omega, 
+                          P.omega.sq = pomega), digits = digits)
   
-if(is.na(fit)){  
+  if(is.na(fit)){  
     
     return(res)
     
-}else{
+  }else{
     
-    res <- unlist(res)
-    
-    fit[[1]] <- cbind(fit[[1]], pomega.sq = c(res, NA))
-    
-    return(fit)
+    res <- data.frame(res, row.names = head(rownames(fit[[1]]), -1))
+
+    return(res)
   } 
 }
-
-
-
-#====================================================================================================================
-
-
-omega.sq <- function(fit = NA, f, df1, df2, N, digits = 6){
-  
-if(!is.na(fit)){  
-  N <- nobs(fit)
-  fit <- summary(fit)
-  f <- head(fit[[1]]$'F value', -1)
-  df1 <- head(fit[[1]]$Df, -1)
-  df2 <- tail(fit[[1]]$Df, 1)
-  }
-  
-  denom <- as.numeric(crossprod(df1, f) + df2 + 1)
-  
-  numer <- (df1 * (f - 1))
-
-  res <- round(data.frame(omega.sq = numer / denom), digits = digits)
-  
-if(is.na(fit)){  
-
-  return(res)
-  
-}else{
-  
-    res <- unlist(res)
-
-    fit[[1]] <- cbind(fit[[1]], omega.sq = c(res, NA))
-
-    return(fit)
-  } 
-}  
+                
+                
        
        
