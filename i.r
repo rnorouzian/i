@@ -3409,7 +3409,7 @@ pomega.sq <- function(f, df1, df2, N, digits = 6, percent = FALSE){
  res <- round(data.frame(pomega.sq = pomega), digits = digits)
  
  return(if(percent) 
-   noquote(paste0(round(res$pomega.sq*1e2, 2), "%")) else result)
+   noquote(paste0(round(res$pomega.sq*1e2, 2), "%")) else res)
 }
 
 
@@ -3425,7 +3425,7 @@ omega.sq <- function(f, df1, df2, N, digits = 6, percent = FALSE){
   res <- round(data.frame(omega.sq = numer / denom), digits = digits)
 
 return(if(percent) 
-  noquote(paste0(round(res$omega.sq*1e2, 2), "%")) else result)
+  noquote(paste0(round(res$omega.sq*1e2, 2), "%")) else res)
 }  
        
        
