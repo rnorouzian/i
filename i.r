@@ -3427,9 +3427,9 @@ anova.es.default <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits =
   
  # l <- max(lengths(list(f, df1, df2, N))) ; seq_len(l)
   
-  result <- round(data.frame(eta.sq = eta, P.eta.sq = peta[,1], lower.P.eta.sq = peta[,2], 
+  result <- round(data.frame(F.value = f, eta.sq = eta, P.eta.sq = peta[,1], lower.P.eta.sq = peta[,2], 
                              upper.P.eta.sq = peta[,3], conf.level = peta[,4], omega.sq = omega, 
-                             P.omega.sq = pomega, F.value = f, row.names = paste0("effect ", 1:length(f), ":")), digits = digits)
+                             P.omega.sq = pomega, row.names = paste0("effect ", 1:length(f), ":")), digits = digits)
   
   message("Warning: If analysis includes random-effects, carefully pick the right 'df2' to obtain correct 'P.eta- or P.omega-sq.'")
   
