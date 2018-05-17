@@ -3421,7 +3421,7 @@ anova.es.default <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits =
     df2 <- tail(fit[[1]]$Df, 1)
   }
   
-  if(length(unique(lengths(list(f, df1)))) != 1) {stop("\nError: The length of 'f' and 'df1' must be equal. Check your inputted values.")}
+  if(length(f) != length(df1)){stop("\nError: The length of 'f' and 'df1' must be equal. Check your inputted values.")}
   
   omega <- (df1 * (f - 1)) / as.numeric(crossprod(df1, f) + df2 + 1)
   eta <- (df1 * f) / as.numeric(crossprod(df1, f) + df2)
@@ -3448,5 +3448,3 @@ anova.es.default <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits =
 }
                 
                 
-                
-          
