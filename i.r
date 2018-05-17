@@ -3410,41 +3410,43 @@ anova.es <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits = 6)
                 
 anova.es.default <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits = 6){
   
-if(!(any(is.na(fit)))){
-
-if(class(fit)[1] != "aov") { stop("Error: 'fit' must be a fitted model from base R's 'aov()' command.") }        
-N <- nobs(fit)
-fit <- summary(fit)
-#if(!("F value" %in% names(fit[[1]]))) { stop("Error: Fitted model does not include any 'F value'.") } 
-f <- head(fit[[1]]$'F value', -1)
-df1 <- head(fit[[1]]$Df, -1)
-df2 <- tail(fit[[1]]$Df, 1)
-}
-                                               
-if(length(unique(lengths(list(f, df1)))) != 1) {stop("\nError: The length of 'f' and 'df1' must be equal. Check your inputted values.")}
-                                               
-omega <- (df1 * (f - 1)) / as.numeric(crossprod(df1, f) + df2 + 1)
-eta <- (df1 * f) / as.numeric(crossprod(df1, f) + df2)
-pomega <- (df1 * (f - 1)) / ((df1 * (f - 1)) + N)
-peta <- peta.ci(f = f, df1 = df1, df2 = df2, N = N, conf.level = conf.level, digits = digits)
-                                               
-result <- round(data.frame(F.value = f, eta.sq = eta, P.eta.sq = peta[,1], lower.P.eta.sq = peta[,2], 
-                upper.P.eta.sq = peta[,3], conf.level = peta[,4], omega.sq = omega, 
-                P.omega.sq = pomega, row.names = paste0("effect ", 1:length(f), ":")), digits = digits)
-                                               
-message("Warning: If analysis includes random-effects, carefully pick the right 'df2' to obtain correct 'P.eta- or P.omega-sq.'")
-                                               
-if(any(is.na(fit))){  
-                                               
-return(result)
-                                               
-}else{
-                                               
-rownames(result) <- NULL
-rownames(result) <- head(rownames(fit[[1]]), -1)
-                                               
-return(result)
+  if(!(any(is.na(fit)))){
+    
+    if(class(fit)[1] != "aov") { stop("Error: 'fit' must be a fitted model from base R's 'aov()' command.") }        
+    N <- nobs(fit)
+    fit <- summary(fit)
+    if(!("F value" %in% names(fit[[1]]))) { stop("Error: Fitted model does not include any 'F value'.") } 
+    f <- head(fit[[1]]$'F value', -1)
+    df1 <- head(fit[[1]]$Df, -1)
+    df2 <- tail(fit[[1]]$Df, 1)
+  }
+  
+  if(length(unique(lengths(list(f, df1)))) != 1) {stop("\nError: The length of 'f' and 'df1' must be equal. Check your inputted values.")}
+  
+  omega <- (df1 * (f - 1)) / as.numeric(crossprod(df1, f) + df2 + 1)
+  eta <- (df1 * f) / as.numeric(crossprod(df1, f) + df2)
+  pomega <- (df1 * (f - 1)) / ((df1 * (f - 1)) + N)
+  peta <- peta.ci(f = f, df1 = df1, df2 = df2, N = N, conf.level = conf.level, digits = digits)
+  
+  result <- round(data.frame(F.value = f, eta.sq = eta, P.eta.sq = peta[,1], lower.P.eta.sq = peta[,2], 
+                             upper.P.eta.sq = peta[,3], conf.level = peta[,4], omega.sq = omega, 
+                             P.omega.sq = pomega, row.names = paste0("effect ", 1:length(f), ":")), digits = digits)
+  
+  message("Warning: If analysis includes random-effects, carefully pick the right 'df2' to obtain correct 'P.eta- or P.omega-sq.'")
+  
+  if(any(is.na(fit))){  
+    
+    return(result)
+    
+  }else{
+    
+    rownames(result) <- NULL
+    rownames(result) <- head(rownames(fit[[1]]), -1)
+    
+    return(result)
   } 
 }
+                
+                
                 
           
