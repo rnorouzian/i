@@ -3409,7 +3409,9 @@ anova.es <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits = 6)
   
                 
 anova.es.default <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits = 6){
-  
+
+message("Warning: If analysis includes random-effects, carefully pick the right 'df2' to obtain 'P.eta- or P.omega-sq.'")  
+    
   if(!(any(is.na(fit)))){  
     N <- nobs(fit)
     fit <- summary(fit)
