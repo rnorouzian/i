@@ -3410,10 +3410,11 @@ anova.es <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits = 6)
                 
 anova.es.default <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits = 6){
   
-  if(!(any(is.na(fit)))){  
+  if(!(any(is.na(fit)))){
+  if(class(fit)[1] != "aov") stop("Error: 'fit' must be a fitted model from base R's 'aov()' command.")    
     N <- nobs(fit)
-    fit <- summary(fit)
-    if(!("F value" %in% names(fit[[1]]))) stop("Error: Fitted model doesnot include any 'F.value'.)  
+    fit <- anova(fit)
+    if(!("F value" %in% names(fit[[1]]))) stop("Error: Fitted model doesnot include any 'F value'.)  
     f <- head(fit[[1]]$'F value', -1)
     df1 <- head(fit[[1]]$Df, -1)
     df2 <- tail(fit[[1]]$Df, 1)
