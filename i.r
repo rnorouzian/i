@@ -3409,9 +3409,9 @@ anova.es <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits = 6)
   
                 
 anova.es.default <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits = 6){
-
-message("Warning: If analysis includes random-effects, carefully pick the right 'df2' to obtain 'P.eta- or P.omega-sq.'")  
-    
+  
+  message("Warning: If analysis includes random-effects, carefully pick the right 'df2' to obtain correct 'P.eta- or P.omega-sq.'")  
+  
   if(!(any(is.na(fit)))){  
     N <- nobs(fit)
     fit <- summary(fit)
@@ -3425,9 +3425,11 @@ message("Warning: If analysis includes random-effects, carefully pick the right 
   pomega <- (df1 * (f - 1)) / ((df1 * (f - 1)) + N)
   peta <- peta.ci(f = f, df1 = df1, df2 = df2, N = N, conf.level = conf.level, digits = digits)
   
+  l <- max(lengths(list(f, df1, df2, N)))
+  
   result <- round(data.frame(eta.sq = eta, P.eta.sq = peta[,1], lower.P.eta.sq = peta[,2], 
-                          upper.P.eta.sq = peta[,3], conf.level = peta[,4], omega.sq = omega, 
-                          P.omega.sq = pomega), digits = digits)
+                             upper.P.eta.sq = peta[,3], conf.level = peta[,4], omega.sq = omega, 
+                             P.omega.sq = pomega, row.names = paste0("effect ", seq_len(l), ":")), digits = digits)
   
   if(any(is.na(fit))){  
     
@@ -3435,11 +3437,14 @@ message("Warning: If analysis includes random-effects, carefully pick the right 
     
   }else{
     
+    rownames(result) <- NULL
     rownames(result) <- head(rownames(fit[[1]]), -1)
     
     return(result)
   } 
 }
+                
+                
                 
                 
                 
