@@ -3410,8 +3410,6 @@ anova.es <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits = 6)
                 
 anova.es.default <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits = 6){
   
-  message("Warning: If analysis includes random-effects, carefully pick the right 'df2' to obtain correct 'P.eta- or P.omega-sq.'")  
-  
   if(!(any(is.na(fit)))){  
     N <- nobs(fit)
     fit <- summary(fit)
@@ -3419,6 +3417,8 @@ anova.es.default <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits =
     df1 <- head(fit[[1]]$Df, -1)
     df2 <- tail(fit[[1]]$Df, 1)
   }
+  
+  if(length(unique(lengths(list(f, df1)))) != 1) stop("\nError: The length of 'f' and 'df1' must be equal.")
   
   omega <- (df1 * (f - 1)) / as.numeric(crossprod(df1, f) + df2 + 1)
   eta <- (df1 * f) / as.numeric(crossprod(df1, f) + df2)
@@ -3430,6 +3430,8 @@ anova.es.default <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits =
   result <- round(data.frame(eta.sq = eta, P.eta.sq = peta[,1], lower.P.eta.sq = peta[,2], 
                              upper.P.eta.sq = peta[,3], conf.level = peta[,4], omega.sq = omega, 
                              P.omega.sq = pomega, row.names = paste0("effect ", seq_len(l), ":")), digits = digits)
+  
+  message("Warning: If analysis includes random-effects, carefully pick the right 'df2' to obtain correct 'P.eta- or P.omega-sq.'")
   
   if(any(is.na(fit))){  
     
@@ -3443,6 +3445,9 @@ anova.es.default <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits =
     return(result)
   } 
 }
+                
+                
+                
                 
                 
                 
