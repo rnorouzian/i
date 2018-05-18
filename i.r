@@ -122,6 +122,11 @@ hdir.default <- function(sample, level = .95){
 
 #==================================================================================================================
 
+eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
+
+#==================================================================================================================
+
+
 prop.ci <- function(k, n, conf.level = .95, digits = 6)
 {
   UseMethod("prop.ci")
@@ -498,7 +503,6 @@ prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "db
   leg <- if(is.character(legend)) legend else deparse(substitute(legend))
   
   pr = show.prior
-  eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
   I = eq(a, b, d, lo, hi, yes, n)
   a = I[[1]] ; b = I[[2]] ; d = I[[3]] ; lo = I[[4]] ; hi = I[[5]] ; yes = I[[6]] ; n = I[[7]]
   
@@ -787,7 +791,6 @@ prop.diff.default <- function(yes, n, a = 1.2, b = a, how = c("two.one", "one.tw
   eq.b <- if(is.character(eq.level)) as.numeric(substr(eq.level, 1, nchar(eq.level)-1)) / 1e2 else eq.level
   legn <- if(is.character(legend)) legend else deparse(substitute(legend))
       
-  eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
   I = eq(n, yes)   
   n = I[[1]] ; yes = I[[2]] 
   
@@ -1025,7 +1028,6 @@ d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf
   pr <- show.prior
   
   if(!pr){    
-    eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
     I = eq(m, s, d, lo, hi, t, n1, n2)
     m = I[[1]] ; s = I[[2]] ; d = I[[3]] ; lo = I[[4]] ; hi = I[[5]] ; t = I[[6]] ; n1 = I[[7]] ; n2 = I[[8]]
     
@@ -1334,7 +1336,6 @@ peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo
   pr <- show.prior
     
   if(!pr){    
-  eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
   I <- eq(a, b, d, lo, hi, f, N, df1, df2)
   a = I[[1]] ; b = I[[2]] ; d = I[[3]] ; lo = I[[4]] ; hi = I[[5]] ; f = I[[6]] ; N = I[[7]] ; df1 = I[[8]] ; df2 = I[[9]] 
                                                                                                                           
@@ -1610,7 +1611,6 @@ cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = 
   lambda <- 1/(prior.sd^2)
     
   if(!pr){   
-  eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
   I = eq(n, r, prior.mean, prior.sd)   
   n = I[[1]] ; r = I[[2]] ; prior.mean = I[[3]] ; prior.sd = I[[4]] ;  
   
@@ -1693,7 +1693,6 @@ cor.diff.default <- function(r, n, prior.mean = 0, prior.sd = .707, how = c("two
   is.s <- function(...)lengths(list(...)) < 2
   if(any(is.s(n, r))) stop("Error: 'r' & 'n' must each have a length of '2' or larger.")
   
-  eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
   I = eq(n, r, prior.mean, prior.sd)   
   n = I[[1]] ; r = I[[2]] ; prior.mean = I[[3]] ; prior.sd = I[[4]]
   
@@ -1799,7 +1798,6 @@ prop.update.default <- function(n = 100, yes = 55, top = 5, scale = .1, lo = 0, 
   if(d == "dbeta" & a == 1 & b == 1) a <- b <- 1.0000001;    
   if(tol < 1e4) stop("'tol' must be '10,000' or larger.")
   
-  eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
   deci <- function(x, k = 3) format(round(x, k), nsmall = k) 
   I <- eq(n, s) ; n <- I[[1]] ; s <- I[[2]]
   loop <- length(n) 
@@ -1872,7 +1870,6 @@ d.update.default <- function(t = 3.35, n1 = 30, n2 = NA, top = 5, scale = .1, m 
   is.v <- function(...) lengths(list(...)) > 1
   if(any(is.v(m, s, d))) stop("Choose only 'one' prior knowledge base at a time.")
   
-  eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
   deci <- function(x, k = 3) format(round(x, k), nsmall = k) 
   I <- eq(t, n1, n2) 
   t <- I[[1]]  
@@ -1952,7 +1949,6 @@ peta.update.default <- function(f = 50, N = 120, df1 = 3, df2 = 116, top = 5, sc
   is.v <- function(...) lengths(list(...)) > 1
   if(any(is.v(a, b, d))) stop("Error: Choose only 'one' prior knowledge base at a time.")
   
-  eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
   deci <- function(x, k = 3) format(round(x, k), nsmall = k) 
   I <- eq(f, N, df1, df2) ; f <- I[[1]] ; N <- I[[2]] ; df1 <- I[[3]] ; df2 <- I[[4]] ;
   loop <- length(f) 
@@ -3421,7 +3417,9 @@ anova.es.default <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits =
     df2 <- tail(fit[[1]]$Df, 1)
   }
   
-  if(length(f) != length(df1)){stop("\nError: The length of 'f' and 'df1' must be equal. Check your inputted values.")}
+  if(length(f) != length(df1)){warning("The length of 'f' and 'df1' must be equal. Check your inputted values.")}
+  I <- eq(f, df1) 
+  f = I[[1]] ; df1 = I[[2]]
   
   omega <- (df1 * (f - 1)) / as.numeric(crossprod(df1, f) + df2 + 1)
   eta <- (df1 * f) / as.numeric(crossprod(df1, f) + df2)
@@ -3432,7 +3430,7 @@ anova.es.default <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits =
                              upper.P.eta.sq = peta[,3], conf.level = peta[,4], omega.sq = omega, 
                              P.omega.sq = pomega, row.names = paste0("effect ", 1:length(f), ":")), digits = digits)
   
-  message("Warning: If analysis includes random-effects, carefully pick the right 'df2' to obtain correct 'P.eta- or P.omega-sq.'")
+  message("Note: If analysis includes random-effects, carefully pick the right 'df2' to obtain correct 'P.eta- or P.omega-sq.'")
   
   if(any(is.na(fit))){  
     
