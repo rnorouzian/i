@@ -3417,7 +3417,7 @@ anova.es.default <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits =
     df2 <- tail(fit[[1]]$Df, 1)
   }
   
-  if(length(f) != length(df1)){message("warning: The length of 'f' and 'df1' must be equal. Check your inputted values.\n")}
+  if(length(f) != length(df1)){message("Warning: The length of 'f' and 'df1' must be equal. Check your inputted values.\n")}
   I <- eq(f, df1) 
   f = I[[1]] ; df1 = I[[2]]
   
