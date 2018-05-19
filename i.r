@@ -3432,7 +3432,7 @@ anova.es.default <- function(fit = NULL, f, df1, df2, N, conf.level = .9, digits
   
   message("Note: If analysis includes random-effects, carefully pick the right 'df2' to obtain correct 'P.eta- or P.omega-sq.'")
   
-  if(!is.null(fit)){  
+  if(is.null(fit)){  
     
     return(result)
     
