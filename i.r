@@ -3398,7 +3398,7 @@ multilogit.default <- function (...){
 #====================================================================================================================
                 
  
-anova.es <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits = 6)
+anova.es <- function(fit = NULL, f, df1, df2, N, conf.level = .9, digits = 6)
 {
   UseMethod("anova.es")
 }
