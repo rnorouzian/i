@@ -3427,7 +3427,7 @@ anova.es.default <- function(fit = NULL, f, df1, df2, N, conf.level = .9, digits
   peta <- peta.ci(f = f, df1 = df1, df2 = df2, N = N, conf.level = conf.level, digits = digits)
   
   result <- round(data.frame(F.value = f, eta.sq = eta, P.eta.sq = peta[,1], lower.P.eta.sq = peta[,2], 
-                             upper.P.eta.sq = peta[,3], conf.level = peta[,4], omega.sq = omega, 
+                             upper.P.eta.sq = peta[,3], conf.level = conf.level, omega.sq = omega, 
                              P.omega.sq = pomega, row.names = paste0("effect ", 1:length(f), ":")), digits = digits)
   
   message("Note: If analysis includes random-effects, carefully pick the right 'df2' to obtain correct 'P.eta- or P.omega-sq.'")
@@ -3438,7 +3438,6 @@ anova.es.default <- function(fit = NULL, f, df1, df2, N, conf.level = .9, digits
     
   }else{
     
-    #rownames(result) <- NULL
     rownames(result) <- head(rownames(sit), -1)
     
     return(result)
