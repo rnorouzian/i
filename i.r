@@ -3404,9 +3404,9 @@ anova.es <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits = 6)
 }
   
                 
-anova.es.default <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits = 6){
+anova.es.default <- function(fit = NULL, f, df1, df2, N, conf.level = .9, digits = 6){
   
-  if(!(any(is.na(fit)))){
+  if(!is.null(fit)){
     
     if(fit$call[1] != "lm()" && fit$call[1] != "aov()") { stop("Error: 'fit' must be a fitted model from base R's 'aov()' or 'lm()' commands.") }        
     N <- nobs(fit)
@@ -3432,7 +3432,7 @@ anova.es.default <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits =
   
   message("Note: If analysis includes random-effects, carefully pick the right 'df2' to obtain correct 'P.eta- or P.omega-sq.'")
   
-  if(!(any(is.na(fit)))){  
+  if(!is.null(fit)){  
     
     return(result)
     
@@ -3444,11 +3444,5 @@ anova.es.default <- function(fit = NA, f, df1, df2, N, conf.level = .9, digits =
     return(result)
   } 
 }
-
-                
-
-
-                
-                
                 
                 
