@@ -3438,7 +3438,7 @@ anova.es.default <- function(fit = NULL, f, df1, df2, N, conf.level = .9, digits
     
   }else{
     
-    rownames(result) <- NULL
+    #rownames(result) <- NULL
     rownames(result) <- head(rownames(sit), -1)
     
     return(result)
