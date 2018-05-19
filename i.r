@@ -1600,82 +1600,82 @@ peta.hyper.ab.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi =
 #=================================================================================================================
 
 
-cor.bayes <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 7, legend = "topleft", show.prior = FALSE, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, col.hump = NA, ...){
+cor.bayes <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 7, legend = "topleft", show.prior = FALSE, digits = 6, col.depth = .55, labels = NULL, cex.lab = .8, xlab = NA, ylab = NA, col.hump = NULL, ...){
   UseMethod("cor.bayes")
 }
 
-cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 5, legend = "topleft", show.prior = FALSE, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, col.hump = NA, ...){ 
+cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 5, legend = "topleft", show.prior = FALSE, digits = 6, col.depth = .55, labels = NULL, cex.lab = .8, xlab = NA, ylab = NA, col.hump = NULL, ...){ 
   
   pr <- show.prior    
   mu <- prior.mean
   lambda <- 1/(prior.sd^2)
-    
+  
   if(!pr){   
-  I = eq(n, r, prior.mean, prior.sd)   
-  n = I[[1]] ; r = I[[2]] ; prior.mean = I[[3]] ; prior.sd = I[[4]] ;  
-  
-  deci <- function(x, k = 3) format(round(x, k), nsmall = k)
-  leg <- if(is.character(legend)) legend else deparse(substitute(legend))
-      
-  lambda.post <- (lambda + (n - 3))
-  mu.post <- (lambda*mu + (n - 3)*atanh(r))/lambda.post
-  
-  loop <- length(r)
-  p <- list()
-  CI <- matrix(NA, loop, 2)
-  den <- list()
-  mode <- numeric(loop)
-  peak <- numeric(loop)
-  mean <- numeric(loop)
-  median <- numeric(loop)                  
-  sd <- numeric(loop)
-  from <- numeric(loop)                  
-  to <- numeric(loop)
-  eq.prob <- numeric(loop)          
-  
-  for(i in 1:loop){
-    p[[i]] <- tanh(rnorm(1e6, mu.post[i], sqrt(1/lambda.post[i])))
-    CI[i,] <- hdir(p[[i]], level = level)
-    den[[i]] <- density(p[[i]], adjust = 2, n = 1e3)
-    eq.prob[i] <- mean(abs(p[[i]]) <= eq.bound)
-    mode[i] <- den[[i]]$x[which.max(den[[i]]$y)]
-    peak[i] <- den[[i]]$y[which.max(den[[i]]$y)]
-    mean[i] <- mean(p[[i]])
-    median[i] <- median(p[[i]])
-    sd[i] <- sd(p[[i]])
-    from[i] <- mean[i] - margin * sd[i]
-    to[i] <- mean[i] + margin * sd[i]
-  }
-  graphics.off()
-  lab <- if(is.na(labels)) paste0("r", 1:loop) else labels
-  xlab <- if(is.na(xlab)) "Credible Interval (Pearson correlation)" else xlab
-  ylab <- if(is.na(ylab)) NA else ylab    
-  plot(CI, rep(1:loop, 2), type = "n", xlim = c(min(from), max(to)), ylim = c(bottom*1, top*loop), ylab = ylab, yaxt = "n", xlab = xlab, font.lab = 2, mgp = c(2, .3, 0), ...)
-  axis(2, at = 1:loop, labels = lab, font = 2, las = 1, cex.axis = cex.lab, tck = -.006, mgp = c(2, .3, 0))
-  abline(h = 1:loop, col = 8, lty = 3)
-  
-  for(i in 1:loop){
-  col <- if(any(is.na(col.hump))) i else col.hump[i]    
-    polygon(x = den[[i]]$x, y = scale*den[[i]]$y +i, col = adjustcolor(col, col.depth), border = NA, xpd = NA)
-  }
-  
-  m = scale*peak + 1:loop
-  col <- if(any(is.na(col.hump))) 1:loop else col.hump
-  legend(x = leg, legend = rev(paste0("s.norm", "(", round(prior.mean, 2), ", ", round(prior.sd, 2), ")")), pch = 22, title = "Priors", pt.bg = rev(col), col = rev(col), cex = .7, pt.cex = .6, bg = 0, box.col = 0, xpd = NA, x.intersp = .5, title.adj = .4)
-  box()
-  segments(CI[, 1], 1:loop, CI[, 2], 1:loop, lend = 1, lwd = 4, col = col, xpd = NA)                            
-  segments(mode, 1:loop, mode, m, lty = 3, xpd = NA, lend = 1)  
-  points(mode, 1:loop, pch = 21, bg = "cyan", cex = 1.3, col = "magenta", xpd = NA)
-  I = deci(CI, 2); o = deci(mode, 2)
-  text(mode, 1:loop, paste0(I[,1], "        ", o, "         ", I[,2]), cex = .75, pos = 3, font = 2, xpd = NA)
-  
-  rownames <- if(is.na(labels)) paste0("r", 1:loop, " posterior:") else paste0(1:loop, " r ", labels, " posterior:")                            
-  return(round(data.frame(mean = mean, mode = mode, median = median, sd = sd, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, row.names = rownames), digits = digits))
-
+    I = eq(n, r, prior.mean, prior.sd)   
+    n = I[[1]] ; r = I[[2]] ; prior.mean = I[[3]] ; prior.sd = I[[4]] ;  
+    
+    deci <- function(x, k = 3) format(round(x, k), nsmall = k)
+    leg <- if(is.character(legend)) legend else deparse(substitute(legend))
+    
+    lambda.post <- (lambda + (n - 3))
+    mu.post <- (lambda*mu + (n - 3)*atanh(r))/lambda.post
+    
+    loop <- length(r)
+    p <- list()
+    CI <- matrix(NA, loop, 2)
+    den <- list()
+    mode <- numeric(loop)
+    peak <- numeric(loop)
+    mean <- numeric(loop)
+    median <- numeric(loop)                  
+    sd <- numeric(loop)
+    from <- numeric(loop)                  
+    to <- numeric(loop)
+    eq.prob <- numeric(loop)          
+    
+    for(i in 1:loop){
+      p[[i]] <- tanh(rnorm(1e6, mu.post[i], sqrt(1/lambda.post[i])))
+      CI[i,] <- hdir(p[[i]], level = level)
+      den[[i]] <- density(p[[i]], adjust = 2, n = 1e3)
+      eq.prob[i] <- mean(abs(p[[i]]) <= eq.bound)
+      mode[i] <- den[[i]]$x[which.max(den[[i]]$y)]
+      peak[i] <- den[[i]]$y[which.max(den[[i]]$y)]
+      mean[i] <- mean(p[[i]])
+      median[i] <- median(p[[i]])
+      sd[i] <- sd(p[[i]])
+      from[i] <- mean[i] - margin * sd[i]
+      to[i] <- mean[i] + margin * sd[i]
+    }
+    graphics.off()
+    lab <- if(is.null(labels)) paste0("r", 1:loop) else labels
+    xlab <- if(is.na(xlab)) "Credible Interval (Pearson correlation)" else xlab
+    ylab <- if(is.na(ylab)) NA else ylab    
+    plot(CI, rep(1:loop, 2), type = "n", xlim = c(min(from), max(to)), ylim = c(bottom*1, top*loop), ylab = ylab, yaxt = "n", xlab = xlab, font.lab = 2, mgp = c(2, .3, 0), ...)
+    axis(2, at = 1:loop, labels = lab, font = 2, las = 1, cex.axis = cex.lab, tck = -.006, mgp = c(2, .3, 0))
+    abline(h = 1:loop, col = 8, lty = 3)
+    
+    for(i in 1:loop){
+      col <- if(is.null(col.hump)) i else col.hump[i]    
+      polygon(x = den[[i]]$x, y = scale*den[[i]]$y +i, col = adjustcolor(col, col.depth), border = NA, xpd = NA)
+    }
+    
+    m = scale*peak + 1:loop
+    col <- if(is.null(col.hump)) 1:loop else col.hump
+    legend(x = leg, legend = rev(paste0("s.norm", "(", round(prior.mean, 2), ", ", round(prior.sd, 2), ")")), pch = 22, title = "Priors", pt.bg = rev(col), col = rev(col), cex = .7, pt.cex = .6, bg = 0, box.col = 0, xpd = NA, x.intersp = .5, title.adj = .4)
+    box()
+    segments(CI[, 1], 1:loop, CI[, 2], 1:loop, lend = 1, lwd = 4, col = col, xpd = NA)                            
+    segments(mode, 1:loop, mode, m, lty = 3, xpd = NA, lend = 1)  
+    points(mode, 1:loop, pch = 21, bg = "cyan", cex = 1.3, col = "magenta", xpd = NA)
+    I = deci(CI, 2); o = deci(mode, 2)
+    text(mode, 1:loop, paste0(I[,1], "        ", o, "         ", I[,2]), cex = .75, pos = 3, font = 2, xpd = NA)
+    
+    rownames <- if(is.null(labels)) paste0("r", 1:loop, " posterior:") else paste0(1:loop, " r ", labels, " posterior:")                            
+    return(round(data.frame(mean = mean, mode = mode, median = median, sd = sd, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, row.names = rownames), digits = digits))
+    
   }else{
-  
-  p <- function(x) dnorm(atanh(x), prior.mean[1], prior.sd[1])*1/(1-x^2)
-  curve(p, -1, 1, yaxt = "n", ylab = NA, xlab = bquote(rho[~("Pearson correlation")]), bty = "n", font.lab = 2, cex.lab = 1.5, lwd = 2, n = 1e4, yaxs = "i", main = bquote(rho*" ~ "*"scaled.norm"(.(round(prior.mean[1], 3)), .(round(prior.sd[1], 3)))), xpd = NA) 
+    
+    p <- function(x) dnorm(atanh(x), prior.mean[1], prior.sd[1])*1/(1-x^2)
+    curve(p, -1, 1, yaxt = "n", ylab = NA, xlab = bquote(rho[~("Pearson correlation")]), bty = "n", font.lab = 2, cex.lab = 1.5, lwd = 2, n = 1e4, yaxs = "i", main = bquote(rho*" ~ "*"scaled.norm"(.(round(prior.mean[1], 3)), .(round(prior.sd[1], 3)))), xpd = NA) 
   }  
 }
 
