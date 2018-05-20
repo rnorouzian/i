@@ -2442,7 +2442,7 @@ predict.bayes <- function(fit, xlab = NA, ylab = NA, level = .95, line.int = TRU
 predict.bayes.default <- function(fit, xlab = NA, ylab = NA, level = .95, line.int = TRUE, pred.int = TRUE, pt.cex = 1, pt.col = 4, col.depth = .3, col.line = "cyan", col.pred = "gray", col.reg = "cyan", ...){
   
   if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
-  if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor.")
+  if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor. Consider using 'count.plot()' for multiple predictors.")
   
   pred <- fit$model[, 2]
   dep <- fit$model[, 1]  
