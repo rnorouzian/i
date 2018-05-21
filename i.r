@@ -3427,7 +3427,7 @@ anova.es.default <- function(fit = NULL, f, df1, df2, N, conf.level = .9, digits
                              upper.P.eta.sq = peta[,3], conf.level = conf.level, omega.sq = omega, 
                              P.omega.sq = pomega, row.names = paste0("effect ", 1:length(f), ":")), digits = digits)
   
-  message("Note: If analysis includes random-effects, carefully pick the right 'df2' to obtain correct 'P.eta- or P.omega-sq.'")
+  message("Note: If analysis includes random-effects, manually input the right 'df2' to obtain correct 'P.eta- or P.omega-sq.'")
   
   if(is.null(fit)){  
     
