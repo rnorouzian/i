@@ -3308,9 +3308,6 @@ icc.default <- function(a = 1, b = 0, c = 0, from = -4, to = 4, legend = "toplef
   
   if(any(c > 1) || any(c < 0)) stop("Error: 'Gussing' parameter 'c' must be between '0' and '1'.")
   
-  eq <- function(...){ lapply(list(...), 
-  function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
-  
   I <- eq(a, b, c)
   
   a = I[[1]] ; b = I[[2]] ; c = I[[3]]
