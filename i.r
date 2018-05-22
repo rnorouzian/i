@@ -1878,10 +1878,12 @@ d.update <- function(t = 3.35, n1 = 30, n2 = NULL, top = 5, scale = .1, m = 0, s
   UseMethod("d.update")
 }
 
-d.update.default <- function(t = 3.35, n1 = 30, n2 = NULL, top = 5, scale = .1, m = 0, s = 1, dist.name = "dnorm", prior.scale = 1, level = .95, show.prior = FALSE, lo = -2, hi = 2, tol = 1e4, margin = hi, col.depth = .55, labels = NULL, cex.lab = .9, xlab = NULL, ylab = NULL){
+d.update.default <- function(t = 3.35, n1 = 30, n2 = NA, top = 5, scale = .1, m = 0, s = 1, dist.name = "dnorm", 
+                             prior.scale = 1, level = .95, show.prior = FALSE, lo = -2, hi = 2, tol = 1e4, 
+                             margin = hi, col.depth = .55, labels = NULL, cex.lab = .9, xlab = NULL, ylab = NULL){
   
   pri <- show.prior
-  d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name)) 
+  d <- dist.name
   if(is.infinite(lo)) lo <- -6
   if(is.infinite(hi)) hi <- 6
   if(tol < 1e4) stop("'tol' must be '10,000' or larger.")
@@ -1927,8 +1929,8 @@ d.update.default <- function(t = 3.35, n1 = 30, n2 = NULL, top = 5, scale = .1, 
     # text(c(.85*I[1], mode, I[2]), 0, paste0(round(c(I[1], mode, I[2]), 3)), pos = 3, cex = .8, font = 2, xpd = NA)
   }
   
-  N = ifelse(is.null(n2), n1, (n1 * n2) / (n1 + n2))
-  df = ifelse(is.null(n2), n1 - 1, n1 + n2 - 2) 
+  N = ifelse(is.na(n2), n1, (n1 * n2) / (n1 + n2))
+  df = ifelse(is.na(n2), n1 - 1, n1 + n2 - 2) 
   
   options(warn = -1)
   if(!pri){
@@ -1950,6 +1952,7 @@ d.update.default <- function(t = 3.35, n1 = 30, n2 = NULL, top = 5, scale = .1, 
     }
   }
 }
+
 
 #==================================================================================================================
 
