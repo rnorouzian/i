@@ -1015,12 +1015,16 @@ prop.diff.eq.default <- function(n1, n2, yes1, yes2, a1 = 1.2, b1 = 1.2, a2 = a1
 #====================================================================================================================              
 
        
-d.bayes <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = 1.1, show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft", eq.level = .1, d.h0 = 0, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, col.hump = NA, ...){
+d.bayes <- function(t, n1, n2 = NULL, m = 0, s = 1, level = .95, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = 1.1,
+                    show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft", eq.level = .1, 
+                    d.h0 = 0, digits = 6, col.depth = .55, labels = NULL, cex.lab = .8, xlab = NULL, ylab = NULL, col.hump = NULL, ...){
   UseMethod("d.bayes")
 }
        
 
-d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = 1.1, show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft", eq.level = .1, d.h0 = 0, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, col.hump = NA, ...){
+d.bayes.default <- function(t, n1, n2 = NULL, m = 0, s = 1, level = .95, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = 1.1,
+                            show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft", eq.level = .1,
+                            d.h0 = 0, digits = 6, col.depth = .55, labels = NULL, cex.lab = .8, xlab = NULL, ylab = NULL, col.hump = NULL, ...){
   
   d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name))
   leg <- if(is.character(legend)) legend else deparse(substitute(legend))
@@ -1045,8 +1049,8 @@ d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf
     BF10 = numeric(loop)
     estimate = numeric(loop)
     
-    N = ifelse(is.na(n2), n1, (n1 * n2) / (n1 + n2))
-    df = ifelse(is.na(n2), n1 - 1, n1 + n2 - 2)    
+    N = ifelse(is.null(n2), n1, (n1 * n2) / (n1 + n2))
+    df = ifelse(is.null(n2), n1 - 1, n1 + n2 - 2)    
     options(warn = -1)
     
     for(i in 1:loop){
@@ -1068,21 +1072,21 @@ d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf
       estimate[i] <- t[i]/sqrt(N[i])
     }    
     graphics.off()  
-    lab <- if(any(is.na(labels))) substring(d, 2) else labels
-    xlab <- if(is.na(xlab)) bquote(bold("Credible Interval "(delta))) else xlab
-    ylab <- if(is.na(ylab)) NA else ylab    
+    lab <- if(is.null(labels)) substring(d, 2) else labels
+    xlab <- if(is.null(xlab)) bquote(bold("Credible Interval "(delta))) else xlab
+    ylab <- if(is.null(ylab)) NA else ylab    
     f = peak + 1:loop
     plot(CI, rep(1:loop, 2), type = "n", xlim = c(min(from), max(to)), ylim = c(bottom*1, top*max(f)), ylab = ylab, yaxt = "n", xlab = xlab, font.lab = 2, mgp = c(2, .5, 0), ...)
     abline(h = 1:loop, col = 8, lty = 3)
     axis(2, at = 1:loop, labels = lab, font = 2, las = 1, cex.axis = cex.lab, tck = -.006, mgp = c(2, .3, 0))
                          
     for(i in 1:loop){
-    col <- if(any(is.na(col.hump))) i else col.hump[i]    
+    col <- if(is.null(col.hump)) i else col.hump[i]    
       polygon(x = h[[i]]$x, y = scale*h[[i]]$y +i, col = adjustcolor(col, col.depth), border = NA, xpd = NA)
     }
     a = scale*(f-1:loop)+1:loop
     
-    col <- if(any(is.na(col.hump))) 1:loop else col.hump 
+    col <- if(is.null(col.hump)) 1:loop else col.hump 
     legend(x = leg, legend = rev(paste0(substring(d, 2), "(", round(m, 2), ", ", round(s, 2), ")")), pch = 22, title = "Priors", pt.bg = rev(col), col = rev(col), cex = .7, pt.cex = .6, bg = 0, box.col = 0, xpd = NA, x.intersp = .5, title.adj = .4)
     box()  
     segments(CI[, 1], 1:loop, CI[, 2], 1:loop, lend = 1, lwd = 4, col = col, xpd = NA)                         
@@ -1091,7 +1095,7 @@ d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf
     I = deci(CI) ; o = deci(mode)
     text(c(CI[,1], o, CI[,2]), 1:loop, c(I[,1], o, I[,2]), pos = 3, font = 2, cex = .8, xpd = NA)
     
-    rownames <- if(is.na(labels)) paste0("Cohen's d ", 1:loop, " posterior:") else paste0(1:loop, " ", labels, " posterior:")
+    rownames <- if(is.null(labels)) paste0("Cohen's d ", 1:loop, " posterior:") else paste0(1:loop, " ", labels, " posterior:")
     return(round(data.frame(estimate = estimate, mode = mode, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, BF10 = BF10, row.names = rownames), digits = digits))
     
   }else{
@@ -1324,11 +1328,15 @@ d.hyper.ms.default <- function(t, n1, n2 = NA, m = 0, s = 1, lo = -Inf, hi = Inf
 #==================================================================================================================
 
 
-peta.bayes <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, col.hump = NA, ...){ 
+peta.bayes <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.1, show.prior = FALSE, 
+                       bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0, digits = 6, col.depth = .55, labels = NULL, cex.lab = .8, 
+                       xlab = NULL, ylab = NULL, col.hump = NULL, ...){ 
   UseMethod("peta.bayes")
 }
 
-peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, col.hump = NA, ...){
+peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo = 0, hi = 1, dist.name = "dbeta", scale = .1, top = 1.1, show.prior = FALSE, 
+                               bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0, digits = 6, col.depth = .55, labels = NULL, cex.lab = .8, 
+                               xlab = NULL, ylab = NULL, col.hump = NULL, ...){
   
   d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name))
   leg <- if(is.character(legend)) legend else deparse(substitute(legend))
@@ -1366,9 +1374,9 @@ peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo
       estimate[i] <- (f[i]*df1[i]) / ((f[i]*df1[i]) + df2[i])
     } 
     graphics.off()
-    lab <- if(any(is.na(labels))) substring(d, 2) else labels
-    xlab <- if(is.na(xlab)) bquote(bold("Credible Interval"~(eta[p]^2))) else xlab
-    ylab <- if(is.na(ylab)) NA else ylab  
+    lab <- if(is.null(labels)) substring(d, 2) else labels
+    xlab <- if(is.null(xlab)) bquote(bold("Credible Interval"~(eta[p]^2))) else xlab
+    ylab <- if(is.null(ylab)) NA else ylab  
         
     plot(CI, rep(1:loop, 2), type = "n", xlim = 0:1, ylim = c(bottom*1, top*loop), ylab = ylab, yaxt = "n", xaxt = "n", xlab = xlab, font.lab = 2, mgp = c(2, .5, 0), ...)
     abline(h = 1:loop, col = 8, lty = 3)
@@ -1376,11 +1384,11 @@ peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo
     axis(2, at = 1:loop, labels = lab, font = 2, las = 1, cex.axis = cex.lab, tck = -.006, mgp = c(2, .3, 0))
                       
     for(i in 1:loop){
-    col <- if(any(is.na(col.hump))) i else col.hump[i]     
+    col <- if(is.null(col.hump)) i else col.hump[i]     
       polygon(x = h[[i]]$x, y = scale*h[[i]]$y +i, col = adjustcolor(col, col.depth), border = NA, xpd = NA)
     }
     m = scale*peak + 1:loop
-    col <- if(any(is.na(col.hump))) 1:loop else col.hump
+    col <- if(is.null(col.hump)) 1:loop else col.hump
     legend(x = leg, legend = rev(paste0(substring(d, 2), "(", round(a, 2), ", ", round(b, 2), ")")), pch = 22, title = "Priors", pt.bg = rev(col), col = rev(col), cex = .7, pt.cex = .6, bg = 0, box.col = 0, xpd = NA, x.intersp = .5, title.adj = .4)
     box()
     segments(CI[, 1], 1:loop, CI[, 2], 1:loop, lend = 1, lwd = 4, col = col, xpd = NA)                   
@@ -1389,7 +1397,7 @@ peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo
     I = deci(CI*1e2 , 2); o = deci(mode*1e2, 2)
     text(mode, 1:loop, paste0(I[,1], "%", "    ", o, "%", "    ", I[,2], "%"), cex = .75, pos = 3, font = 2, xpd = NA)
     
-    rownames <- if(is.na(labels)) paste0("P.eta.sq ", 1:loop, " posterior:") else paste0(1:loop, " ", labels, " posterior:")                   
+    rownames <- if(is.null(labels)) paste0("P.eta.sq ", 1:loop, " posterior:") else paste0(1:loop, " ", labels, " posterior:")                   
     return(round(data.frame(estimate = estimate, mode = mode, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, BF10 = BF10, row.names = rownames), digits = digits))  
     
 }else{
@@ -1600,11 +1608,15 @@ peta.hyper.ab.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, lo = 0, hi =
 #=================================================================================================================
 
 
-cor.bayes <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 7, legend = "topleft", show.prior = FALSE, digits = 6, col.depth = .55, labels = NULL, cex.lab = .8, xlab = NA, ylab = NA, col.hump = NULL, ...){
+cor.bayes <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 7,
+                      legend = "topleft", show.prior = FALSE, digits = 6, col.depth = .55, labels = NULL, cex.lab = .8, xlab = NULL, 
+                      ylab = NULL, col.hump = NULL, ...){
   UseMethod("cor.bayes")
 }
 
-cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, margin = 5, legend = "topleft", show.prior = FALSE, digits = 6, col.depth = .55, labels = NULL, cex.lab = .8, xlab = NA, ylab = NA, col.hump = NULL, ...){ 
+cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = .05, level = .95, top = 1.1, bottom = 1, scale = .1, 
+                              margin = 5, legend = "topleft", show.prior = FALSE, digits = 6, col.depth = .55, labels = NULL, 
+                              cex.lab = .8, xlab = NULL, ylab = NULL, col.hump = NULL, ...){ 
   
   pr <- show.prior    
   mu <- prior.mean
@@ -1648,8 +1660,8 @@ cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = 
     }
     graphics.off()
     lab <- if(is.null(labels)) paste0("r", 1:loop) else labels
-    xlab <- if(is.na(xlab)) "Credible Interval (Pearson correlation)" else xlab
-    ylab <- if(is.na(ylab)) NA else ylab    
+    xlab <- if(is.null(xlab)) "Credible Interval (Pearson correlation)" else xlab
+    ylab <- if(is.null(ylab)) NA else ylab    
     plot(CI, rep(1:loop, 2), type = "n", xlim = c(min(from), max(to)), ylim = c(bottom*1, top*loop), ylab = ylab, yaxt = "n", xlab = xlab, font.lab = 2, mgp = c(2, .3, 0), ...)
     axis(2, at = 1:loop, labels = lab, font = 2, las = 1, cex.axis = cex.lab, tck = -.006, mgp = c(2, .3, 0))
     abline(h = 1:loop, col = 8, lty = 3)
@@ -1780,12 +1792,14 @@ cor.diff.default <- function(r, n, prior.mean = 0, prior.sd = .707, how = c("two
 #===================================================================================================================
 
               
-prop.update <- function(n = 100, yes = 55, top = 5, scale = .1, lo = 0, hi = 1, a = 1.2, b = 1.2, dist.name = "dbeta", prior.scale = 1, level = .95, show.prior = FALSE, tol = 1e5, col.depth = .55, labels = NA, cex.lab = .9, xlab = NA, ylab = NA, ...)
+prop.update <- function(n = 100, yes = 55, top = 5, scale = .1, lo = 0, hi = 1, a = 1.2, b = 1.2, dist.name = "dbeta", prior.scale = 1,
+                        level = .95, show.prior = FALSE, tol = 1e5, col.depth = .55, labels = NULL, cex.lab = .9, xlab = NULL, ylab = NULL)
 {
   UseMethod("prop.update")
 }
 
-prop.update.default <- function(n = 100, yes = 55, top = 5, scale = .1, lo = 0, hi = 1, a = 1.2, b = 1.2, dist.name = "dbeta", prior.scale = 1, level = .95, show.prior = FALSE, tol = 1e5, col.depth = .55, labels = NA, cex.lab = .9, xlab = NA, ylab = NA, ...){
+prop.update.default <- function(n = 100, yes = 55, top = 5, scale = .1, lo = 0, hi = 1, a = 1.2, b = 1.2, dist.name = "dbeta", prior.scale = 1, 
+                                level = .95, show.prior = FALSE, tol = 1e5, col.depth = .55, labels = NULL, cex.lab = .9, xlab = NULL, ylab = NULL){
   
   pri <- show.prior
   s <- round(yes)
@@ -1810,14 +1824,14 @@ prop.update.default <- function(n = 100, yes = 55, top = 5, scale = .1, lo = 0, 
   original.par = par(no.readonly = TRUE)
   on.exit(par(original.par))
   
-  xlab <- if(is.na(xlab)) "Proportion" else xlab
-  ylab <- if(is.na(ylab)) NA else ylab                            
+  xlab <- if(is.null(xlab)) "Proportion" else xlab
+  ylab <- if(is.null(ylab)) NA else ylab                            
   par(mar = c(5, 6.8, 4, 2))
   plot(pr~props, ylim = c(0, top*loop), type = "n", yaxs = "i", ylab = ylab, xlab = xlab, font.lab = 2, axes = FALSE, mgp = c(2, .4, 0), main = if(pri) bquote(Proportion*" ~ "*.(if(lo > 0 || hi < 1) "truncated-")*.(substring(d, 2))(.(round(a, 2)), .(round(b, 2)))) else NA)
-  axis(1, at = axTicks(1), lab = paste0(axTicks(1)*1e2, "%"), mgp = c(2, .3, 0))
+  axis(1, at = axTicks(1), labels = paste0(axTicks(1)*1e2, "%"), mgp = c(2, .3, 0))
   
   if(!pri){  
-    labels <- if(any(is.na(labels))) paste0("Study ", 1:loop) else labels  
+    labels <- if(is.null(labels)) paste0("Study ", 1:loop) else labels  
     abline(h = 1:loop+1, col = 8, lty = 3)
     axis(2, at = 0:loop+1, labels = c("Base knowledge", labels), las = 1, font = 2, cex.axis = cex.lab, mgp = c(2, .2, 0), tick = FALSE, xpd = NA)
   }  
@@ -1855,12 +1869,12 @@ prop.update.default <- function(n = 100, yes = 55, top = 5, scale = .1, lo = 0, 
 
 #=======================================================================================================================
 
-d.update <- function(t = 3.35, n1 = 30, n2 = NA, top = 5, scale = .1, m = 0, s = 1, dist.name = "dnorm", prior.scale = 1, level = .95, show.prior = FALSE, lo = -2, hi = 2, tol = 1e4, margin = hi, col.depth = .55, labels = NA, cex.lab = .9, xlab = NA, ylab = NA)
+d.update <- function(t = 3.35, n1 = 30, n2 = NULL, top = 5, scale = .1, m = 0, s = 1, dist.name = "dnorm", prior.scale = 1, level = .95, show.prior = FALSE, lo = -2, hi = 2, tol = 1e4, margin = hi, col.depth = .55, labels = NULL, cex.lab = .9, xlab = NULL, ylab = NULL)
 {
   UseMethod("d.update")
 }
 
-d.update.default <- function(t = 3.35, n1 = 30, n2 = NA, top = 5, scale = .1, m = 0, s = 1, dist.name = "dnorm", prior.scale = 1, level = .95, show.prior = FALSE, lo = -2, hi = 2, tol = 1e4, margin = hi, col.depth = .55, labels = NA, cex.lab = .9, xlab = NA, ylab = NA){
+d.update.default <- function(t = 3.35, n1 = 30, n2 = NA, top = 5, scale = .1, m = 0, s = 1, dist.name = "dnorm", prior.scale = 1, level = .95, show.prior = FALSE, lo = -2, hi = 2, tol = 1e4, margin = hi, col.depth = .55, labels = NULL, cex.lab = .9, xlab = NULL, ylab = NULL){
   
   pri <- show.prior
   d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name)) 
@@ -1885,13 +1899,13 @@ d.update.default <- function(t = 3.35, n1 = 30, n2 = NA, top = 5, scale = .1, m 
   original.par = par(no.readonly = TRUE)
   on.exit(par(original.par))
   
-  xlab <- if(is.na(xlab)) bquote(bold("Effect Size"~ (delta))) else xlab
-  ylab <- if(is.na(ylab)) NA else ylab                            
+  xlab <- if(is.null(xlab)) bquote(bold("Effect Size"~ (delta))) else xlab
+  ylab <- if(is.null(ylab)) NA else ylab                            
   par(mar = c(5, 6.8, 4, 2))
   plot(pr~ds, ylim = c(0, top*loop), xlim = c(-margin, margin), type = "n", xaxs = "i", yaxs = "i", ylab = ylab, xlab = xlab, font.lab = 2, mgp = c(2, .4, 0), main = if(pri) bquote("Effect Size"*" ~ "*.(if(lo > -Inf || hi < Inf) "truncated-")*.(substring(d, 2))(.(round(m, 2)), .(round(s, 2)))) else NA, yaxt = "n", bty = "n")
   
   if(!pri){
-    labels <- if(any(is.na(labels))) paste0("Study ", 1:loop) else labels  
+    labels <- if(is.null(labels)) paste0("Study ", 1:loop) else labels  
     abline(h = 1:loop+1, col = 8, lty = 3)
     axis(2, at = 0:loop+1, labels = c("Base knowledge", labels), las = 1, font = 2, cex.axis = cex.lab, mgp = c(2, .2, 0), tick = FALSE, xpd = NA)
   }  
@@ -1909,8 +1923,8 @@ d.update.default <- function(t = 3.35, n1 = 30, n2 = NA, top = 5, scale = .1, m 
     # text(c(.85*I[1], mode, I[2]), 0, paste0(round(c(I[1], mode, I[2]), 3)), pos = 3, cex = .8, font = 2, xpd = NA)
   }
   
-  N = ifelse(is.na(n2), n1, (n1 * n2) / (n1 + n2))
-  df = ifelse(is.na(n2), n1 - 1, n1 + n2 - 2) 
+  N = ifelse(is.null(n2), n1, (n1 * n2) / (n1 + n2))
+  df = ifelse(is.null(n2), n1 - 1, n1 + n2 - 2) 
   
   options(warn = -1)
   if(!pri){
@@ -1935,12 +1949,12 @@ d.update.default <- function(t = 3.35, n1 = 30, n2 = NA, top = 5, scale = .1, m 
 
 #==================================================================================================================
 
-peta.update <- function(f = 50, N = 120, df1 = 3, df2 = 116, top = 5, scale = .1, a = 2, b = 2, lo = 0, hi = 1, dist.name = "dbeta", prior.scale = 1, level = .95, show.prior = FALSE, tol = 1e5, col.depth = .55, labels = NA, cex.lab = .9, xlab = NA, ylab = NA)
+peta.update <- function(f = 50, N = 120, df1 = 3, df2 = 116, top = 5, scale = .1, a = 2, b = 2, lo = 0, hi = 1, dist.name = "dbeta", prior.scale = 1, level = .95, show.prior = FALSE, tol = 1e5, col.depth = .55, labels = NULL, cex.lab = .9, xlab = NULL, ylab = NULL)
 {
   UseMethod("peta.update")
 }
 
-peta.update.default <- function(f = 50, N = 120, df1 = 3, df2 = 116, top = 5, scale = .1, a = 2, b = 2, lo = 0, hi = 1, dist.name = "dbeta", prior.scale = 1, level = .95, show.prior = FALSE, tol = 1e5, col.depth = .55, labels = NA, cex.lab = .9, xlab = NA, ylab = NA){
+peta.update.default <- function(f = 50, N = 120, df1 = 3, df2 = 116, top = 5, scale = .1, a = 2, b = 2, lo = 0, hi = 1, dist.name = "dbeta", prior.scale = 1, level = .95, show.prior = FALSE, tol = 1e5, col.depth = .55, labels = NULL, cex.lab = .9, xlab = NULL, ylab = NULL){
   
   pri <- show.prior
   d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name)) 
@@ -1961,14 +1975,14 @@ peta.update.default <- function(f = 50, N = 120, df1 = 3, df2 = 116, top = 5, sc
   original.par = par(no.readonly = TRUE)
   on.exit(par(original.par))
   
-  xlab <- if(is.na(xlab)) bquote(bold("Partial Eta.Sq"~(eta[p]^2))) else xlab
-  ylab <- if(is.na(ylab)) NA else ylab                            
+  xlab <- if(is.null(xlab)) bquote(bold("Partial Eta.Sq"~(eta[p]^2))) else xlab
+  ylab <- if(is.null(ylab)) NA else ylab                            
   par(mar = c(5, 6.8, 4, 2))
   plot(pr~peta, ylim = c(0, top*loop), type = "n", yaxs = "i", ylab = ylab, xlab = xlab, font.lab = 2, axes = FALSE, mgp = c(2, .4, 0), main = if(pri) bquote(eta[p]^2*" ~ "*.(if(lo > 0 || hi < .9999999) "truncated-")*.(substring(d, 2))(.(round(a, 2)), .(round(b, 2)))) else NA)
   axis(1, at = axTicks(1), lab = paste0(axTicks(1)*1e2, "%"), mgp = c(2, .3, 0))
   
   if(!pri){
-    labels <- if(any(is.na(labels))) paste0("Study ", 1:loop) else labels  
+    labels <- if(is.null(labels)) paste0("Study ", 1:loop) else labels  
     abline(h = 1:loop+1, col = 8, lty = 3)
     axis(2, at = 0:loop+1, labels = c("Base knowledge", labels), las = 1, font = 2, cex.axis = cex.lab, mgp = c(2, .2, 0), tick = FALSE, xpd = NA)
   }  
