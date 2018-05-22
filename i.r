@@ -539,7 +539,7 @@ prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "db
     graphics.off()
     lab <- if(is.null(labels)) substring(d, 2) else labels
     xlab <- if(is.null(xlab)) "Credible Interval (Proportion)" else xlab
-    ylab <- if(is.null(ylab)) NULL else ylab
+    ylab <- if(is.null(ylab)) NA else ylab
     
     plot(CI, rep(1:loop, 2), type = "n", xlim = 0:1, ylim = c(bottom*1, top*loop), ylab = ylab, yaxt = "n", xaxt = "n", xlab = xlab, font.lab = 2, mgp = c(2, .3, 0), ...)
     abline(h = 1:loop, col = 8, lty = 3)
