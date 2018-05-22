@@ -1017,14 +1017,14 @@ prop.diff.eq.default <- function(n1, n2, yes1, yes2, a1 = 1.2, b1 = 1.2, a2 = a1
 #====================================================================================================================              
 
        
-d.bayes <- function(t, n1, n2 = NULL, m = 0, s = 1, level = .95, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = 1.1,
+d.bayes <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = 1.1,
                     show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft", eq.level = .1, 
                     d.h0 = 0, digits = 6, col.depth = .55, labels = NULL, cex.lab = .8, xlab = NULL, ylab = NULL, col.hump = NULL, ...){
   UseMethod("d.bayes")
 }
        
 
-d.bayes.default <- function(t, n1, n2 = NULL, m = 0, s = 1, level = .95, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = 1.1,
+d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf, hi = Inf, dist.name = "dnorm", scale = .1, margin = 7, top = 1.1,
                             show.prior = FALSE, LL = -3, UL = 3, bottom = 1, prior.left = -6, prior.right = 6, legend = "topleft", eq.level = .1,
                             d.h0 = 0, digits = 6, col.depth = .55, labels = NULL, cex.lab = .8, xlab = NULL, ylab = NULL, col.hump = NULL, ...){
   
@@ -1051,8 +1051,8 @@ d.bayes.default <- function(t, n1, n2 = NULL, m = 0, s = 1, level = .95, lo = -I
     BF10 = numeric(loop)
     estimate = numeric(loop)
     
-    N = ifelse(is.null(n2), n1, (n1 * n2) / (n1 + n2))
-    df = ifelse(is.null(n2), n1 - 1, n1 + n2 - 2)    
+    N = ifelse(is.na(n2), n1, (n1 * n2) / (n1 + n2))
+    df = ifelse(is.na(n2), n1 - 1, n1 + n2 - 2)    
     options(warn = -1)
     
     for(i in 1:loop){
