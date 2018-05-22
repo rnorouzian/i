@@ -1873,7 +1873,7 @@ prop.update.default <- function(n = 100, yes = 55, top = 5, scale = .1, lo = 0, 
 
 #=======================================================================================================================
 
-d.update <- function(t = 3.35, n1 = 30, n2 = NULL, top = 5, scale = .1, m = 0, s = 1, dist.name = "dnorm", prior.scale = 1, level = .95, show.prior = FALSE, lo = -2, hi = 2, tol = 1e4, margin = hi, col.depth = .55, labels = NULL, cex.lab = .9, xlab = NULL, ylab = NULL)
+d.update <- function(t = 3.35, n1 = 30, n2 = NA, top = 5, scale = .1, m = 0, s = 1, dist.name = "dnorm", prior.scale = 1, level = .95, show.prior = FALSE, lo = -2, hi = 2, tol = 1e4, margin = hi, col.depth = .55, labels = NULL, cex.lab = .9, xlab = NULL, ylab = NULL)
 {
   UseMethod("d.update")
 }
