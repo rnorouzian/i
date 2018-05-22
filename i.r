@@ -567,8 +567,10 @@ prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "db
     return(round(data.frame(estimate = estimate, mode = mode, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, BF10 = BF10, row.names = rownames), digits = digits))    
     
   }else{
+      
+    xlab <- if(is.null(xlab)) "Proportion" else xlab  
     p = function(x) get(d[1])(x, a[1], b[1])*as.integer(x >= lo[1])*as.integer(x <= hi[1])
-    curve(p, 0, 1, yaxt = "n", xaxt = "n", ylab = NA, xlab = "Proportion", bty = "n", font.lab = 2, lwd = 2, n = 1e3, yaxs = "i", main = bquote(Proportion*" ~ "*.(if(lo[1] > 0 || hi[1] < 1) "truncated-")*.(substring(d[1], 2))(.(round(a[1], 2)), .(round(b[1], 2)))))
+    curve(p, 0, 1, yaxt = "n", xaxt = "n", ylab = NA, xlab = xlab, bty = "n", font.lab = 2, lwd = 2, n = 1e3, yaxs = "i", main = bquote(Proportion*" ~ "*.(if(lo[1] > 0 || hi[1] < 1) "truncated-")*.(substring(d[1], 2))(.(round(a[1], 2)), .(round(b[1], 2)))))
     axis(1, at = axTicks(1), lab = paste0(axTicks(1)*1e2, "%"), mgp = c(2, .4, 0))
   }
 }
@@ -1099,8 +1101,9 @@ d.bayes.default <- function(t, n1, n2 = NULL, m = 0, s = 1, level = .95, lo = -I
     return(round(data.frame(estimate = estimate, mode = mode, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, BF10 = BF10, row.names = rownames), digits = digits))
     
   }else{
+    xlab <- if(is.null(xlab)) bquote(bold("Effect Size "(delta))) else xlab  
     p = function(x) { get(d[1])(x, m[1], s[1])*as.integer(x >= lo[1])*as.integer(x <= hi[1]) }
-    curve(p, prior.left, prior.right, yaxt = "n", ylab = NA, xlab = bquote(bold("Effect Size "(delta))), bty = "n", font.lab = 2, lwd = 2, n = 1e3, main = bquote(delta*" ~ "*.(if(lo[1] > -Inf || hi[1] < Inf) "truncated-")*.(substring(d[1], 2))(.(round(m[1], 2)), .(round(s[1], 2)))), mgp = c(2, .5, 0), yaxs = "i")
+    curve(p, prior.left, prior.right, yaxt = "n", ylab = NA, xlab = xlab, bty = "n", font.lab = 2, lwd = 2, n = 1e3, main = bquote(delta*" ~ "*.(if(lo[1] > -Inf || hi[1] < Inf) "truncated-")*.(substring(d[1], 2))(.(round(m[1], 2)), .(round(s[1], 2)))), mgp = c(2, .5, 0), yaxs = "i")
   }
 }           
    
@@ -1401,8 +1404,9 @@ peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo
     return(round(data.frame(estimate = estimate, mode = mode, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, BF10 = BF10, row.names = rownames), digits = digits))  
     
 }else{
+    xlab <- if(is.null(xlab)) bquote(bold("Partial Eta.Sq"~(eta[p]^2))) else xlab
     p = function(x) { get(d[1])(x, a[1], b[1])*as.integer(x >= lo[1])*as.integer(x <= hi[1]) }
-    curve(p, 0, 1, yaxt = "n", xaxt = "n", ylab = NA, xlab = bquote(bold("Partial Eta.Sq"~(eta[p]^2))), bty = "n", font.lab = 2, lwd = 2, n = 1e3, main = bquote(eta[p]^2*" ~ "*.(if(lo[1] > 0 || hi[1] < 1) "truncated-")*.(substring(d[1], 2))(.(round(a[1], 2)), .(round(b[1], 2)))), yaxs = "i")
+    curve(p, 0, 1, yaxt = "n", xaxt = "n", ylab = NA, xlab = xlab, bty = "n", font.lab = 2, lwd = 2, n = 1e3, main = bquote(eta[p]^2*" ~ "*.(if(lo[1] > 0 || hi[1] < 1) "truncated-")*.(substring(d[1], 2))(.(round(a[1], 2)), .(round(b[1], 2)))), yaxs = "i")
     axis(1, at = axTicks(1), lab = paste0(axTicks(1)*1e2, "%"), mgp = c(2, .4, 0))
   }
 }
@@ -1685,9 +1689,9 @@ cor.bayes.default <- function(r, n, prior.mean = 0, prior.sd = .707, eq.bound = 
     return(round(data.frame(mean = mean, mode = mode, median = median, sd = sd, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, row.names = rownames), digits = digits))
     
   }else{
-    
+    xlab <- if(is.null(xlab)) bquote(rho[~("Pearson correlation")]) else xlab
     p <- function(x) dnorm(atanh(x), prior.mean[1], prior.sd[1])*1/(1-x^2)
-    curve(p, -1, 1, yaxt = "n", ylab = NA, xlab = bquote(rho[~("Pearson correlation")]), bty = "n", font.lab = 2, cex.lab = 1.5, lwd = 2, n = 1e4, yaxs = "i", main = bquote(rho*" ~ "*"scaled.norm"(.(round(prior.mean[1], 3)), .(round(prior.sd[1], 3)))), xpd = NA) 
+    curve(p, -1, 1, yaxt = "n", ylab = NA, xlab = xlab, bty = "n", font.lab = 2, cex.lab = 1.5, lwd = 2, n = 1e4, yaxs = "i", main = bquote(rho*" ~ "*"scaled.norm"(.(round(prior.mean[1], 3)), .(round(prior.sd[1], 3)))), xpd = NA) 
   }  
 }
 
