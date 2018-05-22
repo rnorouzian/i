@@ -490,14 +490,14 @@ norm.id.default <- Vectorize(function(Low, High, Cover = NA, digits = 6){
       
 prop.bayes <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", yes = 55, n = 1e2, level = .95, scale = .1, top = 1.1, 
                        show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .1, p.h0 = .5, digits = 6, 
-                       col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, col.hump = NA, ...)
+                       col.depth = .55, labels = NULL, cex.lab = .8, xlab = NULL, ylab = NULL, col.hump = NULL, ...)
 {
   UseMethod("prop.bayes")
 }
 
 prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "dbeta", yes = 55, n = 1e2, 
                                level = .95, scale = .1, top = 1.1, show.prior = FALSE, bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .1,
-                               p.h0 = .5, digits = 6, col.depth = .55, labels = NA, cex.lab = .8, xlab = NA, ylab = NA, col.hump = NA, ...){
+                               p.h0 = .5, digits = 6, col.depth = .55, labels = NULL, cex.lab = .8, xlab = NULL, ylab = NULL, col.hump = NULL, ...){
   
   d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name)) 
   leg <- if(is.character(legend)) legend else deparse(substitute(legend))
@@ -537,9 +537,9 @@ prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "db
       estimate[i] <- yes[i]/n[i]     
     }
     graphics.off()
-    lab <- if(any(is.na(labels))) substring(d, 2) else labels
-    xlab <- if(is.na(xlab)) "Credible Interval (Proportion)" else xlab
-    ylab <- if(is.na(ylab)) NA else ylab
+    lab <- if(is.null(labels)) substring(d, 2) else labels
+    xlab <- if(is.null(xlab)) "Credible Interval (Proportion)" else xlab
+    ylab <- if(is.null(ylab)) NULL else ylab
     
     plot(CI, rep(1:loop, 2), type = "n", xlim = 0:1, ylim = c(bottom*1, top*loop), ylab = ylab, yaxt = "n", xaxt = "n", xlab = xlab, font.lab = 2, mgp = c(2, .3, 0), ...)
     abline(h = 1:loop, col = 8, lty = 3)
@@ -547,10 +547,10 @@ prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "db
     axis(2, at = 1:loop, labels = lab, font = 2, las = 1, cex.axis = cex.lab, tck = -.006, mgp = c(2, .3, 0))
     
     for(i in 1:loop){
-      col <- if(any(is.na(col.hump))) i else col.hump[i]    
+      col <- if(is.null(col.hump)) i else col.hump[i]    
       polygon(x = h[[i]]$x, y = scale*h[[i]]$y +i, col = adjustcolor(col, col.depth), border = NA, xpd = NA)
     }
-    col <- if(any(is.na(col.hump))) 1:loop else col.hump
+    col <- if(is.null(col.hump)) 1:loop else col.hump
     
     legend(x = leg, legend = rev(paste0(substring(d, 2), "(", round(a, 2), ", ", round(b, 2), ")")), 
            pch = 22, title = "Priors", pt.bg = rev(col), col = rev(col), cex = .7, pt.cex = .6, bg = 0, 
@@ -563,7 +563,7 @@ prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "db
     I = deci(CI*1e2 , 2); o = deci(mode*1e2, 2)
     text(mode, 1:loop, paste0(I[,1], "%", "    ", o, "%", "    ", I[,2], "%"), cex = .75, pos = 3, font = 2, xpd = NA)
     
-    rownames <- if(is.na(labels)) {paste0("Prop ", 1:loop, " posterior: ")} else {paste0(1:loop, " ", labels, " posterior:")}
+    rownames <- if(is.null(labels)) {paste0("Prop ", 1:loop, " posterior: ")} else {paste0(1:loop, " ", labels, " posterior:")}
     return(round(data.frame(estimate = estimate, mode = mode, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, BF10 = BF10, row.names = rownames), digits = digits))    
     
   }else{
