@@ -3479,8 +3479,6 @@ dens.plot <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x), to = 
   if(!add){
     
   graphics.off()                            
-  original.par = par(no.readonly = TRUE)
-  on.exit(par(original.par))
       
   plot(d, zero.line = FALSE, xlab = xlab, main = main, ...)
     
