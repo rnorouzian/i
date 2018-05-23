@@ -3463,3 +3463,43 @@ anova.es.default <- function(fit = NULL, f, df1, df2, N, conf.level = .9, digits
 }
                 
                 
+#===========================================================================================================================
+                
+                
+dens.plot <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x), to = max(x), add = FALSE, hdi = FALSE, level = .95, xlab = deparse(substitute(x)), main = NA, ...){
+  
+  UseMethod("dens.plot")
+}
+                
+                
+  dens.plot.default <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x), to = max(x), add = FALSE, hdi = FALSE, level = .95, xlab = deparse(substitute(x)), main = NA, ...){
+ 
+  d <- density(x, adjust = adjust, na.rm = na.rm, n = n, from = from, to = to)
+  
+  graphics.off()                            
+  original.par = par(no.readonly = TRUE)
+  on.exit(par(original.par))
+  
+  if(!add){
+    
+  plot(d, zero.line = FALSE, xlab = xlab, main = main, ...)
+    
+  } else {
+    
+  lines(d, ...)
+    
+  }
+  
+  if(hdi){
+    par(xpd = NA)
+    i <- hdir(x, level = level)
+    lines(i, c(0, 0), lend = 1, lwd = 6, ...)
+    text(i, 0, round(i, 3), pos = 3, cex = .8, font = 2)
+    mode <- d$x[which.max(d$y)]
+    points(mode, 0, pch = 21, bg = "cyan", col = "magenta", cex = 1.7)
+    
+  }
+}
+    
+                
+                
