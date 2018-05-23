@@ -3472,32 +3472,39 @@ dens.plot <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x), to = 
 }
                 
                 
-  dens.plot.default <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x), to = max(x), add = FALSE, hdi = FALSE, level = .95, xlab = deparse(substitute(x)), main = NA, ...){
- 
+dens.plot.default <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x), to = max(x), add = FALSE, hdi = FALSE, level = .95, xlab = deparse(substitute(x)), main = NA, ...){
+  
   d <- density(x, adjust = adjust, na.rm = na.rm, n = n, from = from, to = to)
-    
+  
   if(!add){
     
-  graphics.off()                            
-      
-  plot(d, zero.line = FALSE, xlab = xlab, main = main, ...)
+    graphics.off()                            
+    
+    plot(d, zero.line = FALSE, xlab = xlab, main = main, ...)
     
   } else {
     
-  lines(d, ...)
+    lines(d, ...)
     
   }
   
+       i <- hdir(x, level = level)
+    mode <- d$x[which.max(d$y)]
+    mean <- mean(x)
+  median <- median(x)
+      sd <- sd(x)
+     mad <- mad(x)
+  
   if(hdi){
-      
-    i <- hdir(x, level = level)
+    
     lines(i, c(0, 0), lend = 1, lwd = 6, ...)
     text(i, 0, round(i, 3), pos = 3, cex = .8, font = 2, xpd = NA)
-    mode <- d$x[which.max(d$y)]
     points(mode, 0, pch = 21, bg = "cyan", col = "magenta", cex = 1.7, xpd = NA)
     
   }
+  
+  invisible(list(lower = i[1], upper = i[2], level = level, mean = mean, mode = mode, median = median, 
+                 mad = mad, sd = sd, x = d$x, y = d$y))
 }
-    
-                
+
                 
