@@ -3475,13 +3475,13 @@ dens.plot <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x), to = 
   dens.plot.default <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x), to = max(x), add = FALSE, hdi = FALSE, level = .95, xlab = deparse(substitute(x)), main = NA, ...){
  
   d <- density(x, adjust = adjust, na.rm = na.rm, n = n, from = from, to = to)
-  
+    
+  if(!add){
+    
   graphics.off()                            
   original.par = par(no.readonly = TRUE)
   on.exit(par(original.par))
-  
-  if(!add){
-    
+      
   plot(d, zero.line = FALSE, xlab = xlab, main = main, ...)
     
   } else {
@@ -3491,12 +3491,12 @@ dens.plot <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x), to = 
   }
   
   if(hdi){
-    par(xpd = NA)
+      
     i <- hdir(x, level = level)
     lines(i, c(0, 0), lend = 1, lwd = 6, ...)
-    text(i, 0, round(i, 3), pos = 3, cex = .8, font = 2)
+    text(i, 0, round(i, 3), pos = 3, cex = .8, font = 2, xpd = NA)
     mode <- d$x[which.max(d$y)]
-    points(mode, 0, pch = 21, bg = "cyan", col = "magenta", cex = 1.7)
+    points(mode, 0, pch = 21, bg = "cyan", col = "magenta", cex = 1.7, xpd = NA)
     
   }
 }
