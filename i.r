@@ -3480,11 +3480,11 @@ dens.plot.default <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x
     
     graphics.off()                            
     
-    plot(d, zero.line = FALSE, xlab = xlab, main = main, ...)
+    plot(d, zero.line = FALSE, xlab = xlab, main = main, lwd = 2, ...)
     
   } else {
     
-    lines(d, ...)
+    lines(d, lwd = 2, ...)
     
   }
   
