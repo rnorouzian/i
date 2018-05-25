@@ -3466,13 +3466,13 @@ anova.es.default <- function(fit = NULL, f, df1, df2, N, conf.level = .9, digits
 #===========================================================================================================================
                 
                 
-dens.plot <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x), to = max(x), add = FALSE, hdi = FALSE, level = .95, xlab = deparse(substitute(x)), main = NA, lwd = 2, ...){
+dens.plot <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x), to = max(x), add = FALSE, hdi = FALSE, level = .95, xlab = deparse(substitute(x)), main = NA, lwd = 2, lty = 1, ...){
   
   UseMethod("dens.plot")
 }
                 
                 
-dens.plot.default <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x), to = max(x), add = FALSE, hdi = FALSE, level = .95, xlab = deparse(substitute(x)), main = NA, lwd = 2, ...){
+dens.plot.default <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x), to = max(x), add = FALSE, hdi = FALSE, level = .95, xlab = deparse(substitute(x)), main = NA, lwd = 2, lty = 1, ...){
   
   d <- density(x, adjust = adjust, na.rm = na.rm, n = n, from = from, to = to)
   
@@ -3480,11 +3480,11 @@ dens.plot.default <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x
     
     graphics.off()                            
     
-    plot(d, zero.line = FALSE, xlab = xlab, main = main, lwd = lwd, ...)
+    plot(d, zero.line = FALSE, xlab = xlab, main = main, lwd = lwd, lty = lty, ...)
     
   } else {
     
-    lines(d, lwd = lwd, ...)
+    lines(d, lwd = lwd, lty = lty, ...)
     
   }
   
@@ -3497,7 +3497,7 @@ dens.plot.default <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x
   
   if(hdi){
     
-    lines(i, c(0, 0), lend = 1, lwd = 6, xpd = NA, ...)
+    lines(i, c(0, 0), lend = 1, lwd = 6, lty = 1, xpd = NA, ...)
     text(i, 0, round(i, 3), pos = 3, cex = .8, font = 2, xpd = NA)
     points(mode, 0, pch = 21, bg = "cyan", col = "magenta", cex = 1.7, xpd = NA)
     
