@@ -3519,7 +3519,7 @@ count.plot <- function(x, round = TRUE, ylab = "Frequency", ...)
                 
 count.plot.default <- function (x, round = TRUE, ylab = "Frequency", ...) 
 {
-  if(round == TRUE){ x <- round(x) }
+  if(round){ x <- round(x) }
   plot(table(x), ylab = ylab, ...)
 }
                 
