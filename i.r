@@ -1093,7 +1093,7 @@ d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf
     box()  
     segments(CI[, 1], 1:loop, CI[, 2], 1:loop, lend = 1, lwd = 4, col = col, xpd = NA)                         
     segments(mode, 1:loop, mode, a, lty = 3, xpd = NA, lend = 1)
-    points(mode, 1:loop, pch = 21, bg = "cyan", cex = 1.1, col = "magenta", xpd = NA)
+    points(mode, 1:loop, pch = 21, bg = "cyan", cex = 1.3, col = "magenta", xpd = NA)
     I = deci(CI) ; o = deci(mode)
     text(c(CI[,1], o, CI[,2]), 1:loop, c(I[,1], o, I[,2]), pos = 3, font = 2, cex = .8, xpd = NA)
     
