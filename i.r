@@ -2463,7 +2463,7 @@ predict.bayes <- function(fit, xlab = NA, ylab = NA, level = .95, line.int = TRU
 predict.bayes.default <- function(fit, xlab = NA, ylab = NA, level = .95, line.int = TRUE, pred.int = TRUE, pt.cex = 1, pt.col = 4, col.depth = .3, col.line = "cyan", col.pred = "gray", col.reg = "cyan", ...){
   
   if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
-  if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor. Consider using 'count.plot()' for multiple predictors.")
+  if(length(coef(fit)) > 2) stop("Error: 'fit' must contain only 'one' predictor. Consider using 'counter.plot()' for multiple predictors.")
   
   pred <- fit$model[, 2]
   dep <- fit$model[, 1]  
@@ -3012,14 +3012,14 @@ if(!inherits(fit.data, "data.frame") || ncol(fit.data) < 2) stop("Error: 'fit.da
 #=========================================================================================================
               
  
-count.plot <- function(fit, xlab = NA, ylab = NA, line.int = TRUE, pred.int = TRUE, level = .95,
+counter.plot <- function(fit, xlab = NA, ylab = NA, line.int = TRUE, pred.int = TRUE, level = .95,
                        focus.pred, n = 2e2, FUN = mean, hold.at = NA, legend = "topleft", ...)
 {
-  UseMethod("count.plot")
+  UseMethod("counter.plot")
 }
 
 
-count.plot.default <- function(fit, xlab = NA, ylab = NA, line.int = TRUE, pred.int = TRUE, level = .95,
+counter.plot.default <- function(fit, xlab = NA, ylab = NA, line.int = TRUE, pred.int = TRUE, level = .95,
                                focus.pred, n = 2e2, FUN = mean, hold.at = NA, legend = "topleft", ...){
   
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")  
@@ -3507,4 +3507,20 @@ dens.plot.default <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x
                  mad = mad, sd = sd, x = d$x, y = d$y))
 }
 
+                
+#===================================================================================================================
+                
+                
+count.plot <- function(x, round = TRUE, ylab = "Frequency", ...)
+{
+  UseMethod("count.plot")
+}
+
+                
+count.plot.default <- function (x, round = TRUE, ylab = "Frequency", ...) 
+{
+  if(round == TRUE){ x <- round(x) }
+  plot(table(x), ylab = ylab, ...)
+}
+                
                 
