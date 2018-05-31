@@ -3511,16 +3511,18 @@ dens.plot.default <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x
 #===================================================================================================================
                 
                 
-count.plot <- function(x, round = TRUE, ylab = "Frequency", ...)
+count.plot <- function(x, ylab = NA, freq = FALSE, ...)
 {
   UseMethod("count.plot")
 }
 
                 
-count.plot.default <- function (x, round = TRUE, ylab = "Frequency", ...) 
+count.plot.default <- function(x, ylab = NA, freq = FALSE, ...) 
 {
-  if(round){ x <- round(x) }
-  plot(table(x), ylab = ylab, ...)
+  x <- round(x)
+  ylab <- if(is.na(ylab) & freq) "Frequency" else if(is.na(ylab) & !freq) "Probability" else ylab
+  z <- if(freq) table(x) else table(x)/length(x)
+  plot(z, ylab = ylab, ...)
 }
                 
                 
