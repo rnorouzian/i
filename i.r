@@ -3545,3 +3545,13 @@ dbetabin <- function (x, size, mu, dis, shape1, shape2, log = FALSE)
 }
     
     
+#==============================================================================================================================
+    
+    
+dbetab <- function (x, mu, dis, log = FALSE) 
+{
+  shape1 <- mu * dis
+  shape2 <- (1 - mu) * dis
+  dbeta(x, shape1 = shape1, shape2 = shape1, log = log)
+}
+    
