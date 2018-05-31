@@ -3565,10 +3565,10 @@ if(mu < 0 || mu > 1) message("Error: 'mu' is 'average probability' of a 'beta di
     
 rbetab <- function(n, mu, dis){
   
+if(mu < 0 || mu > 1) message("Error: 'mu' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
   shape1 <- mu * dis
   shape2 <- (1 - mu) * dis
   rbeta(n, shape1 = shape1, shape2 = shape2)
-  if(mu < 0 || mu > 1) message("Error: 'mu' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
 }
     
     
