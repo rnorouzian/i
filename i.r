@@ -3527,9 +3527,9 @@ count.plot.default <- function (x, round = TRUE, ylab = "Frequency", ...)
 #=========================================================================================================================
                 
                 
-dbetabinom <- function (x, size, mu, dis, shape1, shape2, log = FALSE) 
+dbetabinom <- function (x, size, mu, dis, shape1 = NULL, shape2 = NULL, log = FALSE) 
 {
-  if(missing(mu) && !missing(shape1) && !missing(shape2)){
+  if(missing(mu) && !is.null(shape1) && !is.null(shape2)){
     mu <- shape1/sum(shape1, shape2)
     dis <- sum(shape1, shape2)
   }
@@ -3569,12 +3569,12 @@ rbetab <- function(n, mu, dis){
 #====================================================================================================================================
     
     
-rbetabinom <- function (n, size, mu, dis, shape1, shape2) 
+rbetabinom <- function (n, size, mu, dis, shape1 = NULL, shape2 = NULL) 
 {
-  if(missing(mu) && !missing(shape1) && !missing(shape2)){
+  if(missing(mu) && !is.null(shape1) && !is.null(shape2)){
     mu <- shape1/sum(shape1, shape2)
     dis <- sum(shape1, shape2)
-  }
+  } 
   rbinom(n, size, rbetab(n, mu, dis))
 }
     
