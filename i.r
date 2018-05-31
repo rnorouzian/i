@@ -3533,6 +3533,9 @@ dbetabinom <- function (x, size, mu, dis, shape1 = NULL, shape2 = NULL, log = FA
     mu <- shape1/sum(shape1, shape2)
     dis <- sum(shape1, shape2)
   }
+    
+  if(mu < 0 || mu > 1) message("Error: 'mu' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
+    
   h <- lfactorial(size) - lfactorial(x) - lfactorial(size - 
       x) - lbeta(dis * (1 - mu), dis * mu) + lbeta(size - 
       x + dis * (1 - mu), x + dis * mu)
@@ -3550,6 +3553,7 @@ dbetabinom <- function (x, size, mu, dis, shape1 = NULL, shape2 = NULL, log = FA
     
 dbetab <- function (x, mu, dis, log = FALSE) 
 {
+if(mu < 0 || mu > 1) message("Error: 'mu' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
   shape1 <- mu * dis
   shape2 <- (1 - mu) * dis
   dbeta(x, shape1 = shape1, shape2 = shape2, log = log)
@@ -3560,6 +3564,9 @@ dbetab <- function (x, mu, dis, log = FALSE)
     
     
 rbetab <- function(n, mu, dis){
+    
+if(mu < 0 || mu > 1) message("Error: 'mu' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
+    
   shape1 <- mu * dis
   shape2 <- (1 - mu) * dis
   rbeta(n, shape1 = shape1, shape2 = shape2)
@@ -3575,6 +3582,8 @@ rbetabinom <- function (n, size, mu, dis, shape1 = NULL, shape2 = NULL)
     mu <- shape1/sum(shape1, shape2)
     dis <- sum(shape1, shape2)
   } 
+if(mu < 0 || mu > 1) message("Error: 'mu' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
+    
   rbinom(n, size, rbetab(n, mu, dis))
 }
     
