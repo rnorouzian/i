@@ -3538,7 +3538,7 @@ dbetabinom <- function (x, size, mu, dis, shape1 = NULL, shape2 = NULL, log = FA
       x + dis * (1 - mu), x + dis * mu)
   na.int <- function(x) (abs((x) - floor((x) + 0.5)) > 1e-7)
   if(any(n <- na.int(x))){
-    warning("non-integer 'x' detected. \"zero\" probability is returned.")
+    warning("non-integer 'x' found. \"zero\" probability is returned.")
     h[n] <- -Inf
   }
   if(log) h else exp(h)
