@@ -3524,3 +3524,24 @@ count.plot.default <- function (x, round = TRUE, ylab = "Frequency", ...)
 }
                 
                 
+#=========================================================================================================================
+                
+                
+dbetabin <- function (x, size, mu, dis, shape1, shape2, log = FALSE) 
+{
+  if(missing(mu) && !missing(shape1) && !missing(shape2)){
+    mu <- shape1/sum(shape1, shape2)
+    dis <- sum(shape1, shape2)
+  }
+  h <- lfactorial(size) - lfactorial(x) - lfactorial(size - 
+      x) - lbeta(dis * (1 - mu), dis * mu) + lbeta(size - 
+      x + dis * (1 - mu), x + dis * mu)
+  na.int <- function(x) (abs((x) - floor((x) + 0.5)) > 1e-7)
+  if(any(n <- na.int(x))){
+    warning("non-integer 'x' detected. \"zero\" probability is returned.")
+    h[n] <- -Inf
+  }
+  if(log) h else exp(h)
+}
+    
+    
