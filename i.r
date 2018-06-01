@@ -3542,9 +3542,9 @@ dbetabinom <- function (x, size, mu, dis, shape1 = NULL, shape2 = NULL, log = FA
       x) - lbeta(dis * (1 - mu), dis * mu) + lbeta(size - 
       x + dis * (1 - mu), x + dis * mu)
   na.int <- function(x) (abs((x) - floor((x) + 0.5)) > 1e-7)
-  if(any(n <- na.int(x))){
-    warning("non-integer 'x' found. \"zero\" probability is returned.")
-    h[n] <- -Inf
+  if(any(g <- na.int(x))){
+  message("Warning: For non-integer 'x' (successes), probability of \"ZERO\" is returned.")
+    h[g] <- -Inf
   }
   if(log) h else exp(h)
 }
