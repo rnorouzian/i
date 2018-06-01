@@ -3589,3 +3589,53 @@ if(mu < 0 || mu > 1) message("Error: 'mu' is 'average probability' of a 'beta di
 }
     
     
+#=======================================================================================================================================
+    
+  
+ dcohen <- function(x, dbase, n1, n2 = NA, log = FALSE){
+  
+  N <- ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
+  df <- ifelse(is.na(n2), n1 - 1, (n1 + n2) - 2)
+  ncp <- dbase*sqrt(N)
+  
+  dt(x*sqrt(N), df, ncp, log = log)*sqrt(N)
+}
+
+#=======================================================================================================================================
+
+
+qcohen <- function(p, dbase, n1, n2 = NA, lower.tail = TRUE, log.p = FALSE){
+  
+  N <- ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
+  df <- ifelse(is.na(n2), n1 - 1, (n1 + n2) - 2)
+  ncp <- dbase*sqrt(N)
+  
+  qt(p, df, ncp, lower.tail = lower.tail, log.p = log.p)/sqrt(N)
+}
+
+    
+#=======================================================================================================================================
+
+
+pcohen <- function(q, dbase, n1, n2 = NA, lower.tail = TRUE, log.p = FALSE){
+  
+ N <- ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
+ df <- ifelse(is.na(n2), n1 - 1, (n1 + n2) - 2)
+ ncp <- dbase*sqrt(N)
+ 
+ pt(q*sqrt(N), df, ncp, lower.tail = lower.tail, log.p = log.p)
+}
+
+    
+#=======================================================================================================================================
+
+
+rcohen <- function(n, dbase, n1, n2 = NA){
+  
+  N <- ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
+  df <- ifelse(is.na(n2), n1 - 1, (n1 + n2) - 2)
+  ncp <- dbase*sqrt(N)
+  
+  rt(n, df, ncp)/sqrt(N)
+}
+    
