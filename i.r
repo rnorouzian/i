@@ -3561,8 +3561,32 @@ dbetab <- function (x, mu.p, disp, log = FALSE)
   dbeta(x, shape1 = shape1, shape2 = shape2, log = log)
 }
 
-
+    
 #=================================================================================================================================
+
+    
+qbetab <- function(p, mu.p, disp, lower.tail = TRUE, log.p = FALSE) 
+{
+  if(mu.p < 0 || mu.p > 1) message("Error: 'mu.p' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
+  shape1 <- mu.p * disp
+  shape2 <- (1 - mu.p) * disp
+  qbeta(p, shape1 = shape1, shape2 = shape2, lower.tail = lower.tail, log.p = log.p)
+}
+    
+
+#===========================================================================================================
+
+
+pbetab <- function(q, mu.p, disp, lower.tail = TRUE, log.p = FALSE) 
+{
+  if(mu.p < 0 || mu.p > 1) message("Error: 'mu.p' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
+  shape1 <- mu.p * disp
+  shape2 <- (1 - mu.p) * disp
+  pbeta(q, shape1 = shape1, shape2 = shape2, lower.tail = lower.tail, log.p = log.p)
+}
+
+
+#==================================================================================================================    
 
 
 pbetabinom <- function(q, size, mu.p, disp){
@@ -3571,10 +3595,10 @@ t <- disp * mu.p
 u <- disp * (1 - mu.p)
 
 prob <- numeric(length(q))
-for (i in 1:length(q)) {
+for (i in 1:length(q)){
   h <- 0:q[i]
   prob[i] <- sum(exp(lbeta(h + t[i], size[i] - h + u[i]) - lbeta(t[i], u[i]) + lchoose(size[i], h)))
-}
+   }
 prob
 }
 
