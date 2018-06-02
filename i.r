@@ -3565,6 +3565,51 @@ dbetab <- function (x, mu.p, disp, log = FALSE)
 #=================================================================================================================================
 
 
+pbetabinom <- function(q, size, mu.p, disp){
+
+t <- disp * mu.p
+u <- disp * (1 - mu.p)
+
+prob <- numeric(length(q))
+for (i in 1:length(q)) {
+  h <- 0:q[i]
+  prob[i] <- sum(exp(lbeta(h + t[i], size[i] - h + u[i]) - lbeta(t[i], u[i]) + lchoose(size[i], h)))
+}
+prob
+}
+
+
+#==========================================================================================================
+
+
+qbetabinom <- function(p, size, mu.p, disp){
+  
+  h <- function(g) {
+    t <- disp[i] * mu.p[i]
+    u <- disp[i] * (1 - mu.p[i])
+    d <- 0:g
+    sum(exp(lbeta(d + t, size[i] - d + u) - lbeta(t, u) + 
+              lchoose(size[i], d))) - p[i]
+  }
+  
+  k <- eq(p, size, mu.p, disp)
+  p <- k[[1]] ; size <- k[[2]] ; mu.p <- k[[3]] ; disp <- k[[4]]
+  
+  qs <- numeric(length(p))
+  
+  for (i in 1:length(p)) {
+    interval <- c(0, size[i])
+    qs[i] <- if(h(interval[1]) * h(interval[2]) > 0) 
+      0
+    else uniroot(h, interval)[[1]]
+  }
+  round(qs)
+}
+    
+    
+#====================================================================================================================================
+
+    
 rbetab <- function(n, mu.p, disp){
   
   if(mu.p < 0 || mu.p > 1) message("Error: 'mu.p' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
@@ -3577,7 +3622,7 @@ rbetab <- function(n, mu.p, disp){
 #====================================================================================================================================
 
 
-rbetabinom <- function (n, size, mu.p, disp, shape1 = NULL, shape2 = NULL) 
+rbetabinom <- function(n, size, mu.p, disp, shape1 = NULL, shape2 = NULL) 
 {
   if(missing(mu.p) && !is.null(shape1) && !is.null(shape2)){
     mu.p <- shape1/(shape1 + shape2)
