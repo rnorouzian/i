@@ -107,7 +107,7 @@ hdir <- function(sample, level = .95)
 hdir.default <- function(sample, level = .95){
   
   if(1 <= level || level <= 0) stop("Error: 'level' must be between '0' and '1'.")
-  if(length(sample) < 1e3) message("Warning: \n\tInsufficient sample to produce reliable 'interval' estimates.")  
+  #if(length(sample) < 1e3) message("Warning: \n\tInsufficient sample to produce reliable 'interval' estimates.")  
   sorted <- sort(sample)
   index <- ceiling(level*length(sorted))
   n <- length(sorted)- index
@@ -3529,63 +3529,63 @@ count.plot.default <- function(x, ylab = NA, freq = FALSE, ...)
 #=========================================================================================================================
                 
                 
-dbetabinom <- function (x, size, mu, dis, shape1 = NULL, shape2 = NULL, log = FALSE) 
+dbetabinom <- function (x, size, mu.p, disp, shape1 = NULL, shape2 = NULL, log = FALSE) 
 {
-  if(missing(mu) && !is.null(shape1) && !is.null(shape2)){
-    mu <- shape1/sum(shape1, shape2)
-    dis <- sum(shape1, shape2)
+  if(missing(mu.p) && !is.null(shape1) && !is.null(shape2)){
+    mu.p <- shape1/(shape1 + shape2)
+    disp <- shape1 + shape2
   }
-    
-  if(mu < 0 || mu > 1) message("Error: 'mu' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
-    
+  
+  if(mu.p < 0 || mu.p > 1) message("Error: 'mu.p' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
+  
   h <- lfactorial(size) - lfactorial(x) - lfactorial(size - 
-      x) - lbeta(dis * (1 - mu), dis * mu) + lbeta(size - 
-      x + dis * (1 - mu), x + dis * mu)
-  na.int <- function(x) (abs((x) - floor((x) + 0.5)) > 1e-7)
-  if(any(g <- na.int(x))){
-  message("Warning: For non-integer 'x' (successes), probability of \"ZERO\" is returned.")
+       x) - lbeta(disp * (1 - mu.p), disp * mu.p) + lbeta(size - 
+       x + disp * (1 - mu.p), x + disp * mu.p)
+  not.int <- function(x) (abs((x) - floor((x) + .5)) > 1e-7)
+  if(any(g <- not.int(x))){
+    message("Warning: For non-integer 'x' (successes), probability of \"ZERO\" is returned.")
     h[g] <- -Inf
   }
   if(log) h else exp(h)
 }
-    
-    
+
+
 #==============================================================================================================================
-    
-    
-dbetab <- function (x, mu, dis, log = FALSE) 
+
+
+dbetab <- function (x, mu.p, disp, log = FALSE) 
 {
-if(mu < 0 || mu > 1) message("Error: 'mu' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
-  shape1 <- mu * dis
-  shape2 <- (1 - mu) * dis
+  if(mu.p < 0 || mu.p > 1) message("Error: 'mu.p' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
+  shape1 <- mu.p * disp
+  shape2 <- (1 - mu.p) * disp
   dbeta(x, shape1 = shape1, shape2 = shape2, log = log)
 }
-    
+
 
 #=================================================================================================================================
-    
-    
-rbetab <- function(n, mu, dis){
+
+
+rbetab <- function(n, mu.p, disp){
   
-if(mu < 0 || mu > 1) message("Error: 'mu' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
-  shape1 <- mu * dis
-  shape2 <- (1 - mu) * dis
+  if(mu.p < 0 || mu.p > 1) message("Error: 'mu.p' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
+  shape1 <- mu.p * disp
+  shape2 <- (1 - mu.p) * disp
   rbeta(n, shape1 = shape1, shape2 = shape2)
 }
-    
-    
+
+
 #====================================================================================================================================
-    
-    
-rbetabinom <- function (n, size, mu, dis, shape1 = NULL, shape2 = NULL) 
+
+
+rbetabinom <- function (n, size, mu.p, disp, shape1 = NULL, shape2 = NULL) 
 {
-  if(missing(mu) && !is.null(shape1) && !is.null(shape2)){
-    mu <- shape1/sum(shape1, shape2)
-    dis <- sum(shape1, shape2)
+  if(missing(mu.p) && !is.null(shape1) && !is.null(shape2)){
+    mu.p <- shape1/(shape1 + shape2)
+    disp <- shape1 + shape2
   } 
-if(mu < 0 || mu > 1) message("Error: 'mu' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
-    
-  rbinom(n, size, rbetab(n, mu, dis))
+  if(mu.p < 0 || mu.p > 1) message("Error: 'mu.p' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
+  
+  rbinom(n, size, rbetab(n, mu.p, disp))
 }
     
     
