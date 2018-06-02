@@ -3538,11 +3538,11 @@ dbetabinom <- function (x, size, mu.p, disp, shape1 = NULL, shape2 = NULL, log =
   
   if(mu.p < 0 || mu.p > 1) message("Error: 'mu.p' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
   
-  h <- lfactorial(size) - lfactorial(x) - lfactorial(size - 
-       x) - lbeta(disp * (1 - mu.p), disp * mu.p) + lbeta(size - 
-       x + disp * (1 - mu.p), x + disp * mu.p)
-  not.int <- function(x) (abs((x) - floor((x) + .5)) > 1e-7)
-  if(any(g <- not.int(x))){
+t <- disp * mu.p
+u <- disp * (1 - mu.p)
+h <- lbeta(x + t, size - x + u) - lbeta(t, u) + lchoose(size, x)
+  not.integer <- function(x) (abs((x) - floor((x) + .5)) > 1e-7)
+  if(any(g <- not.integer(x))){
     message("Warning: For non-integer 'x' (successes), probability of \"ZERO\" is returned.")
     h[g] <- -Inf
   }
