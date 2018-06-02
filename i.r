@@ -3527,7 +3527,10 @@ count.plot.default <- function(x, ylab = NA, freq = FALSE, ...)
                 
                 
 #=========================================================================================================================
-                
+
+not.integer <- function(x) (abs((x) - floor((x) + .5)) > 1e-7)  
+
+#=========================================================================================================================
                 
 dbetabinom <- function (x, size, mu.p, disp, shape1 = NULL, shape2 = NULL, log = FALSE) 
 {
@@ -3541,7 +3544,7 @@ dbetabinom <- function (x, size, mu.p, disp, shape1 = NULL, shape2 = NULL, log =
 t <- disp * mu.p
 u <- disp * (1 - mu.p)
 h <- lbeta(x + t, size - x + u) - lbeta(t, u) + lchoose(size, x)
-  not.integer <- function(x) (abs((x) - floor((x) + .5)) > 1e-7)
+  
   if(any(g <- not.integer(x))){
     message("Warning: For non-integer 'x' (successes), probability of \"ZERO\" is returned.")
     h[g] <- -Inf
@@ -3588,18 +3591,25 @@ pbetab <- function(q, mu.p, disp, lower.tail = TRUE, log.p = FALSE)
 
 #==================================================================================================================    
 
-
 pbetabinom <- function(q, size, mu.p, disp){
-
-t <- disp * mu.p
-u <- disp * (1 - mu.p)
-
-prob <- numeric(length(q))
-for (i in 1:length(q)){
-  h <- 0:q[i]
-  prob[i] <- sum(exp(lbeta(h + t[i], size[i] - h + u[i]) - lbeta(t[i], u[i]) + lchoose(size[i], h)))
-   }
-prob
+  
+  k <- eq(q, size, mu.p, disp)
+  q <- k[[1]] ; size <- k[[2]] ; mu.p <- k[[3]] ; disp <- k[[4]]
+    
+  if(any(g <- not.integer(q))){
+    message("Warning: For non-integer 'q' (successes),  'q' is rounded.")
+    q[g] <- round(q)
+  }
+  
+  t <- disp * mu.p
+  u <- disp * (1 - mu.p)
+  
+  prob <- numeric(length(q))
+  for (i in 1:length(q)){
+    h <- 0:q[i]
+    prob[i] <- sum(exp(lbeta(h + t[i], size[i] - h + u[i]) - lbeta(t[i], u[i]) + lchoose(size[i], h)))
+  }
+  prob
 }
 
 
@@ -3607,27 +3617,30 @@ prob
 
 
 qbetabinom <- function(p, size, mu.p, disp){
-  
-  h <- function(g) {
-    t <- disp[i] * mu.p[i]
-    u <- disp[i] * (1 - mu.p[i])
-    d <- 0:g
-    sum(exp(lbeta(d + t, size[i] - d + u) - lbeta(t, u) + 
-              lchoose(size[i], d))) - p[i]
-  }
-  
-  k <- eq(p, size, mu.p, disp)
-  p <- k[[1]] ; size <- k[[2]] ; mu.p <- k[[3]] ; disp <- k[[4]]
-  
-  qs <- numeric(length(p))
-  
-  for (i in 1:length(p)) {
-    interval <- c(0, size[i])
-    qs[i] <- if(h(interval[1]) * h(interval[2]) > 0) 
-      0
-    else uniroot(h, interval)[[1]]
-  }
-  round(qs)
+
+k <- eq(p, size, mu.p, disp)
+p <- k[[1]] ; size <- k[[2]] ; mu.p <- k[[3]] ; disp <- k[[4]]
+
+p[p < 0] <- 0
+p[p > 1] <- 1
+    
+h <- function(g) {
+  t <- disp[i] * mu.p[i]
+  u <- disp[i] * (1 - mu.p[i])
+  d <- 0:g
+  sum(exp(lbeta(d + t, size[i] - d + u) - lbeta(t, u) + 
+            lchoose(size[i], d))) - p[i]
+}
+
+qs <- numeric(length(p))
+
+for(i in 1:length(p)){
+  interval <- c(0, size[i])
+  qs[i] <- if(h(interval[1]) * h(interval[2]) > 0) 
+    0
+  else uniroot(h, interval)[[1]]
+}
+round(qs)
 }
     
     
