@@ -2508,7 +2508,7 @@ predict.bayes.default <- function(fit, xlab = NA, ylab = NA, level = .95, line.i
     polygon(c(rev(x), x), c(rev(z), y), col = adjustcolor(col.line, col.depth), border = NA)
   }
   
-  abline(fit, col = col.reg, lwd = 2)
+  abline(fit, col = col.reg, lwd = 2, lend = 1)
   box()    
 }                                              
                        
