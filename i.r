@@ -3415,11 +3415,17 @@ multilogit.default <- function (...){
                 
 #====================================================================================================================
                 
-inv.multilogit <- function(x, lambda = 1, diff = TRUE, log = FALSE) 
-{
+inv.multilogit <- function(x, lambda = 1, diff = TRUE, log = FALSE){
+  
+  x <- round(x)
+  
+  if(length(x) == 1){ x <- 0:x  ;
+  message("Note: ", sum(x, 1), " categories were assumed.")
+  }
+  
   if(diff){ 
     x <- x - min(x)
-  f <- exp(lambda * x)
+    f <- exp(lambda * x)
   }
   if(!log){
     output <- f/sum(f)
