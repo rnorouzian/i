@@ -3415,7 +3415,23 @@ multilogit.default <- function (...){
                 
 #====================================================================================================================
                 
- 
+inv.multilogit <- function(x, lambda = 1, diff = TRUE, log = FALSE) 
+{
+  if(diff){ 
+    x <- x - min(x)
+  f <- exp(lambda * x)
+  }
+  if(!log){
+    output <- f/sum(f)
+  } else {
+    output <- log(f) - log(sum(f))
+  }
+  output
+}
+                
+#====================================================================================================================
+
+                
 anova.es <- function(fit = NULL, f, df1, df2, N, conf.level = .9, digits = 6)
 {
   UseMethod("anova.es")
