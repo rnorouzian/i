@@ -3539,8 +3539,10 @@ dbetabinom <- function (x, size, mu.p, disp, shape1 = NULL, shape2 = NULL, log =
     mu.p <- shape1/(shape1 + shape2)
     disp <- shape1 + shape2
   }
-  
-  if(mu.p < 0 || mu.p > 1) message("Error: 'mu.p' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
+    
+if(mu.p < 0 || mu.p > 1) { message("Warning: 'mu.p' is 'average probability' of a 'beta dist.' bound between '0' & '1'.") ;
+mu.p[mu.p < 0] <- 0 ;
+mu.p[mu.p > 1] <- 1 }   
   
 t <- disp * mu.p
 u <- disp * (1 - mu.p)
@@ -3557,9 +3559,12 @@ h <- lbeta(x + t, size - x + u) - lbeta(t, u) + lchoose(size, x)
 #==============================================================================================================================
 
 
-dbetab <- function (x, mu.p, disp, log = FALSE) 
-{
-  if(mu.p < 0 || mu.p > 1) message("Error: 'mu.p' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
+dbetab <- function (x, mu.p, disp, log = FALSE){
+
+if(mu.p < 0 || mu.p > 1) { message("Warning: 'mu.p' is 'average probability' of a 'beta dist.' bound between '0' & '1'.") ;
+mu.p[mu.p < 0] <- 0 ;
+mu.p[mu.p > 1] <- 1 }
+    
   shape1 <- mu.p * disp
   shape2 <- (1 - mu.p) * disp
   dbeta(x, shape1 = shape1, shape2 = shape2, log = log)
@@ -3569,9 +3574,12 @@ dbetab <- function (x, mu.p, disp, log = FALSE)
 #=================================================================================================================================
 
     
-qbetab <- function(p, mu.p, disp, lower.tail = TRUE, log.p = FALSE) 
-{
-  if(mu.p < 0 || mu.p > 1) message("Error: 'mu.p' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
+qbetab <- function(p, mu.p, disp, lower.tail = TRUE, log.p = FALSE){
+
+if(mu.p < 0 || mu.p > 1) { message("Warning: 'mu.p' is 'average probability' of a 'beta dist.' bound between '0' & '1'.") ;
+mu.p[mu.p < 0] <- 0 ;
+mu.p[mu.p > 1] <- 1 }
+    
   shape1 <- mu.p * disp
   shape2 <- (1 - mu.p) * disp
   qbeta(p, shape1 = shape1, shape2 = shape2, lower.tail = lower.tail, log.p = log.p)
@@ -3581,9 +3589,12 @@ qbetab <- function(p, mu.p, disp, lower.tail = TRUE, log.p = FALSE)
 #===========================================================================================================
 
 
-pbetab <- function(q, mu.p, disp, lower.tail = TRUE, log.p = FALSE) 
-{
-  if(mu.p < 0 || mu.p > 1) message("Error: 'mu.p' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
+pbetab <- function(q, mu.p, disp, lower.tail = TRUE, log.p = FALSE){
+    
+if(mu.p < 0 || mu.p > 1) { message("Warning: 'mu.p' is 'average probability' of a 'beta dist.' bound between '0' & '1'.") ;
+mu.p[mu.p < 0] <- 0 ;
+mu.p[mu.p > 1] <- 1 }
+    
   shape1 <- mu.p * disp
   shape2 <- (1 - mu.p) * disp
   pbeta(q, shape1 = shape1, shape2 = shape2, lower.tail = lower.tail, log.p = log.p)
@@ -3596,6 +3607,10 @@ pbetabinom <- function(q, size, mu.p, disp){
   
   k <- eq(q, size, mu.p, disp)
   q <- k[[1]] ; size <- k[[2]] ; mu.p <- k[[3]] ; disp <- k[[4]]
+ 
+if(mu.p < 0 || mu.p > 1) { message("Warning: 'mu.p' is 'average probability' of a 'beta dist.' bound between '0' & '1'.") ;
+mu.p[mu.p < 0] <- 0 ;
+mu.p[mu.p > 1] <- 1 }
     
   if(any(g <- not.integer(q))){
     message("Warning: For non-integer 'q' (successes),  'q' is rounded.")
@@ -3622,6 +3637,10 @@ qbetabinom <- function(p, size, mu.p, disp){
 k <- eq(p, size, mu.p, disp)
 p <- k[[1]] ; size <- k[[2]] ; mu.p <- k[[3]] ; disp <- k[[4]]
 
+if(mu.p < 0 || mu.p > 1) { message("Warning: 'mu.p' is 'average probability' of a 'beta dist.' bound between '0' & '1'.") ;
+mu.p[mu.p < 0] <- 0 ;
+mu.p[mu.p > 1] <- 1 }
+    
 p[p < 0] <- 0
 p[p > 1] <- 1
     
@@ -3650,7 +3669,10 @@ round(qs)
     
 rbetab <- function(n, mu.p, disp){
   
-  if(mu.p < 0 || mu.p > 1) message("Error: 'mu.p' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
+if(mu.p < 0 || mu.p > 1) { message("Warning: 'mu.p' is 'average probability' of a 'beta dist.' bound between '0' & '1'.") ;
+mu.p[mu.p < 0] <- 0 ;
+mu.p[mu.p > 1] <- 1 }
+    
   shape1 <- mu.p * disp
   shape2 <- (1 - mu.p) * disp
   rbeta(n, shape1 = shape1, shape2 = shape2)
@@ -3660,14 +3682,17 @@ rbetab <- function(n, mu.p, disp){
 #====================================================================================================================================
 
 
-rbetabinom <- function(n, size, mu.p, disp, shape1 = NULL, shape2 = NULL) 
-{
+rbetabinom <- function(n, size, mu.p, disp, shape1 = NULL, shape2 = NULL){
+    
   if(missing(mu.p) && !is.null(shape1) && !is.null(shape2)){
     mu.p <- shape1/(shape1 + shape2)
     disp <- shape1 + shape2
   } 
-  if(mu.p < 0 || mu.p > 1) message("Error: 'mu.p' is 'average probability' of a 'beta dist.' bound between '0' & '1'.")
-  
+    
+if(mu.p < 0 || mu.p > 1) { message("Warning: 'mu.p' is 'average probability' of a 'beta dist.' bound between '0' & '1'.") ;
+mu.p[mu.p < 0] <- 0 ;
+mu.p[mu.p > 1] <- 1 }
+
   rbinom(n, size, rbetab(n, mu.p, disp))
 }
     
