@@ -3414,13 +3414,14 @@ multilogit.default <- function (...){
                 
                 
 #====================================================================================================================
+             
                 
 inv.multilogit <- function(x, lambda = 1, diff = TRUE, log = FALSE){
   
   x <- round(x)
   
   if(length(x) == 1){ x <- 0:x  ;
-  message("Note: ", sum(x, 1), " categories were assumed.")
+  message("Note: ", length(x), " categories were assumed.")
   }
   
   if(diff){ 
@@ -3434,6 +3435,7 @@ inv.multilogit <- function(x, lambda = 1, diff = TRUE, log = FALSE){
   }
   output
 }
+         
                 
 #====================================================================================================================
 
