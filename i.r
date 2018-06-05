@@ -3535,7 +3535,7 @@ dens.plot.default <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x
 #===================================================================================================================
                 
                 
-count.plot <- function(x, ylab = NA, freq = FALSE, ...)
+count.plot <- function(x, xlab = deparse(substitute(x)), ylab = NA, freq = FALSE, ...)
 {
   UseMethod("count.plot")
 }
