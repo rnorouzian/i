@@ -3541,12 +3541,12 @@ count.plot <- function(x, ylab = NA, freq = FALSE, ...)
 }
 
                 
-count.plot.default <- function(x, ylab = NA, freq = FALSE, ...) 
+count.plot.default <- function(x, xlab = deparse(substitute(x)), ylab = NA, freq = FALSE, ...) 
 {
   x <- round(x)
   ylab <- if(is.na(ylab) & freq) "Frequency" else if(is.na(ylab) & !freq) "Probability" else ylab
   z <- if(freq) table(x) else table(x)/length(x)
-  plot(z, ylab = ylab, ...)
+  plot(z, xlab = xlab, ylab = ylab, ...)
   invisible(list(x = as.numeric(names(z)), y = as.numeric(z)))
 }
                 
