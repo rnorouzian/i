@@ -3541,17 +3541,32 @@ count.plot <- function(x, xlab = deparse(substitute(x)), ylab = NA, freq = FALSE
 }
 
                 
-count.plot.default <- function(x, xlab = deparse(substitute(x)), ylab = NA, freq = FALSE, ...) 
-{
+count.plot.default <- function(x, xlab = deparse(substitute(x)), ylab = NA, freq = FALSE, ...)
+{  
   force(xlab)
-  x <- sapply(x, round) # changes the class of 'x' accordingly.
+  x <- sapply(x, round)
   ylab <- if(is.na(ylab) & freq) "Frequency" else if(is.na(ylab) & !freq) "Probability" else ylab
   z <- if(freq) table(x) else table(x)/length(x)
   plot(z, xlab = xlab, ylab = ylab, ...)
   invisible(list(x = as.numeric(names(z)), y = as.numeric(z)))
 }
                 
-                
+#=========================================================================================================================
+
+likert <- function(x){
+  
+  x <- sapply(x, round)
+  fq <- table(x)
+  prop <- fq/length(x)
+  cumprop <- cumsum(prop)
+  logcumodd <- log(cumprop/(1-cumprop))
+  x <- as.numeric(names(fq))
+  dif <- cumprop[x[2]:tail(x, 1)] - cumprop[x[1]:tail(x, 2)[-2]]
+  
+  list(x = x, prop = prop, cumprop = cumprop, logcumodd = logcumodd, ordlike = c(cumprop[1], dif))
+}
+    
+    
 #=========================================================================================================================
 
 not.integer <- function(x) (abs((x) - floor((x) + .5)) > 1e-7)  
