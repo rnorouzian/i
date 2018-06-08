@@ -3521,9 +3521,9 @@ dens.plot.default <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x
   
   if(hdi){
     
-    lines(i, c(0, 0), lend = 1, lwd = 6, lty = 1, xpd = NA, ...)
-    text(i, 0, round(i, 3), pos = 3, cex = .8, font = 2, xpd = NA)
-    points(mode, 0, pch = 21, bg = "cyan", col = "magenta", cex = 1.7, xpd = NA)
+    lines(i, rep(min(d$y), 2), lend = 1, lwd = 6, lty = 1, xpd = NA, ...)
+    text(i, min(d$y), round(i, 3), pos = 3, cex = .8, font = 2, xpd = NA)
+    points(mode, min(d$y), pch = 21, bg = "cyan", col = "magenta", cex = 1.7, xpd = NA)
     
   }
   
