@@ -3893,3 +3893,74 @@ likert <- function(x){
 }
     
 
+#==========================================================================================================================
+    
+    
+power.anova <- function(peta.h1, df1, df2, N, alpha = .05, peta.h0 = 0, peta.obs = .1, xlab = bquote(eta[p]^2), from = 0, to = .2){
+
+graphics.off()  
+original.par = par(no.readonly = TRUE)
+on.exit(par(original.par))
+  
+par(mfrow = c(2, 1), mgp = c(2, .5, 0), mar = c(4, 4, 3, 2), xpd = TRUE)
+  
+h0 = curve(dpeta(x, df1, df2, peta.h0, N), from = from, to = to, lwd = 2, n = 1e4, xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i")
+a <- qpeta(alpha, df1, df2, peta.h0, N, lower.tail = FALSE)
+x = seq(a, 1, l = 1e3) ; y = dpeta(x, df1, df2, peta.h0, N)
+polygon(c(a, x, 1), c(0, y, 0), col = 2, border = NA)
+lines(h0, lwd = 2)
+abline(v = peta.h0, col = 2, xpd = FALSE) 
+
+h1 = curve(dpeta(x, df1, df2, peta.h1, N), from = from, to = to, lwd = 2, n = 1e4, xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i")
+x = seq(a, 1, l = 1e3) ; y = dpeta(x, df1, df2, peta.h1, N)
+polygon(c(a, x, 1), c(0, y, 0), col = 2, border = NA)
+lines(h1, lwd = 2)
+abline(v = peta.h1, col = 4, xpd = FALSE)
+
+points(peta.obs, 0, pch = 23, bg = "cyan", col = "magenta", cex = 1.5)
+
+abline(v = a, col = 2, lty = 2, xpd = NA)
+
+power <- ppeta(a, df1, df2, peta.h1, N, lower.tail = FALSE)
+p.value <- ppeta(peta.obs, df1, df2, peta.h0, N, lower.tail = FALSE)
+
+random.p <- rpeta(1e6, df1, df2, peta.h1, N)
+sig <- random.p > a
+exaggration <- mean(random.p[sig]) / peta.h1
+
+data.frame(power = power, p.value = p.value, exaggration = exaggration, row.names = "Result:")
+}
+    
+#=====================================================================================================================================
+    
+    
+power.anova.fun <- function(df1, df2, N, peta.h0 = 0, peta.min = 0, peta.max = .5, alpha = .05){
+
+peta <- function(df1, df2, peta.h1, peta.h0, N, alpha){
+  
+a <- qpeta(alpha, df1, df2, peta.h0, N, lower.tail = FALSE)
+power <- ppeta(a, df1, df2, peta.h1, N, lower.tail = FALSE)
+random.p <- rpeta(1e4, df1, df2, peta.h1, N)
+sig <- random.p > a
+exaggration <- mean(random.p[sig]) / peta.h1
+
+list(power = power, exaggration = exaggration)
+}
+
+peta_range = seq(peta.min, peta.max, by = .001)
+n = length(peta_range)
+power = numeric(n)
+exaggration = numeric(n)
+
+for(i in 1L:n){
+  g = peta(peta.h1 = peta_range[i], df1 = df1, df2 = df2, N = N, alpha = alpha, peta.h0 = peta.h0)
+  power[i] = g$power
+  exaggration[i] = g$exaggration
+}
+
+plot(power, exaggration, type = "l", ylim = c(1, 10), xaxt = "n", yaxt = "n", lwd = 2, font.lab = 2, col = 4)
+axis(1, at = c(alpha, seq(.2, 1, by = .2)))
+axis(2, at = seq(1, 10, by = 2))
+abline(h = 1, v = alpha, col = 8)
+}
+    
