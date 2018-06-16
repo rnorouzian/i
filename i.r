@@ -3958,7 +3958,7 @@ for(i in 1L:n){
   exaggration[i] = g$exaggration
 }
 
-plot(power, exaggration, type = "l", ylim = c(1, 10), xaxt = "n", yaxt = "n", lwd = 2, font.lab = 2, col = 4)
+plot(power, exaggration, type = "l", ylim = c(1, 10), xaxt = "n", yaxt = "n", lwd = 2, font.lab = 2, col = 4, las = 1)
 axis(1, at = c(alpha, seq(.2, 1, by = .2)))
 axis(2, at = seq(1, 10, by = 2))
 abline(h = 1, v = alpha, col = 8)
