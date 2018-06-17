@@ -3896,7 +3896,7 @@ likert <- function(x){
 #==========================================================================================================================
     
     
-power.anova <- function(peta.h1, df1, df2, N, alpha = .05, peta.h0 = 0, peta.obs = .1, xlab = bquote(eta[p]^2), from = 0, to = .2){
+typem.anova <- function(peta.h1, df1, df2, N, alpha = .05, peta.h0 = 0, peta.obs = .1, xlab = bquote(eta[p]^2), from = 0, to = .2){
 
 graphics.off()  
 original.par = par(no.readonly = TRUE)
@@ -3926,15 +3926,15 @@ p.value <- ppeta(peta.obs, df1, df2, peta.h0, N, lower.tail = FALSE)
 
 random.p <- rpeta(1e6, df1, df2, peta.h1, N)
 sig <- random.p > a
-exaggration <- mean(random.p[sig]) / peta.h1
+exaggeration <- mean(random.p[sig]) / peta.h1
 
-data.frame(power = power, p.value = p.value, exaggration = exaggration, row.names = "Result:")
+data.frame(power = power, p.value = p.value, exaggeration = exaggeration, row.names = "Result:")
 }
     
 #=====================================================================================================================================
     
     
-power.anova.fun <- function(df1, df2, N, peta.h0 = 0, peta.min = 0, peta.max = .5, alpha = .05){
+typem.anova.fun <- function(df1, df2, N, peta.h0 = 0, peta.min = 0, peta.max = .5, alpha = .05){
 
 peta <- function(df1, df2, peta.h1, peta.h0, N, alpha){
   
