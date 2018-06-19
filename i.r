@@ -3964,3 +3964,33 @@ axis(2, at = seq(1, 10, by = 2), las = 1)
 abline(h = 1, v = alpha, col = 8)
 }
     
+#========================================================================================================================
+    
+
+power.t.tests <- function(d, alpha = .05, power = .8, paired = FALSE, two.tailed = TRUE){
+
+d <- abs(d)
+alpha <- if(two.tailed) alpha/2 else alpha
+  
+f <- if(two.tailed){ function(x){
+
+   power - (pt(qt(alpha, df = x), df = x, ncp = d*sqrt(if(paired) x + 1 else ((x+2)^2)/(2*(x+2)))) + pt(qt(alpha, df = x, lower.tail = FALSE), df = x, ncp = d*sqrt(if(paired) x + 1 else ((x+2)^2)/(2*(x+2))), lower.tail = FALSE))
+}
+
+} else {
+  
+  function(x){
+    
+    power - pt(qt(alpha, df = x, lower.tail = FALSE), df = x, ncp = d*sqrt(if(paired) x + 1 else ((x+2)^2)/(2*(x+2))), lower.tail = FALSE)
+  }
+}
+  
+df <- round(uniroot(f, c(1e-8, 1e4), extendInt = "downX")[[1]])
+
+n <- if(paired) df + 1 else df + 2
+note <- if(paired) "n is number of *pairs/one sample*" else "n is number in *each* group"
+method <- paste(if(paired) "One- or Paired sample" else "Two-sample", "t test power calculation")
+
+structure(list(n = n, d = d, alpha = alpha, power = power, 
+               two.tailed = two.tailed, note = note, method = method), class = "power.htest")
+}
