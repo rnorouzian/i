@@ -3999,30 +3999,38 @@ abline(h = 1, v = alpha, col = 8)
 #========================================================================================================================
     
 
-power.t.tests <- function(d, alpha = .05, power = .8, paired = FALSE, two.tailed = TRUE){
-
-d <- abs(d)
-alpha <- if(two.tailed) alpha/2 else alpha
+power.t.tests <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, paired = FALSE, two.tailed = TRUE){
   
-f <- if(two.tailed){ function(x){
-
-   power - (pt(qt(alpha, df = x), df = x, ncp = d*sqrt(if(paired) x + 1 else ((x+2)^2)/(2*(x+2)))) + pt(qt(alpha, df = x, lower.tail = FALSE), df = x, ncp = d*sqrt(if(paired) x + 1 else ((x+2)^2)/(2*(x+2))), lower.tail = FALSE))
-}
-
-} else {
+  d <- abs(d)
+  sig.level <- if(two.tailed) sig.level/2 else sig.level
+  k <- base.rate / (1 + base.rate)
   
-  function(x){
+  
+  f <- if(two.tailed){ function(x){
     
-    power - pt(qt(alpha, df = x, lower.tail = FALSE), df = x, ncp = d*sqrt(if(paired) x + 1 else ((x+2)^2)/(2*(x+2))), lower.tail = FALSE)
+    power - (pt(qt(sig.level, df = x), df = x, ncp = d*sqrt(if(paired) x + 1 else k*(x + 1))) + pt(qt(sig.level, df = x, lower.tail = FALSE), df = x, ncp = d*sqrt(if(paired) x + 1 else k*(x + 1)), lower.tail = FALSE))
   }
-}
+    
+  } else {
+    
+    function(x){
+      
+      power - pt(qt(sig.level, df = x, lower.tail = FALSE), df = x, ncp = d*sqrt(if(paired) x + 1 else k*(x + 1)), lower.tail = FALSE)
+    }
+  }
   
-df <- round(uniroot(f, c(1e-8, 1e4), extendInt = "downX")[[1]])
-
-n <- if(paired) df + 1 else df + 2
-note <- if(paired) "n is number of *pairs/one sample*" else "n is number in *each* group"
-method <- paste(if(paired) "One- or Paired sample" else "Two-sample", "t test power calculation")
-
-structure(list(n = n, d = d, alpha = alpha, power = power, 
-               two.tailed = two.tailed, note = note, method = method), class = "power.htest")
+  df <- round(uniroot(f, c(1e-8, 1e6), extendInt = "downX")[[1]])
+  
+  n1 <- df + 1
+  n2 <- if(paired) NA else round(base.rate*n1)
+  base.rate <- if(paired) NA else base.rate
+  method <- paste(if(paired) "One- or Paired sample" else "Two-sample", "t test power analysis")
+  
+  est.power <- if(two.tailed) pcohen(qcohen(sig.level, 0, n1, n2), d, n1, n2) + pcohen(qcohen(sig.level, 0, n1, n2, lower.tail = FALSE), d, n1, n2, lower.tail = FALSE) else pcohen(qcohen(sig.level, 0, n1, n2, lower.tail = FALSE), d, n1, n2, lower.tail = FALSE)
+  
+  sig.level <- if(two.tailed) sig.level*2 else sig.level
+  
+  structure(list(n1 = n1, n2 = n2, base.rate = base.rate, d = d, est.power = est.power, sig.level = sig.level, 
+                 two.tailed = two.tailed, method = method), class = "power.htest")
 }
+                  
