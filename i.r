@@ -4026,7 +4026,10 @@ power.t.tests <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, pa
   base.rate <- if(paired) NA else base.rate
   method <- paste(if(paired) "One- or Paired sample" else "Two-sample", "t test power analysis")
   
-  est.power <- if(two.tailed) pcohen(qcohen(sig.level, 0, n1, n2), d, n1, n2) + pcohen(qcohen(sig.level, 0, n1, n2, lower.tail = FALSE), d, n1, n2, lower.tail = FALSE) else pcohen(qcohen(sig.level, 0, n1, n2, lower.tail = FALSE), d, n1, n2, lower.tail = FALSE)
+a <- qcohen(sig.level, 0, n1, n2)
+b <- qcohen(sig.level, 0, n1, n2, lower.tail = FALSE)
+
+est.power <- if(two.tailed) pcohen(a, d, n1, n2) + pcohen(b, d, n1, n2, lower.tail = FALSE) else pcohen(b, d, n1, n2, lower.tail = FALSE)
   
   sig.level <- if(two.tailed) sig.level*2 else sig.level
   two.tailed <- if(two.tailed) "Yes" else "No"
