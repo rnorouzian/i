@@ -186,6 +186,38 @@ d.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 6){
   round(data.frame(t(ci(d = d, t = t, n1 = n1, n2 = n2, conf.level = conf.level))), digits = digits)
 }
 
+                  
+#=================================================================================================================================                  
+   
+                  
+d.cib <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 6){
+  
+  ci <- Vectorize(function(d, t, n1, n2, conf.level){
+    
+    options(warn = -1)  
+    alpha = (1 - conf.level)/2
+    N = ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
+    df = ifelse(is.na(n2), n1 - 1, (n1 + n2) - 2)
+    d.SE = 1/sqrt(N)
+    q = ifelse(is.na(t), d/d.SE, t)
+    
+    f <- function(ncp, alpha, q, df){
+     alpha - suppressWarnings(pt(q, df, ncp, lower.tail = FALSE))
+    }
+    
+    CI <- sapply(c(alpha, 1-alpha),
+          function(x) uniroot(f, interval = c(-q, q+15), alpha = x, q = q, df = df, extendInt = "downX")[[1]]*d.SE)
+    
+    Cohen.d = ifelse(is.na(t), d, t*d.SE)
+    
+    return(c(Cohen.d = Cohen.d, lower = CI[1], upper = CI[2], conf.level = conf.level, ncp = q))
+  })
+  
+  d <- if(missing(d)) NA else d
+  
+round(data.frame(t(ci(d = d, t = t, n1 = n1, n2 = n2, conf.level = conf.level))), digits = digits)
+}                  
+                                  
 #=================================================================================================================================
 
 peta.ci <- function(peta, f = NA, N, df1, df2, conf.level = .9, digits = 6)
