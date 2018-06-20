@@ -4029,7 +4029,8 @@ power.t.tests <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, pa
   est.power <- if(two.tailed) pcohen(qcohen(sig.level, 0, n1, n2), d, n1, n2) + pcohen(qcohen(sig.level, 0, n1, n2, lower.tail = FALSE), d, n1, n2, lower.tail = FALSE) else pcohen(qcohen(sig.level, 0, n1, n2, lower.tail = FALSE), d, n1, n2, lower.tail = FALSE)
   
   sig.level <- if(two.tailed) sig.level*2 else sig.level
-  
+  two.tailed <- if(two.tailed) "No" else "Yes"
+                  
   structure(list(n1 = n1, n2 = n2, base.rate = base.rate, d = d, est.power = est.power, sig.level = sig.level, 
                  two.tailed = two.tailed, method = method), class = "power.htest")
 }
