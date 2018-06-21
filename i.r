@@ -242,10 +242,10 @@ peta.ci.default <- function(peta, f = NA, N, df1, df2, conf.level = .9, digits =
       abs(suppressWarnings(pf(q = q, df1 = df1, df2 = df2, ncp, lower.tail = FALSE)) - alpha)
     }
     
-    a = if(is.na(f)){ lapply(20:ifelse(peta!= 0, q+3e2, 30), function(x) c(-x, x))
-    }else{ lapply(20:ifelse(f!= 0, q+3e2, 30), function(x) c(-x, x)) }
+    a = if(is.na(f)){ lapply(20:ifelse(peta!= 0, q+50, 30), function(x) c(-x, x))
+    }else{ lapply(20:ifelse(f!= 0, q+50, 30), function(x) c(-x, x)) }
     
-    CI = matrix(NA, length(a), 2)
+    CI <- matrix(NA, length(a), 2)
     
     for(i in 1:length(a)){
       CI[i,] <- sapply(c(alpha, 1-alpha), 
