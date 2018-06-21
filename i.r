@@ -4101,3 +4101,34 @@ power.anova <- function(peta, n.level, design, sig.level = .05, power = .8,
 }
                   
                   
+#=====================================================================================================================================
+                  
+                  
+harmonic <- function(x, na.rm = TRUE, zero.rm = TRUE){
+
+  if(zero.rm) {
+    x[x == 0] <- NA
+  } 
+  
+  if(is.null(nrow(x))){
+  1 / mean(1/x, na.rm = na.rm)
+} 
+  else {
+  1/(apply(1/x, 2, mean, na.rm = na.rm))
+  }
+}
+
+#=====================================================================================================================================
+
+                  
+geometric <- function (x, na.rm = TRUE){
+  
+    if (is.null(nrow(x))) {
+      exp(mean(log(x), na.rm = TRUE))
+    }
+    else {
+      exp(apply(log(x), 2, mean, na.rm = na.rm))
+    }
+  }
+                  
+ 
