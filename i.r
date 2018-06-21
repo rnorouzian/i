@@ -144,12 +144,12 @@ prop.ci.default <- function(k, n, conf.level = .95, digits = 6){
 
 #==================================================================================================
 
-d.ci <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 6)
+d.cib <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 6)
 {
-  UseMethod("d.ci")
+  UseMethod("d.cib")
 }
 
-d.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 6){
+d.cib.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 6){
   
   ci <- Vectorize(function(d, t, n1, n2, conf.level){
     
@@ -189,8 +189,12 @@ d.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 6){
                   
 #=================================================================================================================================                  
    
+d.ci <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 6)
+{
+  UseMethod("d.ci")
+}
                   
-d.cib <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 6){
+d.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 6){
   
   ci <- Vectorize(function(d, t, n1, n2, conf.level){
     
