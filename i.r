@@ -4135,13 +4135,18 @@ geometric <- function (x, na.rm = TRUE){
 #======================================================================================================================================
                   
                   
-power.anova <- function(peta, n.level, design, sig.level = .05, power = .8, 
+power.anocva <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8, 
                         xlab = bquote(eta[p]^2), from = 0, to = NA){
   
   graphics.off()  
-  original.par = par(no.readonly = TRUE)
+  original.par <- par(no.readonly = TRUE)
   on.exit(par(original.par))
+  
   df1 <- n.level - 1
+  if(n.covar < 0) n.covar <- 0
+  x <- sapply(list(n.level, design, n.covar), round)
+  n.level <- x[1] ; design <- x[2] ; n.covar <- x[3]
+  
   
   f <- function(x){
     
@@ -4151,6 +4156,8 @@ power.anova <- function(peta, n.level, design, sig.level = .05, power = .8,
   df2 <- ceiling(uniroot(f, c(1e-8, 1e6), extendInt = "downX")[[1]])
   
   N <- df2 + design
+  
+  df2 <- df2 - n.covar
   
   a <- qpeta(sig.level, df1, df2, 0, N, lower.tail = FALSE)
   
@@ -4179,11 +4186,13 @@ power.anova <- function(peta, n.level, design, sig.level = .05, power = .8,
   Power <- ppeta(a, df1, df2, ph1, N, lower.tail = FALSE)
   plot(ph1, Power, type = "l", lwd = 3, xlab = xlab, las = 1, ylim = c(sig.level, 1.04), col = "green4")
 
-  method <- paste("fixed-effects ANOVA power analysis")
+  method <- paste("fixed-effects", ifelse(n.covar == 0, "ANOVA", "ANCOVA"), "power analysis") 
   note <- paste("Use \"design\" to numerically specify design structure: e.g., 3 * 4.")
   
   structure(list(est.power = est.power, crit.peta = a, sig.level = sig.level, 
                  df1 = df1, df2 = df2, total.N = N, method = method, note = note), class = "power.htest")
 }
+                  
+                  
 
                   
