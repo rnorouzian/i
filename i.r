@@ -224,12 +224,12 @@ round(data.frame(t(ci(d = d, t = t, n1 = n1, n2 = n2, conf.level = conf.level)))
                                   
 #=================================================================================================================================
 
-peta.ci <- function(peta, f = NA, N, df1, df2, conf.level = .9, digits = 6)
+peta.ci <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 6)
 {
   UseMethod("peta.ci")
 }
 
-peta.ci.default <- function(peta, f = NA, N, df1, df2, conf.level = .9, digits = 6){
+peta.ci.default <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 6){
   
   ci <- Vectorize(function(peta, f, N, df1, df2, conf.level){
     
