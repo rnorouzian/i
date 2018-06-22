@@ -242,8 +242,8 @@ peta.ci.default <- function(peta, f = NA, N, df1, df2, conf.level = .9, digits =
       abs(suppressWarnings(pf(q = q, df1 = df1, df2 = df2, ncp, lower.tail = FALSE)) - alpha)
     }
     
-    a = if(is.na(f)){ lapply(20:ifelse(peta!= 0, q+50, 30), function(x) c(-x, x))
-    }else{ lapply(20:ifelse(f!= 0, q+50, 30), function(x) c(-x, x)) }
+    a = if(is.na(f)){ lapply(20:ifelse(peta!= 0, q+1e2, 30), function(x) c(-x, x))
+    }else{ lapply(20:ifelse(f!= 0, q+1e2, 30), function(x) c(-x, x)) }
     
     CI <- matrix(NA, length(a), 2)
     
@@ -2244,13 +2244,14 @@ d.eq.test.default <- function(t, n1, n2 = NA, m = 0, s = 1, dist.name = "dnorm",
 #======================================================================================================================
    
                        
-need <- c("rstanarm") #, "MASS")
+need <- c("rstanarm", "arrangements") # "MASS")
 have <- need %in% rownames(installed.packages())
 if(any(!have)){ install.packages( need[!have] ) }
                        
 suppressMessages({ 
-    library("rstanarm")
-  #  library("MASS")
+    library(need[1])
+    library(need[2])
+ #  library(need[3])
 })
                       
                        
