@@ -4053,89 +4053,8 @@ gpower.peta <- function(spss, df2, N, design){
    
 #===============================================================================================================================
 
-power.anova <- function(peta, n.level, design, sig.level = .05, power = .8, 
-                        xlab = bquote(eta[p]^2), from = 0, to = .8){
-  
-  graphics.off()  
-  original.par = par(no.readonly = TRUE)
-  on.exit(par(original.par))
-  df1 <- n.level - 1
-  
-  f <- function(x){
-    
-    power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = (peta * x)/(1 - peta), lower.tail = FALSE))
-  }
-  
-  N <- round(uniroot(f, c(1e-8, 1e6), extendInt = "downX")[[1]])
-  
-  df2 <- N - design
-  
-  a <- qpeta(sig.level, df1, df2, 0, N, lower.tail = FALSE)
-  
-  est.power <- ppeta(a, df1, df2, peta, N, lower.tail = FALSE)
-  
-  par(mfrow = c(2, 1), mgp = c(2, .5, 0), mar = c(3, 4, 2, 2))
-  
-  h0 = curve(dpeta(x, df1, df2, 0, N), from = from, to = to, n = 1e4, xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i") # , main = bquote(bolditalic(H[0]))
-  
-  x = seq(a, to, length.out = 1e3) ; y = dpeta(x, df1, df2, 0, N)
-  polygon(c(a, x, to), c(0, y, 0), col = adjustcolor(2, .25), border = NA)
-  lines(h0, lwd = 2, col = 2)
-  abline(v = a, col = 2, lty = 2)
-  text(a, par('usr')[4], paste("crit. peta =", round(a, 3)), pos = 3, cex = .7, font = 4, xpd = TRUE)
-  
-  h1 = curve(dpeta(x, df1, df2, peta, N), from = from, to = to, n = 1e4, add = TRUE) # xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i", main = bquote(bolditalic(H[1]))
-  x = seq(a, to, length.out = 1e3) ; y = dpeta(x, df1, df2, peta, N)
-  polygon(c(a, x, to), c(0, y, 0), border = NA, density = 15, col = 4)
-  lines(h1, lwd = 2, col = 4)
-  
-  ph1 <- seq(0, 1, 1e-2)
-  Power <- ppeta(a, df1, df2, ph1, N, lower.tail = FALSE)
-  plot(ph1, Power, type = "l", lwd = 3, xlab = xlab, las = 1, ylim = c(sig.level, 1.04), col = "green4")
-
-  method <- paste("fixed-effects ANOVA power analysis")
-  note <- paste("Use \"design\" to numerically specify design structure: e.g., 3 * 4.")
-  
-  structure(list(est.power = est.power, crit.peta = a, sig.level = sig.level, 
-                 df1 = df1, df2 = df2, total.N = N, method = method, note = note), class = "power.htest")
-}
                   
-                  
-#=====================================================================================================================================
-                  
-                  
-harmonic <- function(x, na.rm = TRUE, zero.rm = TRUE){
-
-  if(zero.rm) {
-    x[x == 0] <- NA
-  } 
-  
-  if(is.null(nrow(x))){
-  1 / mean(1/x, na.rm = na.rm)
-} 
-  else {
-  1/(apply(1/x, 2, mean, na.rm = na.rm))
-  }
-}
-
-#=====================================================================================================================================
-
-                  
-geometric <- function (x, na.rm = TRUE){
-  
-    if (is.null(nrow(x))) {
-      exp(mean(log(x), na.rm = TRUE))
-    }
-    else {
-      exp(apply(log(x), 2, mean, na.rm = na.rm))
-    }
-  }
-                  
- 
-#======================================================================================================================================
-                  
-                  
-power.anocva <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8, 
+power.anovca <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8, 
                         xlab = bquote(eta[p]^2), from = 0, to = NA){
   
   graphics.off()  
@@ -4192,7 +4111,44 @@ power.anocva <- function(peta, n.level, design, sig.level = .05, n.covar = 0, po
   structure(list(est.power = est.power, crit.peta = a, sig.level = sig.level, 
                  df1 = df1, df2 = df2, total.N = N, method = method, note = note), class = "power.htest")
 }
+         
                   
+                  
+#=====================================================================================================================================
+                  
+                  
+harmonic <- function(x, na.rm = TRUE, zero.rm = TRUE){
+
+  if(zero.rm) {
+    x[x == 0] <- NA
+  } 
+  
+  if(is.null(nrow(x))){
+  1 / mean(1/x, na.rm = na.rm)
+} 
+  else {
+  1/(apply(1/x, 2, mean, na.rm = na.rm))
+  }
+}
+
+#=====================================================================================================================================
+
+                  
+geometric <- function (x, na.rm = TRUE){
+  
+    if (is.null(nrow(x))) {
+      exp(mean(log(x), na.rm = TRUE))
+    }
+    else {
+      exp(apply(log(x), 2, mean, na.rm = na.rm))
+    }
+  }
+                  
+ 
+#======================================================================================================================================
+                  
+                  
+         
                   
 #================================================================================================================================
                   
