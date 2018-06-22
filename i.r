@@ -242,8 +242,8 @@ peta.ci.default <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits =
       abs(suppressWarnings(pf(q = q, df1 = df1, df2 = df2, ncp, lower.tail = FALSE)) - alpha)
     }
     
-    a <- if(is.na(f)){ lapply(20:ifelse(peta!= 0, q+5e1, 30), function(x) c(-x, x))
-    }else{ lapply(20:ifelse(f!= 0, q+5e1, 30), function(x) c(-x, x)) }
+    a <- if(is.na(f)){ lapply(20:ifelse(peta!= 0, q+1e2, 30), function(x) c(-x, x))
+    }else{ lapply(20:ifelse(f!= 0, q+1e2, 30), function(x) c(-x, x)) }
     
     CI <- matrix(NA, length(a), 2)
     
@@ -4156,6 +4156,14 @@ geometric <- function (x, na.rm = TRUE){
 #======================================================================================================================================
                   
                   
+cell.makeup <- function(N, design)
+  {
+  y <- arrangements::partitions(N, design)
+  y <- y[nrow(y):1, ncol(y):1]
+  row.names(y) <- paste("make", 1:nrow(y))
+  colnames(y) <- paste0("cell-", 1:ncol(y))
+  y
+}                  
          
                   
 #================================================================================================================================
