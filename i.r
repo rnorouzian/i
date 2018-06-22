@@ -2249,8 +2249,8 @@ have <- need %in% rownames(installed.packages())
 if(any(!have)){ install.packages( need[!have] ) }
                        
 suppressMessages({ 
-    library(need[1])
-    library(need[2])
+    library("rstanarm")
+    library("arrangements")
  #  library(need[3])
 })
                       
