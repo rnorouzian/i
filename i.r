@@ -4055,7 +4055,7 @@ gpower.peta <- function(spss, df2, N, design){
 
                   
 power.anovca <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8, 
-                        xlab = bquote(eta[p]^2), from = 0, to = NA){
+                        xlab = bquote(eta[p]^2), to = NULL){
   
   graphics.off()  
   original.par <- par(no.readonly = TRUE)
@@ -4080,15 +4080,17 @@ power.anovca <- function(peta, n.level, design, sig.level = .05, n.covar = 0, po
   
   a <- qpeta(sig.level, df1, df2, 0, N, lower.tail = FALSE)
   
-  to <- if(is.na(to)) max(qpeta(.999999, df1, df2, 0, N), qpeta(.999999, df1, df2, peta, N))
+  to <- if(is.null(to)) max(qpeta(.999999, df1, df2, 0, N), qpeta(.999999, df1, df2, peta, N), na.rm = TRUE) else to
   x <- seq(0, 1, 1e-4)
-  ylim <- c(0, max(dpeta(x, df1, df2, 0, N), dpeta(x, df1, df2, peta, N)))
+  ylim <- c(0, max(dpeta(x, df1, df2, 0, N), dpeta(x, df1, df2, peta, N), na.rm = TRUE))
+  
+  ylim <- if(is.infinite(ylim[2])) NULL else ylim
     
   est.power <- ppeta(a, df1, df2, peta, N, lower.tail = FALSE)
   
   par(mfrow = c(2, 1), mgp = c(2, .5, 0), mar = c(3, 4, 2, 2))
   
-  h0 <- curve(dpeta(x, df1, df2, 0, N), from = from, to = to, n = 1e4, xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i", ylim = ylim) # , main = bquote(bolditalic(H[0]))
+  h0 <- curve(dpeta(x, df1, df2, 0, N), from = 0, to = to, n = 1e4, xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i", ylim = ylim) # , main = bquote(bolditalic(H[0]))
   
   x = seq(a, to, length.out = 1e3) ; y = dpeta(x, df1, df2, 0, N)
   polygon(c(a, x, to), c(0, y, 0), col = adjustcolor(2, .25), border = NA)
@@ -4096,10 +4098,13 @@ power.anovca <- function(peta, n.level, design, sig.level = .05, n.covar = 0, po
   abline(v = a, col = 2, lty = 2) ; crit <- round(a, 4) ; points(a, par('usr')[4], pch = 19, col = 2, xpd = NA)
   text(a, par('usr')[4], bquote(bold("critical"~ eta[p]^2 == .(crit)~"or"~.(crit*1e2)*"%")), pos = 3, cex = .7, font = 4, xpd = TRUE)
   
-  h1 <- curve(dpeta(x, df1, df2, peta, N), from = from, to = to, n = 1e4, add = TRUE) # xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i", main = bquote(bolditalic(H[1]))
+  h1 <- curve(dpeta(x, df1, df2, peta, N), from = 0, to = to, n = 1e4, add = TRUE) # xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i", main = bquote(bolditalic(H[1]))
   x <- seq(a, to, length.out = 1e3) ; y <- dpeta(x, df1, df2, peta, N)
   polygon(c(a, x, to), c(0, y, 0), border = NA, density = 15, col = 4, xpd = TRUE)
   lines(h1, lwd = 2, col = 4, xpd = TRUE)
+  
+  legend("topleft", legend = c("Sig. Area", "Power"), inset = c(-.15, 0), density = c(NA, 35), x.intersp = c(.3, .3),
+         bty = "n", xpd = NA, cex = .7, text.font = 2, angle = c(NA, 45), fill = c(adjustcolor(2, .4), 4), border = c(2, 4), adj = c(0, .4))
   
   ph1 <- seq(0, 1, 1e-2)
   Power <- ppeta(a, df1, df2, ph1, N, lower.tail = FALSE)
@@ -4108,7 +4113,9 @@ power.anovca <- function(peta, n.level, design, sig.level = .05, n.covar = 0, po
   method <- paste("fixed-effects", ifelse(n.covar == 0, "ANOVA", "ANCOVA"), "power analysis") 
   note <- paste("Use \"design\" to numerically specify design structure: e.g., 3 * 4.")
   
-  structure(list(est.power = est.power, crit.peta = a, sig.level = sig.level, 
+  n.covar <- if(n.covar == 0) NA else n.covar
+  
+  structure(list(est.power = est.power, crit.peta = a, sig.level = sig.level, n.covar = n.covar,
                  df1 = df1, df2 = df2, total.N = N, method = method, note = note), class = "power.htest")
 }
          
