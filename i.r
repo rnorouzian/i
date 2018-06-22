@@ -4194,5 +4194,15 @@ power.anocva <- function(peta, n.level, design, sig.level = .05, n.covar = 0, po
 }
                   
                   
+#================================================================================================================================
+                  
+                  
+peta2f <- function(peta) sqrt(peta / (1 - peta))
+f2peta <- function(f) (f^2) / (1 + f^2)
+peta2F <- function(peta, df1, df2) (-peta * df2) / ((peta * df1) - df1)
+F2peta <- function(F.value, df1, df2) (F.value*df1) / ((F.value*df1) + df2)
+d2r <- function(d, n1, n2) sqrt((d^2) / ((d^2) + (((n1 + n2)^2) - (2*(n1 + n2))) / (n1 * n2)))
+r2d <- function(r, n1, n2) sqrt((r^2)*(((n1 + n2)^2)-(2*(n1 + n2)))/(n1 * n2)/(1-(r^2)))
 
+             
                   
