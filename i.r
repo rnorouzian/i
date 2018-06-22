@@ -4180,10 +4180,10 @@ r2d <- function(r, n1, n2) sqrt((r^2)*(((n1 + n2)^2)-(2*(n1 + n2)))/(n1 * n2)/(1
 #==================================================================================================================================
                   
                   
-f.balance <- function(F.unbalance, cell.sizes, df1, df2, N, conf.level = .9)
+f.balance <- function(F.unbalance, cell.makeup, df1, df2, N, conf.level = .9)
 {
   
- fbalance <- F.unbalance *  (mean(cell.sizes, na.rm = TRUE) / harmonic(cell.sizes))
+ fbalance <- F.unbalance *  (mean(cell.makeup, na.rm = TRUE) / harmonic(cell.makeup))
  
  ci <- peta.ci(f = c(fbalance, F.unbalance), df1 = df1, df2 = df2, N = N, conf.level = conf.level)
  rownames(ci) <- paste(1:(2*length(F.unbalance)), c("balanced", "Unbalace"))
