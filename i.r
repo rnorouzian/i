@@ -4055,13 +4055,23 @@ gpower.peta <- function(spss, df2, N, design){
 #===============================================================================================================================
 
                   
-power.anovca <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8, 
-                        xlab = bquote(eta[p]^2), to = NULL){
+power.f.tests <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8, 
+                          xlab = bquote(eta[p]^2), to = NULL, regress = FALSE)
+{
+  
+  UseMethod("power.f.tests")
+}
+
+
+power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8, 
+                        xlab = bquote(eta[p]^2), to = NULL, regress = FALSE){
   
   graphics.off()  
   original.par <- par(no.readonly = TRUE)
   on.exit(par(original.par))
   
+  if(!regress && missing(design)) stop("Error: 'design' must be numerically specified e.g., '2 * 4'.")
+  if(regress){ n.level <- n.level + 1 ; design <- n.level }
   df1 <- n.level - 1
   if(n.covar < 0) n.covar <- 0
   x <- sapply(list(n.level, design, n.covar), round)
@@ -4097,7 +4107,10 @@ power.anovca <- function(peta, n.level, design, sig.level = .05, n.covar = 0, po
   polygon(c(a, x, to), c(0, y, 0), col = adjustcolor(2, .25), border = NA)
   lines(h0, lwd = 2, col = 2, xpd = TRUE)
   abline(v = a, col = 2, lty = 2) ; crit <- round(a, 4) ; points(a, par('usr')[4], pch = 19, col = 2, xpd = NA)
-  text(a, par('usr')[4], bquote(bold("critical"~ eta[p]^2 == .(crit)~"or"~.(crit*1e2)*"%")), pos = 3, cex = .7, font = 4, xpd = TRUE)
+  
+  es <- if(regress) bquote(R^2) else bquote(eta[p]^2)
+  
+  text(a, par('usr')[4], bquote(bold("critical"~ .(es) == .(crit)~"or"~.(crit*1e2)*"%")), pos = 3, cex = .7, font = 4, xpd = TRUE)
   
   h1 <- curve(dpeta(x, df1, df2, peta, N), from = 0, to = to, n = 1e4, add = TRUE) # xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i", main = bquote(bolditalic(H[1]))
   x <- seq(a, to, length.out = 1e3) ; y <- dpeta(x, df1, df2, peta, N)
@@ -4111,17 +4124,20 @@ power.anovca <- function(peta, n.level, design, sig.level = .05, n.covar = 0, po
   Power <- ppeta(a, df1, df2, ph1, N, lower.tail = FALSE)
   plot(ph1, Power, type = "l", lwd = 3, xlab = xlab, las = 1, ylim = c(sig.level, 1.04), col = "green4")
 
-  method <- paste("fixed-effects", ifelse(n.covar == 0, "ANOVA", "ANCOVA"), "power analysis") 
+  method <- paste("\nfixed-effects", if(regress) "Regression" else if(n.covar == 0) "ANOVA" else "ANCOVA", "power analysis") 
   note <- paste("Use \"design\" to numerically specify design structure: e.g., 3 * 4.")
   
   n.covar <- if(n.covar == 0) NA else n.covar
+  n.level <- if(regress) n.level-1 else n.level
   
-  structure(list(est.power = est.power, crit.peta = a, sig.level = sig.level, n.covar = n.covar,
-                 df1 = df1, df2 = df2, total.N = N, method = method, note = note), class = "power.htest")
+r  <- structure(list(est.power, a, sig.level, n.covar, n.level, df1, df2, N), class = "power.htest")
+
+cat(method)
+setNames(r, c("est.power", ifelse(regress, "crit.Rsq", "crit.peta"), 
+         "sig.level", "n.covar", ifelse(regress, "n.pred", "n.level"), "df1", "df2", "total.N"))
 }
          
-                  
-                  
+                                 
 #=====================================================================================================================================
                   
                   
@@ -4183,7 +4199,7 @@ r2d <- function(r, n1, n2) sqrt((r^2)*(((n1 + n2)^2)-(2*(n1 + n2)))/(n1 * n2)/(1
 f.balance <- function(F.unbalance, cell.makeup, df1, df2, N, conf.level = .9)
 {
   
- fbalance <- F.unbalance *  (mean(cell.makeup, na.rm = TRUE) / harmonic(cell.makeup))
+ fbalance <- F.unbalance * (mean(cell.makeup, na.rm = TRUE) / harmonic(cell.makeup))
  
  ci <- peta.ci(f = c(fbalance, F.unbalance), df1 = df1, df2 = df2, N = N, conf.level = conf.level)
  rownames(ci) <- paste(1:(2*length(F.unbalance)), c("balanced", "Unbalace"))
