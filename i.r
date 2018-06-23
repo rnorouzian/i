@@ -4056,7 +4056,7 @@ gpower.peta <- function(spss, df2, N, design){
 
                   
 power.f.tests <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8, 
-                          xlab = NULL, to = NULL, regress = FALSE)
+                          xlab = NULL, ylim = NULL, to = NULL, regress = FALSE)
 {
   
   UseMethod("power.f.tests")
@@ -4064,7 +4064,7 @@ power.f.tests <- function(peta, n.level, design, sig.level = .05, n.covar = 0, p
 
 
 power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8, 
-                        xlab = NULL, to = NULL, regress = FALSE){
+                        xlab = NULL, ylim = NULL, to = NULL, regress = FALSE){
   
   graphics.off()  
   original.par <- par(no.readonly = TRUE)
@@ -4094,13 +4094,13 @@ power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.cova
   
   to <- if(is.null(to)) max(qpeta(.999999, df1, df2, 0, N), qpeta(.999999, df1, df2, peta, N), na.rm = TRUE) else to
   x <- seq(0, 1, 1e-4)
-  ylim <- c(0, max(dpeta(x, df1, df2, 0, N), dpeta(x, df1, df2, peta, N), na.rm = TRUE))
+  ylimb <- c(0, max(dpeta(x, df1, df2, 0, N), dpeta(x, df1, df2, peta, N), na.rm = TRUE))
   
-  ylim <- if(is.infinite(ylim[2])) NULL else ylim
+  ylim <- if(is.infinite(ylimb[2]) && is.null(ylim)) NULL else if(is.null(ylim)) ylimb else ylim
     
   est.power <- ppeta(a, df1, df2, peta, N, lower.tail = FALSE)
   
-  par(mfrow = c(2, 1), mgp = c(2, .5, 0), mar = c(3, 4, 2, 2))
+  par(mfrow = c(2, 1), mgp = c(1.8, .5, 0), mar = c(3, 4, 2, 2))
   
   h0 <- curve(dpeta(x, df1, df2, 0, N), from = 0, to = to, n = 1e4, xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i", ylim = ylim) # , main = bquote(bolditalic(H[0]))
   
