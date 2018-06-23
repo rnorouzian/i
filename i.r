@@ -4194,7 +4194,15 @@ peta2F <- function(peta, df1, df2) (-peta * df2) / ((peta * df1) - df1)
 F2peta <- function(F.value, df1, df2) (F.value*df1) / ((F.value*df1) + df2)
 d2r <- function(d, n1, n2) sqrt((d^2) / ((d^2) + (((n1 + n2)^2) - (2*(n1 + n2))) / (n1 * n2)))
 r2d <- function(r, n1, n2) sqrt((r^2)*(((n1 + n2)^2)-(2*(n1 + n2)))/(n1 * n2)/(1-(r^2)))
+d2t <- function(d, n1, n2 = NA){
+  N <- ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
+  d*sqrt(N)
+}
 
+t2d <- function(t, n1, n2 = NA){
+  N <- ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
+  t/sqrt(N)
+}
              
 #==================================================================================================================================
                   
