@@ -4056,7 +4056,7 @@ gpower.peta <- function(spss, df2, N, design){
 
                   
 power.f.tests <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8, 
-                          xlab = bquote(eta[p]^2), to = NULL, regress = FALSE)
+                          xlab = NULL, to = NULL, regress = FALSE)
 {
   
   UseMethod("power.f.tests")
@@ -4064,12 +4064,13 @@ power.f.tests <- function(peta, n.level, design, sig.level = .05, n.covar = 0, p
 
 
 power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8, 
-                        xlab = bquote(eta[p]^2), to = NULL, regress = FALSE){
+                        xlab = NULL, to = NULL, regress = FALSE){
   
   graphics.off()  
   original.par <- par(no.readonly = TRUE)
   on.exit(par(original.par))
   
+  xlab <- if(is.null(xlab) && !regress) bquote(eta[p]^2) else if (is.null(xlab) && regress) bquote(bold(R^2)) else xlab
   if(!regress && missing(design)) stop("Error: 'design' must be numerically specified e.g., '2 * 4'.")
   if(regress){ n.level <- n.level + 1 ; design <- n.level }
   df1 <- n.level - 1
