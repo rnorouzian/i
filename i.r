@@ -4004,7 +4004,8 @@ abline(h = 1, v = alpha, col = 8)
 #========================================================================================================================
     
 
-power.t.tests <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, paired = FALSE, two.tailed = TRUE){
+power.t.tests <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, paired = FALSE, 
+                          two.tailed = TRUE){
   
   d <- abs(d)
   sig.level <- if(two.tailed) sig.level/2 else sig.level
@@ -4013,32 +4014,33 @@ power.t.tests <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, pa
   
   f <- if(two.tailed){ function(x){
     
-    power - (pt(qt(sig.level, df = x), df = x, ncp = d*sqrt(if(paired) x + 1 else k*(x + 1))) + pt(qt(sig.level, df = x, lower.tail = FALSE), df = x, ncp = d*sqrt(if(paired) x + 1 else k*(x + 1)), lower.tail = FALSE))
+    power - (pt(qt(sig.level, df = x), df = x, ncp = d*sqrt(if(paired) x + 1 else k*(x + 2))) + pt(qt(sig.level, df = x, lower.tail = FALSE), df = x, ncp = d*sqrt(if(paired) x + 1 else k*(x + 2)), lower.tail = FALSE))
   }
     
   } else {
     
     function(x){
       
-      power - pt(qt(sig.level, df = x, lower.tail = FALSE), df = x, ncp = d*sqrt(if(paired) x + 1 else k*(x + 1)), lower.tail = FALSE)
+      power - pt(qt(sig.level, df = x, lower.tail = FALSE), df = x, ncp = d*sqrt(if(paired) x + 1 else k*(x + 2)), lower.tail = FALSE)
     }
   }
   
-  df <- round(uniroot(f, c(1e-8, 1e6), extendInt = "downX")[[1]])
+  df <- ceiling(uniroot(f, c(1e-8, 1e6), extendInt = "downX")[[1]])
   
   n1 <- df + 1
   n2 <- if(paired) NA else round(base.rate*n1)
+  
   base.rate <- if(paired) NA else base.rate
   method <- paste(if(paired) "One- or Paired sample" else "Two-sample", "t test power analysis")
   
-a <- qcohen(sig.level, 0, n1, n2)
-b <- qcohen(sig.level, 0, n1, n2, lower.tail = FALSE)
-
-est.power <- if(two.tailed) pcohen(a, d, n1, n2) + pcohen(b, d, n1, n2, lower.tail = FALSE) else pcohen(b, d, n1, n2, lower.tail = FALSE)
+  a <- qcohen(sig.level, 0, n1, n2)
+  b <- qcohen(sig.level, 0, n1, n2, lower.tail = FALSE)
+  
+  est.power <- if(two.tailed) pcohen(a, d, n1, n2) + pcohen(b, d, n1, n2, lower.tail = FALSE) else pcohen(b, d, n1, n2, lower.tail = FALSE)
   
   sig.level <- if(two.tailed) sig.level*2 else sig.level
   two.tailed <- if(two.tailed) "Yes" else "No"
-                  
+  
   structure(list(n1 = n1, n2 = n2, base.rate = base.rate, d = d, est.power = est.power, sig.level = sig.level, 
                  two.tailed = two.tailed, method = method), class = "power.htest")
 }
