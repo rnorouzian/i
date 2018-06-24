@@ -4073,7 +4073,7 @@ power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.cova
   on.exit(par(original.par))
   
   xlab <- if(is.null(xlab) && !regress) bquote(eta[p]^2) else if (is.null(xlab) && regress) bquote(bold(R^2)) else xlab
-  if(!regress && missing(design)) stop("Error: 'design' must be numerically specified e.g., '2 * 4'.")
+  if(!regress && missing(design)) stop("Error: 'design' must be numerically specified e.g., 'design = 2 * 4'.")
   if(regress){ n.level <- n.level + 1 ; design <- n.level }
   df1 <- n.level - 1
   if(n.covar < 0) n.covar <- 0
