@@ -4066,11 +4066,12 @@ power.f.tests <- function(peta, n.level, design, sig.level = .05, n.covar = 0, p
 
 
 power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8, 
-                        xlab = NULL, ylim = NULL, to = NULL, regress = FALSE){
+                                  xlab = NULL, ylim = NULL, to = NULL, regress = FALSE){
   
   graphics.off()  
   original.par <- par(no.readonly = TRUE)
   on.exit(par(original.par))
+  options(warn = -1)
   
   xlab <- if(is.null(xlab) && !regress) bquote(eta[p]^2) else if (is.null(xlab) && regress) bquote(bold(R^2)) else xlab
   if(!regress && missing(design)) stop("Error: 'design' must be numerically specified e.g., 'design = 2 * 4'.")
@@ -4099,7 +4100,7 @@ power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.cova
   ylimb <- c(0, max(dpeta(x, df1, df2, 0, N), dpeta(x, df1, df2, peta, N), na.rm = TRUE))
   
   ylim <- if(is.infinite(ylimb[2]) && is.null(ylim)) NULL else if(is.null(ylim)) ylimb else ylim
-    
+  
   est.power <- ppeta(a, df1, df2, peta, N, lower.tail = FALSE)
   
   par(mfrow = c(2, 1), mgp = c(1.8, .5, 0), mar = c(3, 4, 2, 2))
@@ -4126,18 +4127,23 @@ power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.cova
   ph1 <- seq(0, 1, 1e-2)
   Power <- ppeta(a, df1, df2, ph1, N, lower.tail = FALSE)
   plot(ph1, Power, type = "l", lwd = 3, xlab = xlab, las = 1, ylim = c(sig.level, 1.04), col = "green4")
-
-  method <- paste("\nfixed-effects", if(regress) "Regression" else if(n.covar == 0) "ANOVA" else "ANCOVA", "power analysis") 
-  note <- paste("Use \"design\" to numerically specify design structure: e.g., 3 * 4.")
+  
+  method <- paste("fixed-effects", if(regress) "Regression" else if(n.covar == 0) "ANOVA" else "ANCOVA", "power analysis") 
+  
+  bal <- ceiling(N/design) * design
+  
+  note <- if(N %% design != 0) paste("We suggest recruiting", bal, "subjects to achieve",  bal/design, "subjects per group.") else paste("Use \"design\" to numerically specify design structure: e.g., 'design = 3 * 4'.")
   
   n.covar <- if(n.covar == 0) NA else n.covar
   n.level <- if(regress) n.level-1 else n.level
   
-r  <- structure(list(est.power, a, sig.level, n.covar, n.level, df1, df2, N), class = "power.htest")
+  message("IMPORTANT: Always pick the factor with largest # of levels to obtain required 'total.N'.")
+  
+  r  <- structure(list(est.power, a, sig.level, n.covar, n.level, df1, df2, N, method, note), class = "power.htest")
+  
 
-cat(method)
-setNames(r, c("est.power", ifelse(regress, "crit.Rsq", "crit.peta"), 
-         "sig.level", "n.covar", ifelse(regress, "n.pred", "n.level"), "df1", "df2", "total.N"))
+  setNames(r, c("est.power", ifelse(regress, "crit.Rsq", "crit.peta"), 
+                "sig.level", "n.covar", ifelse(regress, "n.pred", "n.level"), "df1", "df2", "total.N", "method", "note"))
 }
          
                                  
