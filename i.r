@@ -4180,7 +4180,7 @@ cell.makeup <- function(N, design)
   y <- arrangements::partitions(N, design)
   y <- y[nrow(y):1, ncol(y):1]
   row.names(y) <- paste("form", 1:nrow(y))
-  colnames(y) <- paste0("cell.", 1:ncol(y))
+  colnames(y) <- paste0("group.", 1:ncol(y))
   y
 }                  
          
