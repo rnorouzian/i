@@ -4137,7 +4137,7 @@ power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.cova
   n.covar <- if(n.covar == 0) NA else n.covar
   n.level <- if(regress) n.level-1 else n.level
   
-  message("IMPORTANT: Always pick the factor with largest # of levels to obtain required 'total.N'.")
+  message("\nIMPORTANT: Always pick the factor with largest # of levels to obtain required 'total.N'.")
   
   r  <- structure(list(est.power, a, sig.level, n.covar, n.level, df1, df2, N, method, note), class = "power.htest")
   
