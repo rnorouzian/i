@@ -4065,14 +4065,14 @@ power.f.tests <- function(peta, n.level, design, sig.level = .05, n.covar = 0, p
 }
 
 
-power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8, 
+power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8,
                                   xlab = NULL, ylim = NULL, to = NULL, regress = FALSE){
   
   graphics.off()  
   original.par <- par(no.readonly = TRUE)
   on.exit(par(original.par))
   options(warn = -1)
-  
+  if(n.level <= 1) stop("Error: You must have at least '2 levels' for your factor.")
   xlab <- if(is.null(xlab) && !regress) bquote(eta[p]^2) else if (is.null(xlab) && regress) bquote(bold(R^2)) else xlab
   if(!regress && missing(design)) stop("Error: 'design' must be numerically specified e.g., 'design = 2 * 4'.")
   if(regress){ n.level <- n.level + 1 ; design <- n.level }
@@ -4084,7 +4084,7 @@ power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.cova
   
   f <- function(x){
     
-    power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = (peta * (x + design))/(1 - peta), lower.tail = FALSE))
+    power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = (peta * (x + design) ) /(1 - peta), lower.tail = FALSE))
   }
   
   df2 <- ceiling(uniroot(f, c(1e-8, 1e6), extendInt = "downX")[[1]])
@@ -4141,7 +4141,7 @@ power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.cova
   
   r  <- structure(list(est.power, a, sig.level, n.covar, design, n.level, df1, df2, N, method, note), class = "power.htest")
   
-
+  
   setNames(r, c("est.power", ifelse(regress, "crit.Rsq", "crit.peta"), 
                 "sig.level", "n.covar", "design", ifelse(regress, "n.pred", "n.level"), "df1", "df2", "total.N", "method", "note"))
 }
