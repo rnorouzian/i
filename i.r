@@ -4139,11 +4139,11 @@ power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.cova
   
   message("\nIMPORTANT: Always pick the factor with largest # of levels to obtain required 'total.N'.")
   
-  r  <- structure(list(est.power, a, sig.level, n.covar, n.level, df1, df2, N, method, note), class = "power.htest")
+  r  <- structure(list(est.power, a, sig.level, n.covar, design, n.level, df1, df2, N, method, note), class = "power.htest")
   
 
   setNames(r, c("est.power", ifelse(regress, "crit.Rsq", "crit.peta"), 
-                "sig.level", "n.covar", ifelse(regress, "n.pred", "n.level"), "df1", "df2", "total.N", "method", "note"))
+                "sig.level", "n.covar", "design", ifelse(regress, "n.pred", "n.level"), "df1", "df2", "total.N", "method", "note"))
 }
          
                                  
