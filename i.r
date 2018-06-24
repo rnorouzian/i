@@ -4216,11 +4216,12 @@ t2d <- function(t, n1, n2 = NA){
 f.balance <- function(F.unbalance, cell.makeup, df1, df2, N, conf.level = .9)
 {
   
- fbalance <- F.unbalance * (mean(cell.makeup) / harmonic(cell.makeup))
- 
- ci <- peta.ci(f = c(fbalance, F.unbalance), df1 = df1, df2 = df2, N = N, conf.level = conf.level)
- rownames(ci) <- paste(1:(2*length(F.unbalance)), c("balanced", "Unbalace"))
- ci
+  fbalance <- F.unbalance * (mean(cell.makeup) / harmonic(cell.makeup))
+  
+  ci <- peta.ci(f = c(fbalance, F.unbalance), df1 = df1, df2 = df2, N = N, conf.level = conf.level)
+  l <- length(F.unbalance)
+  rownames(ci) <- paste((2*l):1, c(rep("balanced", l), rep("Unbalace", l)))
+  ci[nrow(ci):1,]
 }
                   
                   
