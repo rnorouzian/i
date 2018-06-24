@@ -4132,7 +4132,7 @@ power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.cova
   
   bal <- ceiling(N/design) * design
   
-  note <- if(design =! 0 & N %% design != 0) paste("We suggest recruiting", bal, "subjects to achieve",  bal/design, "subjects per group.") else paste("Use \"design\" to numerically specify design structure: e.g., 'design = 3 * 4'.")
+  note <- if(design != 0 & N %% design != 0) paste("We suggest recruiting", bal, "subjects to achieve",  bal/design, "subjects per group.") else paste("Use \"design\" to numerically specify design structure: e.g., 'design = 3 * 4'.")
   
   n.covar <- if(n.covar == 0) NA else n.covar
   n.level <- if(regress) n.level-1 else n.level
