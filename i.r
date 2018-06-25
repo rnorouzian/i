@@ -4170,7 +4170,9 @@ power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.cova
   ph1 <- seq(0, 1, 1e-2)
   Power <- ppeta(a, df1, df2, ph1, N, lower.tail = FALSE)
   plot(ph1, Power, type = "l", lwd = 3, xlab = xlab, las = 1, ylim = c(sig.level, 1.04), col = "green4")
-  
+  abline(h = sig.level, col = 8, lty = 2) ; j <- par('usr')[1:2]
+  text(mean(j), sig.level, "Minimum Power (sig.level)", pos = 3, col = "gray60")
+    
   method <- paste("fixed-effects", if(regress) "Regression" else if(n.covar == 0) "ANOVA" else "ANCOVA", "power analysis") 
   
   bal <- ceiling(N/design) * design
