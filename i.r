@@ -4276,3 +4276,99 @@ is.whole <- function(x)  abs(x - round(x)) < .Machine$double.eps^.5
                   
 #====================================================================================================================================
                   
+power.rep.measure <- function(peta, rep.measures, design, factor.type = c("bet.", "with.", "b.w"), sig.level = .05, n.covar = 0, power = .8, eps = 1,
+                          rho = 1, xlab = NULL, ylim = NULL, to = NULL){
+  
+  graphics.off()  
+  original.par <- par(no.readonly = TRUE)
+  on.exit(par(original.par))
+  options(warn = -1)
+  
+  m <- rep.measures
+  
+  factor.type <- match.arg(factor.type)
+  
+  if(rho > 1) rho <- .9999999 else if(rho < 0) -.9999999 else rho
+  
+  if(m < 2) stop("Error: You must have at least '2 repeated measurements' for your factor.")
+  xlab <- if(is.null(xlab)) bquote(eta[p]^2) else xlab
+  if(missing(design)) stop("Error: 'design' must be numerically specified e.g., 'design = 2 * 4'.")
+  
+  df1 <- switch(factor.type, bet. = design - 1, with. = (m - 1)*eps, b.w = (design - 1)*(m - 1)*eps)
+                
+  if(n.covar < 0) n.covar <- 0
+  g <- sapply(list(design, n.covar, m), round)
+  design <- g[1] ; n.covar <- g[2] ; m <- g[3]
+  
+  u <- if(factor.type == "bet.") m / (1 + (m - 1)*rho) else m / (1 - rho)
+  
+  f <- if(factor.type == "bet."){ function(x){
+
+    power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta * ( x + design) ) /(1 - peta))*u, lower.tail = FALSE))
+  } 
+    
+    } else {
+    
+    function(x){ 
+    power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta * ( ((x)/(m-1)*eps) + design) ) /(1 - peta))*eps*u, lower.tail = FALSE))
+    # power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = (peta2f(peta)^2)*( ((x)/(m-1)*eps) + design)*eps*u, lower.tail = FALSE))
+      }
+    }
+  
+  df2 <- uniroot(f, c(1e-8, 1e6), extendInt = "downX")[[1]]
+  
+  N <- if(factor.type == "bet.") ceiling(df2 + design) else ceiling((df2 / ((m - 1)*eps)) + design)
+  
+  df2 <- df2 - n.covar
+  
+  a <- qpetab(sig.level, df1, df2, 0, lower.tail = FALSE)
+  
+  ncp <- if(factor.type == "bet.") (peta2f(peta)^2)*N*u else (peta2f(peta)^2)*N*u*eps
+  
+  to <- if(is.null(to)) max(qpetab(.999999, df1, df2, 0), qpetab(.999999, df1, df2, ncp), na.rm = TRUE) else to
+  x <- seq(0, 1, 1e-4)
+  ylimb <- c(0, max(dpetab(x, df1, df2, 0), dpetab(x, df1, df2, ncp), na.rm = TRUE))
+  
+  ylim <- if(is.infinite(ylimb[2]) && is.null(ylim)) NULL else if(is.null(ylim)) ylimb else ylim
+  
+  est.power <- ppetab(a, df1, df2, ncp, lower.tail = FALSE)
+  
+  par(mfrow = c(2, 1), mgp = c(1.8, .5, 0), mar = c(3, 4, 2, 2))
+  
+  h0 <- curve(dpetab(x, df1, df2, 0), from = 0, to = to, n = 1e4, xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i", ylim = ylim) # , main = bquote(bolditalic(H[0]))
+  
+  x = seq(a, to, length.out = 1e3) ; y = dpetab(x, df1, df2, 0)
+  polygon(c(a, x, to), c(0, y, 0), col = adjustcolor(2, .25), border = NA)
+  lines(h0, lwd = 2, col = 2, xpd = TRUE)
+  abline(v = a, col = 2, lty = 2) ; crit <- round(a, 4) ; points(a, par('usr')[4], pch = 19, col = 2, xpd = NA)
+
+  
+  text(a, par('usr')[4], bquote(bold("critical"~ eta[p]^2 == .(crit)~"or"~.(crit*1e2)*"%")), pos = 3, cex = .7, font = 4, xpd = TRUE)
+  
+  h1 <- curve(dpetab(x, df1, df2, ncp), from = 0, to = to, n = 1e4, add = TRUE)
+  x <- seq(a, to, length.out = 1e3) ; y <- dpetab(x, df1, df2, ncp)
+  polygon(c(a, x, to), c(0, y, 0), border = NA, density = 15, col = 4, xpd = TRUE)
+  lines(h1, lwd = 2, col = 4, xpd = TRUE)
+  
+  legend("topleft", legend = c("Sig. Area", "Power"), inset = c(-.15, 0), density = c(NA, 35), x.intersp = c(.3, .3),
+         bty = "n", xpd = NA, cex = .7, text.font = 2, angle = c(NA, 45), fill = c(adjustcolor(2, .4), 4), border = c(2, 4), adj = c(0, .4))
+  
+  ph1 <- seq(0, 1, 1e-2)
+  ncp2 <- if(factor.type == "bet.") peta2f(ph1)*N*u else peta2f(ph1)*N*u*eps
+  Power <- ppetab(a, df1, df2, ncp2, lower.tail = FALSE)
+  plot(ph1, Power, type = "l", lwd = 3, xlab = xlab, las = 1, ylim = c(sig.level, 1.04), col = "green4")
+  
+  method <- paste("fixed-effects repeated-measures", if(n.covar == 0) "ANOVA" else "ANCOVA", "power analysis") 
+  
+  note <- paste("Use \"design\" to numerically specify design structure: e.g., 'design = 3 * 4'.")
+  
+  n.covar <- if(n.covar == 0) NA else n.covar
+  
+  message("\nIMPORTANT: Always pick the factor with largest # of levels to obtain required 'total.N'.")
+  
+  r  <- structure(list(ncp, est.power, a, sig.level, n.covar, design, m, df1, df2, N, method, note), class = "power.htest")
+  
+  setNames(r, c("ncp", "est.power", "crit.peta", 
+                "sig.level", "n.covar", "design", "rep.measures", "df1", "df2", "total.N", "method", "note"))
+}
+                  
