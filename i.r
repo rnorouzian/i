@@ -4288,8 +4288,8 @@ power.rep.measure <- function(peta, rep.measures, design, factor.type = c("bet."
   
   factor.type <- match.arg(factor.type)
   
-  if(rho > 1) rho <- .9999999 else if(rho < 0) -.9999999 else rho
-  
+  if(rho <= 0) rho <- -.99999999 else if(rho >= 1) rho <-.99999999
+  if(eps < .5) eps <- .5 else if(eps > 1) eps <- 1
   if(m < 2) stop("Error: You must have at least '2 repeated measurements' for your factor.")
   xlab <- if(is.null(xlab)) bquote(eta[p]^2) else xlab
   if(missing(design)) stop("Error: 'design' must be numerically specified e.g., 'design = 2 * 4'.")
