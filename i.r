@@ -4209,9 +4209,9 @@ power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.cova
   
   est.power <- ppeta(a, df1, df2, peta, N, lower.tail = FALSE)
   
-  par(mfrow = c(2, 1), mgp = c(1.8, .5, 0), mar = c(3, 4, 2, 2))
+  par(mfrow = c(2, 1), mgp = c(1.9, .5, 0), mar = c(3, 4, 2, 2))
   
-  h0 <- curve(dpeta(x, df1, df2, 0, N), from = 0, to = to, n = 1e4, xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i", ylim = ylim) # , main = bquote(bolditalic(H[0]))
+  h0 <- curve(dpeta(x, df1, df2, 0, N), from = 0, to = to, n = 1e4, xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i", ylim = ylim, font.lab = 2)
   
   x = seq(a, to, length.out = 1e3) ; y = dpeta(x, df1, df2, 0, N)
   polygon(c(a, x, to), c(0, y, 0), col = adjustcolor(2, .25), border = NA)
@@ -4232,7 +4232,7 @@ power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.cova
   
   ph1 <- seq(0, 1, 1e-2)
   Power <- ppeta(a, df1, df2, ph1, N, lower.tail = FALSE)
-  plot(ph1, Power, type = "l", lwd = 3, xlab = xlab, las = 1, ylim = c(sig.level, 1.04), col = "green4")
+  plot(ph1, Power, type = "l", lwd = 3, xlab = xlab, las = 1, ylim = c(sig.level, 1.04), col = "green4", font.lab = 2)
   abline(h = sig.level, col = 8, lty = 2) ; j <- par('usr')[1:2]
   text(mean(j), sig.level, "Minimum Power (sig.level)", pos = 3, col = "gray60")
     
@@ -4407,9 +4407,9 @@ power.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("bet
   
   est.power <- ppetab(a, df1, df2, ncp, lower.tail = FALSE)
   
-  par(mfrow = c(2, 1), mgp = c(1.8, .5, 0), mar = c(3, 4, 2, 2))
+  par(mfrow = c(2, 1), mgp = c(1.9, .5, 0), mar = c(3, 4, 2, 2))
   
-  h0 <- curve(dpetab(x, df1, df2, 0), from = 0, to = to, n = 1e4, xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i", ylim = ylim) # , main = bquote(bolditalic(H[0]))
+  h0 <- curve(dpetab(x, df1, df2, 0), from = 0, to = to, n = 1e4, xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i", ylim = ylim, font.lab = 2)
   
   x = seq(a, to, length.out = 1e3) ; y = dpetab(x, df1, df2, 0)
   polygon(c(a, x, to), c(0, y, 0), col = adjustcolor(2, .25), border = NA)
@@ -4430,7 +4430,7 @@ power.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("bet
   ph1 <- seq(0, 1, 1e-2)
   ncp2 <- if(factor.type == "between") peta2f(ph1)*N*u else peta2f(ph1)*N*u*eps
   Power <- ppetab(a, df1, df2, ncp2, lower.tail = FALSE)
-  plot(ph1, Power, type = "l", lwd = 3, xlab = xlab, las = 1, ylim = c(sig.level, 1.04), col = "green4")
+  plot(ph1, Power, type = "l", lwd = 3, xlab = xlab, las = 1, ylim = c(sig.level, 1.04), col = "green4", font.lab = 2)
   abline(h = sig.level, col = 8, lty = 2) ; j <- par('usr')[1:2]
   text(mean(j), sig.level, "Minimum Power (sig.level)", pos = 3, col = "gray60")
   
