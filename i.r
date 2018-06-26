@@ -4048,8 +4048,20 @@ abline(h = 1, v = alpha, col = 8)
     
 
 power.t.tests <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, paired = FALSE, 
-                          two.tailed = TRUE){
+                          two.tailed = TRUE, from = NULL, to = NULL, xlab = "Cohen's d", ylim = NULL)
+{
   
+  UseMethod("power.t.tests")
+}
+    
+    
+power.t.tests <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, paired = FALSE, 
+                          two.tailed = TRUE, from = NULL, to = NULL, xlab = "Cohen's d", ylim = NULL){
+  
+  if(d == 0) d <- 1e-4
+  if(power == 0) power <- sig.level
+  
+  d2 <- d
   d <- abs(d)
   sig.level <- if(two.tailed) sig.level/2 else sig.level
   k <- base.rate / (1 + base.rate)
@@ -4079,9 +4091,57 @@ power.t.tests <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, pa
   note <- paste("Use 'base.rate' to specify how many times one group might be larger than the other e.g.,'base.rate = 1.1' ")
   
   a <- qcohen(sig.level, 0, n1, n2)
-  b <- qcohen(sig.level, 0, n1, n2, lower.tail = FALSE)
+  b <- -a
   
   est.power <- if(two.tailed) pcohen(a, d, n1, n2) + pcohen(b, d, n1, n2, lower.tail = FALSE) else pcohen(b, d, n1, n2, lower.tail = FALSE)
+  
+  from <- if(is.null(from)) min(qcohen(1e-5, 0, n1, n2), qcohen(1e-5, d2, n1, n2), na.rm = TRUE) else from
+  to <- if(is.null(to)) max(qcohen(.99999, 0, n1, n2), qcohen(.99999, d2, n1, n2), na.rm = TRUE) else to
+  
+  x <- seq(from, to, 1e-4)
+  ylimb <- c(0, max(c(dcohen(x, 0, n1, n2), dcohen(x, d2, n1, n2)), na.rm = TRUE) )
+  
+  ylim <- if(is.infinite(ylimb[2]) & is.null(ylim)) NULL else if(is.null(ylim)) ylimb else ylim
+  
+  par(mfrow = c(2, 1), mgp = c(1.9, .5, 0), mar = c(3, 4, 2, 2))
+  
+  h0 <- curve(dcohen(x, 0, n1, n2), from, to, n = 1e4, xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i", ylim = ylim, font.lab = 2)
+  
+  x1 <- seq(from, a, length.out = 1e3) ; y1 <- dcohen(x1, 0, n1, n2) 
+  x2 <- seq(b, to, length.out = 1e3) ; y2 <- dcohen(x2, 0, n1, n2)
+  
+if(d2 < 0 & !two.tailed || two.tailed) polygon(c(from, x1, a), c(0, y1, 0), col = adjustcolor(2, .25), border = NA)
+if(d2 > 0 & !two.tailed || two.tailed) polygon(c(b, x2, to), c(0, y2, 0), col = adjustcolor(2, .25), border = NA) 
+  lines(h0, lwd = 2, col = 2, xpd = TRUE)
+  
+  g <- if(d2 < 0 & !two.tailed) a else if(d2 > 0 & !two.tailed) b else c(a, b)
+  p <- if(two.tailed) rep(par('usr')[4], 2) else par('usr')[4]
+  abline(v = g, col = 2, lty = 2)
+  
+  crit <- round(g, 4) 
+  
+  points(g, p, pch = 19, col = 2, xpd = NA)  
+  
+  text(g, par('usr')[4], paste("critical d =", crit), pos = 3, cex = .7, font = 2, xpd = TRUE) 
+  
+  h1 <- curve(dcohen(x, d2, n1, n2), from, to, n = 1e4, add = TRUE) 
+  x1 <- seq(from, a, length.out = 1e3) ; y1 <- dcohen(x1, d2, n1, n2) 
+  x2 <- seq(b, to, length.out = 1e3) ; y2 <- dcohen(x2, d2, n1, n2)
+if(d2 < 0 & !two.tailed || two.tailed) polygon(c(from, x1, a), c(0, y1, 0), border = NA, density = 15, col = 4, xpd = TRUE)
+if(d2 > 0 & !two.tailed || two.tailed) polygon(c(b, x2, to), c(0, y2, 0), border = NA, density = 15, col = 4, xpd = TRUE) 
+  lines(h1, lwd = 2, col = 4, xpd = TRUE)
+  
+  legend("topleft", legend = c("Sig. Area", "Power"), inset = c(-.15, 0), density = c(NA, 35), x.intersp = c(.3, .3),
+         bty = "n", xpd = NA, cex = .7, text.font = 2, angle = c(NA, 45), fill = c(adjustcolor(2, .4), 4), border = c(2, 4), adj = c(0, .4))
+  
+  d3 <- if(!two.tailed & d2 > 0) seq(0, to, length.out = 1e3) else if(!two.tailed & d2 < 0) seq(-to, 0, length.out = 1e3) else seq(to, -to, length.out = 1e3)
+  Power <- if(two.tailed) pcohen(a, d3, n1, n2) + pcohen(b, d3, n1, n2, lower.tail = FALSE) else if(!two.tailed & d > 0) pcohen(b, abs(d3), n1, n2, lower.tail = FALSE)
+  plot(d3, Power, type = "l", lwd = 3, xlab = xlab, las = 1, ylim = c(sig.level, 1.04), col = "green4", font.lab = 2)
+  abline(h = sig.level, col = 8, lty = 2) ; j <- par('usr')[1:2]
+  text(mean(j), sig.level, "Minimum Power (sig.level)", pos = 3, col = "gray60")
+  
+  abline(h = sig.level, col = 8, lty = 2) ; j <- par('usr')[1:2]
+  text(mean(j), sig.level, "Minimum Power (sig.level)", pos = 3, col = "gray60")
   
   sig.level <- if(two.tailed) sig.level*2 else sig.level
   two.tailed <- if(two.tailed) "Yes" else "No"
@@ -4089,6 +4149,7 @@ power.t.tests <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, pa
   structure(list(n1 = n1, n2 = n2, base.rate = base.rate, d = d, est.power = est.power, sig.level = sig.level, 
                  two.tailed = two.tailed, method = method, note = note), class = "power.htest")
 }
+       
                   
 #=============================================================================================================================
                   
@@ -4144,7 +4205,7 @@ power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.cova
   x <- seq(0, to, 1e-4)
   ylimb <- c(0, max(dpeta(x, df1, df2, 0, N), dpeta(x, df1, df2, peta, N), na.rm = TRUE))
   
-  ylim <- if(is.infinite(ylimb[2]) && is.null(ylim)) NULL else if(is.null(ylim)) ylimb else ylim
+  ylim <- if(is.infinite(ylimb[2]) & is.null(ylim)) NULL else if(is.null(ylim)) ylimb else ylim
   
   est.power <- ppeta(a, df1, df2, peta, N, lower.tail = FALSE)
   
@@ -4342,7 +4403,7 @@ power.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("bet
   x <- seq(0, to, 1e-4)
   ylimb <- c(0, max(dpetab(x, df1, df2, 0), dpetab(x, df1, df2, ncp), na.rm = TRUE))
   
-  ylim <- if(is.infinite(ylimb[2]) && is.null(ylim)) NULL else if(is.null(ylim)) ylimb else ylim
+  ylim <- if(is.infinite(ylimb[2]) & is.null(ylim)) NULL else if(is.null(ylim)) ylimb else ylim
   
   est.power <- ppetab(a, df1, df2, ncp, lower.tail = FALSE)
   
