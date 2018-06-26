@@ -2247,7 +2247,8 @@ d.eq.test.default <- function(t, n1, n2 = NA, m = 0, s = 1, dist.name = "dnorm",
 need <- c("rstanarm", "arrangements") # "MASS")
 have <- need %in% rownames(installed.packages())
 if(any(!have)){ install.packages( need[!have] ) }
-                       
+ 
+options(warn = -1)
 suppressMessages({ 
     library("rstanarm")
     library("arrangements")
