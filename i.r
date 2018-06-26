@@ -4279,16 +4279,16 @@ is.whole <- function(x)  abs(x - round(x)) < .Machine$double.eps^.5
 #====================================================================================================================================
                   
 
-power.rep.measure <- function(peta, n.rep, design, factor.type = c("between", "within", "b.w"), sig.level = .05, n.covar = 0, power = .8, eps = .9,
+power.rep.measure <- function(peta, n.rep, n.group, factor.type = c("between", "within", "b.w"), sig.level = .05, n.covar = 0, power = .8, eps = .9,
                               rho = 1, xlab = NULL, ylim = NULL, to = NULL)
 {
   
   UseMethod("power.rep.measure")
 }
-                  
-                  
- power.rep.measure.default <- function(peta, n.rep, design, factor.type = c("between", "within", "b.w"), sig.level = .05, n.covar = 0, power = .8, eps = .9,
-                              rho = 1, xlab = NULL, ylim = NULL, to = NULL){
+
+
+power.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("between", "within", "b.w"), sig.level = .05, n.covar = 0, power = .8, eps = .9,
+                                      rho = 1, xlab = NULL, ylim = NULL, to = NULL){
   
   graphics.off()  
   original.par <- par(no.readonly = TRUE)
@@ -4301,33 +4301,34 @@ power.rep.measure <- function(peta, n.rep, design, factor.type = c("between", "w
   
   if(rho <= 0) rho <- -.99999999 else if(rho >= 1) rho <-.99999999
   if(eps < .5) eps <- .5 else if(eps > 1) eps <- 1
-  if(m < 2) stop("Error: You must have at least '2 repeated measurements' for your factor.")
+  if(n.group < 1) stop("Error: You must have at least '1 group' in your design.")
+  if(m < 2) stop("Error: You must have at least '2 repeated measurements' in your design.")
   xlab <- if(is.null(xlab)) bquote(eta[p]^2) else xlab
-  if(missing(design)) stop("Error: 'design' must be numerically specified e.g., 'design = 2 * 4'.")
+  if(missing(n.group)) stop("Error: 'n.group' must be numerically specified e.g., 'n.group = 2 * 4'.")
   
-  df1 <- switch(factor.type, between = design - 1, within = (m - 1)*eps, b.w = (design - 1)*(m - 1)*eps)
+  df1 <- switch(factor.type, between = n.group - 1, within = (m - 1)*eps, b.w = (n.group - 1)*(m - 1)*eps)
   
   if(n.covar < 0) n.covar <- 0
-  g <- sapply(list(design, n.covar, m), round)
-  design <- g[1] ; n.covar <- g[2] ; m <- g[3]
+  g <- sapply(list(n.group, n.covar, m), round)
+  n.group <- g[1] ; n.covar <- g[2] ; m <- g[3]
   
   u <- if(factor.type == "between") m / (1 + (m - 1)*rho) else m / (1 - rho)
   
   f <- if(factor.type == "between"){ function(x){
     
-    power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta * ( x + design) ) /(1 - peta))*u, lower.tail = FALSE))
+    power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta * ( x + n.group) ) /(1 - peta))*u, lower.tail = FALSE))
   } 
     
   } else {
     
     function(x){ 
-     power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta * ( ((x)/(m-1)) + design) ) /(1 - peta))*eps*u, lower.tail = FALSE))
+      power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta * ( ((x)/(m-1)) + n.group) ) /(1 - peta))*eps*u, lower.tail = FALSE))
     }
   }
   
   df2 <- uniroot(f, c(1e-8, 1e6), extendInt = "downX")[[1]]
   
-  N <- if(factor.type == "between") ceiling(df2 + design) else ceiling((df2 / ((m - 1)*eps)) + design)
+  N <- if(factor.type == "between") ceiling(df2 + n.group) else ceiling((df2 / ((m - 1)*eps)) + n.group)
   
   df2 <- if(factor.type == "between") ceiling(df2 - n.covar) else df2 - n.covar
   
@@ -4369,19 +4370,21 @@ power.rep.measure <- function(peta, n.rep, design, factor.type = c("between", "w
   plot(ph1, Power, type = "l", lwd = 3, xlab = xlab, las = 1, ylim = c(sig.level, 1.04), col = "green4")
   abline(h = sig.level, col = 8, lty = 2) ; j <- par('usr')[1:2]
   text(mean(j), sig.level, "Minimum Power (sig.level)", pos = 3, col = "gray60")
+  
   method <- paste("fixed-effects repeated-measures", if(n.covar == 0) "ANOVA" else "ANCOVA", "power analysis") 
   
-  bal <- ceiling(N/design) * design
+  bal <- ceiling(N/n.group) * n.group
   
-  note <- if(design != 0 & N %% design != 0) paste("We suggest recruiting", bal, "subjects (instead of", N, "subjects) to achieve",  bal/design, "subjects per group.") else paste("Use \"design\" to numerically specify design structure: e.g., 'design = 3 * 4'.")
+  note <- if(n.group != 0 & N %% n.group != 0) paste("We suggest recruiting", bal, "subjects (instead of", N, "subjects) to achieve",  bal/n.group, "subjects per group.")
   
   n.covar <- if(n.covar == 0) NA else n.covar
   
   message("\nIMPORTANT: Always pick the factor with largest # of levels to obtain required 'total.N'.")
   
-  r  <- structure(list(est.power, a, sig.level, n.covar, design, m, df1, df2, N, method, note), class = "power.htest")
+  r  <- structure(list(est.power, a, sig.level, n.covar, n.group, m, df1, df2, N, method, note), class = "power.htest")
   
   setNames(r, c("est.power", "crit.peta", 
-                "sig.level", "n.covar", "design", "n.rep", "df1", "df2", "total.N", "method", "note"))
+                "sig.level", "n.covar", "n.group", "n.rep", "df1", "df2", "total.N", "method", "note"))
 }
+
                   
