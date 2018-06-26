@@ -4141,7 +4141,7 @@ power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.cova
   a <- qpeta(sig.level, df1, df2, 0, N, lower.tail = FALSE)
   
   to <- if(is.null(to)) max(qpeta(.999999, df1, df2, 0, N), qpeta(.999999, df1, df2, peta, N), na.rm = TRUE) else to
-  x <- seq(0, 1, 1e-4)
+  x <- seq(0, to, 1e-4)
   ylimb <- c(0, max(dpeta(x, df1, df2, 0, N), dpeta(x, df1, df2, peta, N), na.rm = TRUE))
   
   ylim <- if(is.infinite(ylimb[2]) && is.null(ylim)) NULL else if(is.null(ylim)) ylimb else ylim
@@ -4339,7 +4339,7 @@ power.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("bet
   ncp <- if(factor.type == "between") (peta2f(peta)^2)*N*u else (peta2f(peta)^2)*N*u*eps
   
   to <- if(is.null(to)) max(qpetab(.999999, df1, df2, 0), qpetab(.999999, df1, df2, ncp), na.rm = TRUE) else to
-  x <- seq(0, 1, 1e-4)
+  x <- seq(0, to, 1e-4)
   ylimb <- c(0, max(dpetab(x, df1, df2, 0), dpetab(x, df1, df2, ncp), na.rm = TRUE))
   
   ylim <- if(is.infinite(ylimb[2]) && is.null(ylim)) NULL else if(is.null(ylim)) ylimb else ylim
