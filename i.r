@@ -4065,7 +4065,8 @@ power.t.tests <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, pa
     function(x){
       
       power - pt(qt(sig.level, df = x, lower.tail = FALSE), df = x, ncp = d*sqrt(if(paired) x + 1 else k*(x + 2)), lower.tail = FALSE)
-    }
+    
+      }
   }
   
   df <- ceiling(uniroot(f, c(1e-8, 1e6), extendInt = "downX")[[1]])
@@ -4075,6 +4076,7 @@ power.t.tests <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, pa
   
   base.rate <- if(paired) NA else base.rate
   method <- paste(if(paired) "One- or Paired sample" else "Two-sample", "t test power analysis")
+  note <- paste("Use 'base.rate' to specify how many times one group might be larger than the other e.g.,'base.rate = 1.1' ")
   
   a <- qcohen(sig.level, 0, n1, n2)
   b <- qcohen(sig.level, 0, n1, n2, lower.tail = FALSE)
@@ -4085,7 +4087,7 @@ power.t.tests <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, pa
   two.tailed <- if(two.tailed) "Yes" else "No"
   
   structure(list(n1 = n1, n2 = n2, base.rate = base.rate, d = d, est.power = est.power, sig.level = sig.level, 
-                 two.tailed = two.tailed, method = method), class = "power.htest")
+                 two.tailed = two.tailed, method = method, note = note), class = "power.htest")
 }
                   
 #=============================================================================================================================
