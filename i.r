@@ -4058,6 +4058,10 @@ power.t.tests <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, pa
     
 power.t.tests.default <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, paired = FALSE, 
                           two.tailed = TRUE, from = NULL, to = NULL, xlab = "Cohen's d", ylim = NULL){
+    
+  graphics.off()  
+  original.par <- par(no.readonly = TRUE)
+  on.exit(par(original.par))
   
   if(d == 0) d <- 1e-4
   if(power == 0) power <- sig.level
