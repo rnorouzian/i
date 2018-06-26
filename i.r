@@ -4065,7 +4065,7 @@ power.t.tests.default <- function(d = .1, sig.level = .05, power = .8, base.rate
   d <- abs(d)
   sig.level <- if(two.tailed) sig.level/2 else sig.level
   k <- base.rate / (1 + base.rate)
-  
+  options(warn = -1)
   
   f <- if(two.tailed){ function(x){
     
