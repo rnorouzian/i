@@ -4055,7 +4055,7 @@ power.t.tests <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, pa
 }
     
     
-power.t.tests <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, paired = FALSE, 
+power.t.tests.default <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, paired = FALSE, 
                           two.tailed = TRUE, from = NULL, to = NULL, xlab = "Cohen's d", ylim = NULL){
   
   if(d == 0) d <- 1e-4
