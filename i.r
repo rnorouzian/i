@@ -122,6 +122,28 @@ hdir.default <- function(sample, level = .95){
 
 #==================================================================================================================
 
+
+hdiq <- function(qdist, level = .95, ...)
+{
+  UseMethod("hdiq")
+}
+
+
+hdiq.default <- function(qdist, level = .95, ...)
+  {
+
+  alpha <-  1L - level
+  width <- function(lower, qdist, level, ...){
+    qdist(level + lower, ...) - qdist(lower, ...)
+  }
+
+  low <- optimize(width, c(0, alpha), qdist = qdist, level = level, ...)[[1]]
+  
+  return(c(qdist(low, ...), qdist(level + low, ...)))
+}
+
+#==================================================================================================================
+
 eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
 
 #==================================================================================================================
