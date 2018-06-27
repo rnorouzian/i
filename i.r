@@ -4348,7 +4348,7 @@ is.whole <- function(x)  abs(x - round(x)) < .Machine$double.eps^.5
                   
 
 power.rep.measure <- function(peta, n.rep, n.group, factor.type = c("between", "within", "b.w"), sig.level = .05, n.covar = 0, power = .8, eps = .9,
-                              rho = 1, xlab = NULL, ylim = NULL, to = NULL)
+                              rho = .5, xlab = NULL, ylim = NULL, to = NULL)
 {
   
   UseMethod("power.rep.measure")
