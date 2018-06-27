@@ -4449,9 +4449,9 @@ power.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("bet
   
   message("\nIMPORTANT: Always pick the factor with largest # of levels to obtain required 'total.N'.")
   
-  r  <- structure(list(est.power, a, sig.level, n.covar, n.group, m, df1, df2, N, method, note), class = "power.htest")
+  r  <- structure(list(factor.type, est.power, a, sig.level, n.covar, n.group, m, df1, df2, N, method, note), class = "power.htest")
   
-  setNames(r, c("est.power", "crit.peta", 
+  setNames(r, c("factor.type", "est.power", "crit.peta", 
                 "sig.level", "n.covar", "n.group", "n.rep", "df1", "df2", "total.N", "method", "note"))
 }
 
