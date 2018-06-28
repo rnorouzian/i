@@ -4186,6 +4186,20 @@ gpower.peta <- function(spss, df2, N, design){
 (spss * df2) / (N - (spss * design))
     
 }
+                  
+gpower.peta.bw <- function(peta, rho = .5, N, m, n.group){
+    
+((1 - rho)*peta*(N - n.group)*(m -1)) / ((1 - peta)*(m*N) + (1-rho)*peta*(N - n.group)*(m -1))
+    
+}
+
+
+
+gpower.peta.b <- function(peta, rho = .5, N, m, n.group){
+    
+(peta*(N - n.group)*(1 + (m-1)*rho)) / ((1 - peta)*(m*N) + peta*(N - n.group)*(1 + (m-1)*rho))
+    
+}
    
 #===============================================================================================================================
 
