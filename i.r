@@ -4198,7 +4198,7 @@ power.t.tests.default <- function(d = .1, sig.level = .05, power = .8, base.rate
   plot(d3, n1b, type = "b", pch = 19, lwd = 2, xlab = xlab, las = 1, col = 4, font.lab = 2, ylab = "Group Sample Size", ylim = c(0, max(n1b, n2b, na.rm = TRUE)))
   if(!paired)lines(d3, n2b, col = 2, lty = 3, lwd = 2, type = "b")
   
-  points(if(!paired)rep(d, 2) else d, if(!paired) c(n1, n2) else n1, col = "magenta", bg = "cyan", pch = 21, cex = 1.5)
+  points(if(!paired)rep(d, 2) else d, if(!paired) c(n1, n2) else n1, col = "magenta", bg = "cyan", pch = 13, cex = 1.5)
   
   if(paired){
   
