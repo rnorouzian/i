@@ -4164,8 +4164,6 @@ if(d2 > 0 & !two.tailed || two.tailed) polygon(c(b, x2, to), c(0, y2, 0), border
   d3 <- if(!two.tailed & d2 > 0) seq(0, to, length.out = 1e3) else if(!two.tailed & d2 < 0) seq(-to, 0, length.out = 1e3) else seq(to, -to, length.out = 1e3)
   Power <- if(two.tailed) pcohen(a, d3, n1, n2) + pcohen(b, d3, n1, n2, lower.tail = FALSE) else if(!two.tailed & d > 0) pcohen(b, abs(d3), n1, n2, lower.tail = FALSE)
   plot(d3, Power, type = "l", lwd = 3, xlab = xlab, las = 1, ylim = c(sig.level, 1.04), col = "green4", font.lab = 2)
-  abline(h = sig.level, col = 8, lty = 2) ; j <- par('usr')[1:2]
-  text(mean(j), sig.level, "Minimum Power (sig.level)", pos = 3, col = "gray60")
   
   abline(h = sig.level, col = 8, lty = 2) ; j <- par('usr')[1:2]
   text(mean(j), sig.level, "Minimum Power (sig.level)", pos = 3, col = "gray60")
