@@ -4071,7 +4071,7 @@ abline(h = 1, v = alpha, col = 8)
     
 
 power.t.tests <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, paired = FALSE, 
-                          two.tailed = TRUE, from = NULL, to = NULL, xlab = "Cohen's d", ylim = NULL)
+                          two.tailed = TRUE, xlab = "Cohen's d", xlim = c(NULL, NULL), ylim = NULL)
 {
   
   UseMethod("power.t.tests")
@@ -4079,14 +4079,17 @@ power.t.tests <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, pa
     
     
 power.t.tests.default <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, paired = FALSE, 
-                          two.tailed = TRUE, from = NULL, to = NULL, xlab = "Cohen's d", ylim = NULL){
-    
+                          two.tailed = TRUE, xlab = "Cohen's d", xlim = c(NULL, NULL), ylim = NULL){
+  
   graphics.off()  
   original.par <- par(no.readonly = TRUE)
   on.exit(par(original.par))
   
   if(d == 0) d <- 1e-4
   if(power == 0) power <- sig.level
+  
+  from <- xlim[1]
+  to <- xlim[2]
   
   d2 <- d
   d <- abs(d)
@@ -4104,14 +4107,45 @@ power.t.tests.default <- function(d = .1, sig.level = .05, power = .8, base.rate
     function(x){
       
       power - pt(qt(sig.level, df = x, lower.tail = FALSE), df = x, ncp = d*sqrt(if(paired) x + 1 else k*(x + 2)), lower.tail = FALSE)
-    
-      }
+      
+    }
   }
   
   df <- ceiling(uniroot(f, c(1e-8, 1e6), extendInt = "downX")[[1]])
   
   n1 <- df + 1
   n2 <- if(paired) NA else round(base.rate*n1)
+  
+  d3 <- seq(.05, d*1.1, .025)
+  
+  loop <- length(d3)
+  
+  dfb <- numeric(loop)
+  n1b <- numeric(loop)
+  n2b <- numeric(loop)
+  
+  for(i in 1:loop){
+  
+    f <- if(two.tailed){ function(x){
+      
+      power - (pt(qt(sig.level, df = x), df = x, ncp = d3[i]*sqrt(if(paired) x + 1 else k*(x + 2))) + pt(qt(sig.level, df = x, lower.tail = FALSE), df = x, ncp = d3[i]*sqrt(if(paired) x + 1 else k*(x + 2)), lower.tail = FALSE))
+    }
+      
+    } else {
+      
+      function(x){
+        
+        power - pt(qt(sig.level, df = x, lower.tail = FALSE), df = x, ncp = d3[i]*sqrt(if(paired) x + 1 else k*(x + 2)), lower.tail = FALSE)
+        
+      }
+    }
+    
+    dfb[i] <- ceiling(uniroot(f, c(1e-8, 1e6), extendInt = "downX")[[1]])
+    
+    n1b[i] <- dfb[i] + 1
+    n2b[i] <- if(paired) NA else round(base.rate*n1b[i])
+ }
+  
   
   base.rate <- if(paired) NA else base.rate
   method <- paste(if(paired) "One- or Paired sample" else "Two-sample", "t test power analysis")
@@ -4130,15 +4164,15 @@ power.t.tests.default <- function(d = .1, sig.level = .05, power = .8, base.rate
   
   ylim <- if(is.infinite(ylimb[2]) & is.null(ylim)) NULL else if(is.null(ylim)) ylimb else ylim
   
-  par(mfrow = c(2, 1), mgp = c(1.9, .5, 0), mar = c(3, 4, 2, 2))
+  par(mfrow = c(2, 1), mgp = c(2.5, .5, 0), mar = c(4, 4, 2, 2))
   
   h0 <- curve(dcohen(x, 0, n1, n2), from, to, n = 1e4, xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i", ylim = ylim, font.lab = 2)
   
   x1 <- seq(from, a, length.out = 1e3) ; y1 <- dcohen(x1, 0, n1, n2) 
   x2 <- seq(b, to, length.out = 1e3) ; y2 <- dcohen(x2, 0, n1, n2)
   
-if(d2 < 0 & !two.tailed || two.tailed) polygon(c(from, x1, a), c(0, y1, 0), col = adjustcolor(2, .25), border = NA)
-if(d2 > 0 & !two.tailed || two.tailed) polygon(c(b, x2, to), c(0, y2, 0), col = adjustcolor(2, .25), border = NA) 
+  if(d2 < 0 & !two.tailed || two.tailed) polygon(c(from, x1, a), c(0, y1, 0), col = adjustcolor(2, .25), border = NA)
+  if(d2 > 0 & !two.tailed || two.tailed) polygon(c(b, x2, to), c(0, y2, 0), col = adjustcolor(2, .25), border = NA) 
   lines(h0, lwd = 2, col = 2, xpd = TRUE)
   
   g <- if(d2 < 0 & !two.tailed) a else if(d2 > 0 & !two.tailed) b else c(a, b)
@@ -4149,25 +4183,34 @@ if(d2 > 0 & !two.tailed || two.tailed) polygon(c(b, x2, to), c(0, y2, 0), col = 
   
   points(g, p, pch = 19, col = 2, xpd = NA)  
   
-  text(g, par('usr')[4], paste("critical d =", crit), pos = 3, cex = .7, font = 2, xpd = TRUE) 
+  text(g, par('usr')[4], bquote(bold(critical~ bolditalic(d) == .(crit))), pos = 3, cex = .7, font = 2, xpd = TRUE) 
   
   h1 <- curve(dcohen(x, d2, n1, n2), from, to, n = 1e4, add = TRUE) 
   x1 <- seq(from, a, length.out = 1e3) ; y1 <- dcohen(x1, d2, n1, n2) 
   x2 <- seq(b, to, length.out = 1e3) ; y2 <- dcohen(x2, d2, n1, n2)
-if(d2 < 0 & !two.tailed || two.tailed) polygon(c(from, x1, a), c(0, y1, 0), border = NA, density = 15, col = 4, xpd = TRUE)
-if(d2 > 0 & !two.tailed || two.tailed) polygon(c(b, x2, to), c(0, y2, 0), border = NA, density = 15, col = 4, xpd = TRUE) 
+  if(d2 < 0 & !two.tailed || two.tailed) polygon(c(from, x1, a), c(0, y1, 0), border = NA, density = 15, col = 4, xpd = TRUE)
+  if(d2 > 0 & !two.tailed || two.tailed) polygon(c(b, x2, to), c(0, y2, 0), border = NA, density = 15, col = 4, xpd = TRUE) 
   lines(h1, lwd = 2, col = 4, xpd = TRUE)
   
-  legend("topleft", legend = c("Sig. Area", "Power"), inset = c(-.15, 0), density = c(NA, 35), x.intersp = c(.3, .3),
+  legend("topleft", legend = c("Sig. Area(s)", "Power"), inset = c(-.15, 0), density = c(NA, 35), x.intersp = c(.3, .3),
          bty = "n", xpd = NA, cex = .7, text.font = 2, angle = c(NA, 45), fill = c(adjustcolor(2, .4), 4), border = c(2, 4), adj = c(0, .4))
   
-  d3 <- if(!two.tailed & d2 > 0) seq(0, to, length.out = 1e3) else if(!two.tailed & d2 < 0) seq(-to, 0, length.out = 1e3) else seq(to, -to, length.out = 1e3)
-  Power <- if(two.tailed) pcohen(a, d3, n1, n2) + pcohen(b, d3, n1, n2, lower.tail = FALSE) else if(!two.tailed & d > 0) pcohen(b, abs(d3), n1, n2, lower.tail = FALSE)
-  plot(d3, Power, type = "l", lwd = 3, xlab = xlab, las = 1, ylim = c(sig.level, 1.04), col = "green4", font.lab = 2)
+  plot(d3, n1b, type = "b", pch = 19, lwd = 2, xlab = xlab, las = 1, col = 4, font.lab = 2, ylab = "Group Sample Size", ylim = c(0, max(n1b, n2b, na.rm = TRUE)))
+  if(!paired)lines(d3, n2b, col = 2, lty = 3, lwd = 2, type = "b")
   
-  abline(h = sig.level, col = 8, lty = 2) ; j <- par('usr')[1:2]
-  text(mean(j), sig.level, "Minimum Power (sig.level)", pos = 3, col = "gray60")
+  points(if(!paired)rep(d, 2) else d, if(!paired) c(n1, n2) else n1, col = "magenta", bg = "cyan", pch = 21, cex = 1.5)
   
+  if(paired){
+  
+    legend("topright", legend = "Group 1", col = 4, pch = 19, cex = .7, text.font = 2,
+           pt.cex = 1, bty = "n")
+  } else {
+    
+  legend("topright", paste("Group", 1:2), col = c(4, 2), pch = c(19, 1), cex = .7, text.font = 2, x.intersp = c(.6, .6),
+         adj = c(0, .4), pt.cex = 1, pt.lwd = c(1, 2), bty = "n")
+  }
+  
+  box()
   sig.level <- if(two.tailed) sig.level*2 else sig.level
   two.tailed <- if(two.tailed) "Yes" else "No"
   
