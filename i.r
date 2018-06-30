@@ -4457,7 +4457,7 @@ is.whole <- function(x)  abs(x - round(x)) < .Machine$double.eps^.5
                   
 
 power.rep.measure <- function(peta, n.rep, n.group, factor.type = c("between", "within", "b.w"), sig.level = .05, n.covar = 0, power = .8, eps = .9,
-                              rho = .5, xlab = NULL, ylim = NULL, to = NULL)
+                              peta.range = seq(1e-1, .9, 1e-1), rho = .5, xlab = NULL, ylim = NULL, to = NULL)
 {
   
   UseMethod("power.rep.measure")
@@ -4465,7 +4465,7 @@ power.rep.measure <- function(peta, n.rep, n.group, factor.type = c("between", "
 
 
 power.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("between", "within", "b.w"), sig.level = .05, n.covar = 0, power = .8, eps = .9,
-                                      rho = .5, xlab = NULL, ylim = NULL, to = NULL){
+                              peta.range = seq(1e-1, .9, 1e-1), rho = .5, xlab = NULL, ylim = NULL, to = NULL){
   
   graphics.off()  
   original.par <- par(no.readonly = TRUE)
@@ -4473,6 +4473,11 @@ power.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("bet
   options(warn = -1)
   
   m <- n.rep
+  
+  peta2 <- peta.range
+  
+  peta2[peta2 == 0] <- 1e-2
+  peta2[peta2 == 1] <- .99
   
   factor.type <- match.arg(factor.type)
   
@@ -4509,6 +4514,35 @@ power.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("bet
   
   df2 <- if(factor.type == "between") ceiling(df2 - n.covar) else df2 - n.covar
   
+  
+  loop <- length(peta2)
+  
+  Nb <- numeric(loop)
+  df2b <- numeric(loop)
+  
+  
+  for(i in 1:loop){
+    
+    f <- if(factor.type == "between"){ function(x){
+      
+      power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta2[i] * ( x + n.group) ) /(1 - peta2[i]))*u, lower.tail = FALSE))
+    } 
+      
+    } else {
+      
+      function(x){ 
+        power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta2[i] * ( ((x)/(m-1)) + n.group) ) /(1 - peta2[i]))*eps*u, lower.tail = FALSE))
+      }
+    }
+    
+    df2b[i] <- uniroot(f, c(1e-8, 1e6), extendInt = "downX")[[1]]
+    
+    Nb[i] <- if(factor.type == "between") ceiling(df2b[i] + n.group) else ceiling((df2b[i] / ((m - 1)*eps)) + n.group)
+    
+    df2b[i] <- if(factor.type == "between") ceiling(df2b[i] - n.covar) else df2b[i] - n.covar
+    
+  }
+  
   a <- qpetab(sig.level, df1, df2, 0, lower.tail = FALSE)
   
   ncp <- if(factor.type == "between") (peta2f(peta)^2)*N*u else (peta2f(peta)^2)*N*u*eps
@@ -4521,7 +4555,7 @@ power.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("bet
   
   est.power <- ppetab(a, df1, df2, ncp, lower.tail = FALSE)
   
-  par(mfrow = c(2, 1), mgp = c(1.9, .5, 0), mar = c(3, 4, 2, 2))
+  par(mfrow = c(2, 1), mgp = c(2.5, .5, 0), mar = c(4, 4, 2, 2))
   
   h0 <- curve(dpetab(x, df1, df2, 0), from = 0, to = to, n = 1e4, xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i", ylim = ylim, font.lab = 2)
   
@@ -4529,7 +4563,6 @@ power.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("bet
   polygon(c(a, x, to), c(0, y, 0), col = adjustcolor(2, .25), border = NA)
   lines(h0, lwd = 2, col = 2, xpd = TRUE)
   abline(v = a, col = 2, lty = 2) ; crit <- round(a, 4) ; points(a, par('usr')[4], pch = 19, col = 2, xpd = NA)
-  
   
   text(a, par('usr')[4], bquote(bold("critical"~ eta[p]^2 == .(crit)~"or"~.(crit*1e2)*"%")), pos = 3, cex = .7, font = 4, xpd = TRUE)
   
@@ -4541,12 +4574,15 @@ power.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("bet
   legend("topleft", legend = c("Sig. Area", "Power"), inset = c(-.15, 0), density = c(NA, 35), x.intersp = c(.3, .3),
          bty = "n", xpd = NA, cex = .7, text.font = 2, angle = c(NA, 45), fill = c(adjustcolor(2, .4), 4), border = c(2, 4), adj = c(0, .4))
   
-  ph1 <- seq(0, 1, 1e-2)
-  ncp2 <- if(factor.type == "between") peta2f(ph1)*N*u else peta2f(ph1)*N*u*eps
-  Power <- ppetab(a, df1, df2, ncp2, lower.tail = FALSE)
-  plot(ph1, Power, type = "l", lwd = 3, xlab = xlab, las = 1, ylim = c(sig.level, 1.04), col = "green4", font.lab = 2)
-  abline(h = sig.level, col = 8, lty = 2) ; j <- par('usr')[1:2]
-  text(mean(j), sig.level, "Minimum Power (sig.level)", pos = 3, col = "gray60")
+  plot(peta2, Nb, type = "b", lwd = 2, xlab = xlab, las = 1, col = "green4", font.lab = 2, xaxt = "n", ylab = "Total Sample Size")
+  axis(1, at = peta2)
+  
+  legend("topright", legend = bquote(bold("Current required"~ bolditalic("\"N\""))), col = "magenta", pt.bg = "cyan", pch = 21, cex = .7,
+         pt.cex = 1.2, bty = "n")
+  box()
+  points(peta, N, col = "magenta", bg = "cyan", pch = 21, cex = 1.5)
+  
+  text(peta2, Nb, Nb, pos = 3, font = 2, col = "gray40", cex = .8, xpd = TRUE)
   
   method <- paste("fixed-effects repeated-measures", if(n.covar == 0) "ANOVA" else "ANCOVA", "power analysis") 
   
@@ -4563,5 +4599,6 @@ power.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("bet
   setNames(r, c("factor.type", "est.power", "crit.peta", 
                 "sig.level", "n.covar", "n.group", "n.rep", "df1", "df2", "total.N", "method", "note"))
 }
+                  
 
                   
