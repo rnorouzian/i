@@ -4202,12 +4202,12 @@ power.t.tests.default <- function(d = .1, sig.level = .05, power = .8, base.rate
   
   if(paired){
   
-    legend("topright", legend = "Group 1", col = 4, pch = 19, cex = .7, text.font = 2,
+    legend("topright", legend = "Group 1", col = 4, pch = 19, cex = .7, text.font = 2, lwd = 1,
            pt.cex = 1, bty = "n")
   } else {
     
   legend("topright", paste("Group", 1:2), col = c(4, 2), pch = c(19, 1), cex = .7, text.font = 2, x.intersp = c(.6, .6),
-         adj = c(0, .4), pt.cex = 1, pt.lwd = c(1, 2), bty = "n")
+         lwd = 1, adj = c(0, .4), pt.cex = 1, pt.lwd = c(1, 2), bty = "n")
   }
   
   box()
