@@ -4245,7 +4245,7 @@ gpower.peta.b <- function(peta, rho = .5, N, m, n.group){
 #===============================================================================================================================
 
                   
-power.f.tests <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8, 
+power.f.tests <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8, peta.range = seq(1e-1, .9, 1e-1),
                           xlab = NULL, ylim = NULL, to = NULL, regress = FALSE)
 {
   
@@ -4253,13 +4253,19 @@ power.f.tests <- function(peta, n.level, design, sig.level = .05, n.covar = 0, p
 }
 
 
-power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8,
+power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8, peta.range = seq(1e-1, .9, 1e-1),
                                   xlab = NULL, ylim = NULL, to = NULL, regress = FALSE){
   
   graphics.off()  
   original.par <- par(no.readonly = TRUE)
   on.exit(par(original.par))
   options(warn = -1)
+  
+  peta2 <- peta.range
+  
+  peta2[peta2 == 0] <- 1e-2
+  peta2[peta2 == 1] <- .99
+  
   if(n.level <= 1) stop("Error: You must have at least '2 levels' for your factor.")
   xlab <- if(is.null(xlab) && !regress) bquote(eta[p]^2) else if (is.null(xlab) && regress) bquote(bold(R^2)) else xlab
   if(!regress && missing(design)) stop("Error: 'design' must be numerically specified e.g., 'design = 2 * 4'.")
@@ -4268,7 +4274,6 @@ power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.cova
   if(n.covar < 0) n.covar <- 0
   x <- sapply(list(n.level, design, n.covar), round)
   n.level <- x[1] ; design <- x[2] ; n.covar <- x[3]
-  
   
   f <- function(x){
     
@@ -4281,6 +4286,26 @@ power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.cova
   
   df2 <- df2 - n.covar
   
+  loop <- length(peta2)
+  
+  Nb <- numeric(loop)
+  df2b <- numeric(loop)
+  
+for(i in 1:loop){
+  
+  f <- function(x){
+    
+    power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = (peta2[i] * (x + design) ) /(1 - peta2[i]), lower.tail = FALSE))
+  }
+  
+  df2b[i] <- ceiling(uniroot(f, c(1e-8, 1e6), extendInt = "downX")[[1]])
+
+  Nb[i] <- df2b[i] + design
+  
+  df2b[i] <- df2b[i] - n.covar
+  
+}
+  
   a <- qpeta(sig.level, df1, df2, 0, N, lower.tail = FALSE)
   
   to <- if(is.null(to)) max(qpeta(.999999, df1, df2, 0, N), qpeta(.999999, df1, df2, peta, N), na.rm = TRUE) else to
@@ -4291,7 +4316,7 @@ power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.cova
   
   est.power <- ppeta(a, df1, df2, peta, N, lower.tail = FALSE)
   
-  par(mfrow = c(2, 1), mgp = c(1.9, .5, 0), mar = c(3, 4, 2, 2))
+  par(mfrow = c(2, 1), mgp = c(2.5, .5, 0), mar = c(4, 4, 2, 2))
   
   h0 <- curve(dpeta(x, df1, df2, 0, N), from = 0, to = to, n = 1e4, xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i", ylim = ylim, font.lab = 2)
   
@@ -4312,12 +4337,16 @@ power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.cova
   legend("topleft", legend = c("Sig. Area", "Power"), inset = c(-.15, 0), density = c(NA, 35), x.intersp = c(.3, .3),
          bty = "n", xpd = NA, cex = .7, text.font = 2, angle = c(NA, 45), fill = c(adjustcolor(2, .4), 4), border = c(2, 4), adj = c(0, .4))
   
-  ph1 <- seq(0, 1, 1e-2)
-  Power <- ppeta(a, df1, df2, ph1, N, lower.tail = FALSE)
-  plot(ph1, Power, type = "l", lwd = 3, xlab = xlab, las = 1, ylim = c(sig.level, 1.04), col = "green4", font.lab = 2)
-  abline(h = sig.level, col = 8, lty = 2) ; j <- par('usr')[1:2]
-  text(mean(j), sig.level, "Minimum Power (sig.level)", pos = 3, col = "gray60")
-    
+  plot(peta2, Nb, type = "b", lwd = 2, xlab = xlab, las = 1, col = "green4", font.lab = 2, xaxt = "n", ylab = "Total Sample Size")
+  axis(1, at = peta2)
+
+  legend("topright", legend = bquote(bold("Current required"~ bolditalic("\"N\""))), col = "magenta", pt.bg = "cyan", pch = 21, cex = .7,
+         pt.cex = 1.2, bty = "n")
+  box()
+  points(peta, N, col = "magenta", bg = "cyan", pch = 21, cex = 1.5)
+  
+  text(peta2, Nb, Nb, pos = 3, font = 2, col = "gray40", cex = .8, xpd = TRUE)
+  
   method <- paste("fixed-effects", if(regress) "Regression" else if(n.covar == 0) "ANOVA" else "ANCOVA", "power analysis") 
   
   bal <- ceiling(N/design) * design
@@ -4330,7 +4359,6 @@ power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.cova
   message("\nIMPORTANT: Always pick the factor with largest # of levels to obtain required 'total.N'.")
   
   r  <- structure(list(est.power, a, sig.level, n.covar, design, n.level, df1, df2, N, method, note), class = "power.htest")
-  
   
   setNames(r, c("est.power", ifelse(regress, "crit.Rsq", "crit.peta"), 
                 "sig.level", "n.covar", "design", ifelse(regress, "n.pred", "n.level"), "df1", "df2", "total.N", "method", "note"))
