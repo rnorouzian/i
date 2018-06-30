@@ -4070,7 +4070,7 @@ abline(h = 1, v = alpha, col = 8)
 #========================================================================================================================
     
 
-power.t.tests <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, paired = FALSE, 
+power.t.tests <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, paired = FALSE, d.range = seq(.1, .5, .05),
                           two.tailed = TRUE, xlab = "Cohen's d", xlim = c(NULL, NULL), ylim = NULL)
 {
   
