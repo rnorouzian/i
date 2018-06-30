@@ -4078,20 +4078,23 @@ power.t.tests <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, pa
 }
     
     
-power.t.tests.default <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, paired = FALSE, 
-                          two.tailed = TRUE, xlab = "Cohen's d", xlim = c(NULL, NULL), ylim = NULL){
+power.t.tests.default <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, paired = FALSE, d.range = seq(.1, .5, .05),
+                                  two.tailed = TRUE, xlab = "Cohen's d", xlim = c(NULL, NULL), ylim = NULL){
   
   graphics.off()  
   original.par <- par(no.readonly = TRUE)
   on.exit(par(original.par))
   
-  if(d == 0) d <- 1e-4
+  d[d == 0] <- 1e-4
+  if(d == -Inf) d <- -6  
+  if(d == Inf) d <- 6
   if(power == 0) power <- sig.level
   
   from <- xlim[1]
   to <- xlim[2]
   
   d2 <- d
+  d3 <- d.range
   d <- abs(d)
   sig.level <- if(two.tailed) sig.level/2 else sig.level
   k <- base.rate / (1 + base.rate)
@@ -4116,8 +4119,6 @@ power.t.tests.default <- function(d = .1, sig.level = .05, power = .8, base.rate
   n1 <- df + 1
   n2 <- if(paired) NA else round(base.rate*n1)
   
-  d3 <- seq(.05, d*1.1, .025)
-  
   loop <- length(d3)
   
   dfb <- numeric(loop)
@@ -4125,7 +4126,7 @@ power.t.tests.default <- function(d = .1, sig.level = .05, power = .8, base.rate
   n2b <- numeric(loop)
   
   for(i in 1:loop){
-  
+    
     f <- if(two.tailed){ function(x){
       
       power - (pt(qt(sig.level, df = x), df = x, ncp = d3[i]*sqrt(if(paired) x + 1 else k*(x + 2))) + pt(qt(sig.level, df = x, lower.tail = FALSE), df = x, ncp = d3[i]*sqrt(if(paired) x + 1 else k*(x + 2)), lower.tail = FALSE))
@@ -4144,8 +4145,7 @@ power.t.tests.default <- function(d = .1, sig.level = .05, power = .8, base.rate
     
     n1b[i] <- dfb[i] + 1
     n2b[i] <- if(paired) NA else round(base.rate*n1b[i])
- }
-  
+  }
   
   base.rate <- if(paired) NA else base.rate
   method <- paste(if(paired) "One- or Paired sample" else "Two-sample", "t test power analysis")
@@ -4195,19 +4195,23 @@ power.t.tests.default <- function(d = .1, sig.level = .05, power = .8, base.rate
   legend("topleft", legend = c("Sig. Area(s)", "Power"), inset = c(-.15, 0), density = c(NA, 35), x.intersp = c(.3, .3),
          bty = "n", xpd = NA, cex = .7, text.font = 2, angle = c(NA, 45), fill = c(adjustcolor(2, .4), 4), border = c(2, 4), adj = c(0, .4))
   
-  plot(d3, n1b, type = "b", pch = 19, lwd = 2, xlab = xlab, las = 1, col = 4, font.lab = 2, ylab = "Group Sample Size", ylim = c(0, max(n1b, n2b, na.rm = TRUE)))
+  plot(d3, n1b, type = "b", pch = 19, lwd = 2, xlab = xlab, las = 1, col = 4, font.lab = 2, ylab = "Group Sample Size", ylim = c(0, max(n1b, n2b, na.rm = TRUE)), xaxt = "n")
+  axis(1, at = d3)
   if(!paired)lines(d3, n2b, col = 2, lty = 3, lwd = 2, type = "b")
   
   points(if(!paired)rep(d, 2) else d, if(!paired) c(n1, n2) else n1, col = "magenta", bg = "cyan", pch = 21, cex = 1.5)
   
-  if(paired){
+  text(d3, n1b, n1b, pos = 1, font = 2, col = 4, cex = .7, xpd = TRUE)
+  if(!paired) text(d3, n2b, n2b, pos = 3, font = 2, col = 2, cex = .7, xpd = TRUE)
   
+  if(paired){
+    
     legend("topright", legend = "Group 1", col = 4, pch = 19, cex = .7, text.font = 2, lwd = 1,
            pt.cex = 1, bty = "n")
   } else {
     
-  legend("topright", paste("Group", 1:2), col = c(4, 2), pch = c(19, 1), cex = .7, text.font = 2, x.intersp = c(.6, .6),
-         lwd = 1, adj = c(0, .4), pt.cex = 1, pt.lwd = c(1, 2), bty = "n")
+    legend("topright", paste("Group", 1:2), col = c(4, 2), pch = c(19, 1), cex = .7, text.font = 2, x.intersp = c(.6, .6),
+           lwd = 1, adj = c(0, .4), pt.cex = 1, pt.lwd = c(1, 2), lty = c(1, 3), bty = "n")
   }
   
   box()
