@@ -4713,44 +4713,54 @@ peta.rep.bayes.default <- function(f = NULL, peta, N, df1, df2, n.rep, factor.ty
 #=======================================================================================================================================================
                                                                                                                                              
                                                                                                                                              
-                                                                                                                                             
-n.d.ci <- function(d, conf.level = .95, width, digits = 6)
+n.d.ci <- function(d, conf.level = .95, width, paired = FALSE)
 {
   UseMethod("n.d.ci")
 }
 
 
-n.d.ci.default <- function(d, conf.level = .95, width, digits = 6){ 
+n.d.ci.default <- function(d, conf.level = .95, width, paired = FALSE)
+  { 
   
-  n.d <- Vectorize(function(d, conf.level, width) 
+  n.d <- Vectorize(function(d, conf.level, width, paired) 
   {
-    alpha <- 1 - conf.level
-    n0 <- 2 * (qnorm(1 - alpha/2)/(width/2))^2
-    n <- 2 * ((qt(1 - alpha/2, 2 * n0 - 2))/(width/2))^2
-    dif <- abs(n - n0)
+    alpha <- (1 - conf.level)/2
     
-    while(dif > 1e-6){
-      np <- n
-      n <- 2 * ((qt(1 - alpha/2, 2 * n - 2))/(width/2))^2
-      dif <- abs(n - np)
+    n0 <- if(paired) 1 else 2 * (qnorm(1 - alpha)/(width/2))^2
+    n <- if(paired) ceiling(n0) else 2 * ((qt(1 - alpha, 2 * n0 - 2))/(width/2))^2
+    if(!paired) dif <- abs(n - n0)
+    
+    if(!paired){
+      
+      while(dif > 1e-6){
+        np <- n
+        n <- 2 * ((qt(1 - alpha, 2 * n - 2))/(width/2))^2
+        dif <- abs(n - np)
+      }
+      n <- ceiling(n)
+      n <- max(4, n - 5)
+      
+    } else {
+      
+      n <- max(4, n - 5)
     }
-    n <- ceiling(n)
-    n <- max(4, n - 5)
     
-    limit <- d.ci(d = d, n1 = n, n2 = n, conf.level = 1 - alpha)
-    dif.full <- abs(limit$upper - limit$lower) - width
+    ci <- d.ci(d = d, n1 = n, n2 = if(paired) NA else n, conf.level = conf.level)
+    dif.full <- abs(ci$upper - ci$lower) - width
     
     while(dif.full > 0){
       n <- n + 1
-      limits <- d.ci(d = d, n1 = n, n2 = n, conf.level = 1 - alpha)
-      current.width <- abs(limits$upper - limits$lower)
-      dif.full <- current.width - width
+      cis <- d.ci(d = d, n1 = n, n2 = if(paired) NA else n, conf.level = conf.level)
+      width.now <- abs(cis$upper - cis$lower)
+      dif.full <- width.now - width
     }
     
     return(c(d = d, n = n, width = width, conf.level = conf.level))
   })
   
-  round(data.frame(t(n.d(d = d, width = width, conf.level = conf.level)), row.names = NULL), digits = digits)
+  data.frame(t(n.d(d = d, width = width, conf.level = conf.level, paired = paired)), paired = paired, row.names = NULL)
 }
+               
+               
                                                                                                                                              
                                                                                                                                              
