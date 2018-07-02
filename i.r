@@ -4601,4 +4601,103 @@ power.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("bet
 }
                   
 
+#================================================================================================================================
                   
+                  
+ peta.rep.bayes <- function(f = NULL, peta, N, df1, df2, n.rep, factor.type = "between", a = 1.2, b = 1.2, level = .95, lo = 0, hi = 1, dist.name = "dbeta", rho = .5, eps = .9, scale = .1, top = 1.1, show.prior = FALSE, 
+                                   bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0, digits = 6, col.depth = .55, labels = NULL, cex.lab = .8, 
+                                   xlab = NULL, ylab = NULL, col.hump = NULL, ...)
+  {
+
+  UseMethod("peta.rep.bayes")
+}
+
+
+peta.rep.bayes.default <- function(f = NULL, peta, N, df1, df2, n.rep, factor.type = "between", a = 1.2, b = 1.2, level = .95, lo = 0, hi = 1, dist.name = "dbeta", rho = .5, eps = .9, scale = .1, top = 1.1, show.prior = FALSE, 
+                               bottom = 1, legend = "topleft", eq.lo = 0, eq.hi = .05, peta.h0 = 0, digits = 6, col.depth = .55, labels = NULL, cex.lab = .8, 
+                               xlab = NULL, ylab = NULL, col.hump = NULL, ...){
+  
+  if(is.null(f) & missing(peta)) stop("Error: Either 'f' or 'peta' must be provided.")
+  if(!is.null(f) & !missing(peta)) stop("Error: Only one of 'f' or 'peta' must be provided.")
+  f <- if(is.null(f)) peta2F(peta, df1, df2) else f
+  
+  d <- if(is.character(dist.name)) dist.name else deparse(substitute(dist.name))
+  leg <- if(is.character(legend)) legend else deparse(substitute(legend))
+  deci <- function(x, k = 3) format(round(x, k), nsmall = k)      
+  pr <- show.prior
+  
+  
+  if(rho <= 0) rho <- 1e-7 else if(rho >= 1) rho <-.9999999
+  if(eps < .5) eps <- .5 else if(eps > 1) eps <- 1 else eps
+  
+  
+  if(!pr){
+    m <- n.rep
+    I <- eq(a, b, d, lo, hi, f, N, df1, df2, m, factor.type)
+    a = I[[1]] ; b = I[[2]] ; d = I[[3]] ; lo = I[[4]] ; hi = I[[5]] ; f = I[[6]] ; N = I[[7]] ; df1 = I[[8]] ; df2 = I[[9]] ; m = I[[10]] ; factor.type = I[[11]]
+    
+    u <- if(factor.type == "between") m / (1 + (m - 1)*rho) else m / (1 - rho)
+    
+    loop <- length(a)
+    CI <- matrix(NA, loop, 2)
+    mode <- numeric(loop)
+    peak <- numeric(loop)
+    h <- list()
+    k = numeric(loop)
+    eq.prob = numeric(loop)
+    BF10 = numeric(loop)
+    estimate = numeric(loop)
+    
+    options(warn = -1)
+    
+    for(i in 1:loop){
+      
+      p = function(x) get(d[i])(x, a[i], b[i])*as.integer(x >= lo[i])*as.integer(x <= hi[i])
+      prior = function(x) p(x)/integrate(p, lo[i], hi[i])[[1]]  
+      likelihood = function(x) df(f[i], df1[i], df2[i], ((x * N[i]) / (1 - x))*if(factor.type == "between") u[i] else u[i]*eps[i] )
+      k[i] = integrate(function(x) prior(x)*likelihood(x), lo[i], hi[i])[[1]]
+      posterior = function(x) prior(x)*likelihood(x) / k[i]
+      h[[i]] = list(x = x <- seq(0, 1, length.out = 5e2), y = posterior(x))
+      mode[i] = optimize(posterior, c(lo[i], hi[i]), maximum = TRUE)[[1]]
+      peak[i] = posterior(mode[i])
+      CI[i,] = HDI(posterior, 0, .9999999, level = level)
+      BF10[i] =  k[i] / df(f[i], df1[i], df2[i], (peta.h0 * N[i]) / (1 - peta.h0))
+      eq.prob[i] = integrate(posterior, lo[i], eq.hi)[[1]] - integrate(posterior, lo[i], eq.lo)[[1]]
+      estimate[i] <- (f[i]*df1[i]) / ((f[i]*df1[i]) + df2[i])
+    } 
+    graphics.off()
+    lab <- if(is.null(labels)) substring(d, 2) else labels
+    xlab <- if(is.null(xlab)) bquote(bold("Credible Interval"~(eta[p]^2))) else xlab
+    ylab <- if(is.null(ylab)) NA else ylab  
+    
+    plot(CI, rep(1:loop, 2), type = "n", xlim = 0:1, ylim = c(bottom*1, top*loop), ylab = ylab, yaxt = "n", xaxt = "n", xlab = xlab, font.lab = 2, mgp = c(2, .5, 0), ...)
+    abline(h = 1:loop, col = 8, lty = 3)
+    axis(1, at = axTicks(1), labels = paste0(axTicks(1)*1e2, "%"), mgp = c(2, .3, 0)) 
+    axis(2, at = 1:loop, labels = lab, font = 2, las = 1, cex.axis = cex.lab, tck = -.006, mgp = c(2, .3, 0), padj = rep(.3, loop))
+    
+    for(i in 1:loop){
+      col <- if(is.null(col.hump)) i else col.hump[i]     
+      polygon(x = h[[i]]$x, y = scale*h[[i]]$y +i, col = adjustcolor(col, col.depth), border = NA, xpd = NA)
+    }
+    m <- scale*peak + 1:loop
+    col <- if(is.null(col.hump)) 1:loop else col.hump
+    legend(x = leg, legend = rev(paste0(substring(d, 2), "(", round(a, 2), ", ", round(b, 2), ")")), pch = 22, title = "Priors", pt.bg = rev(col), col = rev(col), cex = .7, pt.cex = .6, bg = 0, box.col = 0, xpd = NA, x.intersp = .5, title.adj = .4, adj = c(0, .3))
+    box()
+    segments(CI[, 1], 1:loop, CI[, 2], 1:loop, lend = 1, lwd = 4, col = col, xpd = NA)                   
+    segments(mode, 1:loop, mode, m, lty = 3, xpd = NA, lend = 1)  
+    points(mode, 1:loop, pch = 21, bg = "cyan", cex = 1.3, col = "magenta", xpd = NA)
+    I <- deci(CI*1e2 , 2); o = deci(mode*1e2, 2)
+    text(mode, 1:loop, paste0(I[,1], "%", "    ", o, "%", "    ", I[,2], "%"), cex = .75, pos = 3, font = 2, xpd = NA)
+    
+    rownames <- if(is.null(labels)) paste0("P.eta.sq ", 1:loop, " posterior:") else paste0(1:loop, " ", labels, " posterior:")                   
+    return(round(data.frame(estimate = estimate, mode = mode, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, BF10 = BF10, row.names = rownames), digits = digits))  
+    
+  }else{
+    xlab <- if(is.null(xlab)) bquote(bold("Partial Eta.Sq"~(eta[p]^2))) else xlab
+    p <- function(x) { get(d[1])(x, a[1], b[1])*as.integer(x >= lo[1])*as.integer(x <= hi[1]) }
+    curve(p, 0, 1, yaxt = "n", xaxt = "n", ylab = NA, xlab = xlab, bty = "n", font.lab = 2, lwd = 2, n = 1e3, main = bquote(eta[p]^2*" ~ "*.(if(lo[1] > 0 || hi[1] < 1) "truncated-")*.(substring(d[1], 2))(.(round(a[1], 2)), .(round(b[1], 2)))), yaxs = "i", xpd = TRUE)
+    axis(1, at = axTicks(1), lab = paste0(axTicks(1)*1e2, "%"), mgp = c(2, .4, 0))
+  }
+}
+                                                                                                                                             
+                                                                                                                                             
