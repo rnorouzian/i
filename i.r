@@ -4481,7 +4481,7 @@ power.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("bet
   
   factor.type <- match.arg(factor.type)
   
-  if(rho <= 0) rho <- -.99999999 else if(rho >= 1) rho <-.99999999
+  if(rho <= 0) rho <- 1e-7 else if(rho >= 1) rho <-.9999999
   if(eps < .5) eps <- .5 else if(eps > 1) eps <- 1
   if(n.group < 1) stop("Error: You must have at least '1 group' in your design.")
   if(m < 2) stop("Error: You must have at least '2 repeated measurements' in your design.")
