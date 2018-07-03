@@ -4713,14 +4713,16 @@ peta.rep.bayes.default <- function(f = NULL, peta, N, df1, df2, n.rep, factor.ty
 #=======================================================================================================================================================
                                                                                                                                              
                                                                                                                                              
-n.d.ci <- function(d, conf.level = .95, width, paired = FALSE)
+n.d.ci <- function(d, conf.level = .95, width, assure = NULL, paired = FALSE)
 {
   UseMethod("n.d.ci")
 }
 
 
-n.d.ci.default <- function(d, conf.level = .95, width, paired = FALSE)
-  { 
+n.d.ci.default <- function(d, conf.level = .95, width, assure = NULL, paired = FALSE)
+{ 
+  
+n.d.d <- function(d, conf.level, width, paired){ 
   
   n.d <- Vectorize(function(d, conf.level, width, paired) 
   {
@@ -4759,7 +4761,38 @@ n.d.ci.default <- function(d, conf.level = .95, width, paired = FALSE)
   })
   
   data.frame(t(n.d(d = d, width = width, conf.level = conf.level, paired = paired)), paired = paired, row.names = NULL)
+}    
+    
+if(is.null(assure)){
+  
+  n.d.d(d = d, conf.level = conf.level, width = width, paired = paired)
+  
+} else {
+  
+n.as <- Vectorize(function(d, conf.level, width, assure, paired){
+  
+    n0 <- n.d.d(d = d, conf.level = conf.level, width = width, paired = paired)$n
+    
+    a <- d.ci(d = d, n1 = n0, n2 = if(paired) NA else n0, conf.level = assure)$upper
+    b <- d.ci(d = d, n1 = n0, n2 = if(paired) NA else n0, conf.level = assure - (1 - assure))$upper
+    
+    limits <- function(limit.now = limit.now, nn = n0, d = d, assure = assure){
+      lower <- pcohen(-limit.now, d, n1 = nn, n2 = if(paired) NA else nn)
+      upper <- pcohen( limit.now, d, n1 = nn, n2 = if(paired) NA else nn, lower.tail = FALSE)
+      total <- lower + upper
+      return((total - (1 - assure))^2)
+    }
+    
+    d.opt <- optimize(limits, c(a, b), d = d, assure = assure)[[1]]
+    n <- n.d.d(d = d.opt, conf.level = conf.level, width = width, paired = paired)
+    return(n)
+    })
+
+  data.frame(t(n.as(d = d, conf.level = conf.level, width = width, assure = assure, paired = paired)), assure = assure, row.names = NULL)
+  }
 }
+                      
+                      
                
                
                                                                                                                                              
