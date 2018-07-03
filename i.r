@@ -4249,27 +4249,29 @@ gpower.peta.b <- function(peta, rho = .5, N, m, n.group){
 #===============================================================================================================================
 
                   
-power.f.tests <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8, peta.range = seq(1e-1, .9, 1e-1),
-                          xlab = NULL, ylim = NULL, to = NULL, regress = FALSE)
+plan.f.tests <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8, peta.range = seq(1e-1, .9, 1e-1),
+                          xlab = NULL, ylim = NULL, to = NULL, regress = FALSE, n.groups = NULL)
 {
   
-  UseMethod("power.f.tests")
+  UseMethod("plan.f.tests")
 }
 
 
-power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8, peta.range = seq(1e-1, .9, 1e-1),
-                                  xlab = NULL, ylim = NULL, to = NULL, regress = FALSE){
+plan.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8, peta.range = seq(1e-1, .9, 1e-1),
+                                  xlab = NULL, ylim = NULL, to = NULL, regress = FALSE, n.groups = NULL){
   
   graphics.off()  
   original.par <- par(no.readonly = TRUE)
   on.exit(par(original.par))
   options(warn = -1)
   
+  
   peta2 <- peta.range
   
   peta2[peta2 == 0] <- 1e-2
   peta2[peta2 == 1] <- .99
   
+  if(!is.null(n.groups)) message("\nNote: You are doing reseach planning for 'pairwise' comparisons.")
   if(n.level <= 1) stop("Error: You must have at least '2 levels' for your factor.")
   xlab <- if(is.null(xlab) && !regress) bquote(eta[p]^2) else if (is.null(xlab) && regress) bquote(bold(R^2)) else xlab
   if(!regress && missing(design)) stop("Error: 'design' must be numerically specified e.g., 'design = 2 * 4'.")
@@ -4295,20 +4297,20 @@ power.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.cova
   Nb <- numeric(loop)
   df2b <- numeric(loop)
   
-for(i in 1:loop){
-  
-  f <- function(x){
+  for(i in 1:loop){
     
-    power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = (peta2[i] * (x + design) ) /(1 - peta2[i]), lower.tail = FALSE))
+    f <- function(x){
+      
+      power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = (peta2[i] * (x + design) ) /(1 - peta2[i]), lower.tail = FALSE))
+    }
+    
+    df2b[i] <- ceiling(uniroot(f, c(1e-8, 1e6), extendInt = "downX")[[1]])
+    
+    Nb[i] <- df2b[i] + design
+    
+    df2b[i] <- df2b[i] - n.covar
+    
   }
-  
-  df2b[i] <- ceiling(uniroot(f, c(1e-8, 1e6), extendInt = "downX")[[1]])
-
-  Nb[i] <- df2b[i] + design
-  
-  df2b[i] <- df2b[i] - n.covar
-  
-}
   
   a <- qpeta(sig.level, df1, df2, 0, N, lower.tail = FALSE)
   
@@ -4343,7 +4345,7 @@ for(i in 1:loop){
   
   plot(peta2, Nb, type = "b", lwd = 2, xlab = xlab, las = 1, col = "green4", font.lab = 2, xaxt = "n", ylab = "Total Sample Size")
   axis(1, at = peta2)
-
+  
   legend("topright", legend = bquote(bold("Current required"~ bolditalic("\"N\""))), col = "magenta", pt.bg = "cyan", pch = 21, cex = .7,
          pt.cex = 1.2, bty = "n")
   box()
@@ -4355,12 +4357,14 @@ for(i in 1:loop){
   
   bal <- ceiling(N/design) * design
   
+  if(!is.null(n.groups)) N <- n.groups * (bal/2)
+  
   note <- if(design != 0 & N %% design != 0) paste("We suggest recruiting", bal, "subjects to achieve",  bal/design, "subjects per group.") else paste("Use \"design\" to numerically specify design structure: e.g., 'design = 3 * 4'.")
   
   n.covar <- if(n.covar == 0) NA else n.covar
   n.level <- if(regress) n.level-1 else n.level
   
-  message("\nIMPORTANT: Always pick the factor with largest # of levels to obtain required 'total.N'.")
+  if(is.null(n.groups)) message("\nImportant: Always pick the factor with largest # of levels to obtain required 'total.N'.")
   
   r  <- structure(list(est.power, a, sig.level, n.covar, design, n.level, df1, df2, N, method, note), class = "power.htest")
   
