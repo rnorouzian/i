@@ -4717,13 +4717,13 @@ peta.rep.bayes.default <- function(f = NULL, peta, N, df1, df2, n.rep, factor.ty
 #=======================================================================================================================================================
                                                                                                                                              
                                                                                                                                              
-n.d.ci <- function(d, conf.level = .95, width, assure = NULL, paired = FALSE)
+plan.d.ci <- function(d, conf.level = .95, width, assure = NULL, paired = FALSE)
 {
-  UseMethod("n.d.ci")
+  UseMethod("plan.d.ci")
 }
 
 
-n.d.ci.default <- function(d, conf.level = .95, width, assure = NULL, paired = FALSE)
+plan.d.ci.default <- function(d, conf.level = .95, width, assure = NULL, paired = FALSE)
 { 
   
 n.d.d <- function(d, conf.level, width, paired){ 
