@@ -4446,7 +4446,7 @@ peta2ncp <- function(peta, N) { (peta*N) / (1 - peta) }
 peta2N <- function(peta, ncp) { (ncp - (peta * ncp)) / peta }
                   
 d2peta <- function(d, n1, n2) (d^2) / ((d^2) + (((n1 + n2)^2) - (2*(n1 + n2))) / (n1 * n2))
-peta2d <- function(peta, n1, n2) (peta^2)*(((n1 + n2)^2)-(2*(n1 + n2)))/(n1 * n2)/(1-(peta^2))
+peta2d <- function(peta, n1, n2) (peta)*(((n1 + n2)^2)-(2*(n1 + n2)))/(n1 * n2)/(1-(peta))
                   
 #==================================================================================================================================
                   
