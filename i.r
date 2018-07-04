@@ -4272,7 +4272,7 @@ plan.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.covar
   peta2[peta2 == 1] <- .99
   
   if(!is.null(n.groups)) message("\nNote: You are doing reseach planning for 'pairwise' comparisons.")
-  #if(n.level <= 1 & !regress) stop("Error: You must have at least '2 levels' for your factor.")
+  if(n.level <= 1) stop("Error: You must have at least '2 levels' or '2 predictors'.")
   xlab <- if(is.null(xlab) && !regress) bquote(eta[p]^2) else if(is.null(xlab) && regress) bquote(bold(R^2)) else xlab
   if(!regress && missing(design)) stop("Error: 'design' must be numerically specified e.g., 'design = 2 * 4'.")
   if(regress){ n.level <- n.level + 1 ; design <- n.level }
