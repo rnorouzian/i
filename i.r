@@ -3800,7 +3800,7 @@ mu.p[mu.p > 1] <- 1 }
 #=======================================================================================================================================
     
   
- dcohen <- function(x, dbase, n1, n2 = NA, log = FALSE){
+ dcohen <- function(x, dbase = 0, n1, n2 = NA, log = FALSE){
   
   N <- ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
   df <- ifelse(is.na(n2), n1 - 1, (n1 + n2) - 2)
@@ -3812,7 +3812,7 @@ mu.p[mu.p > 1] <- 1 }
 #=======================================================================================================================================
 
 
-qcohen <- function(p, dbase, n1, n2 = NA, lower.tail = TRUE, log.p = FALSE){
+qcohen <- function(p, dbase = 0, n1, n2 = NA, lower.tail = TRUE, log.p = FALSE){
   
   N <- ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
   df <- ifelse(is.na(n2), n1 - 1, (n1 + n2) - 2)
@@ -3825,7 +3825,7 @@ qcohen <- function(p, dbase, n1, n2 = NA, lower.tail = TRUE, log.p = FALSE){
 #=======================================================================================================================================
 
 
-pcohen <- function(q, dbase, n1, n2 = NA, lower.tail = TRUE, log.p = FALSE){
+pcohen <- function(q, dbase = 0, n1, n2 = NA, lower.tail = TRUE, log.p = FALSE){
   
  N <- ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
  df <- ifelse(is.na(n2), n1 - 1, (n1 + n2) - 2)
@@ -3838,7 +3838,7 @@ pcohen <- function(q, dbase, n1, n2 = NA, lower.tail = TRUE, log.p = FALSE){
 #=======================================================================================================================================
 
 
-rcohen <- function(n, dbase, n1, n2 = NA){
+rcohen <- function(n, dbase = 0, n1, n2 = NA){
   
   N <- ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
   df <- ifelse(is.na(n2), n1 - 1, (n1 + n2) - 2)
@@ -3851,7 +3851,7 @@ rcohen <- function(n, dbase, n1, n2 = NA){
 #=========================================================================================================================================
     
     
-dpeta <- function(x, df1, df2, pbase, N, log = FALSE){
+dpeta <- function(x, df1, df2, pbase = 0, N, log = FALSE){
   x[x > .9999999999999999] <- .9999999999999999
   x[x < 0] <- 0
   pbase[pbase > .9999999999999999] <- .9999999999999999
@@ -3866,7 +3866,7 @@ dpeta <- function(x, df1, df2, pbase, N, log = FALSE){
 #=========================================================================================================================================
 
 
-ppeta <- function(q, df1, df2, pbase, N, lower.tail = TRUE, log.p = FALSE){
+ppeta <- function(q, df1, df2, pbase = 0, N, lower.tail = TRUE, log.p = FALSE){
   q[q > .9999999999999999] <- .9999999999999999
   q[q < 0] <- 0
   pbase[pbase > .9999999999999999] <- .9999999999999999
@@ -3881,7 +3881,7 @@ ppeta <- function(q, df1, df2, pbase, N, lower.tail = TRUE, log.p = FALSE){
 #=========================================================================================================================================
 
 
-qpeta <- function(p, df1, df2, pbase, N, lower.tail = TRUE, log.p = FALSE){
+qpeta <- function(p, df1, df2, pbase = 0, N, lower.tail = TRUE, log.p = FALSE){
   p[p > 1] <- 1
   p[p < 0] <- 0
   pbase[pbase > .9999999999999999] <- .9999999999999999
@@ -3896,7 +3896,7 @@ qpeta <- function(p, df1, df2, pbase, N, lower.tail = TRUE, log.p = FALSE){
 #=========================================================================================================================================
 
 
-rpeta <- function(n, df1, df2, pbase, N){
+rpeta <- function(n, df1, df2, pbase = 0, N){
   pbase[pbase > .9999999999999999] <- .9999999999999999
   pbase[pbase < 0] <- 0
   ncp <- (pbase * N) / (1 - pbase)
@@ -3908,7 +3908,7 @@ rpeta <- function(n, df1, df2, pbase, N){
     
 #==================================================================================================================
 
-dpetab <- function(x, df1, df2, ncp, log = FALSE){
+dpetab <- function(x, df1, df2, ncp = 0, log = FALSE){
   x[x > .9999999999999999] <- .9999999999999999
   x[x < 0] <- 0
   d <- df2 / df1
@@ -3920,7 +3920,7 @@ dpetab <- function(x, df1, df2, ncp, log = FALSE){
 #=========================================================================================================================================
 
 
-ppetab <- function(q, df1, df2, ncp, lower.tail = TRUE, log.p = FALSE){
+ppetab <- function(q, df1, df2, ncp = 0, lower.tail = TRUE, log.p = FALSE){
   q[q > .9999999999999999] <- .9999999999999999
   q[q < 0] <- 0
   d <- df2 / df1
@@ -3932,7 +3932,7 @@ ppetab <- function(q, df1, df2, ncp, lower.tail = TRUE, log.p = FALSE){
 #=========================================================================================================================================
 
 
-qpetab <- function(p, df1, df2, ncp, lower.tail = TRUE, log.p = FALSE){
+qpetab <- function(p, df1, df2, ncp = 0, lower.tail = TRUE, log.p = FALSE){
   p[p > 1] <- 1
   p[p < 0] <- 0
   d <- df2 / df1
@@ -3944,7 +3944,7 @@ qpetab <- function(p, df1, df2, ncp, lower.tail = TRUE, log.p = FALSE){
 #=========================================================================================================================================
 
 
-rpetab <- function(n, df1, df2, ncp){
+rpetab <- function(n, df1, df2, ncp = 0){
   d <- df2 / df1
   f <- rf(n, df1, df2, ncp)
   f / (f + d)
