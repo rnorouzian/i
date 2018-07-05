@@ -47,8 +47,8 @@ HDI.default <- function(FUN, lower = 0, upper = 1, level = .95, eps = 1e-3){
   inverse.posterior <- function(x, side = "left") {
     target <- function(y) posterior(y) - x
     ur <- switch(side,
-                 left = try(uniroot(target, interval = c(lower, mode), extendInt = "downX")),
-                 right = try(uniroot(target, interval = c(mode, upper), extendInt = "downX")))
+                 left = try(uniroot(target, interval = c(lower, mode))),
+                 right = try(uniroot(target, interval = c(mode, upper))))
     if(inherits(ur, "try-error")) stop("Error: You may change prior parameters or 'lower' & 'upper'.")
     return(ur[[1]])
   }
