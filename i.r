@@ -4800,7 +4800,46 @@ n.as <- Vectorize(function(d, conf.level, width, assure, paired){
 }
                       
                       
-               
+#====================================================
+                      
+                      
+power.t <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, paired = FALSE, two.tailed = TRUE)
+{
+  
+ pwr <- Vectorize(function(d, sig.level, power, base.rate, paired, two.tailed)
+   {
+   
+d <- abs(d)
+sig.level <- if(two.tailed) sig.level/2 else sig.level
+k <- base.rate / (1 + base.rate)
+options(warn = -1)
+
+f <- if(two.tailed){ function(x){
+  
+  power - (pt(qt(sig.level, df = x), df = x, ncp = d*sqrt(if(paired) x + 1 else k*(x + 2))) + pt(qt(sig.level, df = x, lower.tail = FALSE), df = x, ncp = d*sqrt(if(paired) x + 1 else k*(x + 2)), lower.tail = FALSE))
+}
+  
+} else {
+  
+  function(x){
+    
+  power - pt(qt(sig.level, df = x, lower.tail = FALSE), df = x, ncp = d*sqrt(if(paired) x + 1 else k*(x + 2)), lower.tail = FALSE)
+    
+  }
+}
+
+df <- ceiling(uniroot(f, c(1e-8, 1e7), extendInt = "downX")[[1]])
+
+n1 <- df + 1
+n2 <- if(paired) NA else round(base.rate*n1)
+
+return(c(n1 = n1, n2 = n2))
+})
+
+ data.frame(t(pwr(d = d, sig.level = sig.level, power = power, base.rate = base.rate, paired = paired, two.tailed = two.tailed)))
+}
+             
+
                
                                                                                                                                              
                                                                                                                                              
