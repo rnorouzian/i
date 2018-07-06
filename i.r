@@ -4897,8 +4897,8 @@ n <- n.d(d = d, conf.level = conf.level, width = width, paired = paired, base.ra
   
 a <- d.ci(d = d, n1 = n$n1, n2 = n$n2, conf.level = c(assure, assure - (1 - assure)))$upper
 
-limits <- function(limit = limit, n1 = n$n1, n2 = n$n2, d = d, assure = assure){
-  total <- sum(pcohen(c(-limit, limit), d, n1 = n1, n2 = n2, lower.tail = c(TRUE, FALSE)))
+limits <- function(new.d = new.d, n1 = n$n1, n2 = n$n2, d = d, assure = assure){
+  total <- sum(pcohen(c(-new.d, new.d), d, n1 = n1, n2 = n2, lower.tail = c(TRUE, FALSE)))
   return((total - (1 - assure))^2)
 }
 
