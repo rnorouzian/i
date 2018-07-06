@@ -4899,7 +4899,7 @@ a <- d.ci(d = d, n1 = n$n1, n2 = n$n2, conf.level = c(assure, assure - (1 - assu
 
 limits <- function(new.d = new.d, n1 = n$n1, n2 = n$n2, d = d, assure = assure){
   total <- sum(pcohen(c(-new.d, new.d), d, n1 = n1, n2 = n2, lower.tail = c(TRUE, FALSE)))
-  return((total - (1 - assure))^2)
+  return(abs(total - (1 - assure)))
 }
 
 d.opt <- optimize(limits, c(a[1], a[2]), d = d, assure = assure)[[1]]
