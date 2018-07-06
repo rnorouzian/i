@@ -4902,7 +4902,7 @@ dnew <- function(dnew = dnew, n1 = n$n1, n2 = n$n2, d = d, assure = assure){
   return(abs(total - (1 - assure)))
 }
 
-dnew <- optimize(dnew, c(a[1], a[2]), d = d, assure = assure)[[1]]
+dnew <- optimize(dnew, a, d = d, assure = assure)[[1]]
 n.d(d = dnew, conf.level = conf.level, width = width, paired = paired, base.rate = base.rate, assure = assure)
 })
   
