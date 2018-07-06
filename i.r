@@ -3814,11 +3814,15 @@ mu.p[mu.p > 1] <- 1 }
 
 qcohen <- function(p, dbase = 0, n1, n2 = NA, lower.tail = TRUE, log.p = FALSE){
   
-  N <- ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
-  df <- ifelse(is.na(n2), n1 - 1, (n1 + n2) - 2)
-  ncp <- dbase*sqrt(N)
-  
-  qt(p, df, ncp, lower.tail = lower.tail, log.p = log.p)/sqrt(N)
+  q <- Vectorize(function(p, dbase, n1, n2, lower.tail, log.p){
+    
+    N <- ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
+    df <- ifelse(is.na(n2), n1 - 1, (n1 + n2) - 2)
+    ncp <- dbase*sqrt(N)
+    
+    qt(p, df, ncp, lower.tail = lower.tail, log.p = log.p)/sqrt(N)
+  })
+  as.numeric(q(p = p, dbase = dbase, n1 = n1, n2 = n2, lower.tail = lower.tail, log.p = log.p))
 }
 
     
@@ -3827,11 +3831,15 @@ qcohen <- function(p, dbase = 0, n1, n2 = NA, lower.tail = TRUE, log.p = FALSE){
 
 pcohen <- function(q, dbase = 0, n1, n2 = NA, lower.tail = TRUE, log.p = FALSE){
   
- N <- ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
- df <- ifelse(is.na(n2), n1 - 1, (n1 + n2) - 2)
- ncp <- dbase*sqrt(N)
- 
- pt(q*sqrt(N), df, ncp, lower.tail = lower.tail, log.p = log.p)
+  p <- Vectorize(function(q, dbase, n1, n2, lower.tail, log.p){
+  
+  N <- ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
+  df <- ifelse(is.na(n2), n1 - 1, (n1 + n2) - 2)
+  ncp <- dbase*sqrt(N)
+  
+  pt(q*sqrt(N), df, ncp, lower.tail = lower.tail, log.p = log.p)
+})
+as.numeric(p(q = q, dbase = dbase, n1 = n1, n2 = n2, lower.tail = lower.tail, log.p = log.p))
 }
 
     
@@ -4887,17 +4895,14 @@ list(d = d, n1 = n1, n2 = n2, base.rate = base.rate, width = width, conf.level =
 
 n <- n.d(d = d, conf.level = conf.level, width = width, paired = paired, base.rate = base.rate, assure = assure)
   
-a <- d.ci(d = d, n1 = n$n1, n2 = n$n2, conf.level = assure)$upper
-b <- d.ci(d = d, n1 = n$n1, n2 = n$n2, conf.level = assure - (1 - assure))$upper
+a <- d.ci(d = d, n1 = n$n1, n2 = n$n2, conf.level = c(assure, assure - (1 - assure)))$upper
 
 limits <- function(limit = limit, n1 = n$n1, n2 = n$n2, d = d, assure = assure){
-  lower <- pcohen(-limit, d, n1 = n1, n2 = n2)
-  upper <- pcohen( limit, d, n1 = n1, n2 = n2, lower.tail = FALSE)
-  total <- lower + upper
+  total <- sum(pcohen(c(-limit, limit), d, n1 = n1, n2 = n2, lower.tail = c(TRUE, FALSE)))
   return((total - (1 - assure))^2)
 }
 
-d.opt <- optimize(limits, c(a, b), d = d, assure = assure)[[1]]
+d.opt <- optimize(limits, c(a[1], a[2]), d = d, assure = assure)[[1]]
 n.d(d = d.opt, conf.level = conf.level, width = width, paired = paired, base.rate = base.rate, assure = assure)
 })
   
