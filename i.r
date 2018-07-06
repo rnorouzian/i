@@ -4720,13 +4720,13 @@ peta.rep.bayes.default <- function(f = NULL, peta, N, df1, df2, n.rep, factor.ty
 #=======================================================================================================================================================
                                                                                                                                              
                                                                                                                                              
-plan.d.ci <- function(d, conf.level = .95, width, assure = NULL, paired = FALSE)
+plan.d.cib <- function(d, conf.level = .95, width, assure = NULL, paired = FALSE)
 {
-  UseMethod("plan.d.ci")
+  UseMethod("plan.d.cib")
 }
 
 
-plan.d.ci.default <- function(d, conf.level = .95, width, assure = NULL, paired = FALSE)
+plan.d.cib.default <- function(d, conf.level = .95, width, assure = NULL, paired = FALSE)
 { 
   
 n.d.d <- function(d, conf.level, width, paired){ 
@@ -4841,5 +4841,68 @@ return(c(n1 = n1, n2 = n2))
              
 
                
-                                                                                                                                             
+#=================================================================================================================
+             
+             
+             
+plan.d.ci <- function(d, conf.level = .95, width, base.rate = 1, paired = FALSE, assure = .99)
+{
+  UseMethod("plan.d.ci")
+}
+
+
+plan.d.ci.default <- function(d, conf.level = .95, width, base.rate = 1, paired = FALSE, assure = .99){
+  
+  if(any(conf.level) >= 1 || any(conf.level) <= 0 || any(assure) >= 1 || any(assure) <= 0) stop("'conf.level' and 'assure' range from '0' to '1'.", call. = FALSE)
+  
+  G <- Vectorize(function(d, conf.level, width, base.rate, paired, assure){
+  
+  n.d <- function(d, conf.level, width, base.rate, paired, assure){
+
+alpha <- (1 - conf.level)/2
+k <- base.rate 
+
+f <- function(ncp, alpha, d, df){
+  alpha - suppressWarnings(pt(d*sqrt(if(paired) df + 1 else ((k/(1 + k))^2)*(df + 2)), df, ncp, lower.tail = FALSE))
+}
+
+dbase <- function(df){
+  sapply(c(alpha, 1 - alpha),
+  function(x) uniroot(f, c(-d+5e1, d+5e1), alpha = x, d = d, df = df, extendInt = "downX")[[1]]/sqrt(if(paired) df + 1 else ((k/(1 + k))^2)*(df + 2)))
+}
+
+m <- function(df, width){
+  abs(abs(diff(dbase(df))) - width)
+}
+
+df <- optimize(m, c(1, 1e7), width = width)
+
+if(round(df$objective, 5) != 0) return(c(NaN, message("Warning: NaN produced. Are input values correct?")))
+
+n1 <- ceiling(if(paired) df[[1]] + 1 else (df[[1]] + 2)/(1 + k))
+n2 <- if(paired) NA else k * n1
+
+list(d = d, n1 = n1, n2 = n2, base.rate = base.rate, width = width, conf.level = conf.level, assure = assure, paired = paired)
+}
+
+n <- n.d(d = d, conf.level = conf.level, width = width, paired = paired, base.rate = base.rate, assure = assure)
+  
+a <- d.ci(d = d, n1 = n$n1, n2 = n$n2, conf.level = assure)$upper
+b <- d.ci(d = d, n1 = n$n1, n2 = n$n2, conf.level = assure - (1 - assure))$upper
+
+limits <- function(limit = limit, n1 = n$n1, n2 = n$n2, d = d, assure = assure){
+  lower <- pcohen(-limit, d, n1 = n1, n2 = n2)
+  upper <- pcohen( limit, d, n1 = n1, n2 = n2, lower.tail = FALSE)
+  total <- lower + upper
+  return((total - (1 - assure))^2)
+}
+
+d.opt <- optimize(limits, c(a, b), d = d, assure = assure)[[1]]
+n.d(d = d.opt, conf.level = conf.level, width = width, paired = paired, base.rate = base.rate, assure = assure)
+})
+  
+data.frame(t(G(d = d, conf.level = conf.level, width = width, paired = paired, base.rate = base.rate, assure = assure)), row.names = NULL)
+}
+                                                                                                     
+                                                                                                     
                                                                                                                                              
