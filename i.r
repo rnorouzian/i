@@ -4853,7 +4853,7 @@ plan.d.ci <- function(d, conf.level = .95, width, base.rate = 1, paired = FALSE,
 
 plan.d.ci.default <- function(d, conf.level = .95, width, base.rate = 1, paired = FALSE, assure = .99){
   
-#  if(any(conf.level) >= 1 || any(conf.level) <= 0 || any(assure) >= 1 || any(assure) <= 0) stop("'conf.level' and 'assure' range from '0' to '1'.", call. = FALSE)
+if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
   
   G <- Vectorize(function(d, conf.level, width, base.rate, paired, assure){
   
