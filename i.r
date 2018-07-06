@@ -4880,7 +4880,7 @@ df <- optimize(m, c(1, 1e7), width = width)
 if(round(df$objective, 5) != 0) return(c(NaN, message("Warning: NaN produced. Are input values correct?")))
 
 n1 <- ceiling(if(paired) df[[1]] + 1 else (df[[1]] + 2)/(1 + k))
-n2 <- if(paired) NA else k * n1
+n2 <- if(paired) NA else round(k * n1)
 
 list(d = d, n1 = n1, n2 = n2, base.rate = base.rate, width = width, conf.level = conf.level, assure = assure, paired = paired)
 }
