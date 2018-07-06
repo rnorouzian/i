@@ -4897,13 +4897,13 @@ n <- n.d(d = d, conf.level = conf.level, width = width, paired = paired, base.ra
   
 a <- d.ci(d = d, n1 = n$n1, n2 = n$n2, conf.level = c(assure, assure - (1 - assure)))$upper
 
-limits <- function(new.d = new.d, n1 = n$n1, n2 = n$n2, d = d, assure = assure){
-  total <- sum(pcohen(c(-new.d, new.d), d, n1 = n1, n2 = n2, lower.tail = c(TRUE, FALSE)))
+dnew <- function(dnew = dnew, n1 = n$n1, n2 = n$n2, d = d, assure = assure){
+  total <- sum(pcohen(c(-dnew, dnew), d, n1 = n1, n2 = n2, lower.tail = c(TRUE, FALSE)))
   return(abs(total - (1 - assure)))
 }
 
-d.opt <- optimize(limits, c(a[1], a[2]), d = d, assure = assure)[[1]]
-n.d(d = d.opt, conf.level = conf.level, width = width, paired = paired, base.rate = base.rate, assure = assure)
+dnew <- optimize(dnew, c(a[1], a[2]), d = d, assure = assure)[[1]]
+n.d(d = dnew, conf.level = conf.level, width = width, paired = paired, base.rate = base.rate, assure = assure)
 })
   
 data.frame(t(G(d = d, conf.level = conf.level, width = width, paired = paired, base.rate = base.rate, assure = assure)), row.names = NULL)
