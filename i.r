@@ -307,7 +307,7 @@ ci <- Vectorize(function(peta, f, N, df1, df2, conf.level){
     I <- try(sapply(c(alpha, 1-alpha), 
          function(x) uniroot(u, c(0, q+1e3), alpha = x, q = q, df1 = df1, df2 = df2)[[1]]), silent = TRUE)
     
-    if(inherits(I, "try-error")) return(c(NaN, message("Warning: NaN produced. Are input values correct?")))
+    if(inherits(I, "try-error")) return(c(NA, message("Warning: NA produced. Are input values correct?")))
     
     I <- I[1:2] / (I[1:2] + N)
     
