@@ -246,13 +246,13 @@ round(data.frame(t(ci(d = d, t = t, n1 = n1, n2 = n2, conf.level = conf.level)))
                                   
 #=================================================================================================================================
 
-#peta.ci <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 9)
-#{
-#  UseMethod("peta.ci")
-#}
-#.default
                   
-peta.ci <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 9){
+peta.ci <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 9)
+{
+  UseMethod("peta.ci")
+}
+                  
+peta.ci.default <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 9){
   
   ci <- Vectorize(function(peta, f, N, df1, df2, conf.level){
     
@@ -265,13 +265,13 @@ peta.ci <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 9){
       abs(suppressWarnings(pf(q = q, df1 = df1, df2 = df2, ncp, lower.tail = FALSE)) - alpha)
     }
     
-    a <- lapply(20:q+3e2, function(x) c(-x, x))
+    a <- lapply(1:q+3e2, function(x) c(-x, x))
     
     CI <- matrix(NA, length(a), 2)
     
     for(i in 1:length(a)){
       CI[i,] <- sapply(c(alpha, 1-alpha), 
-               function(x) optimize(u, interval = a[[i]], alpha = x, q = q, df1 = df1, df2 = df2)[[1]])
+       function(x) optimize(u, interval = a[[i]], alpha = x, q = q, df1 = df1, df2 = df2)[[1]])
     }
     
     I <- CI[which.max(ave(1:nrow(CI), do.call(paste, round(data.frame(CI), 3)), FUN = seq_along)), ] 
