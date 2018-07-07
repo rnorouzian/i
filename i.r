@@ -258,36 +258,35 @@ peta.ci <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 9){
     
     options(warn = -1) 
     
-    q <- ifelse(is.na(f), (-peta * df2) / ((peta * df1) - df1), f) 
+    q <- ifelse(is.na(f), peta2F(peta, df1, df2), f) 
     alpha <- (1 - conf.level)/2
     
     u <- function (ncp, alpha, q, df1, df2) {
       abs(suppressWarnings(pf(q = q, df1 = df1, df2 = df2, ncp, lower.tail = FALSE)) - alpha)
     }
     
-    a <- if(is.na(f)){ lapply(5:ifelse(peta!= 0, q+2e2, 30), function(x) c(-x, x))
-    }else{ lapply(5:ifelse(f!= 0, q+2e2, 30), function(x) c(-x, x)) }
+    a <- lapply(20:q+3e2, function(x) c(-x, x))
     
     CI <- matrix(NA, length(a), 2)
     
     for(i in 1:length(a)){
       CI[i,] <- sapply(c(alpha, 1-alpha), 
-      function(x) optimize(u, interval = a[[i]], alpha = x, q = q, df1 = df1, df2 = df2)[[1]])
+               function(x) optimize(u, interval = a[[i]], alpha = x, q = q, df1 = df1, df2 = df2)[[1]])
     }
     
     I <- CI[which.max(ave(1:nrow(CI), do.call(paste, round(data.frame(CI), 3)), FUN = seq_along)), ] 
     
     I <- I[1:2] / (I[1:2] + N)
     
-    P.eta.sq <- if(is.na(f)) peta else (f * df1)/ ((f * df1) + df2)
+    P.eta.sq <- if(is.na(f)) peta else F2peta(f, df1, df2)
     
-    return(c(P.eta.sq = P.eta.sq, lower = I[1], upper = I[2], conf.level = conf.level, ncp = (P.eta.sq * N) / (1 - P.eta.sq), F.value = q))
+    return(c(P.eta.sq = P.eta.sq, lower = I[1], upper = I[2], conf.level = conf.level, ncp = peta2ncp(P.eta.sq, N), F.value = q))
   })  
   
   peta <- if(missing(peta)) NA else peta
   
   round(data.frame(t(ci(peta = peta, f = f, N = N, df1 = df1, df2 = df2, conf.level = conf.level))), digits = digits)
-}               
+}           
 
 #=================================================================================================================================
                   
