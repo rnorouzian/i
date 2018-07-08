@@ -276,7 +276,7 @@ peta.ci.default <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits =
     
     I <- CI[which.max(ave(1:nrow(CI), do.call(paste, round(data.frame(CI), 3)), FUN = seq_along)), ] 
     
-    I <- I[1:2] / (I[1:2] + N)
+    I <- I / (I + N)
     
     P.eta.sq <- if(is.na(f)) peta else F2peta(f, df1, df2)
     
