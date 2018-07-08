@@ -4896,13 +4896,13 @@ return(c(n1 = n1, n2 = n2))
              
              
              
-plan.d.ci <- function(d, conf.level = .95, width, base.rate = 1, paired = FALSE, assure = .99)
+plan.t.ci <- function(d, conf.level = .95, width, base.rate = 1, paired = FALSE, assure = .99)
 {
-  UseMethod("plan.d.ci")
+  UseMethod("plan.t.ci")
 }
 
 
-plan.d.ci.default <- function(d, conf.level = .95, width, base.rate = 1, paired = FALSE, assure = .99){
+plan.t.ci.default <- function(d, conf.level = .95, width, base.rate = 1, paired = FALSE, assure = .99){
   
 if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
   
