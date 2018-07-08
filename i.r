@@ -3855,7 +3855,7 @@ qcohen <- function(p, dbase = 0, n1, n2 = NA, lower.tail = TRUE, log.p = FALSE){
     
     qt(p, df, ncp, lower.tail = lower.tail, log.p = log.p)/sqrt(N)
   })
-  as.numeric(q(p = p, dbase = dbase, n1 = n1, n2 = n2, lower.tail = lower.tail, log.p = log.p))
+  q(p = p, dbase = dbase, n1 = n1, n2 = n2, lower.tail = lower.tail, log.p = log.p)
 }
 
     
@@ -3872,7 +3872,7 @@ pcohen <- function(q, dbase = 0, n1, n2 = NA, lower.tail = TRUE, log.p = FALSE){
   
   pt(q*sqrt(N), df, ncp, lower.tail = lower.tail, log.p = log.p)
 })
-as.numeric(p(q = q, dbase = dbase, n1 = n1, n2 = n2, lower.tail = lower.tail, log.p = log.p))
+p(q = q, dbase = dbase, n1 = n1, n2 = n2, lower.tail = lower.tail, log.p = log.p)
 }
 
     
@@ -3908,6 +3908,9 @@ dpeta <- function(x, df1, df2, pbase = 0, N, log = FALSE){
 
 
 ppeta <- function(q, df1, df2, pbase = 0, N, lower.tail = TRUE, log.p = FALSE){
+  
+  p <- Vectorize(function(q, df1, df2, pbase, N, lower.tail, log.p){
+    
   q[q > .9999999999999999] <- .9999999999999999
   q[q < 0] <- 0
   pbase[pbase > .9999999999999999] <- .9999999999999999
@@ -3916,6 +3919,8 @@ ppeta <- function(q, df1, df2, pbase = 0, N, lower.tail = TRUE, log.p = FALSE){
   d <- df2 / df1
   f <- q / (1 - q) * d
   pf(f, df1, df2, ncp, lower.tail = lower.tail, log.p = log.p)
+})
+p(q = q, df1 = df1, df2 = df2, pbase = pbase, N = N, lower.tail = lower.tail, log.p = log.p)
 }
 
 
@@ -3923,6 +3928,9 @@ ppeta <- function(q, df1, df2, pbase = 0, N, lower.tail = TRUE, log.p = FALSE){
 
 
 qpeta <- function(p, df1, df2, pbase = 0, N, lower.tail = TRUE, log.p = FALSE){
+  
+  q <- Vectorize(function(p, df1, df2, pbase, N, lower.tail, log.p){
+    
   p[p > 1] <- 1
   p[p < 0] <- 0
   pbase[pbase > .9999999999999999] <- .9999999999999999
@@ -3931,6 +3939,8 @@ qpeta <- function(p, df1, df2, pbase = 0, N, lower.tail = TRUE, log.p = FALSE){
   d <- df2 / df1
   f <- qf(p, df1, df2, ncp, lower.tail = lower.tail, log.p = log.p)
   f / (f + d)
+})
+q(p = p, df1 = df1, df2 = df2, pbase = pbase, N = N, lower.tail = lower.tail, log.p = log.p)
 }
 
 
