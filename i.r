@@ -4956,9 +4956,9 @@ data.frame(t(G(d = d, conf.level = conf.level, width = width, paired = paired, b
 #===================================================================================================================================================
                                                                                                      
                                                                                                      
-R2.ci <- function(R2, n.pred, N, f = NA, df1 = NULL, df2 = NULL, conf.level = .9, digits = 9){ 
+R2.ci <- function(R2, n.pred, N, f = NA, df1 = NA, df2 = NA, conf.level = .9, digits = 9){ 
   
-if(is.null(df1) & is.null(df2)){
+if(is.na(df1) & is.na(df2)){
     df1 <- n.pred
     df2 <- N - n.pred - 1
 }    
