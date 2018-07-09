@@ -4953,4 +4953,18 @@ data.frame(t(G(d = d, conf.level = conf.level, width = width, paired = paired, b
 }
                                                                                                      
                                                                                                      
-                                                                                                                                             
+#===================================================================================================================================================
+                                                                                                     
+                                                                                                     
+R2.ci <- function(R2, n.pred, N, f = NA, df1 = NULL, df2 = NULL, conf.level = .9, digits = 9){ 
+  
+if(is.null(df1) & is.null(df2)){
+    df1 <- n.pred
+    df2 <- N - n.pred - 1
+}    
+ a <- peta.ci(peta = R2, f = f, df1 = df1, df2 = df2, N = N, conf.level = conf.level, digits = digits)
+ names(a)[1] <- "R2"
+ a
+}
+                                                                                                     
+                                                                                                     
