@@ -265,7 +265,7 @@ peta.ci.default <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits =
       abs(suppressWarnings(pf(q = q, df1 = df1, df2 = df2, ncp, lower.tail = FALSE)) - alpha)
     }
     
-    a <- lapply(0:q+2e3, function(x) c(-x, x))
+    a <- lapply(0:q+1e3, function(x) c(-x, x))
     
     CI <- matrix(NA, length(a), 2)
     
