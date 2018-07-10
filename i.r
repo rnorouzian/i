@@ -301,9 +301,9 @@ ci <- Vectorize(function(peta, f, N, df1, df2, conf.level){
       suppressWarnings(pf(q = q, df1 = df1, df2 = df2, ncp, lower.tail = FALSE)) - alpha
     }
     
-    g <- try(uniroot(u, c(0, q+1e3), alpha = alpha, q = q, df1 = df1, df2 = df2)[[1]], silent = TRUE)
+    g <- try(uniroot(u, c(0, q+1e7), alpha = alpha, q = q, df1 = df1, df2 = df2)[[1]], silent = TRUE)
     if(inherits(g, "try-error")) g <- 0
-    h <- try(uniroot(u, c(0, q+1e3), alpha = 1-alpha, q = q, df1 = df1, df2 = df2)[[1]], silent = TRUE)
+    h <- try(uniroot(u, c(0, q+1e7), alpha = 1-alpha, q = q, df1 = df1, df2 = df2)[[1]], silent = TRUE)
     if(inherits(h, "try-error")) h <- 0
     I <- c(g, h)
     
