@@ -245,14 +245,8 @@ round(data.frame(t(ci(d = d, t = t, n1 = n1, n2 = n2, conf.level = conf.level)))
 }                  
                                   
 #=================================================================================================================================
-
                   
-peta.ci <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 9)
-{
-  UseMethod("peta.ci")
-}
-                  
-peta.ci.default <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 9){
+peta.cib <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 9){
   
   ci <- Vectorize(function(peta, f, N, df1, df2, conf.level){
     
@@ -290,8 +284,12 @@ peta.ci.default <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits =
 
 #=================================================================================================================================
                   
-                  
-peta.cib <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 9){
+peta.ci <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 9)
+{
+  UseMethod("peta.ci")
+} 
+                
+peta.ci.default <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 9){
 
 ci <- Vectorize(function(peta, f, N, df1, df2, conf.level){
     
@@ -303,12 +301,13 @@ ci <- Vectorize(function(peta, f, N, df1, df2, conf.level){
       suppressWarnings(pf(q = q, df1 = df1, df2 = df2, ncp, lower.tail = FALSE)) - alpha
     }
     
-    I <- try(sapply(c(alpha, 1-alpha), 
-         function(x) uniroot(u, c(0, q+1e3), alpha = x, q = q, df1 = df1, df2 = df2)[[1]]), silent = TRUE)
+    g <- try(uniroot(u, c(0, q+1e3), alpha = alpha, q = q, df1 = df1, df2 = df2)[[1]], silent = TRUE)
+    if(inherits(g, "try-error")) g <- 0
+    h <- try(uniroot(u, c(0, q+1e3), alpha = 1-alpha, q = q, df1 = df1, df2 = df2)[[1]], silent = TRUE)
+    if(inherits(h, "try-error")) h <- 0
+    I <- c(g, h)
     
-    if(inherits(I, "try-error")) return(c(NA, message("Warning: NA produced. Are input values correct?")))
-    
-    I <- I[1:2] / (I[1:2] + N)
+    I <- I / (I + N)
     
     P.eta.sq <- if(is.na(f)) peta else F2peta(f, df1, df2)
     
