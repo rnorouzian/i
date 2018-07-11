@@ -5054,9 +5054,9 @@ d.unbias <- function(d, n1, n2 = NA, t = NA){
                 
                 
  ploti <- function(x, y = NULL, type = "p", xlim = NULL, ylim = NULL, 
-                  log = "", main = NULL, sub = NULL, xlab = deparse(substitute(x)), ylab = NULL, 
-                  ann = par("ann"), axes = TRUE, frame.plot = axes, panel.first = NULL, 
-                  panel.last = NULL, asp = NA, add = FALSE, show = TRUE, ...)
+                   log = "", main = NULL, sub = NULL, xlab = deparse(substitute(x)), ylab = NULL, 
+                   ann = par("ann"), axes = TRUE, frame.plot = axes, panel.first = NULL, 
+                   panel.last = NULL, asp = NA, add = FALSE, show = TRUE, ...)
 {
   
   if(!add){ 
