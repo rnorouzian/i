@@ -5037,3 +5037,14 @@ n.f(peta = petanew, conf.level = conf.level, width = width, design = design, n.l
 data.frame(t(G(peta = peta, conf.level = conf.level, width = width, design = design, n.level = n.level, n.covar = n.covar, regress = regress, n.groups = n.groups, assure = assure)), row.names = NULL)[, 1:6, drop = FALSE]
 }
                 
+#=====================================================================================================================================================================================================
+                
+                
+d.unbias <- function(d, n1, n2 = NA, t = NA){
+
+  df <- ifelse(is.na(n2), n1 - 1, n1 + n2 - 2)
+   N <- ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
+   d <- if(!is.na(t)) t/sqrt(N)
+   d * exp(lgamma(df/2)-log(sqrt(df/2)) - lgamma((df-1)/2))
+
+}
