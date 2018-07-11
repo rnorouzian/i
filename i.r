@@ -5048,3 +5048,29 @@ d.unbias <- function(d, n1, n2 = NA, t = NA){
    d * exp(lgamma(df/2)-log(sqrt(df/2)) - lgamma((df-1)/2))
 
 }
+
+
+#=======================================================================================================================================
+                
+                
+ ploti <- function(x, y = NULL, type = "p", xlim = NULL, ylim = NULL, 
+                  log = "", main = NULL, sub = NULL, xlab = NULL, ylab = NULL, 
+                  ann = par("ann"), axes = TRUE, frame.plot = axes, panel.first = NULL, 
+                  panel.last = NULL, asp = NA, add = FALSE, ...)
+  {
+
+ if(!add){ 
+   
+   graphics.off()  
+   
+   plot(x = x, y = y, type = type, xlim = xlim, ylim = ylim, 
+        log = log, main = main, sub = sub, xlab = xlab, ylab = ylab, 
+        ann = ann, axes = axes, frame.plot = frame.plot, panel.first = panel.first, 
+        panel.last = panel.last, asp = asp, ...)
+  
+  }else{
+  
+   lines(x = x, y = y, type = type, ...)
+    }
+}
+                
