@@ -5054,23 +5054,27 @@ d.unbias <- function(d, n1, n2 = NA, t = NA){
                 
                 
  ploti <- function(x, y = NULL, type = "p", xlim = NULL, ylim = NULL, 
-                  log = "", main = NULL, sub = NULL, xlab = NULL, ylab = NULL, 
+                  log = "", main = NULL, sub = NULL, xlab = deparse(substitute(x)), ylab = NULL, 
                   ann = par("ann"), axes = TRUE, frame.plot = axes, panel.first = NULL, 
-                  panel.last = NULL, asp = NA, add = FALSE, ...)
-  {
-
- if(!add){ 
-   
-   graphics.off()  
-   
-   plot(x, y = y, type = type, xlim = xlim, ylim = ylim, 
-        log = log, main = main, sub = sub, xlab = xlab, ylab = ylab, 
-        ann = ann, axes = axes, frame.plot = frame.plot, panel.first = panel.first, 
-        panel.last = panel.last, asp = asp, ...)
+                  panel.last = NULL, asp = NA, add = FALSE, show = TRUE, ...)
+{
   
+  if(!add){ 
+    
+  if(!show){type <- "n"; axes <- FALSE; ann <- FALSE} 
+    
+    graphics.off()  
+    
+    plot(x = x, y = y, type = type, xlim = xlim, ylim = ylim, 
+         log = log, main = main, sub = sub, xlab = xlab, ylab = ylab, 
+         ann = ann, axes = axes, frame.plot = frame.plot, panel.first = panel.first, 
+         panel.last = panel.last, asp = asp, ...)
+    
   }else{
-  
-   lines(x = x, y = y, type = type, ...)
-    }
+    
+    lines(x = x, y = y, type = type, ...)
+  }
 }
+                
+                
                 
