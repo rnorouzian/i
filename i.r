@@ -5077,4 +5077,21 @@ d.unbias <- function(d, n1, n2 = NA, t = NA){
 }
                 
                 
+#========================================================================================================================================================
                 
+              
+peta2d.fun <- function(peta = seq(.1, .5, .1), n = seq(30, 300, 10), base.rate = 1, xlab = "Group Sample Size", ylab = "Cohen's d", ...)
+{
+
+n <- sort(n)
+peta <- sort(peta)  
+
+d <- lapply(peta, function(x) peta2d(x, n1 = n, n2 = base.rate*n))
+
+for(i in 1:length(peta)){
+  ploter(n, d[[i]], type = "l", add = i!= 1, las = 1, font.lab = 2, ylim = range(d), xlab = xlab, ylab = ylab, ...)
+  text(mean(n), mean(d[[i]]), bquote(eta[p]^2 == .(round(peta[i], 3))), col = 2, pos = 3, xpd = NA, cex = .8)
+  }
+}
+            
+
