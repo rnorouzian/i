@@ -5063,7 +5063,7 @@ d.unbias <- function(d, n1, n2 = NA, t = NA){
    
    graphics.off()  
    
-   plot(x = x, y = y, type = type, xlim = xlim, ylim = ylim, 
+   plot(x, y = y, type = type, xlim = xlim, ylim = ylim, 
         log = log, main = main, sub = sub, xlab = xlab, ylab = ylab, 
         ann = ann, axes = axes, frame.plot = frame.plot, panel.first = panel.first, 
         panel.last = panel.last, asp = asp, ...)
