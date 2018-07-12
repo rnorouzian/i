@@ -5051,7 +5051,7 @@ d.unbias <- function(d, n1, n2 = NA, t = NA){
                 
                 
 graph <- function(x, y = NULL, type = "p", xlim = NULL, ylim = NULL, 
-                   log = "", main = NULL, sub = NULL, xlab = deparse(substitute(x)), ylab = NULL, 
+                   log = "", main = NULL, sub = NULL, xlab = deparse(substitute(x)), ylab = deparse(substitute(y)), 
                    ann = par("ann"), axes = TRUE, frame.plot = axes, panel.first = NULL, 
                    panel.last = NULL, asp = NA, add = FALSE, show = TRUE, ...)
 {
