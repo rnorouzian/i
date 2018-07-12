@@ -5150,7 +5150,7 @@ plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.
       
     n <- n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, n.groups = n.groups)  
     
-    peta <- exp.pov(P2 = n$peta, K = if(regress) n$n.level else n$design, N = n$total.N)
+    peta <- exp.pov(P2 = n$peta, K = n$design, N = n$total.N)
     
     n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, n.groups = n.groups)
     
