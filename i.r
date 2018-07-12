@@ -5140,7 +5140,7 @@ plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.
       
       N <- ceiling(df2 + design)
       bal <- ceiling(N/design) * design
-      if(n.groups != 0){ N <- n.groups * (bal/2) ; message("\nNote: You are doing reseach planning for 'pairwise' comparisons.") }
+      if(n.groups != 0){ N <- n.groups * (bal/2) ; message("\nNote: You are doing reseach planning for accurate 'pairwise' comparisons.") }
       N <- if(!regress & design != 0 & N %% design != 0) bal else N
       n.covar <- if(n.covar == 0) NA else n.covar
       n.level <- if(regress) n.level-1 else n.level
