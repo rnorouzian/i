@@ -5102,5 +5102,62 @@ exp.pov <- function(P2, K, N) {
        
 #====================================================================================================================================================================
             
-            
+plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.level = .9, width = .2, regress = FALSE, n.groups = 0, assure = .99){
+  
+  if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
+  
+  G <- Vectorize(function(peta, conf.level, width, assure, design, n.level, n.covar, regress, n.groups){
+    
+    n.f <- function(peta, conf.level, width, assure, design, n.level, n.covar, regress, n.groups){
+      
+      alpha <- (1 - conf.level)/2
+      if(regress){ n.level <- n.level + 1 ; design <- n.level }
+      
+      df1 <- n.level - 1
+      if(n.covar < 0) n.covar <- 0
+      options(warn = -1)
+      
+      f <- function(alpha, q, df1, df2, ncp){
+        alpha - suppressWarnings(pf(q = (peta / df1) / ((1 - peta)/df2), df1, df2, ncp, lower.tail = FALSE))
+      }
+      
+      pbase <- function(df2){      
+        
+        b <- sapply(c(alpha, 1 - alpha), function(x) 
+          tryCatch(uniroot(f, c(0, 1e7), alpha = x, q = q, df1 = df1, df2 = df2)[[1]], error = function(e) NA))
+        if(any(is.na(b))) b <- c(1, 1e4)
+        
+        b / (b + (df2 + design))
+      }
+      
+      m <- function(df2, width){
+        abs(diff(pbase(df2))) - width
+      }
+      
+      df2 <- uniroot(m, c(0, 1e3), width = width, extendInt = "yes")[[1]]
+      
+      df2 <- if(regress) df2 else df2 - n.covar
+      
+      N <- ceiling(df2 + design)
+      bal <- ceiling(N/design) * design
+      if(n.groups != 0){ N <- n.groups * (bal/2) ; message("\nNote: You are doing reseach planning for 'pairwise' comparisons.") }
+      N <- if(!regress & design != 0 & N %% design != 0) bal else N
+      n.covar <- if(n.covar == 0) NA else n.covar
+      n.level <- if(regress) n.level-1 else n.level
+      
+      list(peta = peta, total.N = N, width = width, n.level = n.level, conf.level = conf.level, assure = assure, df1 = df1, df2 = df2)
+    }
+      
+    n <- n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, n.groups = n.groups)  
+    
+    peta <- exp.pov(P2 = n$peta, K = if(regress) n$n.level else n$design, N = n$total.N)
+    
+    n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, n.groups = n.groups)
+    
+  })
+  
+  data.frame(t(G(peta = peta, conf.level = conf.level, width = width, design = design, n.level = n.level, n.covar = n.covar, regress = regress, n.groups = n.groups, assure = assure)), row.names = NULL)
+}
+                   
+                   
             
