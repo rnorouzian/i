@@ -5050,7 +5050,7 @@ d.unbias <- function(d, n1, n2 = NA, t = NA){
 #=======================================================================================================================================
                 
                 
- graph <- function(x, y = NULL, type = "p", xlim = NULL, ylim = NULL, 
+graph <- function(x, y = NULL, type = "p", xlim = NULL, ylim = NULL, 
                    log = "", main = NULL, sub = NULL, xlab = deparse(substitute(x)), ylab = NULL, 
                    ann = par("ann"), axes = TRUE, frame.plot = axes, panel.first = NULL, 
                    panel.last = NULL, asp = NA, add = FALSE, show = TRUE, ...)
@@ -5086,7 +5086,7 @@ peta <- sort(peta)
 d <- lapply(peta, function(x) peta2d(x, n1 = n, n2 = base.rate*n))
 
 for(i in 1:length(peta)){
-  ploter(n, d[[i]], type = "l", add = i!= 1, las = 1, font.lab = 2, ylim = range(d), xlab = xlab, ylab = ylab, ...)
+  graph(n, d[[i]], type = "l", add = i!= 1, las = 1, font.lab = 2, ylim = range(d), xlab = xlab, ylab = ylab, ...)
   text(mean(n), mean(d[[i]]), bquote(eta[p]^2 == .(round(peta[i], 3))), col = 2, pos = 3, xpd = NA, cex = .8)
   }
 }
