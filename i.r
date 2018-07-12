@@ -5003,7 +5003,7 @@ n.f <- function(peta, conf.level, width, assure, design, n.level, n.covar, regre
     abs(abs(diff(pbase(df2))) - width)
   }
   
-  df2 <- optimize(m, c(1, 1e5), width = width)
+  df2 <- optimize(m, c(1, 1e4), width = width)
   if(round(df2$objective, 4) != 0) return(c(NaN, message("Error: NaN produced. Are input values correct?")))
   
   df2 <- ceiling(df2[[1]] - n.covar)
