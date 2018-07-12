@@ -4990,16 +4990,11 @@ n.f <- function(peta, conf.level, width, assure, design, n.level, n.covar, regre
   
   pbase <- function(df2){
   
-    a <- lapply(0:30+6e2, function(x) c(-x, x))
-    
-    CI <- matrix(NA, length(a), 2)
-        
-    for(i in 1:length(a)){   
-       CI[i,] <- sapply(c(alpha, 1-alpha),
-          function(x) optimize(f, a[[i]], alpha = x, q = q, df1 = df1, df2 = df2)[[1]])
-    }
-    
-    b <- CI[which.max(ave(1:nrow(CI), do.call(paste, round(data.frame(CI), 3)), FUN = seq_along)), ] 
+    g <- try(uniroot(f, c(0, 1e7), alpha = alpha, q = q, df1 = df1, df2 = df2)[[1]], silent = TRUE)
+    if(inherits(g, "try-error")) g <- 0
+    h <- try(uniroot(f, c(0, 1e7), alpha = 1-alpha, q = q, df1 = df1, df2 = df2)[[1]], silent = TRUE)
+    if(inherits(h, "try-error")) h <- 0
+    b <- c(g, h)
     
     b / (b + (df2 + design))
   }
@@ -5008,7 +5003,7 @@ n.f <- function(peta, conf.level, width, assure, design, n.level, n.covar, regre
     abs(abs(diff(pbase(df2))) - width)
   }
   
-  df2 <- optimize(m, c(1, 1e7), width = width)
+  df2 <- optimize(m, c(1, 1e5), width = width)
   if(round(df2$objective, 4) != 0) return(c(NaN, message("Error: NaN produced. Are input values correct?")))
   
   df2 <- ceiling(df2[[1]] - n.covar)
@@ -5055,7 +5050,7 @@ d.unbias <- function(d, n1, n2 = NA, t = NA){
 #=======================================================================================================================================
                 
                 
- ploter <- function(x, y = NULL, type = "p", xlim = NULL, ylim = NULL, 
+ graph <- function(x, y = NULL, type = "p", xlim = NULL, ylim = NULL, 
                    log = "", main = NULL, sub = NULL, xlab = deparse(substitute(x)), ylab = NULL, 
                    ann = par("ann"), axes = TRUE, frame.plot = axes, panel.first = NULL, 
                    panel.last = NULL, asp = NA, add = FALSE, show = TRUE, ...)
