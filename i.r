@@ -5102,6 +5102,8 @@ exp.pov <- function(P2, K, N) {
        
 #====================================================================================================================================================================
             
+
+            
 plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.level = .9, width = .2, regress = FALSE, n.groups = 0, assure = .99){
   
   if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
@@ -5118,7 +5120,7 @@ plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.
       options(warn = -1)
       
       f <- function(alpha, q, df1, df2, ncp){
-        alpha - suppressWarnings(pf(q = (peta / df1) / ((1 - peta)/df2), df1, df2, ncp, lower.tail = FALSE))
+        alpha - suppressWarnings(pf(peta2F(peta, df1, df2), df1, df2, ncp, lower.tail = FALSE))
       }
       
       pbase <- function(df2){      
@@ -5126,7 +5128,7 @@ plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.
         b <- sapply(c(alpha, 1 - alpha), function(x) 
           tryCatch(uniroot(f, c(0, 1e7), alpha = x, q = q, df1 = df1, df2 = df2)[[1]], error = function(e) NA))
         if(any(is.na(b))) b <- c(1, 1e4)     
-        b / (b + (df2 + design))
+        ncp2peta(b, df2 + design)
       }
       
       m <- function(df2, width){
@@ -5146,10 +5148,10 @@ plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.
       
       list(peta = peta, total.N = N, width = width, n.level = n.level, conf.level = conf.level, assure = assure, df1 = df1, df2 = df2)
     }
-      
+    
     n <- n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, n.groups = n.groups)  
     
-    peta <- exp.pov(P2 = n$peta, K = n$design, N = n$total.N)
+    peta <- exp.pov(P2 = n$peta, K = if(regress) n$n.level else n$design, N = n$total.N)
     
     n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, n.groups = n.groups)
     
@@ -5157,6 +5159,8 @@ plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.
   
   data.frame(t(G(peta = peta, conf.level = conf.level, width = width, design = design, n.level = n.level, n.covar = n.covar, regress = regress, n.groups = n.groups, assure = assure)), row.names = NULL)
 }
+                   
+                   
                    
                    
             
