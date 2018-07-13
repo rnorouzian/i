@@ -5108,15 +5108,14 @@ exp.pov <- function(P2, K, N, regress = TRUE)
 plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.level = .9, width = .2, regress = FALSE,  pair.design = 0, assure = .99){
   
   if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
-  n.groups <- pair.design
+  
+  G <- Vectorize(function(peta, conf.level, width, assure, design, n.level, n.covar, regress, pair.design){
     
-  G <- Vectorize(function(peta, conf.level, width, assure, design, n.level, n.covar, regress, n.groups){
-    
-    n.f <- function(peta, conf.level, width, assure, design, n.level, n.covar, regress, n.groups){
+    n.f <- function(peta, conf.level, width, assure, design, n.level, n.covar, regress, pair.design){
       
       alpha <- (1 - conf.level)/2
       if(regress){ n.level <- n.level + 1 ; design <- n.level }
-      if(n.groups != 0) design <- 2
+      if(pair.design != 0) design <- 2
       df1 <- n.level - 1
       if(n.covar < 0) n.covar <- 0
       options(warn = -1)
@@ -5143,7 +5142,7 @@ plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.
       
       N <- ceiling(df2 + design)
       bal <- ceiling(N/design) * design
-      if(n.groups != 0){ N <- n.groups * (bal/2) ; message("\nNote: You are doing reseach planning for accurate 'pairwise' comparisons.") }
+      if(pair.design != 0){ N <- pair.design * (bal/2) ; message("\nNote: You are doing reseach planning for accurate 'pairwise' comparisons.") }
       N <- if(!regress & design != 0 & N %% design != 0) bal else N
       n.covar <- if(n.covar == 0) NA else n.covar
       n.level <- if(regress) n.level-1 else n.level
@@ -5152,15 +5151,15 @@ plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.
       list(peta = peta, total.N = N, width = width, n.level = n.level, conf.level = conf.level, assure = assure, df1 = df1, df2 = df2, design = design)
     }
     
-    n <- n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, n.groups = n.groups)  
+    n <- n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, pair.design = pair.design)  
     
     peta <- exp.pov(P2 = n$peta, K = n$design, N = n$total.N, regress = regress)
     
-    n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, n.groups = n.groups)
+    n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, pair.design = pair.design)
     
   })
   
-  data.frame(t(G(peta = peta, conf.level = conf.level, width = width, design = design, n.level = n.level, n.covar = n.covar, regress = regress, n.groups = n.groups, assure = assure)), row.names = NULL)
+  data.frame(t(G(peta = peta, conf.level = conf.level, width = width, design = design, n.level = n.level, n.covar = n.covar, regress = regress, pair.design = pair.design, assure = assure)), row.names = NULL)
 } 
                     
                     
