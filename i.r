@@ -5126,7 +5126,7 @@ plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.
         b <- sapply(c(alpha, 1 - alpha), function(x) 
           tryCatch(uniroot(f, c(0, 1e7), alpha = x, q = q, df1 = df1, df2 = df2)[[1]], error = function(e) NA))
         if(any(is.na(b))) b <- c(1, 1e4)     
-        ncp2peta(b, df2 + design)
+        b / (b + (df2 + design))
       }
       
       m <- function(df2, width){
