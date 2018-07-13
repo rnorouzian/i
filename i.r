@@ -5103,7 +5103,6 @@ exp.pov <- function(P2, K, N) {
 #====================================================================================================================================================================
             
 
-            
 plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.level = .9, width = .2, regress = FALSE, n.groups = 0, assure = .99){
   
   if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
@@ -5114,7 +5113,7 @@ plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.
       
       alpha <- (1 - conf.level)/2
       if(regress){ n.level <- n.level + 1 ; design <- n.level }
-      
+      if(n.groups != 0) design <- 2
       df1 <- n.level - 1
       if(n.covar < 0) n.covar <- 0
       options(warn = -1)
@@ -5158,9 +5157,7 @@ plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.
   })
   
   data.frame(t(G(peta = peta, conf.level = conf.level, width = width, design = design, n.level = n.level, n.covar = n.covar, regress = regress, n.groups = n.groups, assure = assure)), row.names = NULL)
-}
-                   
-                   
+}    
                    
                    
             
