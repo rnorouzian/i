@@ -5095,9 +5095,10 @@ for(i in 1:length(peta)){
 #================================================================================================================================================================
             
             
-exp.pov <- function(P2, K, N) {
- expect <- 1 - ((N - K - 1)/(N - 1)) * (1 - P2) * gsl::hyperg_2F1(1, 1, 0.5 * (N + 1), P2)
- max(0, expect)
+exp.pov <- function(P2, K, N, regress = TRUE) {
+  K <- if(regress) K else K + 1 
+  expect <- 1 - ((N - K - 1)/(N - 1)) * (1 - P2) * gsl::hyperg_2F1(1, 1, 0.5 * (N + 1), P2)
+  max(0, expect)
 }
        
 #====================================================================================================================================================================
@@ -5144,20 +5145,23 @@ plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.
       N <- if(!regress & design != 0 & N %% design != 0) bal else N
       n.covar <- if(n.covar == 0) NA else n.covar
       n.level <- if(regress) n.level-1 else n.level
+      design <- if(regress) n.level else design
       
       list(peta = peta, total.N = N, width = width, n.level = n.level, conf.level = conf.level, assure = assure, df1 = df1, df2 = df2, design = design)
     }
     
     n <- n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, n.groups = n.groups)  
     
-    peta <- exp.pov(P2 = n$peta, K = if(regress) n$n.level else n$design, N = n$total.N)
+    peta <- exp.pov(P2 = n$peta, K = n$design, N = n$total.N, regress = regress)
     
     n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, n.groups = n.groups)
     
   })
   
   data.frame(t(G(peta = peta, conf.level = conf.level, width = width, design = design, n.level = n.level, n.covar = n.covar, regress = regress, n.groups = n.groups, assure = assure)), row.names = NULL)
-}    
+} 
+                    
+                    
                    
                    
             
