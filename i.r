@@ -5118,7 +5118,7 @@ plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.
       options(warn = -1)
       
       f <- function(alpha, q, df1, df2, ncp){
-        alpha - suppressWarnings(pf(peta2F(peta, df1, df2), df1, df2, ncp, lower.tail = FALSE))
+        alpha - suppressWarnings(pf(q = (peta / df1) / ((1 - peta)/df2), df1, df2, ncp, lower.tail = FALSE))
       }
       
       pbase <- function(df2){      
