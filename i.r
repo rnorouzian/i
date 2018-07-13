@@ -5077,16 +5077,16 @@ graph <- function(x, y = NULL, type = "p", xlim = NULL, ylim = NULL,
 #========================================================================================================================================================
                 
               
-peta2d.fun <- function(peta = seq(.1, .5, .1), n = seq(30, 300, 10), base.rate = 1, xlab = "Group Sample Size", ylab = "Cohen's d", ...)
+peta2d.fun <- function(peta = seq(.1, .5, .1), n = seq(30, 300, 10), base.rate = 1, xlab = "Group Sample Size", ylab = "Cohen's d", ylim = NA, ...)
 {
 
 n <- sort(n)
 peta <- sort(peta)  
 
 d <- lapply(peta, function(x) peta2d(x, n1 = n, n2 = base.rate*n))
-
+ylim <- if(is.na(ylim)) range(d) else ylim
 for(i in 1:length(peta)){
-  graph(n, d[[i]], type = "l", add = i!= 1, las = 1, font.lab = 2, ylim = range(d), xlab = xlab, ylab = ylab, ...)
+  graph(n, d[[i]], type = "l", add = i!= 1, ylim = ylim, xlab = xlab, ylab = ylab, ...)
   text(mean(n), mean(d[[i]]), bquote(eta[p]^2 == .(round(peta[i], 3))), col = 2, pos = 3, xpd = NA, cex = .8)
   }
 }
@@ -5095,9 +5095,10 @@ for(i in 1:length(peta)){
 #================================================================================================================================================================
             
             
-exp.pov <- function(P2, K, N, regress = TRUE) {
+exp.pov <- function(P2, K, N, regress = TRUE)
+{
   K <- if(regress) K else K + 1 
-  expect <- 1 - ((N - K - 1)/(N - 1)) * (1 - P2) * gsl::hyperg_2F1(1, 1, 0.5 * (N + 1), P2)
+  expect <- 1 - ((N - K - 1)/(N - 1)) * (1 - P2) * gsl::hyperg_2F1(1, 1, (N + 1)/2, P2)
   max(0, expect)
 }
        
