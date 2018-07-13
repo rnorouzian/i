@@ -4472,7 +4472,7 @@ cell.makeup <- function(N, design)
                   
 peta2f <- function(peta) sqrt(peta / (1 - peta))
 f2peta <- function(f) (f^2) / (1 + f^2)
-peta2F <- function(peta, df1, df2) (-peta * df2) / ((peta * df1) - df1)
+peta2F <- function(peta, df1, df2) (peta / df1) / ((1 - peta)/df2)
 F2peta <- function(F.value, df1, df2) (F.value*df1) / ((F.value*df1) + df2)
 d2r <- function(d, n1, n2) sqrt((d^2) / ((d^2) + (((n1 + n2)^2) - (2*(n1 + n2))) / (n1 * n2)))
 r2d <- function(r, n1, n2) sqrt((r^2)*(((n1 + n2)^2)-(2*(n1 + n2)))/(n1 * n2)/(1-(r^2)))
@@ -5118,16 +5118,15 @@ plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.
       options(warn = -1)
       
       f <- function(alpha, q, df1, df2, ncp){
-        alpha - suppressWarnings(pf(q = (peta / df1) / ((1 - peta)/df2), df1, df2, ncp, lower.tail = FALSE))
+        alpha - suppressWarnings(pf(peta2F(peta, df1, df2), df1, df2, ncp, lower.tail = FALSE))
       }
       
       pbase <- function(df2){      
         
         b <- sapply(c(alpha, 1 - alpha), function(x) 
           tryCatch(uniroot(f, c(0, 1e7), alpha = x, q = q, df1 = df1, df2 = df2)[[1]], error = function(e) NA))
-        if(any(is.na(b))) b <- c(1, 1e4)
-        
-        b / (b + (df2 + design))
+        if(any(is.na(b))) b <- c(1, 1e4)     
+        ncp2peta(b, df2 + design)
       }
       
       m <- function(df2, width){
