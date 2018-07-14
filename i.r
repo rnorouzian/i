@@ -5172,6 +5172,24 @@ plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.
   
     x >= int[1] & x <= int[2] 
 }
+                                       
+#=============================================================================================================================================================================================================================
                     
-                   
-            
+                    
+root <- function(pov = .6, df1 = 3, df2 = 108, N = 100, conf.level = .95, regress = FALSE, show = FALSE){
+
+f <- function(x){ 
+  
+ci <- peta.ci(peta = x, df1 = df1, df2 = df2, N = N, conf.level = conf.level, digits = 1e2)
+      
+    abs(ci$upper - ci$lower)
+}
+
+m <- optimize(f, c(0, 1), maximum = TRUE)[[1]]
+
+est <- uniroot(function(x) f(pov) - f(x), if(pov >= m) c(0, m) else c(m, 1))[[1]]
+
+if(show) curve(f, panel.f = abline(v = c(pov, est), h = f(pov), col = 2, lty = c(2, 1, 1))) 
+
+list(m = m, est = est)
+}
