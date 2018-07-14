@@ -1,4 +1,6 @@
 
+peta2F <- function(peta, df1, df2) (peta / df1) / ((1 - peta)/df2)
+
 peta.ci <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 9){
 
 ci <- Vectorize(function(peta, f, N, df1, df2, conf.level){
