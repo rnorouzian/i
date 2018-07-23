@@ -4496,7 +4496,28 @@ peta2ncp <- function(peta, N) { (peta*N) / (1 - peta) }
 peta2N <- function(peta, ncp) { (ncp - (peta * ncp)) / peta }
                   
 d2peta <- function(d, n1, n2) (d^2) / ((d^2) + (((n1 + n2)^2) - (2*(n1 + n2))) / (n1 * n2))
+                  
 peta2d <- function(peta, n1, n2) (peta)*(((n1 + n2)^2)-(2*(n1 + n2)))/(n1 * n2)/(1-(peta))
+                  
+F2pomega <- function(F.value, df1, N){
+  (df1 * (F.value - 1)) / ((df1 * (F.value - 1)) + N)
+}
+
+pomega2F <- function(pomega, df1, N) {
+  1 - ( (N * pomega )/(df1 * (pomega - 1)) )
+}
+
+
+peta2pomega <- function(peta, df1, df2, N){
+  f <- peta2F(peta, df1, df2)  
+  F2pomega(f, df1, N)
+}
+
+
+pomega2peta <- function(pomega, df1, df2, N){
+  f <- pomega2F(pomega, df1, N)  
+  F2peta(f, df1, df2)
+}
                   
 #==================================================================================================================================
                   
