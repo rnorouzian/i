@@ -3582,13 +3582,13 @@ anova.es.default <- function(fit = NULL, f, df1, df2, N, conf.level = .9, digits
 #===========================================================================================================================
                 
                 
-dens.plot <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x), to = max(x), add = FALSE, hdi = FALSE, level = .95, xlab = deparse(substitute(x)), main = NA, lwd = 2, lty = 1, ...){
+dens.plot <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x), to = max(x), add = FALSE, hdi = FALSE, ci = FALSE, level = .95, xlab = deparse(substitute(x)), main = NA, lwd = 2, lty = 1, ...){
   
   UseMethod("dens.plot")
 }
-                
-                
-dens.plot.default <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x), to = max(x), add = FALSE, hdi = FALSE, level = .95, xlab = deparse(substitute(x)), main = NA, lwd = 2, lty = 1, ...){
+
+
+dens.plot.default <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x), to = max(x), add = FALSE, hdi = FALSE, ci = FALSE, level = .95, xlab = deparse(substitute(x)), main = NA, lwd = 2, lty = 1, ...){
   
   d <- density(x, adjust = adjust, na.rm = na.rm, n = n, from = from, to = to)
   
@@ -3604,23 +3604,27 @@ dens.plot.default <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x
     
   }
   
-       i <- hdir(x, level = level)
-    mode <- d$x[which.max(d$y)]
-    mean <- mean(x)
+  
+  alpha <- (1 - level)/2
+  q <- if(ci) quantile(x, probs = c(alpha, 1 - alpha), na.rm = TRUE) else c(NA, NA)
+  i <- if(hdi) hdir(x, level = level) else c(NA, NA)
+  
+  
+  mode <- d$x[which.max(d$y)]
+  mean <- mean(x)
   median <- median(x)
-      sd <- sd(x)
-     mad <- mad(x)
+  sd <- sd(x)
+  mad <- mad(x)
   
   if(hdi){
     h <- min(d$y)
     lines(i, rep(h, 2), lend = 1, lwd = 6, lty = 1, xpd = NA, ...)
     text(i, h, round(i, 3), pos = 3, cex = .8, font = 2, xpd = NA)
     points(mode, h, pch = 21, bg = "cyan", col = "magenta", cex = 1.7, xpd = NA)
-    
   }
   
   invisible(list(lower = i[1], upper = i[2], level = level, mean = mean, mode = mode, median = median, 
-                 mad = mad, sd = sd, x = d$x, y = d$y))
+                 mad = mad, sd = sd, q1 = q[[1]], q2 = q[[2]], x = d$x, y = d$y))
 }
 
                 
