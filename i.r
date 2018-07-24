@@ -4532,9 +4532,18 @@ exp.peta <- function(pbase = 0, df1, df2, N){
     x * dpeta(x = x, df1 = df1, df2 = df2, pbase = pbase, N = N)
     
   }, 0, 1, df1 = df1, df2 = df2, pbase = pbase, N = N)[[1]]
-  
 }
                   
+
+exp.d <- function(dbase = 0, n1, n2 = NA){
+  
+  integrate(function(x, n1, n2, dbase){
+    
+    x * dcohen(x = x, dbase = dbase, n1 = n1, n2 = n2)
+    
+  }, -Inf, Inf, n1 = n1, n2 = n2, dbase = dbase)[[1]]
+  
+}
                   
 #==================================================================================================================================
                   
