@@ -4524,6 +4524,8 @@ pomega2peta <- function(pomega, df1, df2, N){
 
 exp.peta <- function(pbase = 0, df1, df2, N){
   
+  pbase[pbase > .99999999] <- .99999999
+  
   ncp <- (pbase * N) / (1 - pbase)
   
 integrate(function(x, df1, df2, pbase, N){
