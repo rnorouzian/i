@@ -5079,7 +5079,7 @@ d.unbias <- function(d, n1, n2 = NA, t = NA){
 
   df <- ifelse(is.na(n2), n1 - 1, n1 + n2 - 2)
    N <- ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
-   d <- if(!is.na(t)) t/sqrt(N)
+   d <- if(!is.na(t)) t/sqrt(N) else d
    d * exp(lgamma(df/2)-log(sqrt(df/2)) - lgamma((df-1)/2))
 
 }
