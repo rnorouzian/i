@@ -4520,6 +4520,19 @@ pomega2peta <- function(pomega, df1, df2, N){
   f <- pomega2F(pomega, df1, N)  
   F2peta(f, df1, df2)
 }
+   
+
+exp.peta <- function(pbase = 0, df1, df2, N){
+  
+  ncp <- (pbase * N) / (1 - pbase)
+  
+integrate(function(x, df1, df2, pbase, N){
+  
+  x * dpeta(x = x, df1 = df1, df2 = df2, pbase = pbase, N = N)
+  
+}, 0, 1, df1 = df1, df2 = df2, pbase = pbase, N = N)[[1]]
+
+}
                   
 #==================================================================================================================================
                   
@@ -5179,7 +5192,7 @@ plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.
       
     } else {
       
-      pomega2peta(pomega = n$peta, df1 = n$df1, df2 = n$df2, N = n$total.N)
+      exp.peta(pbase = n$peta, df1 = n$df1, df2 = n$df2, N = n$total.N)
       
     }
     
