@@ -4486,10 +4486,8 @@ t2d <- function(t, n1, n2 = NA){
   t/sqrt(N)
 }
                   
-ncp2peta <- function(ncp, N){
-  
-  ncp / (ncp + N)
-}
+ncp2peta <- function(ncp, N) { ncp / (ncp + N) }
+
    
 peta2ncp <- function(peta, N) { (peta*N) / (1 - peta) }
                   
@@ -5116,9 +5114,8 @@ for(i in 1:length(peta)){
 #================================================================================================================================================================
             
             
-exp.pov <- function(P2, K, N, regress = TRUE)
-{
-  K <- if(regress) K else K + 1 
+exp.pov <- function(P2, K, N)
+{ 
   expect <- 1 - ((N - K - 1)/(N - 1)) * (1 - P2) * gsl::hyperg_2F1(1, 1, (N + 1)/2, P2)
   max(0, expect)
 }
@@ -5174,7 +5171,13 @@ plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.
     
     n <- n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, pair.design = pair.design)  
     
-    peta <- exp.pov(P2 = n$peta, K = n$design, N = n$total.N, regress = regress)
+    peta <- if(regress) { exp.pov(P2 = n$peta, K = n$design, N = n$total.N)
+      
+    } else {
+      
+      pomega2peta(pomega = n$peta, df1 = n$df1, df2 = n$df2, N = n$total.N)
+      
+    }
     
     n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, pair.design = pair.design)
     
@@ -5189,9 +5192,9 @@ plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.
                     
 "%inn%" <- function(x = 3.5, interval = c(3, 5)){
   
-  int <- range(interval, na.rm = TRUE)
+  r <- range(interval, na.rm = TRUE)
   
-    x >= int[1] & x <= int[2] 
+    x >= r[1] & x <= r[2] 
 }
                                        
 #=============================================================================================================================================================================================================================
