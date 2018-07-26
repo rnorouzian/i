@@ -5082,15 +5082,56 @@ data.frame(t(G(peta = peta, conf.level = conf.level, width = width, design = des
 }
                 
 #=====================================================================================================================================================================================================
-                
-                
+
+plan.t.cic <- function(d = .4, conf.level = .95, width = .2, base.rate = 1, paired = FALSE, assure = .99){
+  
+  k <- base.rate
+  
+G <- Vectorize(function(d, conf.level, width, base.rate, paired, assure){
+    
+  nd <- function(d, width, conf.level, base.rate){
+    
+    f <- function(n1, n2){
+      as.numeric(d.ci(d = d, n1 = n1, n2 = if(paired) NA else k * n1, conf.level = conf.level)[, 2:3])
+    }
+    
+    m <- function(n1, n2, width){
+      abs(abs(diff(f(n1 = n1, n2 = n2))) - width)
+    } 
+    
+    n1 <- optimize(m, c(1, 1e7), width = width)
+    
+    if(round(n1$objective, 4) != 0) return(c(NaN, message("Warning: NaN produced. Are input values correct?")))
+    
+    n1 <- if(paired) ceiling(n1[[1]])
+    n2 <- if(paired) NA else round(k * n1)
+    
+    list(d = d, n1 = n1, n2 = n2, base.rate = base.rate, width = width, conf.level = conf.level, assure = assure, paired = paired)
+  }
+  
+ n <- nd(d = d, width = width, base.rate = base.rate, conf.level = conf.level)
+ a <- d.ci(d = d, n1 = n$n1, n2 = n$n2, conf.level = c(assure, 2*assure - 1))$upper
+ 
+ dnew <- function(dnew = dnew, n1 = n$n1, n2 = n$n2, d = d, assure = assure){
+   total <- sum(pcohen(c(-dnew, dnew), d, n1 = n1, n2 = n2, lower.tail = c(TRUE, FALSE)))
+   return(abs(total - (1 - assure)))
+ }
+ 
+ dnew <- optimize(dnew, a, d = d, assure = assure)[[1]]
+ nd(d = dnew, conf.level = conf.level, width = width, base.rate = base.rate)
+})
+
+data.frame(t(G(d = d, conf.level = conf.level, width = width, paired = paired, base.rate = base.rate, assure = assure)), row.names = NULL)
+}
+                 
+#=====================================================================================================================================================================================================                
+
 d.unbias <- function(d, n1, n2 = NA, t = NA){
 
   df <- ifelse(is.na(n2), n1 - 1, n1 + n2 - 2)
    N <- ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
    d <- if(!is.na(t)) t/sqrt(N) else d
    d * exp(lgamma(df/2)-log(sqrt(df/2)) - lgamma((df-1)/2))
-
 }
 
 
