@@ -243,7 +243,29 @@ d.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 9){
   
 round(data.frame(t(ci(d = d, t = t, n1 = n1, n2 = n2, conf.level = conf.level))), digits = digits)
 }                  
-                                  
+
+#=================================================================================================================================                  
+                  
+d.cic <- function(d, n1, n2 = NA, conf.level = .95, digits = 9){
+  
+  ci <- Vectorize(function(d, n1, n2, conf.level){
+    
+    options(warn = -1)  
+    alpha = (1 - conf.level)/2
+
+    f <- function(dbase, alpha){
+      alpha - suppressWarnings(pcohen(d, dbase, n1, n2, lower.tail = FALSE))
+    }
+    
+    CI <- sapply(c(alpha, 1-alpha),
+          function(x) uniroot(f, interval = c(-d+1e7, d+1e7), alpha = x, extendInt = "yes")[[1]])
+    
+    return(c(Cohen.d = d, lower = CI[1], upper = CI[2], conf.level = conf.level))
+  })
+  
+  round(data.frame(t(ci(d = d, n1 = n1, n2 = n2, conf.level = conf.level))), digits = digits)
+} 
+                  
 #=================================================================================================================================
                   
 peta.cib <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 9){
