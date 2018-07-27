@@ -342,35 +342,8 @@ round(data.frame(t(ci(peta = peta, f = f, N = N, df1 = df1, df2 = df2, conf.leve
 }
              
 #=================================================================================================================================
-                
-peta.cic <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 9){
-  
-  ci <- Vectorize(function(peta, f, N, df1, df2, conf.level){
-    
-    q <- ifelse(is.na(f), peta2F(peta, df1, df2), f) 
-    
-    alpha <- (1 - conf.level)/2
-    
-    u <- function (ncp, alpha) {
-      suppressWarnings(pf(q, df1, df2, ncp, lower.tail = FALSE)) - alpha
-    }
-    
-    b <- sapply(c(alpha, 1 - alpha), function(x) 
-      tryCatch(uniroot(u, c(0, q+1e7), alpha = x, q = q, df1 = df1, df2 = df2)[[1]], error = function(e) NA))
-    if(any(is.na(b))) b <- c(1, 1e4)  
-    
-    I <- b / (b + N)
-    
-    P.eta.sq <- if(is.na(f)) peta else F2peta(f, df1, df2)
-    
-    return(c(P.eta.sq = P.eta.sq, lower = I[1], upper = I[2], conf.level = conf.level, ncp = peta2ncp(P.eta.sq, N), F.value = q))
-  })
-  
-  peta <- if(missing(peta)) NA else peta
-  
-  round(data.frame(t(ci(peta = peta, f = f, N = N, df1 = df1, df2 = df2, conf.level = conf.level))), digits = digits)
-}                
-                
+                  
+
 #=================================================================================================================================                
                 
 cor.ci <- function(r, n, conf.level = .95, digits = 9)
