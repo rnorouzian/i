@@ -4546,7 +4546,7 @@ pomega2peta <- function(pomega, df1, df2, N){
 }
    
 
-exp.peta <- function(pbase = 0, df1, df2, N){
+exp.peta <- Vectorize(function(pbase = 0, df1, df2, N){
   
   pbase[pbase > .99999999] <- .99999999
   pbase[pbase < 0] <- 0
@@ -4556,10 +4556,11 @@ exp.peta <- function(pbase = 0, df1, df2, N){
     x * dpeta(x = x, df1 = df1, df2 = df2, pbase = pbase, N = N)
     
   }, 0, 1, df1 = df1, df2 = df2, pbase = pbase, N = N)[[1]]
-}
+  
+})
                   
 
-exp.d <- function(dbase = 0, n1, n2 = NA){
+exp.d <- Vectorize(function(dbase = 0, n1, n2 = NA){
   
   integrate(function(x, n1, n2, dbase){
     
@@ -4567,7 +4568,7 @@ exp.d <- function(dbase = 0, n1, n2 = NA){
     
   }, -Inf, Inf, n1 = n1, n2 = n2, dbase = dbase)[[1]]
   
-}
+})
                   
 #==================================================================================================================================
                   
