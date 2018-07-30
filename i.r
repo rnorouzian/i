@@ -3920,9 +3920,9 @@ rcohen <- function(n, dbase = 0, n1, n2 = NA){
     
     
 dpeta <- function(x, df1, df2, pbase = 0, N, log = FALSE){
-  x[x > .9999999999999999] <- .9999999999999999
+  x[x > .9999999] <- .9999999
   x[x < 0] <- 0
-  pbase[pbase > .9999999999999999] <- .9999999999999999
+  pbase[pbase > .9999999] <- .9999999
   pbase[pbase < 0] <- 0
   ncp <- (pbase * N) / (1 - pbase)
   d <- df2 / df1
@@ -3938,9 +3938,9 @@ ppeta <- function(q, df1, df2, pbase = 0, N, lower.tail = TRUE, log.p = FALSE){
   
   p <- Vectorize(function(q, df1, df2, pbase, N, lower.tail, log.p){
     
-  q[q > .9999999999999999] <- .9999999999999999
+  q[q > .9999999] <- .9999999
   q[q < 0] <- 0
-  pbase[pbase > .9999999999999999] <- .9999999999999999
+  pbase[pbase > .9999999] <- .9999999
   pbase[pbase < 0] <- 0
   ncp <- (pbase * N) / (1 - pbase)
   d <- df2 / df1
@@ -3960,7 +3960,7 @@ qpeta <- function(p, df1, df2, pbase = 0, N, lower.tail = TRUE, log.p = FALSE){
     
   p[p > 1] <- 1
   p[p < 0] <- 0
-  pbase[pbase > .9999999999999999] <- .9999999999999999
+  pbase[pbase > .9999999] <- .9999999
   pbase[pbase < 0] <- 0
   ncp <- (pbase * N) / (1 - pbase)
   d <- df2 / df1
@@ -3975,7 +3975,7 @@ q(p = p, df1 = df1, df2 = df2, pbase = pbase, N = N, lower.tail = lower.tail, lo
 
 
 rpeta <- function(n, df1, df2, pbase = 0, N){
-  pbase[pbase > .9999999999999999] <- .9999999999999999
+  pbase[pbase > .9999999] <- .9999999
   pbase[pbase < 0] <- 0
   ncp <- (pbase * N) / (1 - pbase)
   d <- df2 / df1
@@ -3987,7 +3987,7 @@ rpeta <- function(n, df1, df2, pbase = 0, N){
 #==================================================================================================================
 
 dpetab <- function(x, df1, df2, ncp = 0, log = FALSE){
-  x[x > .9999999999999999] <- .9999999999999999
+  x[x > .9999999] <- .9999999
   x[x < 0] <- 0
   d <- df2 / df1
   f <- x / (1 - x) * d
@@ -3999,7 +3999,7 @@ dpetab <- function(x, df1, df2, ncp = 0, log = FALSE){
 
 
 ppetab <- function(q, df1, df2, ncp = 0, lower.tail = TRUE, log.p = FALSE){
-  q[q > .9999999999999999] <- .9999999999999999
+  q[q > .9999999] <- .9999999
   q[q < 0] <- 0
   d <- df2 / df1
   f <- q / (1 - q) * d
@@ -4569,6 +4569,27 @@ exp.d <- Vectorize(function(dbase = 0, n1, n2 = NA){
   }, -Inf, Inf, n1 = n1, n2 = n2, dbase = dbase)[[1]]
   
 })
+                  
+                  
+exp2peta <- function(exp.val, df1, df2, N){
+  
+optimize(function(x){
+  
+  abs(exp.val - exp.peta(pbase = x, df1 = df1, df2 = df2, N = N))
+  
+}, 0:1, tol = 1e-9)[[1]]
+
+}
+           
+
+exp2d <- function(exp.val, n1, n2 = NA){
+  
+  uniroot(function(x){
+    
+  exp.val - exp.d(dbase = x, n1 = n1, n2 = n2)
+    
+  }, c(-1, 1), extendInt = "yes")[[1]]
+}
                   
 #==================================================================================================================================
                   
