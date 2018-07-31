@@ -4571,25 +4571,25 @@ exp.d <- Vectorize(function(dbase = 0, n1, n2 = NA){
 })
                   
                   
-exp2peta <- function(exp.val, df1, df2, N){
+exp2peta <- Vectorize(function(exp.val, df1, df2, N){
   
-optimize(function(x){
+  optimize(function(x){
+    
+    abs(exp.val - exp.peta(pbase = x, df1 = df1, df2 = df2, N = N))
+    
+  }, 0:1, tol = 1e-9)[[1]]
   
-  abs(exp.val - exp.peta(pbase = x, df1 = df1, df2 = df2, N = N))
-  
-}, 0:1, tol = 1e-9)[[1]]
+})
 
-}
-           
 
-exp2d <- function(exp.val, n1, n2 = NA){
+exp2d <- Vectorize(function(exp.val, n1, n2 = NA){
   
   uniroot(function(x){
     
-  exp.val - exp.d(dbase = x, n1 = n1, n2 = n2)
+    exp.val - exp.d(dbase = x, n1 = n1, n2 = n2)
     
   }, c(-4, 4), extendInt = "yes")[[1]]
-}
+})
                   
 #==================================================================================================================================
                   
