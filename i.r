@@ -2322,15 +2322,15 @@ d.eq.test.default <- function(t, n1, n2 = NA, m = 0, s = 1, dist.name = "dnorm",
 #======================================================================================================================
    
                        
-need <- c("rstanarm", "arrangements", "gsl")
+need <- c("rstanarm")  #, "arrangements", "gsl")
 have <- need %in% rownames(installed.packages())
 if(any(!have)){ install.packages( need[!have] ) }
  
 options(warn = -1)
 suppressMessages({ 
     library("rstanarm")
-    library("arrangements")
-    library("gsl")
+   # library("arrangements")
+   # library("gsl")
 })
                       
                        
@@ -4485,14 +4485,14 @@ geometric <- function (x, na.rm = TRUE){
 #======================================================================================================================================
                   
                   
-cell.makeup <- function(N, design)
-  {
-  y <- arrangements::partitions(N, design)
-  y <- y[nrow(y):1, ncol(y):1]
-  rownames(y) <- paste("form", 1:nrow(y))
-  colnames(y) <- paste0("group.", 1:ncol(y))
-  y
-}                  
+#cell.makeup <- function(N, design)
+#  {
+#  y <- arrangements::partitions(N, design)
+#  y <- y[nrow(y):1, ncol(y):1]
+#  rownames(y) <- paste("form", 1:nrow(y))
+#  colnames(y) <- paste0("group.", 1:ncol(y))
+#  y
+#}                  
          
                   
 #================================================================================================================================
@@ -5229,11 +5229,11 @@ for(i in 1:length(peta)){
 #================================================================================================================================================================
             
             
-exp.pov <- function(P2, K, N)
-{ 
-  expect <- 1 - ((N - K - 1)/(N - 1)) * (1 - P2) * gsl::hyperg_2F1(1, 1, (N + 1)/2, P2)
-  max(0, expect)
-}
+#exp.pov <- function(P2, K, N)
+#{ 
+#  expect <- 1 - ((N - K - 1)/(N - 1)) * (1 - P2) * gsl::hyperg_2F1(1, 1, (N + 1)/2, P2)
+#  max(0, expect)
+#}
        
 #====================================================================================================================================================================
             
