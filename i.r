@@ -5283,14 +5283,8 @@ plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.
     
     n <- n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, pair.design = pair.design)  
     
-    peta <- if(regress) { exp.pov(P2 = n$peta, K = n$design, N = n$total.N)
-      
-    } else {
-      
-      exp.peta(pbase = n$peta, df1 = n$df1, df2 = n$df2, N = n$total.N)
-      
-    }
-    
+    peta <- exp.peta(pbase = n$peta, df1 = n$df1, df2 = n$df2, N = n$total.N)
+         
     n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, pair.design = pair.design)
     
   })
