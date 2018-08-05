@@ -149,12 +149,12 @@ eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengt
 #==================================================================================================================
 
 
-prop.ci <- function(k, n, conf.level = .95, digits = 9)
+prop.ci <- function(k, n, conf.level = .95, digits = 1e2)
 {
   UseMethod("prop.ci")
 }
 
-prop.ci.default <- function(k, n, conf.level = .95, digits = 9){
+prop.ci.default <- function(k, n, conf.level = .95, digits = 1e2){
   
   ci <- Vectorize(function(k, n, conf.level){
     
@@ -166,12 +166,12 @@ prop.ci.default <- function(k, n, conf.level = .95, digits = 9){
 
 #==================================================================================================
 
-d.cib <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 9)
+d.cib <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 1e2)
 {
   UseMethod("d.cib")
 }
 
-d.cib.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 9){
+d.cib.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 1e2){
   
   ci <- Vectorize(function(d, t, n1, n2, conf.level){
     
@@ -211,12 +211,12 @@ d.cib.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 9){
                   
 #=================================================================================================================================                  
    
-d.ci <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 9)
+d.ci <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 1e2)
 {
   UseMethod("d.ci")
 }
                   
-d.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 9){
+d.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 1e2){
   
   ci <- Vectorize(function(d, t, n1, n2, conf.level){
     
@@ -246,7 +246,7 @@ round(data.frame(t(ci(d = d, t = t, n1 = n1, n2 = n2, conf.level = conf.level)))
 
 #=================================================================================================================================                  
                   
-d.cic <- function(d, n1, n2 = NA, conf.level = .95, digits = 9){
+d.cic <- function(d, n1, n2 = NA, conf.level = .95, digits = 1e2){
   
   ci <- Vectorize(function(d, n1, n2, conf.level){
     
@@ -268,7 +268,7 @@ d.cic <- function(d, n1, n2 = NA, conf.level = .95, digits = 9){
                   
 #=================================================================================================================================
                   
-peta.cib <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 9){
+peta.cib <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 1e2){
   
   ci <- Vectorize(function(peta, f, N, df1, df2, conf.level){
     
@@ -306,12 +306,12 @@ peta.cib <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 9){
 
 #=================================================================================================================================
                   
-peta.ci <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 20)
+peta.ci <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 1e2)
 {
   UseMethod("peta.ci")
 } 
                 
-peta.ci.default <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 9){
+peta.ci.default <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 1e2){
 
 ci <- Vectorize(function(peta, f, N, df1, df2, conf.level){
     
@@ -346,16 +346,17 @@ round(data.frame(t(ci(peta = peta, f = f, N = N, df1 = df1, df2 = df2, conf.leve
 
 #=================================================================================================================================                
                 
-cor.ci <- function(r, n, conf.level = .95, digits = 9)
+cor.ci <- function(r, n, conf.level = .95, digits = 1e2)
 {
   UseMethod("cor.ci")
 }
-                              
-cor.ci.default <- function(r, n, conf.level = .95, digits = 9){
+
+cor.ci.default <- function(r, n, conf.level = .95, digits = 1e2){
   
   ci <- Vectorize(function(r, n, conf.level){
     p = (1 - conf.level) / 2 
     g = tanh(atanh(r) + qnorm(c(p, 1-p))*1/sqrt(n - 3))
+    g <- if(r == -1 || r == 1) rep(r, 2) else g 
     return(c(r = r, lower = g[1], upper = g[2], conf.level = conf.level))
   }) 
   round(data.frame(t(ci(r = r, n = n, conf.level = conf.level))), digits = digits)
@@ -363,12 +364,12 @@ cor.ci.default <- function(r, n, conf.level = .95, digits = 9){
 
 #==================================================================================================================
 
-beta.id <- function(Low, High, Cover = NA, digits = 9)
+beta.id <- function(Low, High, Cover = NA, digits = 1e2)
 {
   UseMethod("beta.id")
 }
 
-beta.id.default <- function(Low, High, Cover = NA, digits = 9){
+beta.id.default <- function(Low, High, Cover = NA, digits = 1e2){
 
 bet <- Vectorize(function(Low, High, Cover){
   
@@ -5337,7 +5338,7 @@ plan.cor.ci <- function(rho = .4, width = .4, conf.level = .95, assure = .99){
 n.r <- function(rho, width, conf.level){  
   
   f <- function(n){
-    as.numeric(cor.ci(r = rho, n, conf.level = conf.level, digits = 1e2)[, 2:3])
+    as.numeric(cor.ci(r = rho, n, conf.level = conf.level)[, 2:3])
   }
   
   m <- function(n, width){
@@ -5374,4 +5375,4 @@ return(c(rho = rho, n = NN3, width = width, conf.level = conf.level, assure = as
  data.frame(t(G(rho = rho, width = width, conf.level = conf.level, assure = assure)), row.names = NULL)
 }
               
-              
+          
