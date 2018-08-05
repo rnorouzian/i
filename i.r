@@ -5323,3 +5323,55 @@ root <- function(pov = .6, df1 = 3, df2 = 108, N = 100, conf.level = .95, show =
   
   list(m = m, est = est)
 }
+
+#=======================================================================================================================================================================================================================================
+                 
+                 
+plan.cor.ci <- function(rho = .4, width = .4, conf.level = .95, assure = .99){
+
+  rho[rho <= -1] <- -.99999  
+  rho[rho >= 1] <- .99999
+  
+  G <- Vectorize(function(rho, width, conf.level, assure){
+  
+n.r <- function(rho, width, conf.level){  
+  
+  f <- function(n){
+    as.numeric(cor.ci(r = rho, n, conf.level = conf.level, digits = 1e2)[, 2:3])
+  }
+  
+  m <- function(n, width){
+    abs(abs(diff(f(n = n))) - width)
+  }
+  
+  n <- optimize(m, c(1, 1e7), width = width)
+  
+  n <- if(round(n$objective, 4) != 0) { c(NaN, message("Warning: NaN produced. Are input values correct?"))
+  } else { ceiling(n[[1]]) }
+  
+  return(n)
+}
+ 
+n <- n.r(rho = rho, width = width, conf.level = conf.level)
+
+a <- cor.ci(r = rho, n = n, conf.level = 2*assure - 1)
+ 
+nLU <- sapply(c(a$lower, a$upper), function(x) n.r(rho = x, width = width, conf.level = conf.level))
+
+NN1 <- max(nLU, na.rm = TRUE) 
+  
+b <- cor.ci(r = 0, n = n, conf.level = 1 - assure)
+
+nLU <- sapply(c(b$lower, b$upper), function(x) n.r(rho = x, width = width, conf.level = conf.level))
+
+NN2 <- max(nLU, na.rm = TRUE)
+
+NN3 <- if(!(0 %inn% c(a$lower, a$upper))) NN1 else max(NN1, NN2)
+
+return(c(rho = rho, n = NN3, width = width, conf.level = conf.level, assure = assure))
+})
+
+ data.frame(t(G(rho = rho, width = width, conf.level = conf.level, assure = assure)), row.names = NULL)
+}
+              
+              
