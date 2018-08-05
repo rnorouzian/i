@@ -5376,3 +5376,31 @@ return(c(rho = rho, n = NN3, width = width, conf.level = conf.level, assure = as
 }
               
           
+#=====================================================================================================================
+              
+              
+plan.r.test <- function (rho = .3, sig.level = .05, power = .8, two.tailed = TRUE) {
+  
+  rho[rho <= -1] <- -.99999  
+  rho[rho >= 1] <- .99999
+  
+  G <- Vectorize(function(rho, sig.level, power, two.tailed)
+  {
+    r <- abs(rho)
+    
+    f <- function(x) { 
+      
+      tcrit <- qt(if(two.tailed) sig.level/2 else sig.level, df = x - 2, lower.tail = FALSE)
+      rc <- sqrt(tcrit^2/(tcrit^2 + x - 2))
+      zr <- atanh(r) + r/(2 * (x - 1))
+      zrc <- atanh(rc)
+      power - if(two.tailed) sum(pnorm((c(zr, -zr) - zrc) * sqrt(x - 3))) else pnorm((zr - zrc) * sqrt(x - 3))
+}      
+    
+return(c(rho = rho, n = ceiling(uniroot(f, c(4, 1e7), extendInt = "yes")[[1]]), sig.level = sig.level, power = power))
+})
+
+data.frame(t(G(rho = rho, sig.level = sig.level, power = power, two.tailed = two.tailed)), two.tailed = two.tailed)
+
+}
+
