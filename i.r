@@ -5404,3 +5404,34 @@ data.frame(t(G(rho = rho, sig.level = sig.level, power = power, two.tailed = two
 
 }
 
+#=================================================================================================================================
+      
+      
+power.f <- Vectorize(function(peta = .2, n.level = 2, design = 2 * 3, sig.level = .05, n.covar = 0, power = .8, regress = FALSE, pair.design = NULL){
+
+if(n.level <= 1) stop("Error: You must have at least '2 levels' or '2 predictors'.")
+#if(!regress & missing(design)) stop("Error: 'design' must be numerically specified e.g., 'design = 2 * 4'.")
+if(regress){ n.level <- n.level + 1 ; design <- n.level }
+df1 <- n.level - 1
+if(n.covar < 0) n.covar <- 0
+x <- sapply(list(n.level, design, n.covar), round)
+n.level <- x[1] ; design <- x[2] ; n.covar <- x[3]
+
+f <- function(x){
+  
+  power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = (peta * (x + design) ) /(1 - peta), lower.tail = FALSE))
+}
+
+df2 <- ceiling(uniroot(f, c(1, 1e6), extendInt = "yes")[[1]])
+
+N <- df2 + design
+
+bal <- ceiling(N/design) * design
+
+N <- if(!is.null(pair.design)) pair.design * (bal/2) else N
+
+return(N)
+
+})
+      
+      
