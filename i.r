@@ -5328,7 +5328,7 @@ root <- function(pov = .6, df1 = 3, df2 = 108, N = 100, conf.level = .95, show =
 #=======================================================================================================================================================================================================================================
                  
                  
-plan.cor.ci <- function(rho = .4, width = .4, conf.level = .95, assure = .99){
+plan.r.ci <- function(rho = .4, width = .4, conf.level = .95, assure = .99){
 
   rho[rho <= -1] <- -.99999  
   rho[rho >= 1] <- .99999
@@ -5345,7 +5345,7 @@ n.r <- function(rho, width, conf.level){
     abs(abs(diff(f(n = n))) - width)
   }
   
-  n <- optimize(m, c(1, 1e7), width = width)
+  n <- optimize(m, c(2, 1e7), width = width)
   
   n <- if(round(n$objective, 4) != 0) { c(NaN, message("Warning: NaN produced. Are input values correct?"))
   } else { ceiling(n[[1]]) }
