@@ -5461,7 +5461,7 @@ mrnorm.default <- function(n = 1, mu, sd, tol = 1e-6, random = TRUE)
   eS <- eigen(sd, symmetric = TRUE)
   ev <- eS$values
   if (!all(ev >= -tol * abs(ev[1L]))) 
-    stop("'sd' is not positive definite")
+    stop("'sd' is not positive definite.", call. = FALSE)
   X <- matrix(rnorm(p * n), n)
   if (!random) {
     X <- scale(X, TRUE, FALSE)
