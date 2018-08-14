@@ -5457,7 +5457,7 @@ mrnorm.default <- function(n = 1, mu, sd, tol = 1e-6, random = TRUE)
 {
   p <- length(mu)
   if (!all(dim(sd) == c(p, p))) 
-    stop("incompatible arguments")
+    stop("'mu' and 'sd' don't match.", call. = FALSE)
   eS <- eigen(sd, symmetric = TRUE)
   ev <- eS$values
   if (!all(ev >= -tol * abs(ev[1L]))) 
