@@ -1196,9 +1196,9 @@ d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf
     plot(CI, rep(1:loop, 2), type = "n", xlim = c(min(from), max(to)), ylim = c(bottom*1, top*max(f)), ylab = ylab, yaxt = "n", xlab = xlab, font.lab = 2, mgp = c(2, .5, 0), ...)
     abline(h = 1:loop, col = 8, lty = 3)
     axis(2, at = 1:loop, labels = lab, font = 2, las = 1, cex.axis = cex.lab, tck = -.006, mgp = c(2, .3, 0))
-                         
+    
     for(i in 1:loop){
-    col <- if(is.null(col.hump)) i else col.hump[i]    
+      col <- if(is.null(col.hump)) i else col.hump[i]    
       polygon(x = h[[i]]$x, y = scale*h[[i]]$y +i, col = adjustcolor(col, col.depth), border = NA, xpd = NA)
     }
     a = scale*(f-1:loop)+1:loop
@@ -1212,15 +1212,20 @@ d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf
     I = deci(CI) ; o = deci(mode)
     text(c(CI[,1], o, CI[,2]), 1:loop, c(I[,1], o, I[,2]), pos = 3, font = 2, cex = .8, xpd = NA)
     
+    eq.decision <- if(CI[1] > -eq.level & CI[2] < eq.level) TRUE else if(CI[1] > eq.level || CI[2] < -eq.level) FALSE else NA
+    
     rownames <- if(is.null(labels)) paste0("Cohen's d ", 1:loop, " posterior:") else paste0(1:loop, " ", labels, " posterior:")
-    return(round(data.frame(estimate = estimate, mode = mode, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, BF10 = BF10, row.names = rownames), digits = digits))
+    h <- round(data.frame(estimate = estimate, mode = mode, lower = CI[,1], upper = CI[,2], eq.prob = eq.prob, BF10 = BF10, row.names = rownames), digits = digits)
+    h$equal <- eq.decision
+    return(h)
     
   }else{
     xlab <- if(is.null(xlab)) bquote(bold("Effect Size "(delta))) else xlab  
     p = function(x) { get(d[1])(x, m[1], s[1])*as.integer(x >= lo[1])*as.integer(x <= hi[1]) }
     curve(p, prior.left, prior.right, yaxt = "n", ylab = NA, xlab = xlab, bty = "n", font.lab = 2, lwd = 2, n = 1e3, main = bquote(delta*" ~ "*.(if(lo[1] > -Inf || hi[1] < Inf) "truncated-")*.(substring(d[1], 2))(.(round(m[1], 2)), .(round(s[1], 2)))), mgp = c(2, .5, 0), yaxs = "i")
   }
-}           
+}      
+           
    
    
 #====================================================================================================================
