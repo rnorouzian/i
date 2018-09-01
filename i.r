@@ -4267,7 +4267,8 @@ plan.t.tests.default <- function(d = .1, sig.level = .05, power = .8, base.rate 
   
   points(g, p, pch = 19, col = 2, xpd = NA)  
   
-  text(g, par('usr')[4], bquote(bold(critical~ bolditalic(d) == .(crit))), pos = 3, cex = .7, font = 2, xpd = TRUE) 
+  #text(g, par('usr')[4], bquote(bold(critical~ bolditalic(d) == .(crit))), pos = 3, cex = .7, font = 2, xpd = TRUE) 
+  text(g, par('usr')[4], paste("critical d =", crit), pos = 3, cex = .7, font = 2, xpd = TRUE)
   
   h1 <- curve(dcohen(x, d2, n1, n2), from, to, n = 1e4, add = TRUE) 
   x1 <- seq(from, a, length.out = 1e3) ; y1 <- dcohen(x1, d2, n1, n2) 
