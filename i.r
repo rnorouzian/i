@@ -653,7 +653,7 @@ prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "db
     }
     graphics.off()
     lab <- if(is.null(labels)) substring(d, 2) else labels
-    xlab <- if(is.null(xlab)) "Credible Interval (Proportion)" else xlab
+    xlab <- if(is.null(xlab)) "Proportion" else xlab
     ylab <- if(is.null(ylab)) NA else ylab
     
     plot(CI, rep(1:loop, 2), type = "n", xlim = 0:1, ylim = c(bottom*1, top*loop), ylab = ylab, yaxt = "n", xaxt = "n", xlab = xlab, font.lab = 2, mgp = c(2, .3, 0), ...)
@@ -685,7 +685,7 @@ prop.bayes.default <- function(a = 1.2, b = 1.2, lo = 0, hi = 1, dist.name = "db
       
     xlab <- if(is.null(xlab)) "Proportion" else xlab  
     p = function(x) get(d[1])(x, a[1], b[1])*as.integer(x >= lo[1])*as.integer(x <= hi[1])
-    curve(p, 0, 1, yaxt = "n", xaxt = "n", ylab = NA, xlab = xlab, bty = "n", font.lab = 2, lwd = 2, n = 1e3, yaxs = "i", main = bquote(Proportion*" ~ "*.(if(lo[1] > 0 || hi[1] < 1) "truncated-")*.(substring(d[1], 2))(.(round(a[1], 2)), .(round(b[1], 2)))))
+    curve(p, 0, 1, yaxt = "n", xaxt = "n", ylab = NA, xlab = xlab, bty = "n", font.lab = 2, lwd = 2, n = 1e3, yaxs = "i", main = bquote(.(xlab)*" ~ "*.(if(lo[1] > 0 || hi[1] < 1) "truncated-")*.(substring(d[1], 2))(.(round(a[1], 2)), .(round(b[1], 2)))))
     axis(1, at = axTicks(1), lab = paste0(axTicks(1)*1e2, "%"), mgp = c(2, .4, 0))
   }
 }
@@ -1190,7 +1190,7 @@ d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf
     }    
     graphics.off()  
     lab <- if(is.null(labels)) substring(d, 2) else labels
-    xlab <- if(is.null(xlab)) bquote(bold("Credible Interval "(delta))) else xlab
+    xlab <- if(is.null(xlab)) bquote(bold(delta)) else xlab
     ylab <- if(is.null(ylab)) NA else ylab    
     f = peak + 1:loop
     plot(CI, rep(1:loop, 2), type = "n", xlim = c(min(from), max(to)), ylim = c(bottom*1, top*max(f)), ylab = ylab, yaxt = "n", xlab = xlab, font.lab = 2, mgp = c(2, .5, 0), ...)
@@ -1222,7 +1222,7 @@ d.bayes.default <- function(t, n1, n2 = NA, m = 0, s = 1, level = .95, lo = -Inf
   }else{
     xlab <- if(is.null(xlab)) bquote(bold("Effect Size "(delta))) else xlab  
     p = function(x) { get(d[1])(x, m[1], s[1])*as.integer(x >= lo[1])*as.integer(x <= hi[1]) }
-    curve(p, prior.left, prior.right, yaxt = "n", ylab = NA, xlab = xlab, bty = "n", font.lab = 2, lwd = 2, n = 1e3, main = bquote(delta*" ~ "*.(if(lo[1] > -Inf || hi[1] < Inf) "truncated-")*.(substring(d[1], 2))(.(round(m[1], 2)), .(round(s[1], 2)))), mgp = c(2, .5, 0), yaxs = "i")
+    curve(p, prior.left, prior.right, yaxt = "n", ylab = NA, xlab = xlab, bty = "n", font.lab = 2, lwd = 2, n = 1e3, main = bquote(.(xlab)*" ~ "*.(if(lo[1] > -Inf || hi[1] < Inf) "truncated-")*.(substring(d[1], 2))(.(round(m[1], 2)), .(round(s[1], 2)))), mgp = c(2, .5, 0), yaxs = "i")
   }
 }      
            
@@ -1498,7 +1498,7 @@ peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo
     } 
     graphics.off()
     lab <- if(is.null(labels)) substring(d, 2) else labels
-    xlab <- if(is.null(xlab)) bquote(bold("Credible Interval"~(eta[p]^2))) else xlab
+    xlab <- if(is.null(xlab)) bquote(bold((eta[p]^2))) else xlab
     ylab <- if(is.null(ylab)) NA else ylab  
         
     plot(CI, rep(1:loop, 2), type = "n", xlim = 0:1, ylim = c(bottom*1, top*loop), ylab = ylab, yaxt = "n", xaxt = "n", xlab = xlab, font.lab = 2, mgp = c(2, .5, 0), ...)
@@ -1526,7 +1526,7 @@ peta.bayes.default <- function(f, N, df1, df2, a = 1.2, b = 1.2, level = .95, lo
 }else{
     xlab <- if(is.null(xlab)) bquote(bold("Partial Eta.Sq"~(eta[p]^2))) else xlab
     p = function(x) { get(d[1])(x, a[1], b[1])*as.integer(x >= lo[1])*as.integer(x <= hi[1]) }
-    curve(p, 0, 1, yaxt = "n", xaxt = "n", ylab = NA, xlab = xlab, bty = "n", font.lab = 2, lwd = 2, n = 1e3, main = bquote(eta[p]^2*" ~ "*.(if(lo[1] > 0 || hi[1] < 1) "truncated-")*.(substring(d[1], 2))(.(round(a[1], 2)), .(round(b[1], 2)))), yaxs = "i")
+    curve(p, 0, 1, yaxt = "n", xaxt = "n", ylab = NA, xlab = xlab, bty = "n", font.lab = 2, lwd = 2, n = 1e3, main = bquote(.(xlab)*" ~ "*.(if(lo[1] > 0 || hi[1] < 1) "truncated-")*.(substring(d[1], 2))(.(round(a[1], 2)), .(round(b[1], 2)))), yaxs = "i")
     axis(1, at = axTicks(1), lab = paste0(axTicks(1)*1e2, "%"), mgp = c(2, .4, 0))
   }
 }
@@ -1951,7 +1951,7 @@ prop.update.default <- function(n = 100, yes = 55, top = 5, scale = .1, lo = 0, 
   xlab <- if(is.null(xlab)) "Proportion" else xlab
   ylab <- if(is.null(ylab)) NA else ylab                            
   par(mar = c(5, 6.8, 4, 2))
-  plot(pr~props, ylim = c(0, top*loop), type = "n", yaxs = "i", ylab = ylab, xlab = xlab, font.lab = 2, axes = FALSE, mgp = c(2, .4, 0), main = if(pri) bquote(Proportion*" ~ "*.(if(lo > 0 || hi < 1) "truncated-")*.(substring(d, 2))(.(round(a, 2)), .(round(b, 2)))) else NA)
+  plot(pr~props, ylim = c(0, top*loop), type = "n", yaxs = "i", ylab = ylab, xlab = xlab, font.lab = 2, axes = FALSE, mgp = c(2, .4, 0), main = if(pri) bquote(.(xlab)*" ~ "*.(if(lo > 0 || hi < 1) "truncated-")*.(substring(d, 2))(.(round(a, 2)), .(round(b, 2)))) else NA)
   axis(1, at = axTicks(1), labels = paste0(axTicks(1)*1e2, "%"), mgp = c(2, .3, 0))
   
   if(!pri){  
@@ -2028,7 +2028,7 @@ d.update.default <- function(t = 3.35, n1 = 30, n2 = NA, top = 5, scale = .1, m 
   xlab <- if(is.null(xlab)) bquote(bold("Effect Size"~ (delta))) else xlab
   ylab <- if(is.null(ylab)) NA else ylab                            
   par(mar = c(5, 6.8, 4, 2))
-  plot(pr~ds, ylim = c(0, top*loop), xlim = c(-margin, margin), type = "n", xaxs = "i", yaxs = "i", ylab = ylab, xlab = xlab, font.lab = 2, mgp = c(2, .4, 0), main = if(pri) bquote("Effect Size"*" ~ "*.(if(lo > -Inf || hi < Inf) "truncated-")*.(substring(d, 2))(.(round(m, 2)), .(round(s, 2)))) else NA, yaxt = "n", bty = "n")
+  plot(pr~ds, ylim = c(0, top*loop), xlim = c(-margin, margin), type = "n", xaxs = "i", yaxs = "i", ylab = ylab, xlab = xlab, font.lab = 2, mgp = c(2, .4, 0), main = if(pri) bquote(.(xlab)*" ~ "*.(if(lo > -Inf || hi < Inf) "truncated-")*.(substring(d, 2))(.(round(m, 2)), .(round(s, 2)))) else NA, yaxt = "n", bty = "n")
   
   if(!pri){
     labels <- if(is.null(labels)) paste0("Study ", 1:loop) else labels  
@@ -2102,10 +2102,10 @@ peta.update.default <- function(f = 50, N = 120, df1 = 3, df2 = 116, top = 5, sc
   original.par = par(no.readonly = TRUE)
   on.exit(par(original.par))
   
-  xlab <- if(is.null(xlab)) bquote(bold("Partial Eta.Sq"~(eta[p]^2))) else xlab
+  xlab <- if(is.null(xlab)) bquote(bold((eta[p]^2))) else xlab
   ylab <- if(is.null(ylab)) NA else ylab                            
   par(mar = c(5, 6.8, 4, 2))
-  plot(pr~peta, ylim = c(0, top*loop), type = "n", yaxs = "i", ylab = ylab, xlab = xlab, font.lab = 2, axes = FALSE, mgp = c(2, .4, 0), main = if(pri) bquote(eta[p]^2*" ~ "*.(if(lo > 0 || hi < .9999999) "truncated-")*.(substring(d, 2))(.(round(a, 2)), .(round(b, 2)))) else NA)
+  plot(pr~peta, ylim = c(0, top*loop), type = "n", yaxs = "i", ylab = ylab, xlab = xlab, font.lab = 2, axes = FALSE, mgp = c(2, .4, 0), main = if(pri) bquote(.(xlab)*" ~ "*.(if(lo > 0 || hi < .9999999) "truncated-")*.(substring(d, 2))(.(round(a, 2)), .(round(b, 2)))) else NA)
   axis(1, at = axTicks(1), lab = paste0(axTicks(1)*1e2, "%"), mgp = c(2, .3, 0))
   
   if(!pri){
