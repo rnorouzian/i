@@ -5486,3 +5486,22 @@ mrnorm.default <- function(n = 1, mu, sd, tol = 1e-6, random = TRUE)
 }
       
 
+#=============================================================
+      
+      
+late.penalty <- function(due, submit)
+{
+  UseMethod("late.penalty")
+}
+
+late.penalty.default <- function(due, submit)
+  {
+  due = strptime(due,  format = "%a %b %d %H:%M:%S %Y")
+  sub = strptime(submit, format = "%a %b %d %H:%M:%S %Y")
+  dayslate = as.numeric( difftime(sub, due, units = "days"))
+  halflife = 7 # days until half credit
+  expshape = 1 # shape of decay function
+  round(exp( log(.5)/halflife^expshape*(dayslate)^expshape ), 2)
+}
+      
+      
