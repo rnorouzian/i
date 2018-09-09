@@ -5504,4 +5504,61 @@ late.penalty.default <- function(due, submit)
   round(exp( log(.5)/halflife^expshape*(dayslate)^expshape ), 2)
 }
       
+#=========================================================================
+      
+Anova <- function(eta.sq = .25, n = 5, min.score = 0, max.score = 25, coef = 1.2, sig.level = .05, ...){
+  
+  beta = qnorm(c(1e-16, .9999999999999999))
+  q = c(min.score, max.score)
+  musd = solve(cbind(1L, beta), q)  
+  m1 = musd[[1]]  
+  sdw = musd[[2]] 
+  
+  x = ((sdw^2) * eta.sq) / (1 - eta.sq)
+  m2 = coef * m1
+  A = m1 + m2
+  
+  a = function(m3) abs((m1 - (A + m3)/3)^2 + (m2 - (A + m3)/3)^2 + (m3 - (A + m3)/3)^2 - 3*x)
+  
+  m3 = optimize(a, c(-3*max.score, 3*max.score))[[1]]
+  
+  mus = c(m1, m2, m3)
+  k = length(mus)
+  sigb = var(mus)*(k-1)/k
+  eta.p = sigb / (sigb + sdw^2)
+  group = gl(k, n, labels = paste0("GROUP ", 1:k))
+  y = as.vector(mapply(rnorm, n = rep(n, k), mean = mus, sd = rep(sdw, k)))
+  sim = anova(aov(y ~ group))
+  eta = sim[1, 2] / sum(sim[, 2])
+  msb = sim[1, 3]
+  mse = sim[2, 3]
+  omega = (sim[1, 2] - sim[1, 1]*mse) / ((sim[1, 2] + sim[2, 2]) + mse)
+  eps = (sim[1, 2] - sim[1, 1]*mse) / (sim[1, 2] + sim[2, 2])
+  lab = c(paste0("subj #", rev(n)[1]), paste0(rep(".", n - 2)), paste0("subj #", 1L))
+  
+  par(font.lab = 2, font = 2, mgp = c(2, .2, 0), ...)
+  dotchart(y, groups = group, gcol = 2:(k+1), pch = 19, color = (2:(k+1))[group],
+           xlab = "Participants' Scores", labels = rep(lab, k)) 
+  
+  ms = unique(ave(y, group))
+  sd = round(tapply(y, group, sd), 3)
+  g = rev(cumsum(rev(tapply(group, group, length)) + 2) - 1)
+  u = par("usr")
+  
+  segments(ms, c(u[4], g[2:3]), ms, c(g[2:3], u[3]), col = 2:(k+1), lty = 2)
+  arrows(ms[1:2], g[2:3], ms[2:3], g[2:3], code = 3, length = .12, angle = 40, lwd = 2)
+  
+  ms = round(ms, 3)
+  legend("topright", paste0("Mean = ", ms[1], "\n", "sd = ", sd[1]), bty = "n", text.col = "red4")
+  legend("left", paste0("Mean = ", ms[2], "\n", "sd = ", sd[2]), bty = "n", text.col = "darkgreen")
+  legend("bottomleft", paste0("Mean = ", ms[3], "\n", "sd = ", sd[3]), bty = "n", text.col = 4)
+  legend("right",  paste0(" Eta Sq. = ", signif(eta, 3)), bty = "n")
+  
+  uneq = function(a, b, sig = 4) round(a, sig) != round(b, sig)
+  if(uneq(eta.sq, eta.p)) message("\nNote: You may need to change 'coef' to get requested 'eta.sq'.")
+  p = power.anova.test(groups = k, n = n, between.var = msb, within.var = mse, sig.level = sig.level)[[6]]
+  
+  cbind(sim, Pop.Eta.Sq = c(eta.p, NA), Eta.Sq = c(eta, NA), Omega.Sq = c(omega, NA), Epsilon.Sq = c(eps, NA), Power = c(p, NA))
+}
+      
       
