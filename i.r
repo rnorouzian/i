@@ -145,6 +145,16 @@ hdiq.default <- function(qdist, level = .95, ...)
 #==================================================================================================================
 
 eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
+                            
+                            
+cor1 <- function(...)cor(cbind(...))
+                            
+                            
+cor2 <- function(...) {
+  vapply(combn(list(...), 2, simplify = FALSE), 
+         function(y) cor(y[[1]], y[[2]]),
+         numeric(1))
+}
 
 #==================================================================================================================
 
