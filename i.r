@@ -5575,7 +5575,7 @@ Anova <- function(eta.sq = .25, n = 5, min.score = 0, max.score = 25, coef = 1.2
 #======================================================================================================================================
       
       
-Players <- function(Step = 16, n.Players = 16, n.Steps = 16, step.size = .5, adj = 3){
+players <- function(Step = 16, n.Players = 16, n.Steps = 16, step.size = .5, adj = 3){
 
   graphics.off()
   original_par = par(no.readonly = TRUE)
