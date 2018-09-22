@@ -29,20 +29,20 @@ cat(Break, cite, Break)
 
 #==================================================================================================================
 
-HDI <- function(FUN, lower = 0, upper = 1, level = .95, eps = 1e-3)
+HDI <- function(fun, lower = 0, upper = 1, level = .95, eps = 1e-3)
 {
   UseMethod("HDI")
 }
 
-HDI.default <- function(FUN, lower = 0, upper = 1, level = .95, eps = 1e-3){
+HDI.default <- function(fun, lower = 0, upper = 1, level = .95, eps = 1e-3){
   
-  if(!is.function(FUN)) stop("Error: 'FUN' must be a function.")
-  if(length(formals(FUN)) > 1) stop("Error: 'FUN' must be a 'single-argument' function.")
+  if(!is.function(fun)) stop("Error: 'fun' must be a function.")
+  if(length(formals(fun)) > 1) stop("Error: 'fun' must be a 'single-argument' function.")
   if(1 <= level || level <= 0) stop("Error: 'level' must be between '0' and '1'.")
-  x <- formals(FUN)
-  fun <- function(x) FUN(x)
+  x <- formals(fun)
+  FUN <- function(x) fun(x)
   
-  posterior <- function(x) fun(x)/integrate(fun, lower, upper)[[1]]
+  posterior <- function(x) FUN(x)/integrate(FUN, lower, upper)[[1]]
   mode <- optimize(posterior, c(lower, upper), maximum = TRUE)[[1]]
   inverse.posterior <- function(x, side = "left") {
     target <- function(y) posterior(y) - x
@@ -67,6 +67,7 @@ HDI.default <- function(FUN, lower = 0, upper = 1, level = .95, eps = 1e-3){
   return(c(inverse.posterior(f, "left"),
            inverse.posterior(f, "right")))
 }
+
 
 #==================================================================================================================
 
@@ -123,6 +124,10 @@ hdir.default <- function(sample, level = .95){
 #==================================================================================================================
 
 hdip <- function(fun, lower = 0, upper = 1, level = .95){
+    
+  if(!is.function(fun)) stop("Error: 'fun' must be a function.")
+  if(length(formals(fun)) > 1) stop("Error: 'fun' must be a 'single-argument' function.")
+  if(1 <= level || level <= 0) stop("Error: 'level' must be between '0' and '1'.")
   
   p = (1 - level) / 2
   
@@ -155,6 +160,9 @@ hdiq.default <- function(qdist, level = .95, ...)
 
 
 cdf <- Vectorize(function(q, fun, lower, upper){
+    
+  if(!is.function(fun)) stop("Error: 'fun' must be a function.")
+  if(length(formals(fun)) > 1) stop("Error: 'fun' must be a 'single-argument' function.")
   
   x <- formals(fun)
   f <- function(x) fun(x)/integrate(fun, lower, upper)[[1]]
@@ -168,6 +176,9 @@ cdf <- Vectorize(function(q, fun, lower, upper){
 
 
 inv.cdf <- Vectorize(function(p, fun, lower, upper){
+    
+  if(!is.function(fun)) stop("Error: 'fun' must be a function.")
+  if(length(formals(fun)) > 1) stop("Error: 'fun' must be a 'single-argument' function.")
   
   uniroot(function(q) cdf(q, fun, lower, upper) - p, c(lower, upper), extendInt = "yes")[[1]]
   
