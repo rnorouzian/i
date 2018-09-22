@@ -122,6 +122,15 @@ hdir.default <- function(sample, level = .95){
 
 #==================================================================================================================
 
+hdip <- function(fun, lower = 0, upper = 1, level = .95){
+  
+  p = (1 - level) / 2
+  
+  inv.cdf(c(p, 1-p), fun, lower, upper)
+}
+
+#====================================================================================================================
+
 
 hdiq <- function(qdist, level = .95, ...)
 {
@@ -143,6 +152,30 @@ hdiq.default <- function(qdist, level = .95, ...)
 }
 
 #==================================================================================================================
+
+
+cdf <- Vectorize(function(q, fun, lower, upper){
+  
+  x <- formals(fun)
+  f <- function(x) fun(x)/integrate(fun, lower, upper)[[1]]
+  
+  integrate(f, lower, q)[[1]]
+  
+}, c("q", "lower", "upper"))
+
+
+#==================================================================================================================
+
+
+inv.cdf <- Vectorize(function(p, fun, lower, upper){
+  
+  uniroot(function(q) cdf(q, fun, lower, upper) - p, c(lower, upper), extendInt = "yes")[[1]]
+  
+}, c("p", "lower", "upper"))
+
+
+#===================================================================================================================
+
 
 eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
                             
