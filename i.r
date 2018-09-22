@@ -123,7 +123,7 @@ hdir.default <- function(sample, level = .95){
 
 #==================================================================================================================
 
-hdip <- function(fun, lower = 0, upper = 1, level = .95){
+cip <- function(fun, lower = 0, upper = 1, level = .95){
     
   if(!is.function(fun)) stop("Error: 'fun' must be a function.")
   if(length(formals(fun)) > 1) stop("Error: 'fun' must be a 'single-argument' function.")
