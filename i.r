@@ -129,7 +129,7 @@ cip <- function(fun, lower = 0, upper = 1, level = .95){
   if(length(formals(fun)) > 1) stop("Error: 'fun' must be a 'single-argument' function.")
   if(1 <= level || level <= 0) stop("Error: 'level' must be between '0' and '1'.")
   
-  p = (1 - level) / 2
+  p <- (1 - level) / 2
   
   inv.cdf(c(p, 1-p), fun, lower, upper)
 }
