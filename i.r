@@ -2379,19 +2379,7 @@ d.eq.test.default <- function(t, n1, n2 = NA, m = 0, s = 1, dist.name = "dnorm",
 }
 
                        
-#======================================================================================================================
-   
-                       
-need <- c("rstanarm")  #, "arrangements", "gsl")
-have <- need %in% rownames(installed.packages())
-if(any(!have)){ install.packages( need[!have] ) }
- 
-options(warn = -1)
-suppressMessages({ 
-    library("rstanarm")
-   # library("arrangements")
-   # library("gsl")
-})
+#======================================================================================================================                       
                       
                        
 R <- function(fit)
@@ -5721,3 +5709,17 @@ postmode <- function(x, ...)
 }
                      
                
+#========================================================================================================================
+                     
+                     
+need <- c("rstanarm")  #, "arrangements", "gsl")
+have <- need %in% rownames(installed.packages())
+if(any(!have)){ install.packages( need[!have] ) }
+ 
+options(warn = -1)
+suppressMessages({ 
+    library("rstanarm")
+   # library("arrangements")
+   # library("gsl")
+})
+                     
