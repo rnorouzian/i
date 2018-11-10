@@ -5287,7 +5287,7 @@ for(i in 1:length(peta)){
 #====================================================================================================================================================================
             
 
-plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.level = .9, width = .2, regress = FALSE,  pair.design = 0, assure = .99){
+plan.f.cic <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.level = .9, width = .2, regress = FALSE,  pair.design = 0, assure = .99){
   
   if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
   
@@ -5344,6 +5344,95 @@ plan.f.ci <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.
   data.frame(t(G(peta = peta, conf.level = conf.level, width = width, design = design, n.level = n.level, n.covar = n.covar, regress = regress, pair.design = pair.design, assure = assure)), row.names = NULL)
 } 
                     
+
+                    
+                    
+#==========================================================================================================================================================================================================================                    
+
+                    
+plan.f.ci <- function(H2 = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.level = .9, width = .2, regress = FALSE,  pair.design = 0, assure = .99)
+{
+  
+  UseMethod("plan.f.ci")
+  
+}
+
+plan.f.ci.default <- function(H2 = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.level = .9, width = .2, regress = FALSE,  pair.design = 0, assure = .99){
+  
+  if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
+  peta <- H2
+  G <- Vectorize(function(peta, conf.level, width, assure, design, n.level, n.covar, regress, pair.design){
+    
+    n.f <- function(peta, conf.level, width, assure, design, n.level, n.covar, regress, pair.design){
+      
+      alpha <- (1 - conf.level)/2
+      if(regress){ n.level <- n.level + 1 ; design <- n.level }
+      if(pair.design != 0) design <- 2
+      df1 <- n.level - 1
+      if(n.covar < 0) n.covar <- 0
+      options(warn = -1)
+      
+      f <- function(alpha, q, df1, df2, ncp){
+        alpha - suppressWarnings(pf(peta2F(peta, df1, df2), df1, df2, ncp, lower.tail = FALSE))
+      }
+      
+      pbase <- function(df2){      
+        
+        b <- sapply(c(alpha, 1 - alpha), function(x) 
+          tryCatch(uniroot(f, c(0, 1e7), alpha = x, q = q, df1 = df1, df2 = df2, extendInt = "yes")[[1]], error = function(e) NA))
+        if(any(is.na(b))) b <- c(1, 1e4)     
+        ncp2peta(b, df2 + design)
+      }
+      
+      m <- function(df2, width){
+        abs(diff(pbase(df2))) - width
+      }
+      
+      df2 <- uniroot(m, c(0, 1e3), width = width, extendInt = "yes")[[1]]
+      
+      df2 <- if(regress) ceiling(df2) else ceiling(df2 - n.covar)
+      
+      N <- ceiling(df2 + design)
+      bal <- ceiling(N/design) * design
+      if(pair.design != 0){ N <- pair.design * (bal/2) ; message("\nNote: You are doing reseach planning for accurate 'pairwise' comparisons.") }
+      N <- if(!regress & design != 0 & N %% design != 0) bal else N
+      n.covar <- if(n.covar == 0) NA else n.covar
+      n.level <- if(regress) n.level-1 else n.level
+      design <- if(regress) n.level else design
+      df1 <- if(regress) n.level else df1
+      
+      list(peta = peta, total.N = N, width = width, n.level = n.level, conf.level = conf.level, assure = assure, df1 = df1, df2 = df2, design = design)
+    }
+    
+    n <- n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, pair.design = pair.design)  
+    
+    peta <- exp.peta(pbase = n$peta, df1 = n$df1, df2 = n$df2, N = n$total.N)
+    
+    n <- n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, pair.design = pair.design)
+    
+    peta.max <- root(pov = peta, df1 = n$df1, df2 = n$df2, N = n$total.N, conf.level = conf.level)$m
+    
+    a <- peta.ci(peta = peta, df1 = n$df1, df2 = n$df2, N = n$total.N, conf.level = 2*assure - 1)
+    
+    nLU <- sapply(c(a$lower, a$upper), function(x) n.f(peta = x, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, pair.design = pair.design)$total.N)
+    
+    NN1 <- max(nLU, na.rm = TRUE)
+    
+    b <- peta.ci(peta = peta.max, df1 = n$df1, df2 = n$df2, N = n$total.N, conf.level = 1 - assure)
+    
+    nLU <- sapply(c(b$lower, b$upper), function(x) n.f(peta = x, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, pair.design = pair.design)$total.N)
+    
+    NN2 <- max(nLU, na.rm = TRUE)
+    
+    NN3 <- if(!(peta.max %inn% c(a$lower, a$upper))) NN1 else max(NN1, NN2)
+    
+    return(c(peta = peta, total.N = NN3, width = width, n.level = n.level, design = design, conf.level = conf.level))
+    
+  })
+  
+  data.frame(t(G(peta = peta, conf.level = conf.level, width = width, design = design, n.level = n.level, n.covar = n.covar, pair.design = pair.design, assure = assure, regress = regress)), regress = regress, row.names = NULL)
+}                    
+                                      
                     
 #==========================================================================================================================================================================================================================
                     
