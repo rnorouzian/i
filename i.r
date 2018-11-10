@@ -5350,18 +5350,20 @@ plan.f.cic <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf
 #==========================================================================================================================================================================================================================                    
 
                     
-plan.f.ci <- function(pov = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.level = .9, width = .2, regress = FALSE,  pair.design = 0, assure = .99)
+plan.f.ci <- function(pov = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.level = .9, width = .2, regress = FALSE,  pair.design = 0, assure = .99, expect = FALSE)
 {
   
   UseMethod("plan.f.ci")
   
 }
 
-plan.f.ci.default <- function(pov = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.level = .9, width = .2, regress = FALSE,  pair.design = 0, assure = .99){
+plan.f.ci.default <- function(pov = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.level = .9, width = .2, regress = FALSE,  pair.design = 0, assure = .99, expect = FALSE){
   
   if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
   peta <- pov
-  G <- Vectorize(function(peta, conf.level, width, assure, design, n.level, n.covar, regress, pair.design){
+  if(expect) assure <- .5
+  G <- Vectorize(function(peta, conf.level, width, assure, design, n.level, n.covar, regress, pair.design, expect){
+    
     
     n.f <- function(peta, conf.level, width, assure, design, n.level, n.covar, regress, pair.design){
       
@@ -5430,8 +5432,8 @@ plan.f.ci.default <- function(pov = .2, design = 2 * 2, n.level = 2, n.covar = 0
     
   })
   
-  data.frame(t(G(peta = peta, conf.level = conf.level, width = width, design = design, n.level = n.level, n.covar = n.covar, pair.design = pair.design, assure = assure, regress = regress)), regress = regress, row.names = NULL)
-}                    
+  data.frame(t(G(peta = peta, conf.level = conf.level, width = width, design = design, n.level = n.level, n.covar = n.covar, pair.design = pair.design, assure = assure, regress = regress, expect = expect)), regress = regress, assure = assure, row.names = NULL)
+}                  
                                       
                     
 #==========================================================================================================================================================================================================================
