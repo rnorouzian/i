@@ -5807,10 +5807,12 @@ postmode <- function(x, ...)
              
                      
 d.width.plot <- function(d.range = seq(.15, .92, l = 5), n1, n2 = NA, reduce.by = "20%", conf.level = .95, expect = FALSE,
-                         base.rate = 1, paired = FALSE, assure = .99, xlab = NA, ylim = NULL, xlim = NULL){
+                         base.rate = 1, assure = .99, xlab = NA, ylim = NULL, xlim = NULL){
   
   fac <-  if(is.character(reduce.by)) (1 - (as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2))  else 1 - reduce.by
-  if(!is.na(n2) & paired) n2 <- NA
+  
+  paired <- if(is.na(n2)) TRUE else FALSE
+      
   ci <- d.ci(d = d.range, n1 = n1, n2 = n2, conf.level = conf.level)
   
   current <- abs(ci$upper - ci$lower)
