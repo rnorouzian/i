@@ -5847,6 +5847,43 @@ d.width.plot <- function(d.range = seq(.15, .92, l = 5), n1, n2 = NA, reduce.by 
 #========================================================================================================================
                      
                      
+R2.width.plot <- function(R2.range = seq(.18, .51, l = 5), n.pred, N, reduce.by = "30%", conf.level = .95, xlab = NA, ylim = NULL, xlim = NULL, assure = .99, expect = FALSE){
+  
+  fac <- if(is.character(reduce.by)) (1 - (as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2))  else 1 - reduce.by
+  
+  ci <- R2.ci(R2 = R2.range, n.pred = n.pred, N = N, conf.level = conf.level)
+  
+  current <-  abs(ci$upper - ci$lower)
+  
+  desired <- current * fac
+  
+  x <- 1:length(current)
+  y <- current
+  z <- desired
+  ylim <- if(is.null(ylim)) range(1.1*y, .9*z) else ylim
+  xlim <- if(is.null(xlim)) NULL else xlim
+  xlab <- if(is.na(xlab)) bquote(bold("Common"~R^2~" in L2")) else xlab
+  
+  par(xpd = NA)
+  
+  plot(x, y, ylim = ylim, xlim = xlim, cex = 1.5, xaxt = "n", panel.f = points(x, z, col = 2, cex = 1.5), xlab = xlab,
+       panel.l = arrows(x, .98*y, x, 1.02*z, len = .1), las = 1, ylab = "CI width", font.lab = 2,  
+       main = paste0((1- fac)*1e2, "% ", "reduction in CI width"))
+  
+  axis(1, at = x, labels = round(R2.range, 2))
+  legend("topleft", c("Current", "Desired"), pch = 1, col = c(1, 2), cex = .7, text.font = 2, pt.cex = 1.1, adj = c(0, .4), x.intersp = c(.8, .8), bty = "n")
+  box()
+  text(x, y, round(y, 3), pos = 3, cex = .6, font = 2)
+  text(x, z, round(z, 3), pos = 1, cex = .6, font = 2, col = 2)
+
+  par(xpd = FALSE)
+  
+  plan.f.ci(pov = R2.range, regress = TRUE, n.level = n.pred, conf.level = conf.level, expect = expect, assure = assure, width = desired)
+  
+}                     
+                                      
+#========================================================================================================================    
+                     
 need <- c("rstanarm")  #, "arrangements", "gsl")
 have <- need %in% rownames(installed.packages())
 if(any(!have)){ install.packages( need[!have] ) }
