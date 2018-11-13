@@ -5099,10 +5099,12 @@ plan.t.ci.default <- function(d, conf.level = .95, width, base.rate = 1, paired 
                                                                                                      
 R2.ci <- function(R2, n.pred, N, f = NA, df1 = NA, df2 = NA, conf.level = .9, digits = 20){ 
   
-  if(is.na(df1)) df1 <- n.pred  
+  if(is.na(df1)) df1 <- n.pred 
+  if(missing(n.pred) & df1) n.pred <- df1
   if(is.na(df2)) df2 <- N - n.pred - 1
   if(missing(N)) N <- df1 + df2 + 1  
-      
+  if(missing(df2) & N) df2 <- N - df1 - 1
+  
   a <- if(!missing(R2)){ peta.ci(peta = R2, df1 = df1, df2 = df2, N = N, conf.level = conf.level, digits = digits)
   } else { peta.ci(f = f, df1 = df1, df2 = df2, N = N, conf.level = conf.level, digits = digits) }
   
