@@ -5472,10 +5472,12 @@ root <- function(pov = .6, df1 = 3, df2 = 108, N = 100, conf.level = .95, show =
 #=======================================================================================================================================================================================================================================
                  
                  
-plan.r.ci <- function(rho = .4, width = .4, conf.level = .95, assure = .99){
+plan.r.ci <- function(rho = .4, width = .4, conf.level = .95, assure = .99, expect = FALSE){
 
   rho[rho <= -1] <- -.99999  
   rho[rho >= 1] <- .99999
+  
+  if(expect) assure <- .5
   
   G <- Vectorize(function(rho, width, conf.level, assure){
   
