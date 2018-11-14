@@ -5928,7 +5928,44 @@ peta.width.plot <- function(peta.range = seq(.26, .5, l = 5), n.level = 2, desig
 }                     
                      
 #=========================================================================================================================
+
+cor.width.plot <- function(r.range = seq(.25, .68, l = 5), n = 20, reduce.by = "30%", conf.level = .95, assure = .99, ylim = NULL, xlim = NULL, xlab = NA, expect = FALSE){
+  
+  fac <- if(is.character(reduce.by)) (1 - (as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2))  else 1 - reduce.by
+  
+  ci <- cor.ci(r = r.range, n = n, conf.level = conf.level)
+  
+  current <- abs(ci$upper - ci$lower)
+  
+  desired <- current * fac
+  
+  x <- 1:length(current)
+  y <- current
+  z <- desired
+  xlim <- if(is.null(xlim)) NULL else xlim
+  ylim <- if(is.null(ylim)) range(1.1*y, .9*z) else ylim
+  xlab <- if(is.na(xlab)) "common r in L2" else xlab
+
+  par(xpd = NA)
+  
+  plot(x, y, ylim = ylim, xlim = xlim, cex = 1.5, xaxt = "n", panel.f = points(x, z, col = 2, cex = 1.5), 
+       panel.l = arrows(x, .98*y, x, 1.02*z, len = .1), las = 1, ylab = "CI width", font.lab = 2, xlab = xlab, 
+       main = paste0((1- fac)*1e2, "% ", "reduction in CI width"))
+  
+  axis(1, at = x, labels = round(r.range, 2))
+  legend("top", c("Current", "Desired"), pch = 1, col = c(1, 2), cex = .7, text.font = 2, pt.cex = 1.1, adj = c(0, .35), x.intersp = c(.8, .8), bty = "n")
+  box()
+  
+  text(x, y, round(y, 3), pos = 3, cex = .6, font = 2)
+  text(x, z, round(z, 3), pos = 1, cex = .6, font = 2, col = 2)
+
+  par(xpd = FALSE)
+  
+  plan.r.ci(rho = r.range, conf.level = conf.level, width = desired, assure = assure, expect = expect)
+}                     
                      
+#=========================================================================================================================
+
 need <- c("rstanarm")  #, "arrangements", "gsl")
 have <- need %in% rownames(installed.packages())
 if(any(!have)){ install.packages( need[!have] ) }
