@@ -5989,10 +5989,12 @@ R2.width <- Vectorize(function(R2, n.pred, N, f = NA, df1 = NA, df2 = NA, conf.l
 })
 
 
-peta.width <- Vectorize(function(peta, N, f = NA, df1, df2, conf.level = .95){
+peta.width <- Vectorize(function(peta, N, f = NA, n.level, df2, conf.level = .95){
   
-  if(!missing(peta)) { diff(as.numeric(peta.ci(peta = peta, df1 = df1, df2 = df2, N = N, conf.level = conf.level)[2:3]))
+  df1 <- n.level - 1
+if(!missing(peta)) { diff(as.numeric(peta.ci(peta = peta, df1 = df1, df2 = df2, N = N, conf.level = conf.level)[2:3]))
   } else { diff(as.numeric(peta.ci(f = f, df1 = df1, df2 = df2, N = N, conf.level = conf.level)[2:3])) }
+
 })
 
 
