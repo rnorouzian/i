@@ -5047,7 +5047,7 @@ plan.t.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = 
   fac <- if(is.character(reduce.by)) (1 - (as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2))  else 1 - reduce.by
   
   if(fac < 0) fac <- 1
-  if(fac >= 1) fac <- .01
+  if(fac >= 1) fac <- .99
       
   width <- width * fac
   
@@ -5068,7 +5068,7 @@ plan.t.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = 
       
       dbase <- function(df){
         sapply(c(alpha, 1 - alpha),
-               function(x) uniroot(f, c(-d+5e1, d+5e1), alpha = x, d = d, df = df, extendInt = "yes")[[1]]/sqrt(if(paired) df + 1 else ((k/(1 + k))^2)*(df + 2)))
+           function(x) uniroot(f, c(-d+5e1, d+5e1), alpha = x, d = d, df = df, extendInt = "yes")[[1]]/sqrt(if(paired) df + 1 else ((k/(1 + k))^2)*(df + 2)))
       }
       
       m <- function(df, width){
