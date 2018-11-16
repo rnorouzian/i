@@ -5969,31 +5969,31 @@ cor.width.plot <- function(r.range = seq(.25, .68, l = 5), n = 20, reduce.by = "
                      
 #=========================================================================================================================
 
-d.width <- function(d, t = NA, n1, n2 = NA, conf.level = .95){
+d.width <- Vectorize(function(d, t = NA, n1, n2 = NA, conf.level = .95){
   
   if(!missing(d)) { diff(as.numeric(d.ci(d = d, n1 = n1, n2 = n2, conf.level = conf.level)[2:3]))
   } else { diff(as.numeric(d.ci(t = t, n1 = n1, n2 = n2, conf.level = conf.level)[2:3])) }
-}
+})
 
 
-R2.width <- function(R2, n.pred, N, f = NA, df1 = NA, df2 = NA, conf.level = .95){
+R2.width <- Vectorize(function(R2, n.pred, N, f = NA, df1 = NA, df2 = NA, conf.level = .95){
   
   if(!missing(R2)) { diff(as.numeric(R2.ci(R2 = R2, n.pred = n.pred, df1 = df1, df2 = df2, N = N, conf.level = conf.level)[2:3]))
   } else { diff(as.numeric(R2.ci(f = f, n.pred = n.pred, df1 = df1, df2 = df2, N = N, conf.level = conf.level)[2:3])) }
-}
+})
 
 
-peta.width <- function(peta, N, f = NA, df1, df2, conf.level = .95){
+peta.width <- Vectorize(function(peta, N, f = NA, df1, df2, conf.level = .95){
   
   if(!missing(peta)) { diff(as.numeric(peta.ci(peta = peta, df1 = df1, df2 = df2, N = N, conf.level = conf.level)[2:3]))
   } else { diff(as.numeric(peta.ci(f = f, df1 = df1, df2 = df2, N = N, conf.level = conf.level)[2:3])) }
-}
+})
 
 
-cor.width <- function(r, n, conf.level = .95){
+cor.width <- Vectorize(function(r, n, conf.level = .95){
   
   diff(as.numeric(cor.ci(r = r, n = n, conf.level = conf.level)[2:3]))
-}
+})
                      
 #==========================================================================================================================
                      
