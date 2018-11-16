@@ -5040,8 +5040,10 @@ plan.t.ci <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = NA, base
 
 plan.t.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = NA, base.rate = 1, paired = FALSE, assure = .99, expect = FALSE){
   
-  if(is.na(width)) width <- d.width(d = d, t = t, n1 = n1, n2 = n2, conf.level = conf.level)
+  if(is.na(width) & missing(n1) || is.na(width) & is.na(t) & missing(d)) stop("Either provide 'width' or provide 't or d', 'n1' and/or 'n2' from prior study.", call. = FALSE)
   if(!is.na(t)) d <- t2d(t = t, n1 = n1, n2 = n2)
+  if(is.na(width)) width <- d.width(d = d, t = t, n1 = n1, n2 = n2, conf.level = conf.level)
+
   
   if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
   
@@ -5090,8 +5092,10 @@ plan.t.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = 
     n.d(d = dnew, conf.level = conf.level, width = width, paired = paired, base.rate = base.rate, assure = assure)
   })
   
+  if(paired) base.rate <- NA
   data.frame(t(G(d = d, conf.level = conf.level, width = width, paired = paired, base.rate = base.rate, assure = assure, expect = expect)), row.names = NULL)
 }
+                                                                                                                
                                                                                                                                                                                                           
 #===================================================================================================================================================
                                                                                                      
