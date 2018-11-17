@@ -5040,22 +5040,18 @@ plan.t.ci <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = NA, base
 
 plan.t.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = NA, base.rate = 1, paired = FALSE, assure = .99, expect = FALSE, reduce.by = "0%"){
   
-  if(is.na(width) & missing(n1) || is.na(width) & is.na(t) & missing(d)) stop("Either provide 'width' or provide 't or d', 'n1' and/or 'n2' from prior study.", call. = FALSE)  
+  if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
+  if(is.na(width) & missing(n1) || is.na(width) & is.na(t) & missing(d) || is.na(width) & !paired & missing(n2)) stop("Either provide 'width' or provide 't or d', 'n1' and/or 'n2' from prior study.", call. = FALSE)  
   if(!is.na(t)) d <- t2d(t = t, n1 = n1, n2 = n2)
   if(is.na(width)) width <- d.width(d = d, t = t, n1 = n1, n2 = n2, conf.level = conf.level)
+  if(expect) assure <- .5
   
   fac <- if(is.character(reduce.by)) (1 - (as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2))  else 1 - reduce.by
-  
-  if(fac < 0) fac <- 1
-  if(fac >= 1) fac <- .99
+  if(fac < 0 || fac > 1) fac <- 1
       
   width <- width * fac
-  
-  if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
-  
-  G <- Vectorize(function(d, conf.level, width, base.rate, paired, assure, expect){
     
-    if(expect) assure <- .5
+  G <- Vectorize(function(d, conf.level, width, base.rate, paired, assure, expect){
     
     n.d <- function(d, conf.level, width, base.rate, paired, assure){
       
