@@ -5083,7 +5083,7 @@ plan.t.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = 
     
     n <- n.d(d = d, conf.level = conf.level, width = width, paired = paired, base.rate = base.rate, assure = assure)
     
-    a <- d.ci(d = d, n1 = n$n1, n2 = n$n2, conf.level = c(assure, assure - (1 - assure)))$upper
+    a <- d.ci(d = d, n1 = n$n1, n2 = n$n2, conf.level = c(assure, 2*assure - 1))$upper
     
     dnew <- function(dnew = dnew, n1 = n$n1, n2 = n$n2, d = d, assure = assure){
       total <- sum(pcohen(c(-dnew, dnew), d, n1 = n1, n2 = n2, lower.tail = c(TRUE, FALSE)))
@@ -5095,8 +5095,10 @@ plan.t.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = 
   })
   
   if(paired) base.rate <- NA
-  data.frame(t(G(d = d, conf.level = conf.level, width = width, paired = paired, base.rate = base.rate, assure = assure, expect = expect)), row.names = NULL)
-}
+  a <- data.frame(t(G(d = d, conf.level = conf.level, width = width, paired = paired, base.rate = base.rate, assure = assure, expect = expect)), row.names = NULL)
+  a[,1] <- d
+  a                                                                                                          
+ }
                                                                                                                 
                                                                                                                                                                                                           
 #===================================================================================================================================================
@@ -5357,18 +5359,27 @@ plan.f.cic <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf
 #==========================================================================================================================================================================================================================                    
 
                     
-plan.f.ci <- function(pov = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.level = .95, width = .2, regress = FALSE,  pair.design = 0, assure = .99, expect = FALSE)
+plan.f.ci <- function(pov = .1, design = 2 * 2, n.level = 2, n.covar = 0, conf.level = .95, width, regress = FALSE, pair.design = 0, assure = .99, expect = FALSE, reduce.by = "0%")
 {
   
   UseMethod("plan.f.ci")
   
 }
 
-plan.f.ci.default <- function(pov = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf.level = .95, width = .2, regress = FALSE,  pair.design = 0, assure = .99, expect = FALSE){
-  
+plan.f.ci.default <- function(pov = .1, design = 2 * 2, f = NA, n.level = 2, n.covar = 0, conf.level = .95, width, regress = FALSE, pair.design = 0, assure = .99, expect = FALSE, reduce.by = "0%"){
+    
+    
   if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
   peta <- pov
   if(expect) assure <- .5
+  
+  fac <- if(is.character(reduce.by)) (1 - (as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2))  else 1 - reduce.by
+  
+  if(fac < 0 || fac > 1) fac <- 1
+  
+  width <- width * fac
+  
+  
   G <- Vectorize(function(peta, conf.level, width, assure, design, n.level, n.covar, regress, pair.design, expect){
     
     
@@ -5439,9 +5450,11 @@ plan.f.ci.default <- function(pov = .2, design = 2 * 2, n.level = 2, n.covar = 0
     
   })
   
-  data.frame(t(G(peta = peta, conf.level = conf.level, width = width, design = design, n.level = n.level, n.covar = n.covar, pair.design = pair.design, assure = assure, regress = regress, expect = expect)), regress = regress, assure = assure, row.names = NULL)
-}                  
-                                      
+ a <- data.frame(t(G(peta = peta, conf.level = conf.level, width = width, design = design, n.level = n.level, n.covar = n.covar, pair.design = pair.design, assure = assure, regress = regress, expect = expect)), regress = regress, assure = assure, row.names = NULL)
+ names(a)[1] <- if(regress) "R2" else "peta"
+ a[, 1] <- pov
+ a
+}                                    
                     
 #==========================================================================================================================================================================================================================
                     
