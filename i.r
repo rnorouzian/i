@@ -5047,7 +5047,7 @@ plan.t.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = 
   if(expect) assure <- .5
   
   fac <- if(is.character(reduce.by)) (1 - (as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2))  else 1 - reduce.by
-  if(fac < 0 || fac > 1) fac <- 1
+  if(fac <= 0 || fac > 1) fac <- 1
       
   width <- width * fac
     
@@ -5375,7 +5375,7 @@ plan.f.ci.default <- function(pov = .1, design = 2 * 2, f = NA, n.level = 2, n.c
   
   fac <- if(is.character(reduce.by)) (1 - (as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2))  else 1 - reduce.by
   
-  if(fac < 0 || fac > 1) fac <- 1
+  if(fac <= 0 || fac > 1) fac <- 1
   
   width <- width * fac
   
