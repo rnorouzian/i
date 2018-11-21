@@ -1,7 +1,7 @@
 
 Break = "\n<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>\n"
 
-notice = "   \"bayesL2\", a suite of R functions for Bayesian estimation.
+notice = "   \"bayesL2\", a suite of R functions for Bayesian estimation in L2 research.
     Copyright (C) 2018  Reza Norouzian, rnorouzian@gmail.com
 
     This program is free software: you can redistribute it under the 
