@@ -5461,7 +5461,7 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.covar 
   
   a <- data.frame(t(G(peta = peta, conf.level = conf.level, width = width, design = design, n.level = n.level, n.covar = n.covar, assure = assure, regress = regress, expect = expect)), regress = regress, assure = assure, row.names = NULL)
   names(a)[1] <- if(regress) "R2" else if(!is.na(d)) "d" else "peta"
-  a[, 1] <- pov
+  a[, 1] <- if(is.na(d)) pov else d
   a
 }                                                  
                     
