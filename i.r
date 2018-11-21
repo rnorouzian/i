@@ -5359,19 +5359,30 @@ plan.f.cic <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf
 #==========================================================================================================================================================================================================================                    
 
                     
-plan.f.ci <- function(pov = .1, design = 2 * 2, n.level = 2, n.covar = 0, conf.level = .95, width, regress = FALSE, pair.design = 0, assure = .99, expect = FALSE, reduce.by = "0%")
+d.width.meta <- Vectorize(function(lower, upper, n1 = 50, n2 = 50){
+  
+  abs(diff(d2peta(c(lower, upper), n1 = n1, n2 = n2)))
+})
+  
+#==========================================================================================================================================================================================================================                    
+                    
+
+plan.f.ci <- function(pov, design = 2 * 2, n.level = 2, n.covar = 0, conf.level = .95, width, regress = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", d = NA, lower, upper)
 {
   
   UseMethod("plan.f.ci")
   
 }
 
-plan.f.ci.default <- function(pov = .1, design = 2 * 2, f = NA, n.level = 2, n.covar = 0, conf.level = .95, width, regress = FALSE, pair.design = 0, assure = .99, expect = FALSE, reduce.by = "0%"){
-    
-    
+plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.covar = 0, conf.level = .95, width, regress = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", d = NA, lower, upper){
+  
+  
   if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
-  peta <- pov
   if(expect) assure <- .5
+  if(!is.na(d)) { pov <- d2peta(d = d, n1 = 50, n2 = 50) ; width <- d.width.meta(lower = lower, upper = upper) ; design <- n.level <- 2 ;
+  message("\nNote: For 'pairwise' comparisons, 'total.N' is for '2' groups.") }
+  peta <- pov
+  
   
   fac <- if(is.character(reduce.by)) (1 - (as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2))  else 1 - reduce.by
   
@@ -5380,14 +5391,13 @@ plan.f.ci.default <- function(pov = .1, design = 2 * 2, f = NA, n.level = 2, n.c
   width <- width * fac
   
   
-  G <- Vectorize(function(peta, conf.level, width, assure, design, n.level, n.covar, regress, pair.design, expect){
+  G <- Vectorize(function(peta, conf.level, width, assure, design, n.level, n.covar, regress, expect){
     
     
-    n.f <- function(peta, conf.level, width, assure, design, n.level, n.covar, regress, pair.design){
+    n.f <- function(peta, conf.level, width, assure, design, n.level, n.covar, regress){
       
       alpha <- (1 - conf.level)/2
       if(regress){ n.level <- n.level + 1 ; design <- n.level }
-      if(pair.design != 0) design <- 2
       df1 <- n.level - 1
       if(n.covar < 0) n.covar <- 0
       options(warn = -1)
@@ -5414,7 +5424,6 @@ plan.f.ci.default <- function(pov = .1, design = 2 * 2, f = NA, n.level = 2, n.c
       
       N <- ceiling(df2 + design)
       bal <- ceiling(N/design) * design
-      if(pair.design != 0){ N <- pair.design * (bal/2) ; message("\nNote: You are doing reseach planning for accurate 'pairwise' comparisons.") }
       N <- if(!regress & design != 0 & N %% design != 0) bal else N
       n.covar <- if(n.covar == 0) NA else n.covar
       n.level <- if(regress) n.level-1 else n.level
@@ -5424,23 +5433,23 @@ plan.f.ci.default <- function(pov = .1, design = 2 * 2, f = NA, n.level = 2, n.c
       list(peta = peta, total.N = N, width = width, n.level = n.level, conf.level = conf.level, assure = assure, df1 = df1, df2 = df2, design = design)
     }
     
-    n <- n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, pair.design = pair.design)  
+    n <- n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar)  
     
     peta <- exp.peta(pbase = n$peta, df1 = n$df1, df2 = n$df2, N = n$total.N)
     
-    n <- n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, pair.design = pair.design)
+    n <- n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar)
     
     peta.max <- root(pov = peta, df1 = n$df1, df2 = n$df2, N = n$total.N, conf.level = conf.level)$m
     
     a <- peta.ci(peta = peta, df1 = n$df1, df2 = n$df2, N = n$total.N, conf.level = 2*assure - 1)
     
-    nLU <- sapply(c(a$lower, a$upper), function(x) n.f(peta = x, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, pair.design = pair.design)$total.N)
+    nLU <- sapply(c(a$lower, a$upper), function(x) n.f(peta = x, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar)$total.N)
     
     NN1 <- max(nLU, na.rm = TRUE)
     
     b <- peta.ci(peta = peta.max, df1 = n$df1, df2 = n$df2, N = n$total.N, conf.level = 1 - assure)
     
-    nLU <- sapply(c(b$lower, b$upper), function(x) n.f(peta = x, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar, pair.design = pair.design)$total.N)
+    nLU <- sapply(c(b$lower, b$upper), function(x) n.f(peta = x, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar)$total.N)
     
     NN2 <- max(nLU, na.rm = TRUE)
     
@@ -5450,11 +5459,11 @@ plan.f.ci.default <- function(pov = .1, design = 2 * 2, f = NA, n.level = 2, n.c
     
   })
   
- a <- data.frame(t(G(peta = peta, conf.level = conf.level, width = width, design = design, n.level = n.level, n.covar = n.covar, pair.design = pair.design, assure = assure, regress = regress, expect = expect)), regress = regress, assure = assure, row.names = NULL)
- names(a)[1] <- if(regress) "R2" else "peta"
- a[, 1] <- pov
- a
-}                                    
+  a <- data.frame(t(G(peta = peta, conf.level = conf.level, width = width, design = design, n.level = n.level, n.covar = n.covar, assure = assure, regress = regress, expect = expect)), regress = regress, assure = assure, row.names = NULL)
+  names(a)[1] <- if(regress) "R2" else if(!is.na(d)) "d" else "peta"
+  a[, 1] <- pov
+  a
+}                                                  
                     
 #==========================================================================================================================================================================================================================
                     
