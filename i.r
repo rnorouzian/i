@@ -5367,14 +5367,14 @@ d.width.meta <- Vectorize(function(lower, upper, n1 = 50, n2 = 50){
 #==========================================================================================================================================================================================================================                    
                     
 
-plan.f.ci <- function(pov, design = 2 * 2, n.level = 2, n.covar = 0, conf.level = .95, width = NA, regress = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", d = NA, lower, upper, increase.by)
+plan.f.ci <- function(pov, design = 2 * 2, n.level = 2, n.covar = 0, conf.level = .95, width = NA, regress = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", d = NA, lower, upper, increase.by = "0%")
 {
   
   UseMethod("plan.f.ci")
   
 }
 
-plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.covar = 0, conf.level = .95, width = NA, regress = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", d = NA, lower, upper){
+plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.covar = 0, conf.level = .95, width = NA, regress = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", d = NA, lower, upper, increase.by = "0%"){
   
   
   if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
@@ -5385,9 +5385,12 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.covar 
   
   peta <- pov
   
-  fac <- if(is.character(reduce.by)) (1 - (as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2))  else 1 - reduce.by
+  fac <- if(increase.by != "0%" & reduce.by == "0%") { 1 + as.numeric(substr(increase.by, 1, nchar(increase.by)-1))/ 1e2 
+  } else if(reduce.by != "0%" & increase.by == "0%") { 1 - (as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2) 
+  } else { 1 }
   
-  if(fac <= 0 || fac > 1) fac <- 1
+  
+  if(fac <= 0 || increase.by == "0%" & fac > 1) fac <- 1
   
   width <- width * fac
   
@@ -5464,7 +5467,7 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.covar 
   names(a)[1] <- if(regress) "R2" else if(!is.na(d)) "d" else "peta"
   a[, 1] <- if(is.na(d)) pov else d
   a
-}                                                   
+}                                                                        
                     
 #==========================================================================================================================================================================================================================
                     
