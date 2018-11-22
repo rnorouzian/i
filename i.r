@@ -6026,6 +6026,23 @@ cor.width <- Vectorize(function(r, n, conf.level = .95){
 })
                      
 #==========================================================================================================================
+
+                     
+d2peta.fun <- function(d = seq(.1, 2, l = 5), n = seq(30, 300, 10), base.rate = 1, xlab = "Group Sample Size", ylab = bquote(eta[p]^2), ylim = NA, ...)
+{
+  
+  n <- sort(n)
+  d <- sort(d)  
+  
+  peta <- lapply(d, function(x) d2peta(x, n1 = n, n2 = base.rate*n))
+  ylim <- if(is.na(ylim)) range(peta) else ylim
+  for(i in 1:length(d)){
+    graph(n, peta[[i]], type = "l", add = i!= 1, ylim = ylim, xlab = xlab, ylab = ylab, ...)
+    text(mean(n), mean(peta[[i]]), bquote(d == .(round(d[i], 3))), col = 2, pos = 3, xpd = NA, cex = .8)
+  }
+}                     
+                     
+#===========================================================================================================================
                      
 need <- c("rstanarm")  #, "arrangements", "gsl")
 have <- need %in% rownames(installed.packages())
