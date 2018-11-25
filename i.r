@@ -6041,7 +6041,30 @@ d2peta.fun <- function(d = seq(.1, 2, l = 5), n = seq(30, 300, 10), base.rate = 
     text(mean(n), mean(peta[[i]]), bquote(d == .(round(d[i], 3))), col = 2, pos = 3, xpd = NA, cex = .8)
   }
 }                     
-                     
+ 
+#===========================================================================================================================
+                 
+                 
+int.plot <- function(y, factor1, factor2, fun = mean, pch = 15:25, col = 1:20, 
+                    type = "o", leg.bty = "o", leg.bg = NA, lty = 1:6, 
+                    leg.horiz = FALSE, leg.pos = "top", pt.cex = 1.3,
+                    ylab = paste("Interaction", "of ", deparse(substitute(y))), ...){
+
+  options(warn = -1)
+    a = tapply(y, list(factor1, factor2), fun)   
+   mc = colMeans(a)
+   mr = rowMeans(a)
+   mg = mean(a)
+cells = a - outer(mr, mc, "+") + mg
+
+matplot(t(cells), type = type, xaxt = "n", col = col, lty = lty, pch = pch, las = 1, ylab = ylab, ...)
+
+axis(1, at = 1:ncol(cells), labels = colnames(a), ...)
+
+legend(leg.pos, legend = rownames(a), col = col, pch = pch, lty = lty, bty = leg.bty, bg = leg.bg, horiz = leg.horiz, text.font = 2, pt.cex = pt.cex)
+}                 
+                 
+                 
 #===========================================================================================================================
                      
 need <- c("rstanarm")  #, "arrangements", "gsl")
