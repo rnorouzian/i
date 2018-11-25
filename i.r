@@ -5367,14 +5367,14 @@ d.width.meta <- Vectorize(function(lower, upper, n1 = 50, n2 = 50){
 #==========================================================================================================================================================================================================================                    
                     
 
-plan.f.ci <- function(pov, design = 2 * 2, n.level = 2, n.covar = 0, conf.level = .95, width = NA, regress = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", d = NA, lower, upper, increase.by = "0%")
+plan.f.ci <- function(pov, design = 2 * 2, n.level = 2, n.covar = 0, conf.level = .95, width = NA, regress = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", d = NA, lower, upper, increase.by = "0%", tol = 1e3)
 {
   
   UseMethod("plan.f.ci")
   
 }
 
-plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.covar = 0, conf.level = .95, width = NA, regress = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", d = NA, lower, upper, increase.by = "0%"){
+plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.covar = 0, conf.level = .95, width = NA, regress = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", d = NA, lower, upper, increase.by = "0%", tol = 1e3){
   
   
   if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
@@ -5414,7 +5414,7 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.covar 
         
         b <- sapply(c(alpha, 1 - alpha), function(x) 
           tryCatch(uniroot(f, c(0, 1e7), alpha = x, q = q, df1 = df1, df2 = df2, extendInt = "yes")[[1]], error = function(e) NA))
-        if(any(is.na(b))) b <- c(1, 1e4)     
+        if(any(is.na(b))) b <- c(1, tol)     
         ncp2peta(b, df2 + design)
       }
       
@@ -5439,7 +5439,9 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.covar 
     
     n <- n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar)  
     
-    peta <- exp.peta(pbase = n$peta, df1 = n$df1, df2 = n$df2, N = n$total.N)
+    peta <- try(exp.peta(pbase = n$peta, df1 = n$df1, df2 = n$df2, N = n$total.N), silent = TRUE)
+    
+    if(inherits(peta, "try-error")) stop("\n****************************\nImpossible planning: You may change your 'width' or 'lower' & 'upper' or 'tol'.\n****************************\n", call. = FALSE)
     
     n <- n.f(peta = peta, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar)
     
@@ -5467,7 +5469,7 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.covar 
   names(a)[1] <- if(regress) "R2" else if(!is.na(d)) "d" else "peta"
   a[, 1] <- if(is.na(d)) pov else d
   a
-}                                                                        
+}                                                                           
                     
 #==========================================================================================================================================================================================================================
                     
