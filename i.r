@@ -6064,6 +6064,393 @@ axis(1, at = 1:ncol(cells), labels = colnames(a), ...)
 legend(leg.pos, legend = rownames(a), col = col, pch = pch, lty = lty, bty = leg.bty, bg = leg.bg, horiz = leg.horiz, text.font = 2, pt.cex = pt.cex)
 }                 
                  
+#===========================================================================================================================
+                 
+                 
+boxdens.plot <- function(data = rnorm(1e4), 
+                        adjust = 1, 
+                        range = 1.5, 
+                        hist.bars = "Sturges",
+                        random = FALSE,
+                        descriptives = FALSE,
+                        outliers = FALSE,
+                        box.col = 1,
+                        hist.col = "yellow",
+                        dens.col = "magenta",
+                        histogram = TRUE,
+                        dens.curve = FALSE,
+                        box.plot = FALSE,
+                        sampling = FALSE,
+                        violin = FALSE,
+                        only.curve = FALSE,
+                        reflect.col = "lightblue",
+                        reflect.fade = .2,
+                        y.axis = TRUE,
+                        x.axis = TRUE,
+                        conf.interval = FALSE,
+                        xlab = NA,
+                        conf.level
+                        
+                         ){ 
+  
+    
+  
+  original_par = par(no.readonly = TRUE)
+  on.exit(par(original_par))
+  
+  options(warn = -1)
+  
+  par(mar = c(5.1, 5.1, 4.1, 3.1), mgp = c(3.5, 1, 0))
+  
+  if( hist.col %in% colors() & hist.col != 0 & hist.col > 1 & !is.null(hist.col) || hist.col  <= length( colors() ) & hist.col != 0 & hist.col > 1 & !is.null(hist.col)) {
+    
+    hist.col } else if (hist.col == 0){ hist.col = "white"} else { hist.col = "yellow" }
+  
+  
+  
+  if(reflect.fade >= 1 || reflect.fade <= 0) { reflect.fade = .2 ; message("\n\tPick a number for \"reflect.fade =\" between 0 and 1.")  }
+    
+  
+  
+  if(!random) { set.seed(0) } else { set.seed(NULL) }
+  
+  
+  
+  data = na.omit(data)
+
+  h1 = hist(data, plot = FALSE, breaks = hist.bars)
+  
+  
+  q = range(h1$breaks)  
+  den.x = quantile(data, c(0, 1) ) # range(den$x)
+  
+  
+  xlimit = if ( diff(range(q)) > diff(range(den.x)) ) q else den.x
+  
+  
+  den = density(data, n = 5e4, adjust = adjust, na.rm = TRUE, from = xlimit[1], to = xlimit[2])
+  
+  
+  a = c(-max(h1$density), max(h1$density) )
+  b = c(-max(den$y)     , max(den$y)      )
+  
+
+  ylimit = if ( diff(range(a)) > diff(range(b)) ) a else b
+  
+  ylim = c(ylimit[1], ylimit[2])
+  xlim = c(xlimit[1], xlimit[2])
+  
+  
+  at.1 = seq(xlim[1], xlim[2], length.out = 7)
+  
+  
+  at.grey = seq(0, -ylim[2], length.out = 5 )
+  at.grey.labels = seq(0, ylim[2], length.out = 5  )
+  at.2 = seq(0, ylim[2], length.out = 5 )
+  
+  
+  
+  xcall <- match.call()$data
+  if(class(xcall) == "call" && xcall[[1]] == "rcauchy") {
+    
+    message("\n\tCauchy distribution will have very long tails and does not have \"sd\" and \"mean\".")
+    
+    
+    quant = quantile(x = data, probs = c(.25, .75) )
+    
+    
+    f <- function(x) {
+      
+      y = c(quant[1], quant[2]) - qcauchy(c(.25, .75), location = x[1],  scale = x[2]) 
+      
+    }
+    
+    ## SOLVE:  
+    
+    AA = optim(c(1, 1), function(x) sum(f(x)^2), control = list(reltol = (.Machine$double.eps)) ) 
+    
+    
+     Mode = unname(AA$par)[1]
+    Scale = unname(AA$par)[2]
+  
+    
+  } else if(dens.curve & b[2] < (.88*a[2]) || dens.curve & (.88*b[2]) > a[2]) {
+    
+  message("\n\tYou may need to use \"adjust =\" to adjust the density curve (often between .1 to 3) or change \"hist.bars =\".")
+    
+    }
+  
+  
+  
+  if(length(data) <= 1e2) { 
+    
+  message("\n\tSmall datasets (i.e., <= 100) may not provide a known shape (e.g., normal).
+        Thus \"adjust =\" may not help. You may try \"hist.bars =\" for better visualization.")  }
+  
+  
+  
+  if(conf.interval){
+    
+  if(missing(conf.level) & class(xcall) == "call" && xcall[[1]] == "rcauchy"){ conf.level = 90 
+  
+  }else if(missing(conf.level)) { conf.level = 95 } 
+    
+    
+  coverage  <- if (is.character(conf.level)) { as.numeric(substr(conf.level, 1, nchar(conf.level)-1)) / 100 
+    
+  } else if (is.numeric(conf.level)) { conf.level / 100 
+    } else if(class(xcall) == "call" && xcall[[1]] == "rcauchy"){ .9 } else { .95 }
+  
+  
+  Low.percentile = (1 - coverage) / 2 
+  
+  
+  p1 = Low.percentile
+  p2 = Low.percentile + coverage
+  
+  
+  CI = quantile(x = data, probs = c(p1, p2) )
+  
+  }
+  
+ 
+  if(class(xcall) == "call" && xcall[[1]] == "rcauchy") {
+
+    uncut.cauchy.q = quantile(x = data, probs = c(.25, .75))
+
+    cuts <- quantile(x = data, probs = c(.025,.975) )
+    data = data[data >= cuts[1] & data <= cuts[2] ]
+    
+ 
+    if(missing(hist.bars)) { hist.bars = 40 } 
+    
+    
+    h1 = hist( data , plot = FALSE, breaks = hist.bars)
+    
+    
+    q = cuts
+    den.x = range(h1$breaks)
+
+    
+    xlimit = if ( diff(range(q)) > diff(range(den.x)) ) q else den.x
+    
+    
+    den = density(data, n = 5e4, adjust = adjust, na.rm = TRUE, from = xlimit[1], to = xlimit[2])
+    
+    
+    a = c(-max(h1$density), max(h1$density) )
+    b = c(-max(den$y)     , max(den$y)      )
+    
+    ylimit = if ( diff(range(a)) > diff(range(b)) ) a else b
+
+
+    xlim = c(xlimit[1], xlimit[2])
+    ylim = c(ylimit[1], ylimit[2])
+    
+    at.1 = seq(xlim[1], xlim[2], length.out = 7)
+    
+    at.grey = seq(0, -ylim[2], length.out = 5 )
+    at.grey.labels = seq(0, ylim[2], length.out = 5  )
+    at.2 = seq(0, ylim[2], length.out = 5 )
+    
+    
+    if( dens.curve & b[2] < (.88*a[2]) || dens.curve & (.88*b[2]) > a[2] ) {
+      
+      message("\n\tYou may need to use \"adjust =\" to adjust the density curve (often between .1 to 3) or change \"hist.bars =\".")
+      
+    }
+    
+}
+  
+  
+  if(!violin){
+    ylim = c( at.2[1], rev(at.2)[1] )
+  }
+
+  
+  if(only.curve){ hist.col = "white"  ;  dens.col = "white" ; reflect.col = "white" }
+  
+  
+  if(histogram) {
+  
+  par(xpd = TRUE) 
+    
+  h2 = h1
+  h2$counts = -h1$density
+  xlab <- if(is.na(xlab)) "Data" else xlab
+  
+  plot(h1, axes = FALSE, ylim = ylim, freq = FALSE, las = 1, font.axis = 2, 
+       font.lab = 2, xlim = xlim, xaxs = "r", main = NA, cex.lab = 1.4, 
+       col = adjustcolor(hist.col, .4), xlab = xlab, border = ifelse(only.curve, NA, 1))
+  
+  if(violin){
+  lines(h2, col = adjustcolor(reflect.col, reflect.fade), border = adjustcolor(reflect.col, reflect.fade) ) }
+  
+  } else {
+
+  plot(1, type = "n", axes = FALSE, ylim = ylim , las = 1, font.axis = 2, 
+       font.lab = 2, xlim = xlim, xaxs = "r", main = NA, cex.lab = 1.4, 
+       col = adjustcolor(hist.col, .4), ylab = "Density", xlab = "Data")
+    
+  }
+  
+ 
+  if(!histogram){
+    
+    if(violin) par(xpd = TRUE)
+    
+    q = quantile(x = data, probs = c(.25, .5, .75, 1), na.rm = TRUE)
+    
+
+    x25 = den$x[ den$x >= min(den$x) &  den$x <= q[1] ]
+    y25 = den$y[ den$x >= min(den$x) &  den$x <= q[1] ]
+    x50 = den$x[ den$x >= q[1]       &  den$x <= q[2] ]
+    y50 = den$y[ den$x >= q[1]       &  den$x <= q[2] ]
+    x75 = den$x[ den$x >= q[2]       &  den$x <= q[3] ]
+    y75 = den$y[ den$x >= q[2]       &  den$x <= q[3] ]
+   x100 = den$x[ den$x >= q[3]       &  den$x <= max(den$x) ]
+   y100 = den$y[ den$x >= q[3]       &  den$x <= max(den$x) ]
+    
+    
+    polygon( c(x25, rev(x25)), c(y25, rev(-y25)), col = adjustcolor(dens.col, .5), border = NA)
+    
+    
+    polygon( c(x50, rev(x50)), c(y50, rev(-y50)), col = adjustcolor(dens.col, .2), border = NA)
+    
+    
+    polygon( c(x75, rev(x75)), c(y75, rev(-y75)), col = adjustcolor(dens.col, .2), border = NA)
+    
+    
+    polygon( c(x100, rev(x100)), c(y100, rev(-y100)), col = adjustcolor(dens.col, .1), border = NA)
+    
+    
+    corner = par("usr")
+    
+    if(!violin) rect(corner[1], corner[3], max(den$x), 0, col = 0, border = NA)
+    
+  }
+  
+
+  if(x.axis){axis(1, at = at.1, labels = round( at.1, 2), font = 2 )}
+  
+  
+  if(violin) {
+    axis(2, at = at.grey, labels = round( at.grey.labels , 2), 
+         las = 1, font.axis = 2, font.lab = 2, col = "grey", col.axis = "grey")
+  }
+  
+ if(y.axis) {axis(2, at = at.2, labels = round( at.2 , 2), 
+        las = 1, font.axis = 2, font.lab = 2)}
+  
+  
+  if(sampling) rug(data, col = "red4")
+  
+  if(dens.curve || only.curve){
+    
+  lines(den, col = "red", lwd = 2, xpd = TRUE)
+    
+  if(violin) lines(den$x, -den$y, col = "grey", lwd = 2)
+  
+  }
+  
+  bxp.outlie.xs = boxplot.stats(data)$out
+  
+  bxp = boxplot.stats(data, coef = range)$stats
+  
+  low.whisk = bxp[1] ; low.hing = bxp[2] ; med = bxp[3] ; upp.hing = bxp[4] ; upp.whisk = bxp[5] ; Mean = mean(data) ; sd = sd(data)
+  
+  
+  if(violin)left.box = 1/8*-max(den$y) else left.box = 1/14*-max(den$y)
+  if(violin)right.box = 1/8*max(den$y) else right.box = 1/14*max(den$y)
+  
+  if(box.plot){
+  
+  if(!violin) par(xpd = TRUE) 
+   
+    
+  if(!conf.interval){   
+  arrows(low.whisk, 0, upp.whisk, 0, lwd = 2, angle = 90, code = 3, lend = 1, col = box.col) }
+    
+
+  rect(rep(low.hing, 2), rep(left.box, 2), rep(upp.hing, 2), rep(right.box, 2), col = c(NA, "white" ), lwd = 2, border = box.col)
+  
+  segments(med, left.box, med, right.box,  col = 'green3', lend = 1, lwd = 4)
+  
+  segments(Mean, left.box, Mean, right.box, col = "magenta", lend = 1, lty = 2)
+  
+  rect(low.hing, left.box, upp.hing, right.box, col = NA, lwd = 2, border = box.col)
+  
+  points(med, 0, pch = 19, cex = 1.5, col = 'red')
+  
+}
+  
+  if(conf.interval)  {
+    
+    arrows(CI[1], 0, CI[2], 0, lwd = 2, angle = 90, code = 3, lend = 1, col = "blue", length = .2)
+    
+    text(c(CI[1] , CI[2]), rep(0, 2), round(c(CI[1] , CI[2]), 2), cex = 1.3, font = 2, col = "green4", pos = 3)
+    
+  }
+  
+  
+  if(outliers) {   
+                  
+    points(bxp.outlie.xs, rep(0, length(bxp.outlie.xs)), col = 'blue' )
+    
+    if(sampling) points(bxp.outlie.xs, rep(-ylim[2], length(bxp.outlie.xs)), col = 'blue' )
+    
+    }
+  
+  
+if(descriptives) {
+  
+  par(xpd = TRUE)
+
+  
+  if(class(xcall) == "call" && xcall[[1]] == "rcauchy") {
+    
+  legend("topright", legend = bquote(bold(sd == "Indet.")), inset = c(-.01, -.08), text.font=2, cex = 1.5, bty = "n")
+  
+  legend("topleft", legend = bquote(bold(Scale == .(round(Scale, 2) )  )), inset = c(-.08, -.08), text.font=2, cex = 1.5, bty = "n",
+           x.intersp = 2)
+    
+  legend("top", legend = bquote(bold(Mode == .(round(Mode), 2))), inset = c(-.05, -.08), text.font=2, cex = 1.5, bty = "n",
+           x.intersp = .3)
+    
+    } else {
+    
+      
+    legend("topleft", legend = bquote(bold(Mean == .(round(Mean, 2)))), inset = c(-.08, -.08), lwd = 2, lty = 2, col = "magenta", text.font=2, bty = "n",
+             x.intersp = .1)
+      
+    legend("top", legend = bquote(bold(Median == .(round(med, 2)))), inset = c(-.05, -.08), lwd = 4, col = "green3", text.font=2, bty = "n",
+             x.intersp = .3)  
+      
+    legend("topright", legend = bquote(bold(sd == .(round(sd, 2)))), inset = c(-.01, -.08), text.font = 2, bty = "n")
+    
+  }
+  
+  if(box.plot){
+    
+  arrows(c(low.whisk, upp.whisk), rep(max(at.2)/2, 2) , c(low.hing, upp.hing), rep(right.box/2, 2), code = 2, length = .15, angle = 20, lwd = 2, col = ifelse(histogram, 1, "blue2") )
+
+    
+    if(class(xcall) == "call" && xcall[[1]] == "rcauchy") {
+    
+  text(c(low.whisk, upp.whisk), rep(max(at.2)/2, 2), c(round(uncut.cauchy.q[1], 2), round(uncut.cauchy.q[2], 2)), pos = 3, font = 2, cex = 1.2, col = "magenta" )
+    
+      } else {
+      
+      text(c(low.whisk, upp.whisk), rep(max(at.2)/2, 2), c(round(low.hing, 2), round(upp.hing, 2)), pos = 3, font = 2, cex = 1.2, col = "magenta" )
+      
+           }
+      
+       }
+  
+    }
+
+}                 
+                 
                  
 #===========================================================================================================================
                      
