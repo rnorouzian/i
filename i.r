@@ -4661,21 +4661,23 @@ is.whole <- function(x)  abs(x - round(x)) < .Machine$double.eps^.5
 #====================================================================================================================================
                   
 
-plan.rep.measure <- function(peta, n.rep, n.group, factor.type = c("between", "within", "b.w"), sig.level = .05, n.covar = 0, power = .8, eps = .9,
-                              peta.range = seq(1e-1, .9, 1e-1), rho = .5, xlab = NULL, ylim = NULL, to = NULL)
+plan.rep.measure <- function(peta, n.rep, n.group, factor.type = c("between", "within", "bw"), sig.level = .05, n.covar = 0, power = .8, eps = .9,
+                             peta.range = seq(1e-1, .9, 1e-1), rho = .5, xlab = NULL, ylim = NULL, to = NULL, d = NA)
 {
   
   UseMethod("plan.rep.measure")
 }
 
 
-plan.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("between", "within", "b.w"), sig.level = .05, n.covar = 0, power = .8, eps = .9,
-                              peta.range = seq(1e-1, .9, 1e-1), rho = .5, xlab = NULL, ylim = NULL, to = NULL){
+plan.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("between", "within", "bw"), sig.level = .05, n.covar = 0, power = .8, eps = .9,
+                                     peta.range = seq(1e-1, .9, 1e-1), rho = .5, xlab = NULL, ylim = NULL, to = NULL, d = NA){
   
   graphics.off()  
   original.par <- par(no.readonly = TRUE)
   on.exit(par(original.par))
   options(warn = -1)
+  if(!is.na(d)) { peta <- d2peta(d = d, n1 = 50, n2 = 50) ;
+  message("\nNote: For 'pairwise' comparisons, 'total.N' is for '2' groups.") }
   
   m <- n.rep
   
@@ -4693,7 +4695,7 @@ plan.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("betw
   xlab <- if(is.null(xlab)) bquote(eta[p]^2) else xlab
   if(missing(n.group)) stop("Error: 'n.group' must be numerically specified e.g., 'n.group = 2 * 4'.")
   
-  df1 <- switch(factor.type, between = n.group - 1, within = (m - 1)*eps, b.w = (n.group - 1)*(m - 1)*eps)
+  df1 <- switch(factor.type, between = n.group - 1, within = (m - 1)*eps, bw = (n.group - 1)*(m - 1)*eps)
   
   if(n.covar < 0) n.covar <- 0
   g <- sapply(list(n.group, n.covar, m), round)
@@ -4804,6 +4806,7 @@ plan.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("betw
   setNames(r, c("factor.type", "est.power", "crit.peta", 
                 "sig.level", "n.covar", "n.group", "n.rep", "df1", "df2", "total.N", "method", "note"))
 }
+
                   
 
 #================================================================================================================================
