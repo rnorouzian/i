@@ -4691,9 +4691,10 @@ plan.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("betw
   if(rho <= 0) rho <- 1e-7 else if(rho >= 1) rho <-.9999999
   if(eps < .5) eps <- .5 else if(eps > 1) eps <- 1
   if(n.group < 1) stop("Error: You must have at least '1 group' in your design.")
-  if(m < 2) stop("Error: You must have at least '2 repeated measurements' in your design.")
+  if(m < 1) stop("Incorrect # of measurements.", call. = FALSE)
+  if(factor.type != "between" & m < 2) stop("Error: You must have at least '2 repeated measurements' in your design.", call. = FALSE)
   xlab <- if(is.null(xlab)) bquote(eta[p]^2) else xlab
-  if(missing(n.group)) stop("Error: 'n.group' must be numerically specified e.g., 'n.group = 2 * 4'.")
+  if(missing(n.group)) stop("Error: 'n.group' must be numerically specified.", call. = FALSE)
   
   df1 <- switch(factor.type, between = n.group - 1, within = (m - 1)*eps, bw = (n.group - 1)*(m - 1)*eps)
   
@@ -4806,7 +4807,6 @@ plan.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("betw
   setNames(r, c("factor.type", "est.power", "crit.peta", 
                 "sig.level", "n.covar", "n.group", "n.rep", "df1", "df2", "total.N", "method", "note"))
 }
-
                   
 
 #================================================================================================================================
