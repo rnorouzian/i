@@ -6468,70 +6468,69 @@ plan.mrm <- function(peta, n.rep, n.group, factor.type = c("between", "within", 
 
 
 plan.mrm.default <- function(peta, n.rep, n.group, factor.type = c("between", "within", "bw"), sig.level = .05, n.covar = 0, power = .8, eps = .9,
-                            rho = .5, d = NA){
-
-  options(warn = -1)
-  m <- n.rep
+                             rho = .5, d = NA){
+  
   if(!is.na(d)) { peta <- d2peta(d = d, n1 = 50, n2 = 50) ;
-  message("\nNote: For 'pairwise' comparisons, 'total.N' is for '2' groups.") }  
-  if(rho <= 0) rho <- 1e-7 else if(rho >= 1) rho <-.9999999
-  if(eps < .5) eps <- .5 else if(eps > 1) eps <- 1
-  if(n.group < 1) stop("You must have at least '1 group' in your design.", call. = FALSE)
-  if(m < 1) stop("Incorrect # of measurements, change 'n.rep'.", call. = FALSE)
-  if(factor.type != "between" & m < 2) stop("You must have at least '2 repeated measurements' in your design.", call. = FALSE)
-  if(missing(n.group)) stop("'n.group' must be numerically specified.", call. = FALSE)
-  peta <- if(missing(peta)) NA else peta
-  if(n.covar < 0) n.covar <- 0
-  g <- sapply(list(n.group, n.covar, m), round)
-  n.group <- g[1] ; n.covar <- g[2] ; m <- g[3]
+  message("\nNote: For 'pairwise' comparisons, 'total.N' is for '2' groups.") }   
   
-G <- Vectorize(function(peta, n.rep, n.group, factor.type = c("between", "within", "bw"), sig.level, n.covar, power, eps, rho, d){
+  options(warn = -1)
   
-  
-  factor.type <- match.arg(factor.type)
-  
-  df1 <- switch(factor.type, between = n.group - 1, within = (m - 1)*eps, bw = (n.group - 1)*(m - 1)*eps)
-  
-  u <- if(factor.type == "between") m / (1 + (m - 1)*rho) else m / (1 - rho)
-  
-  f <- if(factor.type == "between"){ function(x){
+  G <- Vectorize(function(peta, n.rep, n.group, factor.type = c("between", "within", "bw"), sig.level, n.covar, power, eps, rho, d){
     
-    power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta * ( x + n.group) ) /(1 - peta))*u, lower.tail = FALSE))
-  } 
+    m <- n.rep
+    if(rho <= 0) rho <- 1e-7 else if(rho >= 1) rho <-.9999999
+    if(eps < .5) eps <- .5 else if(eps > 1) eps <- 1
+    if(n.group < 1) stop("You must have at least '1 group' in your design.", call. = FALSE)
+    if(m < 1) stop("Incorrect # of measurements, change 'n.rep'.", call. = FALSE)
+    if(factor.type != "between" & m < 2) stop("You must have at least '2 repeated measurements' in your design.", call. = FALSE)
+    if(missing(n.group)) stop("'n.group' must be numerically specified.", call. = FALSE)
+    peta <- if(missing(peta)) NA else peta
+    if(n.covar < 0) n.covar <- 0
+    g <- sapply(list(n.group, n.covar, m), round)
+    n.group <- g[1] ; n.covar <- g[2] ; m <- g[3]
     
-  } else {
+    factor.type <- match.arg(factor.type)
     
-    function(x){ 
-      power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta * ( ((x)/(m-1)) + n.group) ) /(1 - peta))*eps*u, lower.tail = FALSE))
+    df1 <- switch(factor.type, between = n.group - 1, within = (m - 1)*eps, bw = (n.group - 1)*(m - 1)*eps)
+    
+    u <- if(factor.type == "between") m / (1 + (m - 1)*rho) else m / (1 - rho)
+    
+    f <- if(factor.type == "between"){ function(x){
+      
+      power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta * ( x + n.group) ) /(1 - peta))*u, lower.tail = FALSE))
+    } 
+      
+    } else {
+      
+      function(x){ 
+        power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta * ( ((x)/(m-1)) + n.group) ) /(1 - peta))*eps*u, lower.tail = FALSE))
+      }
     }
-  }
+    
+    df2 <- uniroot(f, c(1e-8, 1e3), extendInt = "yes")[[1]]
+    
+    N <- if(factor.type == "between") ceiling(df2 + n.group) else ceiling((df2 / ((m - 1)*eps)) + n.group)
+    
+    df2 <- if(factor.type == "between") ceiling(df2 - n.covar) else df2 - n.covar
+    
+    N <- ceiling(N/n.group) * n.group
+    
+    a <- qpetab(sig.level, df1, df2, 0, lower.tail = FALSE)
+    
+    ncp <- if(factor.type == "between") (peta2f(peta)^2)*N*u else (peta2f(peta)^2)*N*u*eps
+    
+    est.power <- ppetab(a, df1, df2, ncp, lower.tail = FALSE)
+    
+    n.covar <- if(n.covar == 0) NA else n.covar
+    
+    list(peta = peta, total.N = N, factor.type = factor.type, n.group = n.group, n.rep = n.rep, n.covar = n.covar, sig.level = sig.level, crit.peta = a, est.power = est.power)
+  })
   
-  df2 <- uniroot(f, c(1e-8, 1e6), extendInt = "yes")[[1]]
+  data.frame(t(G(peta = peta, n.rep = n.rep, n.group = n.group, factor.type = factor.type, sig.level = sig.level, 
+                 n.covar = n.covar, power = power, eps = eps, rho = rho, d = d)))
   
-  N <- if(factor.type == "between") ceiling(df2 + n.group) else ceiling((df2 / ((m - 1)*eps)) + n.group)
-  
-  df2 <- if(factor.type == "between") ceiling(df2 - n.covar) else df2 - n.covar
-  
-  N <- ceiling(N/n.group) * n.group
-  
-  a <- qpetab(sig.level, df1, df2, 0, lower.tail = FALSE)
-  
-  ncp <- if(factor.type == "between") (peta2f(peta)^2)*N*u else (peta2f(peta)^2)*N*u*eps
-  
-  est.power <- ppetab(a, df1, df2, ncp, lower.tail = FALSE)
-  
-  n.covar <- if(n.covar == 0) NA else n.covar
-  
-list(peta = peta, total.N = N, factor.type = factor.type, n.group = n.group, n.rep = n.rep, n.covar = n.covar, sig.level = sig.level, crit.peta = a, est.power = est.power)
-})
-
-data.frame(t(G(peta = peta, n.rep = n.rep, n.group = n.group, factor.type = factor.type, sig.level = sig.level, 
-               n.covar = n.covar, power = power, eps = eps, rho = rho, d = d)))
-
 }
-               
-               
-               
+                          
                
 #===========================================================================================================================
                      
