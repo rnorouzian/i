@@ -6470,8 +6470,10 @@ plan.mrm <- function(peta, n.rep, n.group, factor.type = c("between", "within", 
 plan.mrm.default <- function(peta, n.rep, n.group, factor.type = c("between", "within", "bw"), sig.level = .05, n.covar = 0, power = .8, eps = .9,
                              rho = .5, d = NA){
   
-  if(!is.na(d)) { peta <- d2peta(d = d, n1 = 50, n2 = 50) ;
-  message("\nNote: For 'pairwise' comparisons, 'total.N' is for '2' groups.") }   
+  if(!is.na(d)) peta <- d2peta(d = d, n1 = 50, n2 = 50) 
+  if(!is.na(d) & n.group == 2) message("\nNote: For 'pairwise' comparisons, 'total.N' is for '2' groups.")    
+  if(!is.na(d) & n.group == 1) message("\nNote: For 'pairwise' comparisons, 'total.N' is for '1' group.") 
+  
   
   options(warn = -1)
   
@@ -6520,8 +6522,6 @@ plan.mrm.default <- function(peta, n.rep, n.group, factor.type = c("between", "w
     ncp <- if(factor.type == "between") (peta2f(peta)^2)*N*u else (peta2f(peta)^2)*N*u*eps
     
     est.power <- ppetab(a, df1, df2, ncp, lower.tail = FALSE)
-    
-    n.covar <- if(n.covar == 0) NA else n.covar
     
     list(peta = peta, total.N = N, factor.type = factor.type, n.group = n.group, n.rep = n.rep, n.covar = n.covar, sig.level = sig.level, crit.peta = a, est.power = est.power)
   })
