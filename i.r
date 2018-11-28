@@ -4377,15 +4377,15 @@ gpower.peta.b <- function(peta, rho = .5, N, m, n.group){
 
                   
 plan.f.tests <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8, peta.range = seq(1e-1, .9, 1e-1),
-                          xlab = NULL, ylim = NULL, to = NULL, regress = FALSE, n.groups = NULL)
+                         xlab = NULL, ylim = NULL, to = NULL, regress = FALSE, d = NA)
 {
   
   UseMethod("plan.f.tests")
 }
 
 
-plan.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8, peta.range = seq(1e-1, .9, 1e-1),
-                                  xlab = NULL, ylim = NULL, to = NULL, regress = FALSE, n.groups = NULL){
+plan.f.tests.default <- function(pov, n.level, design, sig.level = .05, n.covar = 0, power = .8, peta.range = seq(1e-1, .9, 1e-1),
+                                 xlab = NULL, ylim = NULL, to = NULL, regress = FALSE, d = NA){
   
   graphics.off()  
   original.par <- par(no.readonly = TRUE)
@@ -4398,8 +4398,11 @@ plan.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.covar
   peta2[peta2 == 0] <- 1e-2
   peta2[peta2 == 1] <- .99
   
-  if(!is.null(n.groups)) message("\nNote: You are doing reseach planning for 'pairwise' comparisons.")
-  if(n.level <= 1) stop("Error: You must have at least '2 levels' or '2 predictors'.")
+  if(!is.na(d)) { message("\nNote: You are doing reseach planning for 'pairwise' comparisons."); pov <- d2peta(d = d, n1 = 300, n2 = 300) }
+  peta <- pov
+  
+  if(n.level <= 1 & !regress) stop("Error: You must have at least '2 levels'.")
+  if(n.level < 1) stop("Error: You must have at least '2 levels' or '1 predictor' for regression.")
   xlab <- if(is.null(xlab) && !regress) bquote(eta[p]^2) else if(is.null(xlab) && regress) bquote(bold(R^2)) else xlab
   if(!regress && missing(design)) stop("Error: 'design' must be numerically specified e.g., 'design = 2 * 4'.")
   if(regress){ n.level <- n.level + 1 ; design <- n.level }
@@ -4482,21 +4485,14 @@ plan.f.tests.default <- function(peta, n.level, design, sig.level = .05, n.covar
   
   method <- paste("fixed-effects", if(regress) "Regression" else if(n.covar == 0) "ANOVA" else "ANCOVA", "power analysis") 
   
-  bal <- ceiling(N/design) * design
+  N <- if(!regress) ceiling(N/design) * design else N
   
-  if(!is.null(n.groups)) N <- n.groups * (bal/2)
-  
-  note <- if(design != 0 & N %% design != 0) paste("We suggest recruiting", bal, "subjects to achieve",  bal/design, "subjects per group.") else paste("Use \"design\" to numerically specify design structure: e.g., 'design = 3 * 4'.")
-  
-  n.covar <- if(n.covar == 0) NA else n.covar
   n.level <- if(regress) n.level-1 else n.level
   
-  if(is.null(n.groups)) message("\nImportant: Always pick the factor with largest # of levels to obtain required 'total.N'.")
+  r  <- structure(list(method, est.power, a, sig.level, n.covar, design, n.level, df1, df2, N), class = "power.htest")
   
-  r  <- structure(list(est.power, a, sig.level, n.covar, design, n.level, df1, df2, N, method, note), class = "power.htest")
-  
-  setNames(r, c("est.power", ifelse(regress, "crit.Rsq", "crit.peta"), 
-                "sig.level", "n.covar", "design", ifelse(regress, "n.pred", "n.level"), "df1", "df2", "total.N", "method", "note"))
+  setNames(r, c("method", "est.power", ifelse(regress, "crit.Rsq", "crit.peta"), 
+                "sig.level", "n.covar", "design", ifelse(regress, "n.pred", "n.level"), "df1", "df2", "total.N"))
 }
          
                                  
