@@ -4549,8 +4549,8 @@ peta2f <- function(peta) sqrt(peta / (1 - peta))
 f2peta <- function(f) (f^2) / (1 + f^2)
 peta2F <- function(peta, df1, df2) (peta / df1) / ((1 - peta)/df2)
 F2peta <- function(F.value, df1, df2) (F.value*df1) / ((F.value*df1) + df2)
-d2r <- function(d, n1, n2) sqrt((d^2) / ((d^2) + (((n1 + n2)^2) - (2*(n1 + n2))) / (n1 * n2)))
-r2d <- function(r, n1, n2) sqrt((r^2)*(((n1 + n2)^2)-(2*(n1 + n2)))/(n1 * n2)/(1-(r^2)))
+d2r <- function(d, n1 = 300, n2 = 300) sqrt((d^2) / ((d^2) + (((n1 + n2)^2) - (2*(n1 + n2))) / (n1 * n2)))
+r2d <- function(r, n1 = 300, n2 = 300) sqrt((r^2)*(((n1 + n2)^2)-(2*(n1 + n2)))/(n1 * n2)/(1-(r^2)))
 d2t <- function(d, n1, n2 = NA){
   N <- ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
   d*sqrt(N)
@@ -4568,9 +4568,9 @@ peta2ncp <- function(peta, N) { (peta*N) / (1 - peta) }
                   
 peta2N <- function(peta, ncp) { (ncp - (peta * ncp)) / peta }
                   
-d2peta <- function(d, n1, n2) (d^2) / ((d^2) + (((n1 + n2)^2) - (2*(n1 + n2))) / (n1 * n2))
+d2peta <- function(d, n1 = 300, n2 = 300) (d^2) / ((d^2) + (((n1 + n2)^2) - (2*(n1 + n2))) / (n1 * n2))
                   
-peta2d <- function(peta, n1, n2) (peta)*(((n1 + n2)^2)-(2*(n1 + n2)))/(n1 * n2)/(1-(peta))
+peta2d <- function(peta, n1 = 300, n2 = 300) (peta)*(((n1 + n2)^2)-(2*(n1 + n2)))/(n1 * n2)/(1-(peta))
                   
 F2pomega <- function(F.value, df1, N){
   (df1 * (F.value - 1)) / ((df1 * (F.value - 1)) + N)
