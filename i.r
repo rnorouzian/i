@@ -4398,7 +4398,8 @@ plan.f.tests.default <- function(pov, n.level, design, sig.level = .05, n.covar 
   peta2[peta2 == 0] <- 1e-2
   peta2[peta2 == 1] <- .99
   
-  if(!is.na(d)) { message("\nNote: You are doing reseach planning for 'pairwise' comparisons."); pov <- d2peta(d = d, n1 = 300, n2 = 300) }
+  if(!is.na(d) & !regress) { message("\nNote: You are doing reseach planning for 'pairwise' comparisons.") }
+  if(!is.na(d)) pov <- d2peta(d = d, n1 = 300, n2 = 300) 
   peta <- pov
   
   if(n.level <= 1 & !regress) stop("Error: You must have at least '2 levels'.")
