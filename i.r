@@ -4488,8 +4488,9 @@ plan.f.tests.default <- function(pov, n.level, design, sig.level = .05, n.covar 
   
   N <- if(!regress) ceiling(N/design) * design else N
   
-  n.level <- if(regress) n.level-1 else n.level
-  
+  n.level <- if(regress) n.level-1
+  design <- if(regress) n.level
+      
   r  <- structure(list(method, pov, est.power, a, sig.level, n.covar, design, n.level, df1, df2, N), class = "power.htest")
   
   setNames(r, c("method", ifelse(regress, "R-squared", "peta squared"), "est.power", ifelse(regress, "crit.Rsq", "crit.peta"), 
