@@ -4676,7 +4676,7 @@ plan.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("betw
   original.par <- par(no.readonly = TRUE)
   on.exit(par(original.par))
   options(warn = -1)
-  if(!is.na(d)) { peta <- d2peta(d = d, n1 = 50, n2 = 50) ;
+  if(!is.na(d)) { peta <- d2peta(d = d, n1 = 200, n2 = 200) ;
   message("\nNote: For 'pairwise' comparisons, 'total.N' is for '2' groups.") }
   
   m <- n.rep
@@ -5382,7 +5382,7 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.covar 
   
   if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
   if(expect) assure <- .5
-  if(!is.na(d)) { pov <- d2peta(d = d, n1 = 50, n2 = 50) ; design <- n.level <- 2 ;
+  if(!is.na(d)) { pov <- d2peta(d = d, n1 = 200, n2 = 200) ; design <- n.level <- 2 ;
   message("\nNote: For 'pairwise' comparisons, 'total.N' is for '2' groups.") }
   if(!is.na(d) & is.na(width)) width <- d.width.meta(lower = lower, upper = upper)
   
@@ -6098,8 +6098,6 @@ boxdens.plot <- function(data = rnorm(1e4),
                         
                          ){ 
   
-    
-  
   original_par = par(no.readonly = TRUE)
   on.exit(par(original_par))
   
@@ -6470,7 +6468,7 @@ plan.mrm <- function(peta, n.rep, n.group, factor.type = c("between", "within", 
 plan.mrm.default <- function(peta, n.rep, n.group, factor.type = c("between", "within", "bw"), sig.level = .05, n.covar = 0, power = .8, eps = .9,
                              rho = .5, d = NA){
   
-  if(!is.na(d)) peta <- d2peta(d = d, n1 = 50, n2 = 50) 
+  if(!is.na(d)) peta <- d2peta(d = d, n1 = 200, n2 = 200) 
   if(!is.na(d) & n.group == 2) message("\nNote: For 'pairwise' comparisons, 'total.N' is for '2' groups.")    
   if(!is.na(d) & n.group == 1) message("\nNote: For 'pairwise' comparisons, 'total.N' is for '1' group.") 
   
