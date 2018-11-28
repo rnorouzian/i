@@ -6570,21 +6570,14 @@ pre.post.cont <- function(n1 = 12, n2 = 12, min.score = 0, max.score = 25, subje
   mu <- c(0, 0)
   cov.pop <- matrix(c(1, cor.pop, cor.pop, 1), nrow = 2)
   
-  need <- "MASS"
-  have <- need %in% rownames(installed.packages())
-  if(any(!have)){ install.packages( need[!have] ) }
-  
-  suppressMessages({ 
-    library("MASS")
-  })
-  mvnorm.mat <- mvrnorm(n1, Sigma = cov.pop, mu = mu)
+  mvnorm.mat <- mrnorm(n1, sd = cov.pop, mu = mu)
   
   a <- mvnorm.mat[ , 1] * sd + mean.g1
   b <- mvnorm.mat[ , 2] * sd + mean.g2
   
   y1 = c(a - b)
   
-  mvnorm.mat <- mvrnorm(n2, Sigma = cov.pop, mu = mu)
+  mvnorm.mat <- mrnorm(n2, sd = cov.pop, mu = mu)
   
   a <- mvnorm.mat[ , 1] * sd + mean.g2
   b <- mvnorm.mat[ , 2] * sd + mean.g2
@@ -6663,8 +6656,7 @@ pre.post.cont <- function(n1 = 12, n2 = 12, min.score = 0, max.score = 25, subje
   test <- data.frame(test[1:3], Cohend, u[2], u[3], u[4], row.names = "result:")
   colnames(test) <- c("t.value", "df", "p.value", "cohen.d", "d.lower", "d.upper", "conf.level")
   print(list(m, test), digits = digits)
-}               
-      
+} 
                
 #===========================================================================================================================
                      
