@@ -4376,7 +4376,7 @@ gpower.peta.b <- function(peta, rho = .5, N, m, n.group){
 #===============================================================================================================================
 
                   
-plan.f.tests <- function(peta, n.level, design, sig.level = .05, n.covar = 0, power = .8, peta.range = seq(1e-1, .9, 1e-1),
+plan.f.tests <- function(pov, n.level, design, sig.level = .05, n.covar = 0, power = .8, peta.range = seq(1e-1, .9, 1e-1),
                          xlab = NULL, ylim = NULL, to = NULL, regress = FALSE, d = NA)
 {
   
