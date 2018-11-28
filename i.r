@@ -4489,9 +4489,9 @@ plan.f.tests.default <- function(pov, n.level, design, sig.level = .05, n.covar 
   
   n.level <- if(regress) n.level-1 else n.level
   
-  r  <- structure(list(method, est.power, a, sig.level, n.covar, design, n.level, df1, df2, N), class = "power.htest")
+  r  <- structure(list(method, pov, est.power, a, sig.level, n.covar, design, n.level, df1, df2, N), class = "power.htest")
   
-  setNames(r, c("method", "est.power", ifelse(regress, "crit.Rsq", "crit.peta"), 
+  setNames(r, c("method", ifelse(regress, "R-squared", "peta squared"), "est.power", ifelse(regress, "crit.Rsq", "crit.peta"), 
                 "sig.level", "n.covar", "design", ifelse(regress, "n.pred", "n.level"), "df1", "df2", "total.N"))
 }
          
