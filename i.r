@@ -21,7 +21,7 @@ message(Break, notice, Break)
 
 Break = "\n*****************************************************************************\n"
 
-cite = "To cite the package use:\n\nNorouzian, R., de Miranda, M. A., & Plonsky, L. (in press). The Bayesian \nrevolution in second language research: An applied approach. Language Learning.
+cite = "To cite the package use:\n\nNorouzian, R., de Miranda, M. A., & Plonsky, L. (2018). The Bayesian \nrevolution in second language research: An applied approach. Language Learning, 64, 1032-1075.
 
 \nNorouzian, R., de Miranda, M. A., & Plonsky, L. (in press). A Bayesian \napproach to measuring evidence in L2 research: An empirical investigation. Modern Language Journal."
 
