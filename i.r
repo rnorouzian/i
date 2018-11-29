@@ -5033,13 +5033,13 @@ return(c(n1 = n1, n2 = n2))
                
 #=================================================================================================================
              
-plan.t.ci <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = NA, base.rate = 1, paired = FALSE, assure = .99, expect = FALSE, reduce.by = "0%")
+plan.t.ci <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = NA, base.rate = 1, paired = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", increase.by = "0%")
 {
   UseMethod("plan.t.ci")
 }
 
 
-plan.t.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = NA, base.rate = 1, paired = FALSE, assure = .99, expect = FALSE, reduce.by = "0%"){
+plan.t.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = NA, base.rate = 1, paired = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", increase.by = "0%"){
   
   if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
   if(is.na(width) & missing(n1) || is.na(width) & is.na(t) & missing(d) || is.na(width) & !paired & missing(n2)) stop("Either provide 'width' or provide 't or d', 'n1' and/or 'n2' from prior study.", call. = FALSE)  
@@ -5047,11 +5047,15 @@ plan.t.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = 
   if(is.na(width)) width <- d.width(d = d, t = t, n1 = n1, n2 = n2, conf.level = conf.level)
   if(expect) assure <- .5
   
-  fac <- if(is.character(reduce.by)) (1 - (as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2))  else 1 - reduce.by
-  if(fac <= 0 || fac > 1) fac <- 1
-      
+  fac <- if(increase.by != "0%" & reduce.by == "0%") { 1 + as.numeric(substr(increase.by, 1, nchar(increase.by)-1))/ 1e2 
+  } else if(reduce.by != "0%" & increase.by == "0%") { 1 - (as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2) 
+  } else { 1 }
+  
+  
+  if(fac <= 0 || increase.by == "0%" & fac > 1) fac <- 1
+  
   width <- width * fac
-    
+  
   G <- Vectorize(function(d, conf.level, width, base.rate, paired, assure, expect){
     
     n.d <- function(d, conf.level, width, base.rate, paired, assure){
@@ -5065,7 +5069,7 @@ plan.t.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = 
       
       dbase <- function(df){
         sapply(c(alpha, 1 - alpha),
-           function(x) uniroot(f, c(-d+5e1, d+5e1), alpha = x, d = d, df = df, extendInt = "yes")[[1]]/sqrt(if(paired) df + 1 else ((k/(1 + k))^2)*(df + 2)))
+               function(x) uniroot(f, c(-d+5e1, d+5e1), alpha = x, d = d, df = df, extendInt = "yes")[[1]]/sqrt(if(paired) df + 1 else ((k/(1 + k))^2)*(df + 2)))
       }
       
       m <- function(df, width){
@@ -5099,7 +5103,7 @@ plan.t.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = 
   a <- data.frame(t(G(d = d, conf.level = conf.level, width = width, paired = paired, base.rate = base.rate, assure = assure, expect = expect)), row.names = NULL)
   a[,1] <- d
   a                                                                                                          
- }
+}
                                                                                                                 
                                                                                                                                                                                                           
 #===================================================================================================================================================
