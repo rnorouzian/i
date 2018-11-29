@@ -4405,7 +4405,7 @@ plan.f.tests.default <- function(pov, n.level, design, sig.level = .05, n.covar 
   if(n.level <= 1 & !regress) stop("Error: You must have at least '2 levels'.")
   if(n.level < 1) stop("Error: You must have at least '2 levels' or '1 predictor' for regression.")
   xlab <- if(is.null(xlab) && !regress) bquote(eta[p]^2) else if(is.null(xlab) && regress) bquote(bold(R^2)) else xlab
-  if(!regress && missing(design)) stop("Error: 'design' must be numerically specified e.g., 'design = 2 * 4'.")
+  if(!regress && missing(design)) stop("Error: 'design' must be numerically specified e.g., 'design = 2 * 4'.", call. = FALSE)
   if(regress){ n.level <- n.level + 1 ; design <- n.level }
   df1 <- n.level - 1
   if(n.covar < 0) n.covar <- 0
@@ -4494,7 +4494,7 @@ plan.f.tests.default <- function(pov, n.level, design, sig.level = .05, n.covar 
   r  <- structure(list(method, pov, est.power, a, sig.level, n.covar, design, n.level, df1, df2, N, balannced.N), class = "power.htest")
   
   setNames(r, c("method", ifelse(regress, "R-squared", "peta squared"), "est.power", ifelse(regress, "crit.Rsq", "crit.peta"), 
-                "sig.level", "n.covar", "design", ifelse(regress, "n.pred", "n.level"), "df1", "df2", "total.N", "balannced.N"))
+                "sig.level", "n.covar", "design", ifelse(regress, "n.pred", "n.level"), "df1", "df2", "total.N", "balanced.N"))
 }
          
                                  
@@ -4715,10 +4715,10 @@ plan.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("betw
   }
   
   df2 <- uniroot(f, c(1e-8, 1e6), extendInt = "downX")[[1]]
-  
-  N <- if(factor.type == "between") ceiling(df2 + n.group) else ceiling((df2 / ((m - 1)*eps)) + n.group)
-  
+    
   df2 <- if(factor.type == "between") ceiling(df2 - n.covar) else df2 - n.covar
+      
+  N <- if(factor.type == "between") ceiling(df2 + n.group) + n.covar else ceiling((df2 / ((m - 1)*eps)) + n.group) + n.covar
   
   
   loop <- length(peta2)
@@ -4742,10 +4742,12 @@ plan.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("betw
     }
     
     df2b[i] <- uniroot(f, c(1e-8, 1e6), extendInt = "downX")[[1]]
-    
-    Nb[i] <- if(factor.type == "between") ceiling(df2b[i] + n.group) else ceiling((df2b[i] / ((m - 1)*eps)) + n.group)
-    
+      
     df2b[i] <- if(factor.type == "between") ceiling(df2b[i] - n.covar) else df2b[i] - n.covar
+        
+    Nb[i] <- if(factor.type == "between") ceiling(df2b[i] + n.group) + n.covar else ceiling((df2b[i] / ((m - 1)*eps)) + n.group) + n.covar
+    
+    
     
   }
   
@@ -4795,8 +4797,6 @@ plan.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("betw
   bal <- ceiling(N/n.group) * n.group
   
   note <- if(n.group != 0 & N %% n.group != 0) paste("We suggest recruiting", bal, "subjects (instead of", N, "subjects) to achieve",  bal/n.group, "subjects per group.")
-  
-  n.covar <- if(n.covar == 0) NA else n.covar
   
   message("\nIMPORTANT: Always pick the factor with largest # of levels to obtain required 'total.N'.")
   
@@ -5431,7 +5431,7 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.covar 
       
       df2 <- if(regress) ceiling(df2) else ceiling(df2 - n.covar)
       
-      N <- ceiling(df2 + design)
+      N <- ceiling(df2 + design) + n.covar
       bal <- ceiling(N/design) * design
       N <- if(!regress & design != 0 & N %% design != 0) bal else N
       n.covar <- if(n.covar == 0) NA else n.covar
@@ -5606,9 +5606,9 @@ f <- function(x){
   power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = (peta * (x + design) ) /(1 - peta), lower.tail = FALSE))
 }
 
-df2 <- ceiling(uniroot(f, c(1, 1e6), extendInt = "yes")[[1]])
+df2 <- ceiling(uniroot(f, c(1, 1e6), extendInt = "yes")[[1]]) - n.covar
 
-N <- df2 + design
+N <- df2 + design + n.covar
 
 bal <- ceiling(N/design) * design
 
@@ -6510,10 +6510,10 @@ plan.mrm.default <- function(peta, n.rep, n.group, factor.type = c("between", "w
     }
     
     df2 <- uniroot(f, c(1e-8, 1e3), extendInt = "yes")[[1]]
-    
-    N <- if(factor.type == "between") ceiling(df2 + n.group) else ceiling((df2 / ((m - 1)*eps)) + n.group)
-    
+      
     df2 <- if(factor.type == "between") ceiling(df2 - n.covar) else df2 - n.covar
+        
+    N <- if(factor.type == "between") ceiling(df2 + n.group) + n.covar else ceiling((df2 / ((m - 1)*eps)) + n.group) + n.covar
     
     N <- ceiling(N/n.group) * n.group
     
