@@ -4419,9 +4419,9 @@ plan.f.tests.default <- function(pov, n.level, design, sig.level = .05, n.covar 
   
   df2 <- ceiling(uniroot(f, c(1e-8, 1e6), extendInt = "downX")[[1]])
   
-  N <- df2 + design
-  
   df2 <- df2 - n.covar
+  
+  N <- df2 + design + n.covar
   
   loop <- length(peta2)
   
@@ -4437,9 +4437,9 @@ plan.f.tests.default <- function(pov, n.level, design, sig.level = .05, n.covar 
     
     df2b[i] <- ceiling(uniroot(f, c(1e-8, 1e6), extendInt = "downX")[[1]])
     
-    Nb[i] <- df2b[i] + design
-    
     df2b[i] <- df2b[i] - n.covar
+    
+    Nb[i] <- df2b[i] + design + n.covar
     
   }
   
@@ -4486,15 +4486,15 @@ plan.f.tests.default <- function(pov, n.level, design, sig.level = .05, n.covar 
   
   method <- paste("fixed-effects", if(regress) "Regression" else if(n.covar == 0) "ANOVA" else "ANCOVA", "power analysis") 
   
-  N <- if(!regress) ceiling(N/design) * design else N
+  balannced.N <- if(!regress) ceiling(N/design) * design else NA
   
   n.level <- if(regress) n.level-1
   design <- if(regress) n.level
-      
-  r  <- structure(list(method, pov, est.power, a, sig.level, n.covar, design, n.level, df1, df2, N), class = "power.htest")
+  
+  r  <- structure(list(method, pov, est.power, a, sig.level, n.covar, design, n.level, df1, df2, N, balannced.N), class = "power.htest")
   
   setNames(r, c("method", ifelse(regress, "R-squared", "peta squared"), "est.power", ifelse(regress, "crit.Rsq", "crit.peta"), 
-                "sig.level", "n.covar", "design", ifelse(regress, "n.pred", "n.level"), "df1", "df2", "total.N"))
+                "sig.level", "n.covar", "design", ifelse(regress, "n.pred", "n.level"), "df1", "df2", "total.N", "balannced.N"))
 }
          
                                  
