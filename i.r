@@ -4414,12 +4414,10 @@ plan.f.tests.default <- function(pov, n.level, design, sig.level = .05, n.covar 
   
   f <- function(x){
     
-    power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = (peta * (x + design) ) /(1 - peta), lower.tail = FALSE))
+    power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = (peta * (x + design + n.covar) ) /(1 - peta), lower.tail = FALSE))
   }
   
   df2 <- ceiling(uniroot(f, c(1e-8, 1e6), extendInt = "downX")[[1]])
-  
-  df2 <- df2 - n.covar
   
   N <- df2 + design + n.covar
   
@@ -4432,12 +4430,11 @@ plan.f.tests.default <- function(pov, n.level, design, sig.level = .05, n.covar 
     
     f <- function(x){
       
-      power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = (peta2[i] * (x + design) ) /(1 - peta2[i]), lower.tail = FALSE))
+      power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = (peta2[i] * (x + design + n.covar) ) /(1 - peta2[i]), lower.tail = FALSE))
     }
     
     df2b[i] <- ceiling(uniroot(f, c(1e-8, 1e6), extendInt = "downX")[[1]])
     
-    df2b[i] <- df2b[i] - n.covar
     
     Nb[i] <- df2b[i] + design + n.covar
     
@@ -4496,6 +4493,7 @@ plan.f.tests.default <- function(pov, n.level, design, sig.level = .05, n.covar 
   setNames(r, c("method", ifelse(regress, "R-squared", "peta squared"), "est.power", ifelse(regress, "crit.Rsq", "crit.peta"), 
                 "sig.level", "n.covar", "design", ifelse(regress, "n.pred", "n.level"), "df1", "df2", "total.N", "balanced.N"))
 }
+
          
                                  
 #=====================================================================================================================================
@@ -4704,19 +4702,19 @@ plan.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("betw
   
   f <- if(factor.type == "between"){ function(x){
     
-    power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta * ( x + n.group) ) /(1 - peta))*u, lower.tail = FALSE))
+    power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta * ( x + n.group + n.covar) ) /(1 - peta))*u, lower.tail = FALSE))
   } 
     
   } else {
     
     function(x){ 
-      power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta * ( ((x)/(m-1)) + n.group) ) /(1 - peta))*eps*u, lower.tail = FALSE))
+      power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta * ( ((x)/(m-1)) + n.group + n.covar) ) /(1 - peta))*eps*u, lower.tail = FALSE))
     }
   }
   
   df2 <- uniroot(f, c(1e-8, 1e6), extendInt = "downX")[[1]]
     
-  df2 <- if(factor.type == "between") ceiling(df2 - n.covar) else df2 - n.covar
+  df2 <- if(factor.type == "between") ceiling(df2) else df2
       
   N <- if(factor.type == "between") ceiling(df2 + n.group) + n.covar else ceiling((df2 / ((m - 1)*eps)) + n.group) + n.covar
   
@@ -4731,23 +4729,19 @@ plan.rep.measure.default <- function(peta, n.rep, n.group, factor.type = c("betw
     
     f <- if(factor.type == "between"){ function(x){
       
-      power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta2[i] * ( x + n.group) ) /(1 - peta2[i]))*u, lower.tail = FALSE))
+      power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta2[i] * ( x + n.group + n.covar) ) /(1 - peta2[i]))*u, lower.tail = FALSE))
     } 
       
     } else {
       
       function(x){ 
-        power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta2[i] * ( ((x)/(m-1)) + n.group) ) /(1 - peta2[i]))*eps*u, lower.tail = FALSE))
+        power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta2[i] * ( ((x)/(m-1)) + n.group + n.covar) ) /(1 - peta2[i]))*eps*u, lower.tail = FALSE))
       }
     }
     
     df2b[i] <- uniroot(f, c(1e-8, 1e6), extendInt = "downX")[[1]]
-      
-    df2b[i] <- if(factor.type == "between") ceiling(df2b[i] - n.covar) else df2b[i] - n.covar
         
     Nb[i] <- if(factor.type == "between") ceiling(df2b[i] + n.group) + n.covar else ceiling((df2b[i] / ((m - 1)*eps)) + n.group) + n.covar
-    
-    
     
   }
   
@@ -5420,20 +5414,18 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.covar 
         b <- sapply(c(alpha, 1 - alpha), function(x) 
           tryCatch(uniroot(f, c(0, 1e7), alpha = x, q = q, df1 = df1, df2 = df2, extendInt = "yes")[[1]], error = function(e) NA))
         if(any(is.na(b))) b <- c(1, tol)     
-        ncp2peta(b, df2 + design)
+        ncp2peta(b, df2 + design + n.covar)
       }
       
       m <- function(df2, width){
         abs(diff(pbase(df2))) - width
       }
       
-      df2 <- uniroot(m, c(0, 1e3), width = width, extendInt = "yes")[[1]]
-      
-      df2 <- if(regress) ceiling(df2) else ceiling(df2 - n.covar)
+      df2 <- ceiling(uniroot(m, c(0, 1e3), width = width, extendInt = "yes")[[1]])
       
       N <- ceiling(df2 + design) + n.covar
-      bal <- ceiling(N/design) * design
-      N <- if(!regress & design != 0 & N %% design != 0) bal else N
+     # bal <- ceiling(N/design) * design
+     # N <- if(!regress & design != 0 & N %% design != 0) bal else N
       n.covar <- if(n.covar == 0) NA else n.covar
       n.level <- if(regress) n.level-1 else n.level
       design <- if(regress) n.level else design
@@ -5474,7 +5466,7 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.covar 
   names(a)[1] <- if(regress) "R2" else if(!is.na(d)) "d" else "peta"
   a[, 1] <- if(is.na(d)) pov else d
   a
-}                                                                           
+}                                                                                                     
                     
 #==========================================================================================================================================================================================================================
                     
@@ -6499,23 +6491,23 @@ plan.mrm.default <- function(peta, n.rep, n.group, factor.type = c("between", "w
     
     f <- if(factor.type == "between"){ function(x){
       
-      power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta * ( x + n.group) ) /(1 - peta))*u, lower.tail = FALSE))
+      power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta * ( x + n.group + n.covar) ) /(1 - peta))*u, lower.tail = FALSE))
     } 
       
     } else {
       
       function(x){ 
-        power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta * ( ((x)/(m-1)) + n.group) ) /(1 - peta))*eps*u, lower.tail = FALSE))
+        power - suppressWarnings(pf(qf(sig.level, df1 = df1, df2 = x, lower.tail = FALSE), df1 = df1, df2 = x, ncp = ((peta * ( ((x)/(m-1)) + n.group + n.covar) ) /(1 - peta))*eps*u, lower.tail = FALSE))
       }
     }
     
     df2 <- uniroot(f, c(1e-8, 1e3), extendInt = "yes")[[1]]
-      
-    df2 <- if(factor.type == "between") ceiling(df2 - n.covar) else df2 - n.covar
-        
-    N <- if(factor.type == "between") ceiling(df2 + n.group) + n.covar else ceiling((df2 / ((m - 1)*eps)) + n.group) + n.covar
     
-    N <- ceiling(N/n.group) * n.group
+    df2 <- if(factor.type == "between") ceiling(df2) else df2
+    
+    N <- if(factor.type == "between") ceiling(df2 + n.group + n.covar)  else ceiling((df2 / ((m - 1)*eps)) + n.group + n.covar) 
+    
+    balanced.N <- if(factor.type == "between") ceiling(N/n.group) * n.group else NA
     
     a <- qpetab(sig.level, df1, df2, 0, lower.tail = FALSE)
     
@@ -6523,7 +6515,7 @@ plan.mrm.default <- function(peta, n.rep, n.group, factor.type = c("between", "w
     
     est.power <- ppetab(a, df1, df2, ncp, lower.tail = FALSE)
     
-    list(peta = peta, total.N = N, factor.type = factor.type, n.group = n.group, n.rep = n.rep, n.covar = n.covar, sig.level = sig.level, crit.peta = a, est.power = est.power)
+    list(peta = peta, total.N = N, balanced.N = balanced.N, factor.type = factor.type, n.group = n.group, n.rep = n.rep, n.covar = n.covar, sig.level = sig.level, crit.peta = a, est.power = est.power)
   })
   
   data.frame(t(G(peta = peta, n.rep = n.rep, n.group = n.group, factor.type = factor.type, sig.level = sig.level, 
