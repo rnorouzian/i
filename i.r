@@ -49,7 +49,7 @@ HDI.default <- function(fun, lower = 0, upper = 1, level = .95, eps = 1e-3){
     ur <- switch(side,
                  left = try(uniroot(target, interval = c(lower, mode))),
                  right = try(uniroot(target, interval = c(mode, upper))))
-    if(inherits(ur, "try-error")) stop("Error: You may change prior parameters or 'lower' & 'upper'.")
+    if(inherits(ur, "try-error")) stop("You may change prior parameters or 'lower' & 'upper'.", call. = FALSE)
     return(ur[[1]])
   }
   areafun <- function(h) {
