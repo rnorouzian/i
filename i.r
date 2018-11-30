@@ -4485,8 +4485,8 @@ plan.f.tests.default <- function(pov, n.level, design, sig.level = .05, n.covar 
   
   balannced.N <- if(!regress) ceiling(N/design) * design else NA
   
-  n.level <- if(regress) n.level-1
-  design <- if(regress) n.level
+  n.level <- if(regress) n.level-1 else n.level
+  design <- if(regress) n.level else design
   
   r  <- structure(list(method, pov, est.power, a, sig.level, n.covar, design, n.level, df1, df2, N, balannced.N), class = "power.htest")
   
