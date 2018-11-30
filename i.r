@@ -4542,7 +4542,8 @@ geometric <- function (x, na.rm = TRUE){
                   
 #================================================================================================================================
                   
-                  
+d2f <- function(d, n1, n2) sqrt(d2peta(d, n1, n2) / (1 - d2peta(d, n1, n2) ))
+f2d <- function(f, n1, n2) peta2d(f2peta(f), n1, n2)                  
 peta2f <- function(peta) sqrt(peta / (1 - peta))
 f2peta <- function(f) (f^2) / (1 + f^2)
 peta2F <- function(peta, df1, df2) (peta / df1) / ((1 - peta)/df2)
