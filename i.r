@@ -4592,7 +4592,7 @@ pomega2peta <- function(pomega, df1, df2, N){
 }
    
 
-exp.peta <- Vectorize(function(pbase = 0, df1, df2, N){
+exp.pov <- exp.peta <- Vectorize(function(pbase = 0, df1, df2, N){
   
   integrate(function(x, df1, df2, pbase, N){
     
