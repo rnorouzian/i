@@ -5104,7 +5104,7 @@ plan.t.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = 
 #===================================================================================================================================================
                                                                                                      
                                                                                                      
-R2.ci <- function(R2, n.pred, N, f = NA, df1 = NA, df2 = NA, conf.level = .9, digits = 20){ 
+R2.ci <- function(R2, n.pred, N, f = NA, df1 = NA, df2 = NA, conf.level = .95, digits = 20){ 
   
   if(is.na(df1)) df1 <- n.pred 
   if(missing(n.pred) & df1) n.pred <- df1
