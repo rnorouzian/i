@@ -5367,18 +5367,19 @@ d.width.meta <- Vectorize(function(lower, upper, n1 = 50, n2 = 50){
 #==========================================================================================================================================================================================================================                    
                     
 
-plan.f.ci <- function(pov, design = 2 * 2, n.level = 2, n.pred = NULL, n.covar = 0, conf.level = .95, width = NA, regress = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", d = NA, lower, upper, increase.by = "0%", tol = 1e3)
+plan.f.ci <- function(pov, design = 2 * 2, n.level = 2, n.pred = NULL, n.covar = 0, conf.level = .95, width = NA, assure = .99, expect = FALSE, reduce.by = "0%", d = NA, lower, upper, increase.by = "0%", tol = 1e3)
 {
   
   UseMethod("plan.f.ci")
   
 }
 
-plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.pred = NULL, n.covar = 0, conf.level = .95, width = NA, regress = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", d = NA, lower, upper, increase.by = "0%", tol = 1e3){
+plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.pred = NULL, n.covar = 0, conf.level = .95, width = NA, assure = .99, expect = FALSE, reduce.by = "0%", d = NA, lower, upper, increase.by = "0%", tol = 1e3){
   
   
   if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
   if(expect) assure <- .5
+  if(!is.null(n.pred)) regress <- TRUE
   if(regress & !is.null(n.pred)) n.level <- n.pred
   if(!is.na(d)) { pov <- d2peta(d = d, n1 = 300, n2 = 300) ; design <- n.level <- 2 ;
   message("\nNote: For 'pairwise' comparisons, 'total.N' is for '2' groups.") }
@@ -5426,8 +5427,8 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.pred =
       df2 <- ceiling(uniroot(m, c(0, 1e3), width = width, extendInt = "yes")[[1]])
       
       N <- ceiling(df2 + design) + n.covar
-     # bal <- ceiling(N/design) * design
-     # N <- if(!regress & design != 0 & N %% design != 0) bal else N
+      # bal <- ceiling(N/design) * design
+      # N <- if(!regress & design != 0 & N %% design != 0) bal else N
       n.covar <- if(n.covar == 0) NA else n.covar
       n.level <- if(regress) n.level-1 else n.level
       design <- if(regress) n.level else design
@@ -5468,7 +5469,7 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.pred =
   names(a)[1] <- if(regress) "R2" else if(!is.na(d)) "d" else "peta"
   a[, 1] <- if(is.na(d)) pov else d
   a
-}                                                                                                     
+}                                                                                     
                     
 #==========================================================================================================================================================================================================================
                     
