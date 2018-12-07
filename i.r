@@ -4376,7 +4376,7 @@ gpower.peta.b <- function(peta, rho = .5, N, m, n.group){
 #===============================================================================================================================
 
                   
-plan.f.tests <- function(pov, n.level, design, sig.level = .05, n.covar = 0, power = .8, peta.range = seq(1e-1, .9, 1e-1),
+plan.f.tests <- function(pov, n.level, design, sig.level = .05, n.covar = 0, n.pred = NA, power = .8, peta.range = seq(1e-1, .9, 1e-1),
                          xlab = NULL, ylim = NULL, to = NULL, regress = FALSE, d = NA)
 {
   
@@ -4384,14 +4384,14 @@ plan.f.tests <- function(pov, n.level, design, sig.level = .05, n.covar = 0, pow
 }
 
 
-plan.f.tests.default <- function(pov, n.level, design, sig.level = .05, n.covar = 0, power = .8, peta.range = seq(1e-1, .9, 1e-1),
+plan.f.tests.default <- function(pov, n.level, design, sig.level = .05, n.pred = NA, n.covar = 0, power = .8, peta.range = seq(1e-1, .9, 1e-1),
                                  xlab = NULL, ylim = NULL, to = NULL, regress = FALSE, d = NA){
   
   graphics.off()  
   original.par <- par(no.readonly = TRUE)
   on.exit(par(original.par))
   options(warn = -1)
-  
+  if(regress & !is.na(n.pred)) n.level <- n.pred
   
   peta2 <- peta.range
   
@@ -5073,7 +5073,7 @@ plan.t.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = 
       
       df <- optimize(m, c(1, 1e7), width = width)
       
-      if(round(df$objective, 5) != 0) return(c(NaN, message("Warning: NaN produced. Are input values correct?")))
+      if(round(df$objective, 4) != 0) return(c(NaN, message("Warning: NaN produced. Are input values correct?")))
       
       n1 <- ceiling(if(paired) df[[1]] + 1 else (df[[1]] + 2)/(1 + k))
       n2 <- if(paired) NA else round(k * n1)
@@ -5367,18 +5367,19 @@ d.width.meta <- Vectorize(function(lower, upper, n1 = 50, n2 = 50){
 #==========================================================================================================================================================================================================================                    
                     
 
-plan.f.ci <- function(pov, design = 2 * 2, n.level = 2, n.covar = 0, conf.level = .95, width = NA, regress = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", d = NA, lower, upper, increase.by = "0%", tol = 1e3)
+plan.f.ci <- function(pov, design = 2 * 2, n.level = 2, n.pred = NULL, n.covar = 0, conf.level = .95, width = NA, regress = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", d = NA, lower, upper, increase.by = "0%", tol = 1e3)
 {
   
   UseMethod("plan.f.ci")
   
 }
 
-plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.covar = 0, conf.level = .95, width = NA, regress = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", d = NA, lower, upper, increase.by = "0%", tol = 1e3){
+plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.pred = NULL, n.covar = 0, conf.level = .95, width = NA, regress = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", d = NA, lower, upper, increase.by = "0%", tol = 1e3){
   
   
   if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
   if(expect) assure <- .5
+  if(regress & !is.null(n.pred)) n.level <- n.pred
   if(!is.na(d)) { pov <- d2peta(d = d, n1 = 300, n2 = 300) ; design <- n.level <- 2 ;
   message("\nNote: For 'pairwise' comparisons, 'total.N' is for '2' groups.") }
   if(!is.na(d) & is.na(width)) width <- d.width.meta(lower = lower, upper = upper)
