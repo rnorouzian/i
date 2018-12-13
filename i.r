@@ -6289,7 +6289,7 @@ boxdens.plot <- function(data = rnorm(1e4),
 
   plot(1, type = "n", axes = FALSE, ylim = ylim , las = 1, font.axis = 2, 
        font.lab = 2, xlim = xlim, xaxs = "r", main = NA, cex.lab = 1.4, 
-       col = adjustcolor(hist.col, .4), ylab = "Density", xlab = "Data")
+       col = adjustcolor(hist.col, .4), ylab = "Density", xlab = xlab)
     
   }
   
