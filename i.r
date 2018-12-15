@@ -5915,7 +5915,7 @@ R2.width.plot <- function(R2.range = seq(.18, .51, l = 5), n.pred, N, reduce.by 
 
   par(xpd = FALSE)
   
-  plan.f.ci(pov = R2.range, regress = TRUE, n.level = n.pred, conf.level = conf.level, expect = expect, assure = assure, width = desired)
+  plan.f.ci(pov = R2.range, n.pred = n.pred, conf.level = conf.level, expect = expect, assure = assure, width = desired)
   
 }                     
            
