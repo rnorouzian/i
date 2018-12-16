@@ -5380,7 +5380,7 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.pred =
   if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
   if(expect) assure <- .5
   regress <- if(!is.null(n.pred)) TRUE else FALSE
-  if(regress & !is.null(n.pred)) n.level <- n.pred
+  if(regress) n.level <- n.pred
   if(!is.na(d)) { pov <- d2peta(d = d, n1 = 300, n2 = 300) ; design <- n.level <- 2 ;
   message("\nNote: For 'pairwise' comparisons, 'total.N' is for '2' groups.") }
   if(!is.na(d) & is.na(width)) width <- d.width.meta(lower = lower, upper = upper)
