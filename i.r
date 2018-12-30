@@ -5382,7 +5382,7 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.pred =
   if(expect) assure <- .5
   regress <- if(!is.null(n.pred)) TRUE else FALSE
   if(regress) n.level <- n.pred
-  if(!is.na(d)) { pov <- d2peta(d = d, n1 = 300, n2 = 300) ; design <- n.level <- 2 ;
+  if(!is.na(d)) { pov <- d2peta(d = d, n1 = 300, n2 = 300) ; n.level <- 2 ;
   message("\nNote: For 'pairwise' comparisons, 'total.N' is for '2' groups.") }
   if(!is.na(d) & is.na(width)) width <- d.width.meta(lower = lower, upper = upper)
   
@@ -5476,7 +5476,7 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.pred =
   names(a)[1] <- if(regress) "R2" else if(!is.na(d)) "d" else "peta"
   a[, 1] <- if(is.na(d)) pov else d
   a
-}                                                                                         
+}                                                                                                                       
                     
 #==========================================================================================================================================================================================================================
                     
