@@ -6527,9 +6527,12 @@ plan.mrm.default <- function(peta, n.rep, n.group, factor.type = c("between", "w
     list(peta = peta, total.N = N, balanced.N = balanced.N, factor.type = factor.type, n.group = n.group, n.rep = n.rep, n.covar = n.covar, sig.level = sig.level, crit.peta = a, est.power = est.power)
   })
   
-  data.frame(t(G(peta = peta, n.rep = n.rep, n.group = n.group, factor.type = factor.type, sig.level = sig.level, 
+  a <- data.frame(t(G(peta = peta, n.rep = n.rep, n.group = n.group, factor.type = factor.type, sig.level = sig.level, 
                  n.covar = n.covar, power = power, eps = eps, rho = rho, d = d)))
   
+  names(a)[1] <- if(!is.na(d)) "d" else "peta"
+  a[, 1] <- if(is.na(d)) peta else d
+  a
 }
                           
 #===========================================================================================================================
