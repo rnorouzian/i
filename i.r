@@ -6665,6 +6665,40 @@ pre.post.cont <- function(n1 = 12, n2 = 12, min.score = 0, max.score = 25, subje
 } 
 
 #===========================================================================================================================
+               
+               
+random <- Vectorize(function(N, n.groups){
+  
+  N <- ceiling(N/n.groups) * n.groups
+  n.set <- N/n.groups
+  
+ a <- matrix(sample(rep(seq_len(n.groups), n.set)), n.groups, n.set)
+ a[] <- sprintf("%s%d: %d", "p", seq_len(N), a)
+ rownames(a) <- rep(" ", n.groups)
+ colnames(a) <- rep(" ", n.set)
+ noquote(a)
+
+}, SIMPLIFY = FALSE)
+
+               
+#===========================================================================================================================
+
+
+random.block <- Vectorize(function(N, n.groups){
+  
+  N <- ceiling(N/n.groups) * n.groups
+  n.set <- N/n.groups  
+  
+  a <- replicate(n.set, sample(seq_len(n.groups)))
+  colnames(a) <- paste0("block", seq_len(n.set))  
+  a[] <- sprintf("%s%d: %d", "p", seq_len(N), a)
+  rownames(a) <- rep(" ", n.groups)
+  noquote(a)
+}, SIMPLIFY = FALSE)               
+               
+               
+               
+#===========================================================================================================================
                      
 need <- c("rstanarm")  #, "arrangements", "gsl")
 have <- need %in% rownames(installed.packages())
