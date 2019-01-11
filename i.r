@@ -6667,19 +6667,30 @@ pre.post.cont <- function(n1 = 12, n2 = 12, min.score = 0, max.score = 25, subje
 #===========================================================================================================================
                
                
-random <- Vectorize(function(N, n.groups, keep = FALSE){
+random <- function(N, n.groups, keep = FALSE)
+{
+  UseMethod("random")
+}
+
+
+random.default <- function(N, n.groups, keep = FALSE){
   
+  n <- N
   N <- ceiling(N/n.groups) * n.groups
   n.set <- N/n.groups
   
   if(keep) set.seed(9036)
-  a <- matrix(sample(rep(seq_len(n.groups), n.set)), n.groups, n.set)
+  a <- sample(rep(seq_len(n.groups), n.set))
+  b <- table(if(n != N) head(a, -(N - n)) else a, dnn = "Groups")
+  if(n != N) a[(n+1):N] <- NA
+  a <- matrix(a, n.groups, n.set)
+
   a[] <- sprintf("%s%d: %d", "p", seq_len(N), a)
   rownames(a) <- rep(" ", n.groups)
   colnames(a) <- rep(" ", n.set)
-  noquote(a)
   
-}, SIMPLIFY = FALSE)
+  list(noquote(a), b)
+}
 
                
 #===========================================================================================================================
