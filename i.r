@@ -6571,8 +6571,45 @@ plan.mrm.default <- function(peta, n.rep, n.group, factor.type = c("between", "w
 }
                           
 #===========================================================================================================================
+          
+               
+rrbinom <- function(n, size, p1, p2, rho = 0){
+  
+  UseMethod("rrbinom")
+  
+}
+               
+rrbinom.default <- function(n, size, p1, p2, rho = 0){
+
+p <- p1
+q <- p2
+
+a <- function(rho, p, q) {
+  rho * sqrt(p*q*(1-p)*(1-q)) + (1-p)*(1-q)
+}
+
+a.0 <- a(rho, p, q)
+
+prob <- c(`(0,0)`= a.0, `(1,0)`= 1-q-a.0, `(0,1)`= 1-p-a.0, `(1,1)`= a.0+p+q-1)
+if(min(prob) < 0) {
+  print(prob)
+  stop("A probability is negative.", call. = FALSE)
+}
+
+u <- sample.int(4, n * size, replace = TRUE, prob = prob)
+y <- floor((u-1)/2)
+x <- 1 - u %% 2
+x <- colSums(matrix(x, nrow = size)) 
+y <- colSums(matrix(y, nrow = size)) 
+
+list(x = x, y = y)
+
+}              
                
                
+#===========================================================================================================================
+               
+            
 pre.post.cont <- function(n1 = 12, n2 = 12, min.score = 0, max.score = 25, subjects = TRUE, conf.level = .95,
                           descriptives = TRUE, correlation = .7, effect.size = 1, digits = 6, ...){
   
