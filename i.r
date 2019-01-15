@@ -3546,7 +3546,42 @@ inv.logit <- function(x, percent = FALSE, digits = 4){
   
 }            
                               
-                              
+#==============================================================================================================================
+         
+log.sum.exp <- function (x) 
+{
+  xmax <- max(x)
+  xsum <- sum(exp(x - xmax))
+  xmax + log(xsum)
+}         
+         
+#==============================================================================================================================
+     
+         
+dzpois <- function (x, p, lambda, log = FALSE) 
+{
+  ll <- rep(0, length(x))
+  p_i <- p[1]
+  lambda_i <- lambda[1]
+  for (i in 1:length(x)) {
+    if (length(p) > 1) 
+      p_i <- p[i]
+    if (length(lambda) > 1) 
+      lambda_i <- lambda[i]
+    if (x[i] == 0) {
+      ll[i] <- log.sum.exp(c(log(p_i), log(1 - p_i) + dpois(x[i], 
+                          lambda_i, TRUE)))
+    }
+    else {
+      ll[i] <- log(1 - p_i) + dpois(x[i], lambda_i, log = TRUE)
+    }
+  }
+  if (log == FALSE) 
+    ll <- exp(ll)
+  return(ll)
+}         
+         
+         
 #==============================================================================================================================
          
          
