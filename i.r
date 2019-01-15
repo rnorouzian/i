@@ -6685,7 +6685,7 @@ random.default <- function(N, n.groups, keep = FALSE){
   
   if(keep) set.seed(9036)
   a <- sample(rep(seq_len(n.groups), n.set))
-  b <- table(if(n != N) head(a, -(N - n)) else a, dnn = "Groups")
+  b <- table(if(n != N) head(a, -(N - n)) else a, dnn = NULL)
   if(n != N) a[(n+1):N] <- NA
   a <- matrix(a, n.groups, n.set)
   
@@ -6693,7 +6693,7 @@ random.default <- function(N, n.groups, keep = FALSE){
   rownames(a) <- rep(" ", n.groups)
   colnames(a) <- rep(" ", n.set)
   
-  list(noquote(a), b)
+  list(Assignments = noquote(a), Groups = b)
 }
 
                
