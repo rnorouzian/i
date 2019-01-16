@@ -6738,6 +6738,24 @@ pre.post.cont <- function(n1 = 12, n2 = 12, min.score = 0, max.score = 25, subje
 
 #===========================================================================================================================
                
+
+model.ci <- function(fit, level = .95){
+
+est <- coef(m.bad)
+se <- summary(m.bad)$coef[, 2]
+
+n <- length(est)
+mat <- matrix(c(rep(-1, n), rep(1, n)), nrow = n)
+
+p <- (1 - level)/2
+z <- -qnorm(p)
+ci <- est + mat * (se * z)
+rownames(ci) <- names(est)
+col1 <- paste(format(p * 1e2, nsmall = 1), "%", sep = "")
+col2 <- paste(format((1 - p) * 1e2, nsmall = 1), "%", sep = "")
+colnames(ci) <- c(col1, col2)
+ci
+}               
                
 random <- function(N, n.groups, keep = FALSE)
 {
@@ -6745,6 +6763,9 @@ random <- function(N, n.groups, keep = FALSE)
 }
 
 
+#===========================================================================================================================
+               
+               
 random.default <- function(N, n.groups, keep = FALSE){
   
   r <- lapply(list(N, n.groups), round)
