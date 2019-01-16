@@ -6741,8 +6741,8 @@ pre.post.cont <- function(n1 = 12, n2 = 12, min.score = 0, max.score = 25, subje
 
 model.ci <- function(fit, level = .95){
 
-est <- coef(m.bad)
-se <- summary(m.bad)$coef[, 2]
+est <- coef(fit)
+se <- summary(fit)$coef[, 2]
 
 n <- length(est)
 mat <- matrix(c(rep(-1, n), rep(1, n)), nrow = n)
@@ -6756,14 +6756,15 @@ col2 <- paste(format((1 - p) * 1e2, nsmall = 1), "%", sep = "")
 colnames(ci) <- c(col1, col2)
 ci
 }               
+
+               
+#===========================================================================================================================
+               
                
 random <- function(N, n.groups, keep = FALSE)
 {
   UseMethod("random")
 }
-
-
-#===========================================================================================================================
                
                
 random.default <- function(N, n.groups, keep = FALSE){
