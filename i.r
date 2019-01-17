@@ -6757,6 +6757,26 @@ model.ci <- function(fit, level = .95){
   ci
 }              
 
+
+#===========================================================================================================================
+               
+               
+dcurve <- function(d, n1, n2 = NA, labels = TRUE){
+  
+  options(warn = -1) ; d = sort(d)
+  min.d = qcohen(1e-5, min(d), n1, n2)  ;  max.d = qcohen(.99999, max(d), n1, n2)  
+  
+  for(i in 1:length(d)){      
+    H = curve(dcohen(x, d[i], n1, n2), min.d, max.d, n = 1e3, xlab = "Effect Size (d)", 
+              ylab = NA, type = "n", add = i!= 1, bty = "n", axes = FALSE, font.lab = 2, yaxs = "i")
+    
+    polygon(H, col = adjustcolor(i, .7), border = NA)
+    if(labels) text(d[i], max(H$y), bquote(bolditalic(H[.(i-1)])), pos = 3, xpd = NA)
+    axis(1, at = d[i], col = i, col.axis = i, font = 2)
+    segments(d[i], 0, d[i], max(H$y), lty = 3)
+  }
+}
+               
                
 #===========================================================================================================================
                
