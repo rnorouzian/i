@@ -6777,6 +6777,27 @@ dcurve <- function(d, n1, n2 = NA, labels = TRUE){
   }
 }
                
+#===========================================================================================================================
+               
+               
+pov.curve <- function(pov, df1, df2, N, biased = TRUE, labels = TRUE){
+  
+  if(!biased) pov <- exp.pov(pov, df1, df2, N)
+  
+  options(warn = -1) ; p = sort(pov)
+  max.p = qpeta(.999999, df1, df2, max(p), N)  
+  
+  for(i in 1:length(p)){      
+    H = curve(dpeta(x, df1, df2, p[i], N), 0, max.p, n = 1e3, xlab = "Effect Size (POV)",
+              ylab = NA, type = "n", add = i!= 1, bty = "n", axes = FALSE, font.lab = 2, yaxs = "i")
+    
+    polygon(H, col = adjustcolor(i, .7), border = NA, xpd = NA)
+    if(labels) text(p[i], max(H$y), bquote(bolditalic(H[.(i-1)])), pos = 3, xpd = NA)
+    axis(1, at = round(p[i], 3), col = i, col.axis = i, font = 2)
+    segments(p[i], 0, p[i], dpeta(p[i], df1, df2, p[i], N), lty = 3)
+  }
+}               
+               
                
 #===========================================================================================================================
                
