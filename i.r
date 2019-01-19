@@ -6761,7 +6761,7 @@ model.ci <- function(fit, level = .95){
 #===========================================================================================================================
                
                
-d.curve <- dcurve <- function(d, n1, n2 = NA, biased = TRUE, labels = TRUE){
+d.curve <- dcurve <- function(d = seq(0,2,.5), n1 = 30, n2 = NA, biased = TRUE, labels = TRUE){
   
   
   if(!biased) d <- exp2d(d, n1, n2)
@@ -6782,7 +6782,7 @@ d.curve <- dcurve <- function(d, n1, n2 = NA, biased = TRUE, labels = TRUE){
 #===========================================================================================================================
                
                
-pov.curve <- function(pov, df1, df2, N, biased = TRUE, labels = TRUE){
+pov.curve <- povcurve <- function(pov = seq(0, .5, .1), df1 = 3, df2 = 73, N = 78, biased = TRUE, labels = TRUE){
   
   if(!biased) pov <- exp2peta(pov, df1, df2, N)
   
