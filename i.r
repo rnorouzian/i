@@ -6764,7 +6764,7 @@ model.ci <- function(fit, level = .95){
 d.curve <- dcurve <- function(d, n1, n2 = NA, biased = TRUE, labels = TRUE){
   
   
-  if(!biased) d <- exp.d(d, n1, n2)
+  if(!biased) d <- exp2d(d, n1, n2)
   options(warn = -1) ; d = sort(d)
   min.d = qcohen(1e-5, min(d), n1, n2)  ;  max.d = qcohen(.99999, max(d), n1, n2)  
   
@@ -6784,7 +6784,7 @@ d.curve <- dcurve <- function(d, n1, n2 = NA, biased = TRUE, labels = TRUE){
                
 pov.curve <- function(pov, df1, df2, N, biased = TRUE, labels = TRUE){
   
-  if(!biased) pov <- exp.pov(pov, df1, df2, N)
+  if(!biased) pov <- exp2peta(pov, df1, df2, N)
   
   options(warn = -1) ; p = sort(pov)
   max.p = qpeta(.999999, df1, df2, max(p), N)  
