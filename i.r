@@ -6866,7 +6866,19 @@ random.block <- Vectorize(function(N, n.groups, keep = FALSE){
 }, SIMPLIFY = FALSE)              
                
                
-               
+#===========================================================================================================================
+             
+
+plot.prob <- function(fun = dbinom(0:5, 5, .1), lwd = 4, lend = 1, ylab = "Probability", xlab = "Trials", ...)
+{
+
+x <- match.call()$fun
+if(class(x) == "call") x <- as.numeric(as.character(x[[2]]))[2:3] else stop("Use an appropriate R function.", call. = FALSE)
+plot(x[1]:x[2], fun, type = "h", lwd = lwd, lend = lend, ylab = ylab, xlab = xlab, ...)
+
+}             
+             
+             
 #===========================================================================================================================
                      
 need <- c("rstanarm")  #, "arrangements", "gsl")
