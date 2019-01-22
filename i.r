@@ -6894,7 +6894,39 @@ c2fac <- function(x, breaks = NULL) {
    c(paste("-", breaks[-c(1, length(breaks))] - 1, sep = ""), "+"), ""))
    return(x)
    }    
-    
+
+#=====================================================================
+
+dgammab <- function (x, mu, scale, log = FALSE) 
+{
+  dgamma(x, shape = mu/scale, scale = scale, log = log)
+}
+
+#=====================================================================
+
+rgammab <- function (n, mu, scale) 
+{
+  rgamma(n, shape = mu/scale, scale = scale)
+}
+
+#=====================================================================
+
+dgampois <- function (x, mu, scale, log = FALSE) 
+{
+  shape <- mu/scale
+  prob <- 1/(1 + scale)
+  dnbinom(x, size = shape, prob = prob, log = log)
+}
+
+#=====================================================================
+
+rgampois <- function (n, mu, scale) 
+{
+  shape <- mu/scale
+  prob <- 1/(1 + scale)
+  rnbinom(n, size = shape, prob = prob)
+}
+             
 #===========================================================================================================================
                      
 need <- c("rstanarm")  #, "arrangements", "gsl")
