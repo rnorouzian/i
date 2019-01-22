@@ -6881,8 +6881,8 @@ plot.pr <- function(fun = dbinom(0:5, 5, .1), type = "h", lwd = 4, lend = 1, xla
   x <- match.call()$fun
   if(class(x) == "call") x <- as.numeric(as.character(x[[2]])) else stop("Use an appropriate R function for count probability distributions.", call. = FALSE)
   graph(x[2]:x[3], fun, type = type, lwd = lwd, lend = lend, xlab = xlab, ylab = ylab, xaxt = "n", add = add, ...)
-  if(xaxt != "n") if(x[3] == 1) axis(1, at = range(x, na.rm = TRUE)) else axis(1)
-}              
+  if(xaxt != "n") axis(1, at = x[2]:x[3])
+}             
              
 
 #===========================================================================================================================    
