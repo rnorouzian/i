@@ -6884,7 +6884,17 @@ plot.pr <- function(fun = dbinom(0:5, 5, .1), type = "h", lwd = 4, lend = 1, xla
   if(xaxt != "n") if(x[3] == 1) axis(1, at = range(x, na.rm = TRUE)) else axis(1)
 }              
              
-             
+
+#===========================================================================================================================    
+    
+c2fac <- function(x, breaks = NULL) {
+   if(is.null(breaks)) breaks <- unique(quantile(x, 0:10/10))
+   x <- cut(x, breaks, include.lowest = TRUE, right = FALSE)
+   levels(x) <- paste0(breaks[-length(breaks)], ifelse(diff(breaks) > 1,
+   c(paste("-", breaks[-c(1, length(breaks))] - 1, sep = ""), "+"), ""))
+   return(x)
+   }    
+    
 #===========================================================================================================================
                      
 need <- c("rstanarm")  #, "arrangements", "gsl")
