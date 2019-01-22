@@ -6869,12 +6869,12 @@ random.block <- Vectorize(function(N, n.groups, keep = FALSE){
 #===========================================================================================================================
              
 
-plot.pr <- function(fun = dbinom(0:5, 5, .1), type = "h", lwd = 4, lend = 1, xlab = "Trials", ylab = "Probability", ...)
+plot.pr <- function(fun = dbinom(0:5, 5, .1), type = "h", lwd = 4, lend = 1, xlab = "Trials", ylab = "Probability", add = FALSE, ...)
 {
   
   x <- match.call()$fun
   if(class(x) == "call") x <- as.numeric(as.character(x[[2]])) else stop("Use an appropriate R function.", call. = FALSE)
-  plot(x[2]:x[3], fun, type = type, lwd = lwd, lend = lend, ylab = ylab, xlab = xlab, ...)
+  graph(x[2]:x[3], fun, type = type, lwd = lwd, lend = lend, xlab = xlab, ylab = ylab, add = add, ...)
   
 }              
              
