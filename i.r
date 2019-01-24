@@ -6887,6 +6887,27 @@ plot.pr <- function(fun = dbinom(0:5, 5, .1), type = "h", lwd = 4, lend = 1, xla
 
 #===========================================================================================================================    
     
+
+dens.curve <- function(..., adjust = 1, na.rm = TRUE, n = 1e3, hdi = FALSE, ci = FALSE, level = .95, xlab = "x", main = NA, lwd = 2, lty = 1, col = FALSE, labels = TRUE){
+  
+  L <- list(...)
+  a <- list()  
+  m <- substitute(...())
+  
+for(i in 1:length(L)){ 
+  
+a[[i]] <- dens.plot(L[[i]], add = i!= 1, adjust = adjust, na.rm = na.rm, n = n, from = min(L[[i]]), to = max(L[[i]]), hdi = hdi, ci = ci, level = level, xlab = xlab, main = main, lwd = lwd, lty = lty, col = if(col) col[i] else i)
+
+if(labels) text(a[[i]]$mode, max(a[[i]]$y), m[[i]], pos = 3, cex = .8, font = 2, col = if(col) col[i] else i, xpd = NA)
+
+     }
+return(invisible(a))
+}                       
+                       
+                       
+#===========================================================================================================================
+                       
+                       
 c2fac <- function(x, breaks = NULL) {
    if(is.null(breaks)) breaks <- unique(quantile(x, 0:10/10))
    x <- cut(x, breaks, include.lowest = TRUE, right = FALSE)
@@ -6895,6 +6916,7 @@ c2fac <- function(x, breaks = NULL) {
    return(x)
    }    
 
+                       
 #=====================================================================
 
 dgammab <- function (x, mu, scale, log = FALSE) 
