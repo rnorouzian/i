@@ -3751,20 +3751,22 @@ dens.plot.default <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x
 #===================================================================================================================
                 
                 
-count.plot <- function(x, xlab = deparse(substitute(x)), ylab = NA, freq = FALSE, ...)
+count.plot <- function(x, freq = FALSE, type = "h", lwd = 4, lend = 1, xlab = "Trials", ylab = NA, xaxt = "s", add = FALSE, ...)
 {
   UseMethod("count.plot")
 }
 
-                
-count.plot.default <- function(x, xlab = deparse(substitute(x)), ylab = NA, freq = FALSE, ...)
+
+count.plot.default <- function(x, freq = FALSE, type = "h", lwd = 4, lend = 1, xlab = "Trials", ylab = NA, xaxt = "s", add = FALSE, ...)
 {  
-  force(xlab)
   x <- sapply(x, round)
   ylab <- if(is.na(ylab) & freq) "Frequency" else if(is.na(ylab) & !freq) "Probability" else ylab
   z <- if(freq) table(x) else table(x)/length(x)
-  plot(z, xlab = xlab, ylab = ylab, ...)
-  invisible(list(x = as.numeric(names(z)), y = as.numeric(z)))
+  x <- as.numeric(names(z))
+  y <- as.numeric(z)
+  graph(x, y, type = type, lwd = lwd, lend = lend, xlab = xlab, ylab = ylab, xaxt = "n", add = add, ...)
+  if(xaxt != "n") axis(1, at = min(x):max(x), labels = if(add) FALSE else TRUE, tick = if(add) FALSE else TRUE)
+  invisible(list(x = x, y = y))
 }
                 
 #=========================================================================================================================
