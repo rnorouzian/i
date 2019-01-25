@@ -6949,7 +6949,12 @@ rgampois <- function (n, mu, scale)
   prob <- 1/(1 + scale)
   rnbinom(n, size = shape, prob = prob)
 }
-             
+
+                    
+#=========================================================================
+                    
+decimal <- function(x, k = 3) format(round(x, k), nsmall = k) 
+                   
 #===========================================================================================================================
                      
 need <- c("rstanarm")  #, "arrangements", "gsl")
