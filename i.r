@@ -6890,9 +6890,9 @@ plot.pr <- function(fun = dbinom(0:5, 5, .1), type = "h", lwd = 4, lend = 1, xla
 
 dens.curve <- function(..., adjust = 1, na.rm = TRUE, n = 1e3, hdi = FALSE, ci = FALSE, level = .95, xlab = "x", main = NA, lwd = 2, lty = 1, col = FALSE, ylim = NA, labels = TRUE){
   
-  L <- if(inherits(..., "data.frame")) as.list(...) else list(...)
+  L <- if(all(sapply(list(...), inherits, "data.frame"))) as.list(...) else list(...)
   a <- list() 
-  m <- if(inherits(..., "data.frame")) names(L) else substitute(...())
+  m <- if(all(sapply(list(...), inherits, "data.frame"))) names(L) else substitute(...())
   
   y <- max(sapply(L, function(x) max(density(x, adjust = adjust, na.rm = na.rm, n = n)$y)))
     
