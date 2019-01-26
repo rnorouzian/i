@@ -7006,22 +7006,26 @@ if(hdi){
 
 #===========================================================================================================================
        
-plot.count <- function(..., freq = FALSE, type = "h", lwd = 4, lend = 1, xlab = "Trials", ylab = NA, xaxt = "s", labels = TRUE, cex.lab = .9){
+plot.count <- function(..., freq = FALSE, type = "h", lwd = 4, lend = 1, col = NA, col.adj = .5, xlab = "Trials", ylab = NA, xaxt = "s", labels = NA, cex.lab = .9, yaxt = "s"){
   
   L <- if(all(sapply(list(...), inherits, "data.frame"))) as.list(...) else list(...)
-  a <- list() 
   m <- if(all(sapply(list(...), inherits, "data.frame"))) names(L) else substitute(...())
   
-  y <- sapply(L, function(x) max(if(freq)table(x) else table(x)/length(x)))
-  yi <- max(y)
+  y <- sapply(L, function(x) if(freq)table(x) else table(x)/length(x))
+  x <- sapply(y, function(x) as.numeric(names(x)))
+  r <- range(x)
+  yi <- max(sapply(y, max))
+  ylab <- if(is.na(ylab) & freq) "Frequency" else if(is.na(ylab) & !freq) "Probability" else ylab
+  
   
   for(i in 1:length(L)){
     
-    a[[i]] <- count.plot(L[[i]], add = i!= 1, xlab = xlab, lwd = lwd, col = i, ylim = c(0, yi))
+  graph(x[[i]], y[[i]], type = type, add = i!= 1, lend = 1, xlab = xlab, lwd = lwd, ylab = ylab, col = if(is.na(col)) adjustcolor(i, if(i >1) col.adj else 1) else adjustcolor(col[i], if(i > 1) col.adj else 1), ylim = c(0, yi), xlim = r, xaxt = "n", yaxt = "n")
     
-    if(labels) text(mode.count(L[[i]]), max(y[i]), m[[i]], pos = 3, cex = cex.lab, font = 2, col = i, xpd = NA)
+  text(mode.count(L[[i]]), max(y[[i]]), if(is.na(labels)) m[[i]] else labels[i], pos = 3, cex = cex.lab, font = 2, col = i, xpd = NA)
   }
-  
+  if(xaxt != "n") axis(1, at = r[1]:r[2])
+  if(yaxt != "n") axis(2)
 }
 
 #===========================================================================================================================
