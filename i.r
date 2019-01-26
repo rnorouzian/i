@@ -7003,7 +7003,37 @@ if(hdi){
 }  
   return(invisible(a))
 }                                 
-                    
+
+#===========================================================================================================================
+       
+plot.count <- function(..., freq = FALSE, type = "h", lwd = 4, lend = 1, xlab = "Trials", ylab = NA, xaxt = "s", labels = TRUE, cex.lab = .9){
+  
+  L <- if(all(sapply(list(...), inherits, "data.frame"))) as.list(...) else list(...)
+  a <- list() 
+  m <- if(all(sapply(list(...), inherits, "data.frame"))) names(L) else substitute(...())
+  
+  y <- sapply(L, function(x) max(if(freq)table(x) else table(x)/length(x)))
+  yi <- max(y)
+  
+  for(i in 1:length(L)){
+    
+    a[[i]] <- count.plot(L[[i]], add = i!= 1, xlab = xlab, lwd = lwd, col = i, ylim = c(0, yi))
+    
+    if(labels) text(mode.count(L[[i]]), max(y[i]), m[[i]], pos = 3, cex = cex.lab, font = 2, col = i, xpd = NA)
+  }
+  
+}
+
+#===========================================================================================================================
+                                 
+mode.count <- function(x){
+  
+  z <- table(x)
+  x <- as.numeric(names(z))
+  y <- as.numeric(z)
+  x[which.max(y)]
+}       
+       
 #===========================================================================================================================
                      
 need <- c("rstanarm")  #, "arrangements", "gsl")
