@@ -7033,7 +7033,45 @@ mode.count <- function(x){
   y <- as.numeric(z)
   x[which.max(y)]
 }       
-       
+
+#===========================================================================================================================                                 
+                                 
+dzbinom <- function (x, p.zero, size, prob, log = FALSE) 
+{
+  ll <- numeric(length(x))
+  pz_i <- p.zero[1]
+  size_i <- size[1]
+  prob_i <- prob[1]
+  for (i in 1:length(x)) {
+    if (length(p.zero) > 1) 
+      pz_i <- p.zero[i]
+    if (length(size) > 1) 
+      size_i <- size[i]
+    if (length(prob) > 1) 
+      prob_i <- prob[i]
+    if (x[i] == 0) {
+      ll[i] <- log.sum.exp(c(log(pz_i), log(1 - pz_i) + 
+                               dbinom(x[i], size_i, prob_i, TRUE)))
+    }
+    else {
+      ll[i] <- log(1 - pz_i) + dbinom(x[i], size_i, prob_i, 
+                                      TRUE)
+    }
+  }
+  if (log == FALSE) 
+    ll <- exp(ll)
+  return(ll)
+}
+
+#===========================================================================================================================
+
+rzbinom <- function (n, p.zero, size, prob) 
+{
+  z <- rbinom(n, size = 1, prob = p.zero)
+  (1 - z) * rbinom(n, size, prob)
+  
+}                                 
+                                 
 #===========================================================================================================================
                      
 need <- c("rstanarm")  #, "arrangements", "gsl")
