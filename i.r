@@ -7011,8 +7011,8 @@ plot.count <- function(..., freq = FALSE, type = "h", lwd = 4, lend = 1, col = N
   L <- if(all(sapply(list(...), inherits, "data.frame"))) as.list(...) else list(...)
   m <- if(all(sapply(list(...), inherits, "data.frame"))) names(L) else substitute(...())
   
-  y <- sapply(L, function(x) if(freq)table(x) else table(x)/length(x))
-  x <- sapply(y, function(x) as.numeric(names(x)))
+  y <- lapply(L, function(x) if(freq)table(x) else table(x)/length(x))
+  x <- lapply(y, function(x) as.numeric(names(x)))
   r <- range(x)
   yi <- max(sapply(y, max))
   ylab <- if(is.na(ylab) & freq) "Frequency" else if(is.na(ylab) & !freq) "Probability" else ylab
