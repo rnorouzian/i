@@ -7014,15 +7014,15 @@ plot.count <- function(..., freq = FALSE, type = "h", lwd = 4, lend = 1, col = N
   y <- lapply(L, function(x) if(freq)table(x) else table(x)/length(x))
   x <- lapply(y, function(x) as.numeric(names(x)))
   r <- range(x)
-  yi <- max(sapply(y, max))
+  h <- range(y)
   ylab <- if(is.na(ylab) & freq) "Frequency" else if(is.na(ylab) & !freq) "Probability" else ylab
   
   
   for(i in 1:length(L)){
     
-  graph(x[[i]], y[[i]], type = type, add = i!= 1, lend = 1, xlab = xlab, lwd = lwd, ylab = ylab, col = if(is.na(col)) adjustcolor(i, if(i >1) col.adj else 1) else adjustcolor(col[i], if(i > 1) col.adj else 1), ylim = c(0, yi), xlim = r, xaxt = "n", yaxt = "n")
+    graph(x[[i]], y[[i]], type = type, add = i!= 1, lend = 1, xlab = xlab, lwd = lwd, ylab = ylab, col = if(is.na(col)) adjustcolor(i, if(i >1) col.adj else 1) else adjustcolor(col[i], if(i > 1) col.adj else 1), ylim = h, xlim = r, xaxt = "n", yaxt = "n")
     
-  text(mode.count(L[[i]]), max(y[[i]]), if(is.na(labels)) m[[i]] else labels[i], pos = 3, cex = cex.lab, font = 2, col = i, xpd = NA)
+    text(mode.count(L[[i]]), max(y[[i]]), if(is.na(labels)) m[[i]] else labels[i], pos = 3, cex = cex.lab, font = 2, col = i, xpd = NA)
   }
   if(xaxt != "n") axis(1, at = r[1]:r[2])
   if(yaxt != "n") axis(2)
