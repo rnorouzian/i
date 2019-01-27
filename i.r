@@ -7006,7 +7006,7 @@ if(hdi){
 
 #===========================================================================================================================
        
-plot.count <- function(..., freq = FALSE, type = "h", lwd = 4, lend = 1, col = NA, col.adj = .5, xlab = "Trials", ylab = NA, xaxt = "s", labels = NA, cex.lab = .9, yaxt = "s", xaxs = "r", yaxs = "r"){
+plot.count <- function(..., freq = FALSE, type = "h", lwd = 3, lend = 1, col = NA, col.adj = .5, xlab = "Trials", ylab = NA, xaxt = "s", labels = NA, cex.lab = .9, yaxt = "s", xaxs = "r", yaxs = "r"){
   
   L <- if(all(sapply(list(...), inherits, "data.frame"))) as.list(...) else list(...)
   m <- if(all(sapply(list(...), inherits, "data.frame"))) names(L) else substitute(...())
