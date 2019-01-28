@@ -6967,7 +6967,7 @@ denscurve <- function(..., adjust = 1, na.rm = TRUE, n = 1e3, hdi = FALSE, level
   loop <- length(L)
   soop <- seq_len(loop)
   
-  a <- sapply(L, function(x) density(x, adjust = adjust, na.rm = na.rm, n = n), simplify = FALSE)
+  a <- lapply(L, function(x) density(x, adjust = adjust, na.rm = na.rm, n = n))
 
   from <- numeric(loop)
   to <- numeric(loop)
