@@ -7078,7 +7078,40 @@ rzbinom <- function (n, p.zero, size, prob)
   (1 - z) * rbinom(n, size, prob)
   
 }                                 
-                                 
+ 
+#===========================================================================================================================
+         
+         
+plot.prob <- function(fun, type = "h", lwd = 2, lend = 1, xlab = "Outcomes", ylab = "Probability", xaxt = "s", xaxis = 6, col = NA, col.adj = .5, ...){
+  
+x <- g <- match.call()$fun
+
+if(!any(c("c", "list") %in% as.character(x))) x <- y <- c(x) else x <- lapply(seq(x), function(i) x[[i]])[-1]
+
+y <- lapply(x, eval)
+
+x <- lapply(seq(x), function(i) as.numeric(as.character(x[[i]][[2]][-1])))
+
+x1 <- list()
+
+xlim <- range(x, na.rm = TRUE)
+ylim <- range(y, na.rm = TRUE)
+
+for(i in 1:length(x)){
+  
+x1[[i]] <- x[[i]][1]:x[[i]][2]  
+
+graph(x1[[i]], y[[i]], type = type, lwd = lwd, lend = lend, xlab = xlab, ylab = ylab, xaxt = "n", add = i !=1, ylim = ylim, xlim = xlim, col = if(is.na(col)) adjustcolor(i, if(i > 1) col.adj else 1) else adjustcolor(col[i], if(i > 1) col.adj else 1), ...)
+
+  }
+
+y <- lapply(y, round, digits = xaxis)
+x <- if(any(c("c", "list") %in% as.character(g))) c(list(x1[[1]]), lapply(2:length(x1), function(i) x1[[i]][y[[i]] != 0])) else x1
+x[-1] <- Map(setdiff, x[-1], x[-length(x)])
+at <- as.numeric(unlist(x))
+if(xaxt != "n") axis(1, at = at)
+}         
+         
 #===========================================================================================================================
                      
 need <- c("rstanarm")  #, "arrangements", "gsl")
