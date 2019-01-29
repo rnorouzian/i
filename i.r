@@ -7124,8 +7124,29 @@ if(any(c("c", "list") %in% as.character(x))) x <- lapply(seq(x), function(i) x[[
   at <- as.numeric(unlist(x))
   if(xaxt != "n") axis(1, at = at)
 }         
-       
-         
+
+
+#===========================================================================================================================
+                                                                            
+                                                                            
+order.list <- function(x, decreasing = FALSE, na.rm = TRUE, finite = FALSE){
+  
+  if(na.rm) x <- Map(Filter, list(Negate(is.na)), x)
+  if(finite) x <- Map(Filter, list(Negate(is.infinite)), x)
+  
+  maxs <- sapply(x, max) 
+  result <- list()
+  i <- 1
+  while(length(maxs) > 0){
+    result[[i]] <- x[[which.max(maxs)]]
+    x <- x[-which.max(maxs)]
+    maxs <- maxs[-which.max(maxs)]
+    i <- i+1
+  }
+
+if(decreasing) result else rev(result)
+}
+                                                                            
 #===========================================================================================================================
                      
 need <- c("rstanarm")  #, "arrangements", "gsl")
