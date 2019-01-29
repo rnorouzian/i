@@ -6878,7 +6878,7 @@ random.block <- Vectorize(function(N, n.groups, keep = FALSE){
 #===========================================================================================================================
              
 
-plot.pr <- function(fun = dbinom(0:5, 5, .1), type = "h", lwd = 4, lend = 1, xlab = "Trials", ylab = "Probability", xaxt = "s", add = FALSE, ...)
+plot.pr <- function(fun = dbinom(0:5, 5, .1), type = "h", lwd = 4, lend = 1, xlab = "Outcomes", ylab = "Probability", xaxt = "s", add = FALSE, ...)
 {
   x <- match.call()$fun
   if(class(x) == "call") x <- as.numeric(as.character(x[[2]])) else stop("Use an appropriate R function for count probability distributions.", call. = FALSE)
@@ -7006,7 +7006,7 @@ if(hdi){
 
 #===========================================================================================================================
        
-plot.count <- function(..., freq = FALSE, type = "h", lwd = 3, lend = 1, col = NA, col.adj = .5, xlab = "Trials", ylab = NA, xaxt = "s", labels = NA, cex.lab = .9, yaxt = "s", xaxs = "r", yaxs = "r"){
+plot.count <- function(..., freq = FALSE, type = "h", lwd = 3, lend = 1, col = NA, col.adj = .5, xlab = "Outcomes", ylab = NA, xaxt = "s", labels = NA, cex.lab = .9, yaxt = "s", xaxs = "r", yaxs = "r"){
   
   L <- if(all(sapply(list(...), inherits, "data.frame"))) as.list(...) else list(...)
   m <- if(all(sapply(list(...), inherits, "data.frame"))) names(L) else substitute(...())
