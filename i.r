@@ -3757,7 +3757,7 @@ count.plot <- function(x, freq = FALSE, type = "h", lwd = 4, lend = 1, xlab = "T
 }
 
 
-count.plot.default <- function(x, freq = FALSE, type = "h", lwd = 4, lend = 1, xlab = "Trials", ylab = NA, xaxt = "s", add = FALSE, ...)
+count.plot.default <- function(x, freq = FALSE, type = "h", lwd = 4, lend = 1, xlab = "Outcomes", ylab = NA, xaxt = "s", add = FALSE, ...)
 {  
   x <- sapply(x, round)
   ylab <- if(is.na(ylab) & freq) "Frequency" else if(is.na(ylab) & !freq) "Probability" else ylab
