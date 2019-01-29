@@ -5402,9 +5402,7 @@ plan.f.cic <- function(peta = .2, design = 2 * 2, n.level = 2, n.covar = 0, conf
   
   data.frame(t(G(peta = peta, conf.level = conf.level, width = width, design = design, n.level = n.level, n.covar = n.covar, regress = regress, pair.design = pair.design, assure = assure)), row.names = NULL)
 } 
-                    
-
-                    
+                                       
                     
 #==========================================================================================================================================================================================================================                    
 
@@ -7006,7 +7004,7 @@ if(hdi){
 
 #===========================================================================================================================
        
-plot.count <- function(..., freq = FALSE, type = "h", lwd = 3, lend = 1, col = NA, col.adj = .5, xlab = "Outcomes", ylab = NA, xaxt = "s", labels = NA, cex.lab = .9, yaxt = "s", xaxs = "r", yaxs = "r"){
+plot.count <- function(..., freq = FALSE, type = "h", lwd = 2, lend = 1, col = NA, col.adj = .5, xlab = "Outcomes", ylab = NA, xaxt = "s", labels = NA, cex.lab = .9, yaxt = "s", xaxs = "r", yaxs = "r"){
   
   L <- if(all(sapply(list(...), inherits, "data.frame"))) as.list(...) else list(...)
   m <- if(all(sapply(list(...), inherits, "data.frame"))) names(L) else substitute(...())
@@ -7103,8 +7101,7 @@ x1[[i]] <- x[[i]][1]:x[[i]][2]
 
 graph(x1[[i]], y[[i]], type = type, lwd = lwd, lend = lend, xlab = xlab, ylab = ylab, xaxt = "n", add = i !=1, ylim = ylim, xlim = xlim, col = if(is.na(col)) adjustcolor(i, if(i > 1) col.adj else 1) else adjustcolor(col[i], if(i > 1) col.adj else 1), ...)
 
-  }
-
+}
 y <- lapply(y, round, digits = xaxis)
 x <- if(any(c("c", "list") %in% as.character(g))) c(list(x1[[1]]), lapply(2:length(x1), function(i) x1[[i]][y[[i]] != 0])) else x1
 x[-1] <- Map(setdiff, x[-1], x[-length(x)])
