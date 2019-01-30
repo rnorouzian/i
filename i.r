@@ -7121,7 +7121,7 @@ if(any(c("c", "list") %in% as.character(x))) x <- lapply(seq(x), function(i) x[[
   
   x <- list()
   
-  xlim <- range(x, finite = TRUE)
+  xlim <- range(xx, finite = TRUE)
   ylim <- range(y, finite = TRUE)
   
   for(i in 1:length(x)){
