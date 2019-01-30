@@ -7092,7 +7092,22 @@ y <- y[if(na.rm) !is.na(y) & !is.nan(y) & if(finite) !is.infinite(y)]
 #===========================================================================================================================
        
        
-plot.prob <- function(fun, type = "h", lwd = 2, lend = 1, xlab = "Outcomes", ylab = "Probability", xaxt = "s", xaxs.tol = 5, col = NA, col.adj = .5, labels = NA, cex.lab = .8, ...){
+at.set <- function(x, y){
+  
+  smallest.max <- which.min(sapply(x, max))
+  
+  new.x <- c(x[smallest.max], x[-smallest.max])
+  new.y <- c(y[smallest.max], y[-smallest.max])
+  
+  new.x[-1] <- Map(setdiff, new.x[-1], new.x[-length(new.x)])
+  
+  as.numeric(unlist(new.x))
+}
+
+
+#===========================================================================================================================       
+       
+plot.prob <- function(fun, type = "h", lwd = 2, lend = 1, xlab = "Outcomes", ylab = "Probability", xaxt = "s", xaxs.tol = 4, col = NA, col.adj = .5, labels = NA, cex.lab = .8, ...){
   
   x <- g <- match.call()$fun
   
@@ -7102,27 +7117,28 @@ if(any(c("c", "list") %in% as.character(x))) x <- lapply(seq(x), function(i) x[[
 
   y <- lapply(x, eval)
   
-  x <- lapply(seq(x), function(i) as.numeric(as.character(x[[i]][[2]][-1])))
+  xx <- lapply(seq(x), function(i) as.numeric(as.character(x[[i]][[2]][-1])))
   
-  x1 <- list()
+  x <- list()
   
   xlim <- range(x, finite = TRUE)
   ylim <- range(y, finite = TRUE)
   
   for(i in 1:length(x)){
     
-    x1[[i]] <- x[[i]][1]:x[[i]][2]  
+    x[[i]] <- xx[[i]][1]:xx[[i]][2]  
     
-    graph(x1[[i]], y[[i]], type = type, lwd = lwd, lend = lend, xlab = xlab, ylab = ylab, xaxt = "n", add = i !=1, ylim = ylim, xlim = xlim, col = if(is.na(col)) adjustcolor(i, if(i > 1) col.adj else 1) else adjustcolor(col[i], if(i > 1) col.adj else 1), ...)
+    graph(x[[i]], y[[i]], type = type, lwd = lwd, lend = lend, xlab = xlab, ylab = ylab, xaxt = "n", add = i !=1, ylim = ylim, xlim = xlim, col = if(is.na(col)) adjustcolor(i, if(i > 1) col.adj else 1) else adjustcolor(col[i], if(i > 1) col.adj else 1), ...)
     
-    text(mode.find(x1[[i]], y[[i]]), max(y[[i]]), if(is.na(labels)) m[[i]] else labels[i], pos = 3, cex = cex.lab, font = 2, col = if(is.na(col)) i else col[i], xpd = NA)
+    text(mode.find(x[[i]], y[[i]]), max(y[[i]]), if(is.na(labels)) m[[i]] else labels[i], pos = 3, cex = cex.lab, font = 2, col = if(is.na(col)) i else col[i], xpd = NA)
     
   }
+   
   y <- lapply(y, round, digits = xaxs.tol)
-  x <- if(any(c("c", "list") %in% as.character(g))) c(list(x1[[1]]), lapply(2:length(x1), function(i) x1[[i]][y[[i]] != 0])) else x1
-  x[-1] <- Map(setdiff, x[-1], x[-length(x)])
-  at <- as.numeric(unlist(x))
-  if(xaxt != "n") axis(1, at = at)
+
+  x <- Map(function(u, v) u[v != 0], x, y)
+
+  if(xaxt != "n") axis(1, at = at.set(x, y))
 }         
 
 
