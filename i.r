@@ -7092,22 +7092,25 @@ y <- y[if(na.rm) !is.na(y) & !is.nan(y) & if(finite) !is.infinite(y)]
 #===========================================================================================================================
        
        
-at.set <- function(x, y){
+at.set <- function(x, y, axis.tol){
+  
+  y <- lapply(y, round, digits = axis.tol)
+  
+  x <- mapply(function(u, v) u[v != 0], x, y)
   
   smallest.max <- which.min(sapply(x, max))
   
-  new.x <- c(x[smallest.max], x[-smallest.max])
-  new.y <- c(y[smallest.max], y[-smallest.max])
+  x <- c(x[smallest.max], x[-smallest.max])
+  y <- c(y[smallest.max], y[-smallest.max])
   
-  new.x[-1] <- Map(setdiff, new.x[-1], new.x[-length(new.x)])
+  x[-1] <- Map(setdiff, x[-1], x[-length(x)])
   
-  as.numeric(unlist(new.x))
+  as.numeric(unlist(x))
 }
 
+#===========================================================================================================================
 
-#===========================================================================================================================       
-    
-       
+              
 plot.prob <- function(..., type = "h", lwd = 2, lend = 1, xlab = "Outcomes", ylab = "Probability", xaxt = "s", axis.tol = 5, col = NA, col.adj = .5, labels = NA, cex.lab = .8){
   
   x <- y <- match.call()[-1]
@@ -7115,6 +7118,7 @@ plot.prob <- function(..., type = "h", lwd = 2, lend = 1, xlab = "Outcomes", yla
   L <- length(x)
   x <- lapply(seq(L), function(i) eval(parse(text = as.character(x[[i]])[2])))
   y <- lapply(y, eval)
+              
   xlim <- range(x, finite = TRUE)
   ylim <- range(y, finite = TRUE)
   
@@ -7126,11 +7130,7 @@ plot.prob <- function(..., type = "h", lwd = 2, lend = 1, xlab = "Outcomes", yla
     
   }
   
-  y <- lapply(y, round, digits = axis.tol)
-  
-  x <- mapply(function(u, v) u[v != 0], x, y)
-  
-  if(xaxt != "n") axis(1, at = at.set(x, y))
+  if(xaxt != "n") axis(1, at = at.set(x, y, axis.tol))
 }        
 
 
