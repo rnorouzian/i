@@ -7106,40 +7106,32 @@ at.set <- function(x, y){
 
 
 #===========================================================================================================================       
+    
        
-plot.prob <- function(fun, type = "h", lwd = 2, lend = 1, xlab = "Outcomes", ylab = "Probability", xaxt = "s", xaxs.tol = 4, col = NA, col.adj = .5, labels = NA, cex.lab = .8, ...){
+plot.prob <- function(..., type = "h", lwd = 2, lend = 1, xlab = "Outcomes", ylab = "Probability", xaxt = "s", axis.tol = 5, col = NA, col.adj = .5, labels = NA, cex.lab = .8){
   
-  x <- g <- match.call()$fun
-  
-if(any(c("c", "list") %in% as.character(x))) x <- lapply(seq(x), function(i) x[[i]])[-1] else x <- y <- c(x)  
-  
+  x <- y <- match.call()[-1]
   m <- substitute(x)
-
-  y <- lapply(x, eval)
-  
-  xx <- lapply(seq(x), function(i) as.numeric(as.character(x[[i]][[2]][-1])))
-  
-  x <- list()
-  
-  xlim <- range(xx, finite = TRUE)
+  L <- length(x)
+  x <- lapply(seq(L), function(i) eval(parse(text = as.character(x[[i]])[2])))
+  y <- lapply(y, eval)
+  xlim <- range(x, finite = TRUE)
   ylim <- range(y, finite = TRUE)
   
-  for(i in 1:length(xx)){
+  for(i in 1:L){
     
-    x[[i]] <- xx[[i]][1]:xx[[i]][2]  
-    
-    graph(x[[i]], y[[i]], type = type, lwd = lwd, lend = lend, xlab = xlab, ylab = ylab, xaxt = "n", add = i !=1, ylim = ylim, xlim = xlim, col = if(is.na(col)) adjustcolor(i, if(i > 1) col.adj else 1) else adjustcolor(col[i], if(i > 1) col.adj else 1), ...)
+    graph(x[[i]], y[[i]], type = type, lwd = lwd, lend = lend, xlab = xlab, ylab = ylab, xaxt = "n", add = i !=1, ylim = ylim, xlim = xlim, col = if(is.na(col)) adjustcolor(i, if(i > 1) col.adj else 1) else adjustcolor(col[i], if(i > 1) col.adj else 1))
     
     text(mode.find(x[[i]], y[[i]]), max(y[[i]]), if(is.na(labels)) m[[i]] else labels[i], pos = 3, cex = cex.lab, font = 2, col = if(is.na(col)) i else col[i], xpd = NA)
     
   }
-   
-  y <- lapply(y, round, digits = xaxs.tol)
-
-  x <- Map(function(u, v) u[v != 0], x, y)
-
+  
+  y <- lapply(y, round, digits = axis.tol)
+  
+  x <- mapply(function(u, v) u[v != 0], x, y)
+  
   if(xaxt != "n") axis(1, at = at.set(x, y))
-}         
+}        
 
 
 #===========================================================================================================================
