@@ -7101,7 +7101,6 @@ at.set <- function(x, y, axis.tol){
   smallest.max <- which.min(sapply(x, max))
   
   x <- c(x[smallest.max], x[-smallest.max])
-  y <- c(y[smallest.max], y[-smallest.max])
   
   x[-1] <- mapply(setdiff, x[-1], x[-length(x)])
   
