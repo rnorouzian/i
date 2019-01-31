@@ -7096,13 +7096,13 @@ at.set <- function(x, y, axis.tol){
   
   y <- lapply(y, round, digits = axis.tol)
   
-  x <- mapply(function(u, v) u[v != 0], x, y)
+  x <- mapply(function(u, v) u[v != 0], x, y, SIMPLIFY = FALSE)
   
   smallest.max <- which.min(sapply(x, max))
   
   x <- c(x[smallest.max], x[-smallest.max])
   
-  x[-1] <- mapply(setdiff, x[-1], x[-length(x)])
+  x[-1] <- mapply(setdiff, x[-1], x[-length(x)], SIMPLIFY = FALSE)
   
   as.numeric(unlist(x))
 }
