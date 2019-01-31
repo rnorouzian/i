@@ -7103,7 +7103,7 @@ at.set <- function(x, y, axis.tol){
   x <- c(x[smallest.max], x[-smallest.max])
   y <- c(y[smallest.max], y[-smallest.max])
   
-  x[-1] <- Map(setdiff, x[-1], x[-length(x)])
+  x[-1] <- mapply(setdiff, x[-1], x[-length(x)])
   
   as.numeric(unlist(x))
 }
