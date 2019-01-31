@@ -7113,12 +7113,13 @@ at.set <- function(x, y, axis.tol){
               
 plot.prob <- function(..., type = "h", lwd = 2, lend = 1, xlab = "Outcomes", ylab = "Probability", xaxt = "s", axis.tol = 5, col = NA, col.adj = .5, labels = NA, cex.lab = .8){
   
-  x <- y <- match.call()[-1]
+  x <- match.call()[-1]
+  y <- lapply(x, eval)
+  if(!is.null(names(y))) y <- y[names(y) == ""]
   m <- substitute(x)
-  L <- length(x)
-  x <- lapply(seq(L), function(i) eval(parse(text = as.character(x[[i]])[2])))
-  y <- lapply(y, eval)
-              
+  L <- length(y)
+  x <- lapply(1:L, function(i) eval(parse(text = as.character(x[[i]])[2])))
+
   xlim <- range(x, finite = TRUE)
   ylim <- range(y, finite = TRUE)
   
@@ -7127,11 +7128,10 @@ plot.prob <- function(..., type = "h", lwd = 2, lend = 1, xlab = "Outcomes", yla
     graph(x[[i]], y[[i]], type = type, lwd = lwd, lend = lend, xlab = xlab, ylab = ylab, xaxt = "n", add = i !=1, ylim = ylim, xlim = xlim, col = if(is.na(col)) adjustcolor(i, if(i > 1) col.adj else 1) else adjustcolor(col[i], if(i > 1) col.adj else 1))
     
     text(mode.find(x[[i]], y[[i]]), max(y[[i]]), if(is.na(labels)) m[[i]] else labels[i], pos = 3, cex = cex.lab, font = 2, col = if(is.na(col)) i else col[i], xpd = NA)
-    
   }
   
   if(xaxt != "n") axis(1, at = at.set(x, y, axis.tol))
-}        
+}               
 
 
 #===========================================================================================================================
