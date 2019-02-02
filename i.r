@@ -7092,7 +7092,7 @@ y <- y[if(na.rm) !is.na(y) & !is.nan(y) & if(finite) !is.infinite(y)]
 #===========================================================================================================================
        
        
-at.set <- function(x, y, axis.tol){
+at.set <- function(x, y, axis.tol, simplify = TRUE){
   
   y <- lapply(y, round, digits = axis.tol)
   
@@ -7104,8 +7104,9 @@ at.set <- function(x, y, axis.tol){
   
   x[-1] <- mapply(setdiff, x[-1], x[-length(x)], SIMPLIFY = FALSE)
   
-  as.numeric(unlist(x))
+  if(simplify) as.numeric(unlist(x)) else x
 }
+
 
 #===========================================================================================================================
 
