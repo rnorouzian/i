@@ -7164,7 +7164,7 @@ compare.all <- function(...){
   names(m) <- sapply(substitute(list(...))[-1], deparse)
   combs <- t(combn(x = names(m), m = 2))
   
-  Chi.Sq <- apply(combs, 1, function(i) pchisq(2 * (logLik(m[[i[2]]]) - logLik(m[[i[1]]])), df = abs(m[[i[1]]]$df.residual - m[[i[2]]]$df.residual), lower.tail = FALSE))
+  Chi.Sq <- apply(combs, 1, function(i) pchisq(2 * abs(logLik(m[[i[2]]]) - logLik(m[[i[1]]])), df = abs(m[[i[1]]]$df.residual - m[[i[2]]]$df.residual), lower.tail = FALSE))
   result <- data.frame(combs, Chi.Sq)
   names(result) <- c("model.1", "model.2", "Chi.Sq")
   
