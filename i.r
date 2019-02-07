@@ -6876,7 +6876,7 @@ random.block <- Vectorize(function(N, n.groups, keep = FALSE){
 #===========================================================================================================================
              
 
-plot.pr <- function(fun = dbinom(0:5, 5, .1), type = "h", lwd = 4, lend = 1, xlab = "Outcomes", ylab = "Probability", xaxt = "s", add = FALSE, ...)
+plot.pr <- function(fun = dbinom(0:5, 5, .1), type = "h", lwd = 2, lend = 1, xlab = "Outcomes", ylab = "Probability", xaxt = "s", add = FALSE, ...)
 {
   x <- match.call()$fun
   if(class(x) == "call") x <- as.numeric(as.character(x[[2]])) else stop("Use an appropriate R function for count probability distributions.", call. = FALSE)
