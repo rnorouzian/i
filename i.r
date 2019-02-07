@@ -7158,14 +7158,14 @@ if(decreasing) result else rev(result)
  
 #===========================================================================================================================         
  
-compare.model <- function(...){
+compare.model <- function(..., digits = 1e2){
   
   L <- list(...)
   if(length(L) < 2) stop("You need to have a least '2' fitted models for a comparison.", call. = FALSE)
   names(L) <- sapply(substitute(list(...))[-1], deparse)
   combs <- t(combn(x = names(L), m = 2))
   
-  p.value <- apply(combs, 1, function(i) pchisq(2 * abs(logLik(L[[i[2]]]) - logLik(L[[i[1]]])), df = abs(L[[i[1]]]$df.residual - L[[i[2]]]$df.residual), lower.tail = FALSE))
+  p.value <- round(apply(combs, 1, function(i) pchisq(2 * abs(logLik(L[[i[2]]]) - logLik(L[[i[1]]])), df = abs(L[[i[1]]]$df.residual - L[[i[2]]]$df.residual), lower.tail = FALSE)), digits)
   result <- data.frame(combs, p.value)
   names(result) <- c("model.1", "model.2", "p.value")
   
