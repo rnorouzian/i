@@ -7173,7 +7173,7 @@ compare.model <- function(...){
   output <- cbind(result, Sig.)
   names(output)[4] <- " "
   cat("\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 ':-(' 0.1 ':-((' 1\n-------------\n") 
-  return(print(output, row.names = FALSE))
+  return(output)
 }
     
 
