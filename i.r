@@ -7172,9 +7172,8 @@ compare.model <- function(...){
   Sig. <- symnum(result$p.value, cut = c(0, .001, .01, .05, .1, 1), na = FALSE, symbols = c("***", "**", "*", ":-(", ":-(("), corr = FALSE)
   output <- cbind(result, Sig.)
   names(output)[4] <- " "
-  rownames(output) <- rep(" ", nrow(output))
-  cat("\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n-------------\n") 
-  return(output) 
+  cat("\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 ':-(' 0.1 ':-((' 1\n-------------\n") 
+  return(print(output, row.names = FALSE))
 }
                   
 #===========================================================================================================================
