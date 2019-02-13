@@ -7181,10 +7181,14 @@ compare.model <- function(..., digits = 1e2){
 BICz <- function(...) {
   
   a <- AIC(..., k = sapply(list(...), function(x) log(nrow(model.frame(x)))))
+  
+  if(length(a) >= 2){
   names(a)[2] <- "BIC"
+  a[,1] <- NULL
   rownames(a) <- as.character(substitute(...()))
+  }
   a
-}                          
+}                         
                                                   
 #===========================================================================================================================                   
                    
