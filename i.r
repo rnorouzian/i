@@ -7402,7 +7402,7 @@ plot.c.model.default <- function(object, fitted, breaks = NULL,
     }
   }
   if(is.null(ylab)) {
-    ylab <- if(scale == "raw") "Frequency" else bquote(sqrt(Frequency)) 
+    ylab <- if(scale == "raw") "Frequency" else "sqrt(Frequency)" 
   }
   if(is.null(main)) main <- deparse(substitute(fitted))
   
