@@ -7193,7 +7193,657 @@ BICz <- function(...) {
 #===========================================================================================================================                   
                    
 is.false <- function(x) identical(FALSE, x)
-                   
+
+#===========================================================================================================================
+                           
+fitdistr <- function (x, densfun, start, ...) 
+{
+  myfn <- function(parm, ...) -sum(log(dens(parm, ...)))
+  mylogfn <- function(parm, ...) -sum(dens(parm, ..., log = TRUE))
+  mydt <- function(x, m, s, df, log) dt((x - m)/s, df, log = TRUE) - 
+    log(s)
+  Call <- match.call(expand.dots = TRUE)
+  if (missing(start)) 
+    start <- NULL
+  dots <- names(list(...))
+  dots <- dots[!is.element(dots, c("upper", "lower"))]
+  if (missing(x) || length(x) == 0L || mode(x) != "numeric") 
+    stop("'x' must be a non-empty numeric vector")
+  if (any(!is.finite(x))) 
+    stop("'x' contains missing or infinite values")
+  if (missing(densfun) || !(is.function(densfun) || is.character(densfun))) 
+    stop("'densfun' must be supplied as a function or name")
+  control <- list()
+  n <- length(x)
+  if (is.character(densfun)) {
+    distname <- tolower(densfun)
+    densfun <- switch(distname, beta = dbeta, cauchy = dcauchy, 
+      `chi-squared` = dchisq, exponential = dexp, f = df, 
+      gamma = dgamma, geometric = dgeom, `log-normal` = dlnorm, 
+      lognormal = dlnorm, logistic = dlogis, `negative binomial` = dnbinom, 
+      normal = dnorm, poisson = dpois, t = mydt, weibull = dweibull, 
+      NULL)
+    if (is.null(densfun)) 
+      stop("unsupported distribution")
+    if (distname %in% c("lognormal", "log-normal")) {
+      if (!is.null(start)) 
+        stop(gettextf("supplying pars for the %s distribution is not supported", 
+          "log-Normal"), domain = NA)
+      if (any(x <= 0)) 
+        stop("need positive values to fit a log-Normal")
+      lx <- log(x)
+      sd0 <- sqrt((n - 1)/n) * sd(lx)
+      mx <- mean(lx)
+      estimate <- c(mx, sd0)
+      sds <- c(sd0/sqrt(n), sd0/sqrt(2 * n))
+      names(estimate) <- names(sds) <- c("meanlog", "sdlog")
+      vc <- matrix(c(sds[1]^2, 0, 0, sds[2]^2), ncol = 2, 
+        dimnames = list(names(sds), names(sds)))
+      names(estimate) <- names(sds) <- c("meanlog", "sdlog")
+      return(structure(list(estimate = estimate, sd = sds, 
+        vcov = vc, n = n, loglik = sum(dlnorm(x, mx, 
+          sd0, log = TRUE))), class = "fitdistr"))
+    }
+    if (distname == "normal") {
+      if (!is.null(start)) 
+        stop(gettextf("supplying pars for the %s distribution is not supported", 
+          "Normal"), domain = NA)
+      sd0 <- sqrt((n - 1)/n) * sd(x)
+      mx <- mean(x)
+      estimate <- c(mx, sd0)
+      sds <- c(sd0/sqrt(n), sd0/sqrt(2 * n))
+      names(estimate) <- names(sds) <- c("mean", "sd")
+      vc <- matrix(c(sds[1]^2, 0, 0, sds[2]^2), ncol = 2, 
+        dimnames = list(names(sds), names(sds)))
+      return(structure(list(estimate = estimate, sd = sds, 
+        vcov = vc, n = n, loglik = sum(dnorm(x, mx, 
+          sd0, log = TRUE))), class = "fitdistr"))
+    }
+    if (distname == "poisson") {
+      if (!is.null(start)) 
+        stop(gettextf("supplying pars for the %s distribution is not supported", 
+          "Poisson"), domain = NA)
+      estimate <- mean(x)
+      sds <- sqrt(estimate/n)
+      names(estimate) <- names(sds) <- "lambda"
+      vc <- matrix(sds^2, ncol = 1, nrow = 1, dimnames = list("lambda", 
+        "lambda"))
+      return(structure(list(estimate = estimate, sd = sds, 
+        vcov = vc, n = n, loglik = sum(dpois(x, estimate, 
+          log = TRUE))), class = "fitdistr"))
+    }
+    if (distname == "exponential") {
+      if (any(x < 0)) 
+        stop("Exponential values must be >= 0")
+      if (!is.null(start)) 
+        stop(gettextf("supplying pars for the %s distribution is not supported", 
+          "exponential"), domain = NA)
+      estimate <- 1/mean(x)
+      sds <- estimate/sqrt(n)
+      vc <- matrix(sds^2, ncol = 1, nrow = 1, dimnames = list("rate", 
+        "rate"))
+      names(estimate) <- names(sds) <- "rate"
+      return(structure(list(estimate = estimate, sd = sds, 
+        vcov = vc, n = n, loglik = sum(dexp(x, estimate, 
+          log = TRUE))), class = "fitdistr"))
+    }
+    if (distname == "geometric") {
+      if (!is.null(start)) 
+        stop(gettextf("supplying pars for the %s distribution is not supported", 
+          "geometric"), domain = NA)
+      estimate <- 1/(1 + mean(x))
+      sds <- estimate * sqrt((1 - estimate)/n)
+      vc <- matrix(sds^2, ncol = 1, nrow = 1, dimnames = list("prob", 
+        "prob"))
+      names(estimate) <- names(sds) <- "prob"
+      return(structure(list(estimate = estimate, sd = sds, 
+        vcov = vc, n = n, loglik = sum(dgeom(x, estimate, 
+          log = TRUE))), class = "fitdistr"))
+    }
+    if (distname == "weibull" && is.null(start)) {
+      if (any(x <= 0)) 
+        stop("Weibull values must be > 0")
+      lx <- log(x)
+      m <- mean(lx)
+      v <- var(lx)
+      shape <- 1.2/sqrt(v)
+      scale <- exp(m + 0.572/shape)
+      start <- list(shape = shape, scale = scale)
+      start <- start[!is.element(names(start), dots)]
+    }
+    if (distname == "gamma" && is.null(start)) {
+      if (any(x < 0)) 
+        stop("gamma values must be >= 0")
+      m <- mean(x)
+      v <- var(x)
+      start <- list(shape = m^2/v, rate = m/v)
+      start <- start[!is.element(names(start), dots)]
+      control <- list(parscale = c(1, start$rate))
+    }
+    if (distname == "negative binomial" && is.null(start)) {
+      m <- mean(x)
+      v <- var(x)
+      size <- if (v > m) 
+        m^2/(v - m)
+      else 100
+      start <- list(size = size, mu = m)
+      start <- start[!is.element(names(start), dots)]
+    }
+    if (is.element(distname, c("cauchy", "logistic")) && 
+      is.null(start)) {
+      start <- list(location = median(x), scale = IQR(x)/2)
+      start <- start[!is.element(names(start), dots)]
+    }
+    if (distname == "t" && is.null(start)) {
+      start <- list(m = median(x), s = IQR(x)/2, df = 10)
+      start <- start[!is.element(names(start), dots)]
+    }
+  }
+  if (is.null(start) || !is.list(start)) 
+    stop("'start' must be a named list")
+  nm <- names(start)
+  f <- formals(densfun)
+  args <- names(f)
+  m <- match(nm, args)
+  if (any(is.na(m))) 
+    stop("'start' specifies names which are not arguments to 'densfun'")
+  formals(densfun) <- c(f[c(1, m)], f[-c(1, m)])
+  dens <- function(parm, x, ...) densfun(x, parm, ...)
+  if ((l <- length(nm)) > 1L) 
+    body(dens) <- parse(text = paste("densfun(x,", paste("parm[", 
+      1L:l, "]", collapse = ", "), ", ...)"))
+  Call[[1L]] <- quote(stats::optim)
+  Call$densfun <- Call$start <- NULL
+  Call$x <- x
+  Call$par <- start
+  Call$fn <- if ("log" %in% args) 
+    mylogfn
+  else myfn
+  Call$hessian <- TRUE
+  if (length(control)) 
+    Call$control <- control
+  if (is.null(Call$method)) {
+    if (any(c("lower", "upper") %in% names(Call))) 
+      Call$method <- "L-BFGS-B"
+    else if (length(start) > 1L) 
+      Call$method <- "BFGS"
+    else Call$method <- "Nelder-Mead"
+  }
+  res <- eval.parent(Call)
+  if (res$convergence > 0L) 
+    stop("optimization failed")
+  vc <- solve(res$hessian)
+  sds <- sqrt(diag(vc))
+  structure(list(estimate = res$par, sd = sds, vcov = vc, 
+    loglik = -res$value, n = n), class = "fitdistr")
+}
+
+#===========================================================================================================================
+                           
+plot.c.model <- function(object, ...) {
+  UseMethod("rootogram")
+}
+
+plot.c.model.default <- function(object, fitted, breaks = NULL,
+                              style = c("hanging", "standing", "suspended"),
+                              scale = c("sqrt", "raw"), plot = TRUE,
+                              width = NULL, xlab = NULL, ylab = NULL, main = NULL, ...)
+{
+  ## rectangle style
+  scale <- match.arg(scale)
+  style <- match.arg(style)
+  
+  ## default annotation
+  if(is.null(xlab)) {
+    xlab <- if(is.null(names(dimnames(object)))) {
+      deparse(substitute(object))
+    } else {
+      names(dimnames(object))[1L]
+    }
+  }
+  if(is.null(ylab)) {
+    ylab <- if(scale == "raw") "Frequency" else "sqrt(Frequency)" 
+  }
+  if(is.null(main)) main <- deparse(substitute(fitted))
+  
+  ## breaks, midpoints, widths
+  if(is.null(breaks)) {
+    x <- as.numeric(names(object))
+    if(length(x) < 1L) x <- 0L:(length(object) - 1L)
+    breaks <- (head(x, -1L) + tail(x, -1L))/2
+    breaks <- c(2 * head(x, 1L) - head(breaks, 1L), breaks,
+                2 * tail(x, 1L) - tail(breaks, 1L))
+    if(is.null(width)) width <- 0.9
+  } else {
+    x <- (head(breaks, -1L) + tail(breaks, -1L))/2
+    if(is.null(width)) width <- 1
+  }
+  
+  ## raw vs. sqrt scale
+  if(scale == "sqrt") {
+    obsrvd <- sqrt(as.vector(object))
+    expctd <- sqrt(as.vector(fitted))
+  } else {
+    obsrvd <- as.vector(object)
+    expctd <- as.vector(fitted)
+  }
+  
+  ## height/position of rectangles
+  y <- if(style == "hanging") expctd - obsrvd else 0
+  height <- if(style == "suspended") expctd - obsrvd else obsrvd
+  
+  ## collect everything as data.frame
+  rval <- data.frame(observed = as.vector(object), expected = as.vector(fitted),
+                     x = x, y = y, width = diff(breaks) * width, height = height,
+                     line = expctd)
+  attr(rval, "style") <- style
+  attr(rval, "scale") <- scale
+  attr(rval, "xlab") <- xlab
+  attr(rval, "ylab") <- ylab
+  attr(rval, "main") <- main
+  class(rval) <- c("rootogram", "data.frame")
+  
+  ## also plot by default
+  if(plot) plot(rval, ...)
+  
+  ## return invisibly
+  invisible(rval)
+}
+
+
+plot.rootogram <- function(x,
+                           xlim = NULL, ylim = NULL, xlab = NULL, ylab = NULL, main = NULL,
+                           border = "black", fill = "lightgray", col = "#B61A51",
+                           lwd = 2, pch = 19, lty = 1, max = NULL, type = NULL, axes = TRUE, ...)
+{
+  ## handling of groups
+  if(is.null(x$group)) x$group <- 1L
+  n <- max(x$group)
+  if(is.null(type)) type <- ifelse(any(table(x$group) > 20L), "l", "b")
+  
+  ## annotation
+  if(is.null(xlab)) xlab <- TRUE
+  if(is.null(ylab)) ylab <- TRUE
+  if(is.null(main)) main <- TRUE
+  xlab <- rep(xlab, length.out = n)
+  ylab <- rep(ylab, length.out = n)
+  main <- rep(main, length.out = n)
+  if(is.logical(xlab)) xlab <- ifelse(xlab, attr(x, "xlab"), "")
+  if(is.logical(ylab)) ylab <- ifelse(ylab, attr(x, "ylab"), "")
+  if(is.logical(main)) main <- ifelse(main, attr(x, "main"), "")
+  
+  ## plotting function
+  rootogram1 <- function(d, ...) {
+    ## rect elements
+    xleft <- d$x - d$width/2
+    xright <- d$x + d$width/2
+    ybottom <- d$y
+    ytop <- d$y + d$height
+    j <- unique(d$group)
+    
+    ## defaults
+    if(is.null(xlim)) xlim <- range(c(xleft, xright))
+    if(is.null(ylim)) ylim <- range(c(ybottom, ytop, d$line))
+    
+    ## draw rootogram
+    plot(0, 0, type = "n", xlim = xlim, ylim = ylim,
+         xlab = xlab[j], ylab = ylab[j], main = main[j], axes = FALSE, ...)
+    if(axes) {
+      axis(1)
+      axis(2)
+    }
+    rect(xleft, ybottom, xright, ytop, border = border, col = fill)
+    abline(h = 0, col = border)
+    lines(d$x, d$line,
+          col = col, pch = pch, type = type, lty = lty, lwd = lwd)
+  }
+  
+  ## draw plots
+  if(n > 1L) par(mfrow = n2mfrow(n))
+  for(i in 1L:n) rootogram1(x[x$group == i, ], ...)
+}
+
+rootogram.numeric <- function(object, fitted, breaks = NULL,
+                              start = NULL, width = NULL, xlab = NULL, ylab = NULL, main = NULL, ...)
+{
+  ## distribution to be fitted
+  dist <- fitted
+  if(!is.character(fitted)) fitted <- deparse(substitute(fitted))
+  if(substr(fitted, 1L, 1L) != "d") {
+    fitted <- match.arg(tolower(fitted),
+                        c("beta", "cauchy", "chi-squared", "chisquared", "exponential", "f",
+                          "gamma", "geometric", "log-normal", "lognormal", "logistic", "logseries", 
+                          "negative binomial", "negbin", "normal", "gaussian", "poisson", "t", "weibull"))
+    fitted <- switch(fitted,
+                     "chisquared" = "chi-squared",
+                     "lognormal" = "log-normal",
+                     "negbin" = "negative binomial",
+                     "gaussian" = "normal",
+                     fitted)
+    if(fitted == "logseries") {
+      dist <- function(x, logit, ...) dlogseries(x, plogis(logit), ...)
+      if(is.null(start)) start <- list(logit = 0)
+    } else {
+      if(is.character(dist)) dist <- fitted
+    }
+  }
+  
+  ## labels
+  if(is.null(xlab)) xlab <- deparse(substitute(object))
+  if(is.null(main)) main <- sprintf('fitdistr(%s, "%s")', deparse(substitute(object)), fitted)
+  
+
+  xfit <- suppressWarnings(try(fitdistr(object, dist, start = start), silent = TRUE))
+  if(!inherits(xfit, "fitdistr")) stop("could not obtain fitted distribution")
+  
+  ## fitted probability distribution function
+  pdist <- switch(fitted,
+                  "beta" = pbeta,
+                  "cauchy" = pcauchy, 
+                  "chi-squared" = pchisq,
+                  "exponential" = pexp,
+                  "f" = pf, 
+                  "gamma" = pgamma,
+                  "geometric" = pgeom,
+                  "log-normal" = plnorm, 
+                  "logistic" = plogis,
+                  "negative binomial" = pnbinom, 
+                  "normal" = pnorm,
+                  "poisson" = ppois,
+                  "t" = function(x, m, s, df) pt((x - m)/s, df),
+                  "weibull" = pweibull, 
+                  paste("p", substr(fitted, 2L, nchar(fitted)), sep = ""))
+  if(fitted == "logseries") pdist <- function(x, logit, ...) plogseries(x, plogis(logit), ...)
+  if(is.character(pdist)) pdist <- try(get(pdist), silent = TRUE)
+  if(!is.function(pdist)) stop("invalid specification of fitted distribution")
+  
+  ## second argument should be the full parameter vector
+  f <- formals(pdist)
+  args <- names(f)
+  m <- match(names(xfit$estimate), args)
+  formals(pdist) <- c(f[c(1, m)], f[-c(1, m)])
+  pfun <- function(x, parm, ...) pdist(x, parm, ...)
+  l <- length(xfit$estimate)
+  if(l > 1L) {
+    body(pfun) <- parse(text = paste("pdist(x, ", paste("parm[", 1L:l, "]", collapse = ", "), ", ...)"))
+  }
+  
+  ## different default breaks for discrete distributions
+  if(is.null(breaks)) {
+    if(tolower(fitted) %in% c("geometric", "negative binomial", "poisson", "binomial", "logseries")) {
+      breaks <- (if(fitted == "logseries") 0L else -1L):max(object) + 0.5
+      if(is.null(width)) width <- 0.9
+    } else {
+      breaks <- "Sturges"
+    }
+  }
+  
+  ## observed and expected frequencies
+  xhist <- hist(object, plot = FALSE, breaks = breaks)
+  expctd <- xfit$n * (pfun(tail(xhist$breaks, -1L), xfit$estimate) -
+                        pfun(head(xhist$breaks, -1L), xfit$estimate))
+  
+  ## call base rootogram function
+  plot.c.model.default(xhist$counts, expctd, breaks = xhist$breaks,
+                    xlab = xlab, main = main, width = width, ...)
+}
+
+rootogram.zeroinfl <- rootogram.hurdle <- function(object, newdata = NULL,
+                                                   max = NULL, xlab = NULL, main = NULL, width = 0.9, ...)
+{
+  ## observed response
+  mt <- terms(object)
+  mf <- if(is.null(newdata)) {
+    model.frame(object)
+  } else {
+    model.frame(mt, newdata, na.action = na.omit)
+  }
+  y <- model.response(mf)
+  w <- model.weights(mf)
+  if(is.null(w)) w <- rep(1, NROW(y))
+  
+  ## observed and expected frequencies
+  max0 <- if(is.null(max)) max(1.5 * max(y[w > 0]), 20L) else max  
+  obsrvd <- as.vector(xtabs(w ~ factor(y, levels = 0L:max0)))
+  expctd <- if(is.null(newdata)) {
+    colSums(predict(object, type = "prob", at = 0L:max0) * w)
+  } else {
+    colSums(predict(object, newdata = newdata, type = "prob", at = 0L:max0, na.action = na.omit) * w)
+  }
+  
+  ## try to guess a good maximum
+  if(is.null(max)) {
+    max <- if(all(expctd >= 1L)) max0 else max(ceiling(mean(y)), min(which(expctd < 1L)) - 1L)
+    max <- min(max, length(expctd) - 1L)
+  }
+  
+  ## observed and expected frequencies
+  obsrvd <- obsrvd[1L:(max + 1L)]
+  expctd <- expctd[1L:(max + 1L)]
+  
+  if(is.null(xlab)) xlab <- as.character(attr(mt, "variables"))[2L]
+  if(is.null(main)) main <- deparse(substitute(object))
+  plot.c.model.default(obsrvd, expctd, breaks = -1L:max + 0.5,
+                    xlab = xlab, main = main, width = width, ...)  
+}
+
+rootogram.zerotrunc <- function(object, newdata = NULL,
+                                max = NULL, xlab = NULL, main = NULL, width = 0.9, ...)
+{
+  ## observed response
+  mt <- terms(object)
+  mf <- if(is.null(newdata)) {
+    model.frame(object)
+  } else {
+    model.frame(mt, newdata, na.action = na.omit)
+  }
+  y <- model.response(mf)
+  w <- model.weights(mf)
+  if(is.null(w)) w <- rep(1, NROW(y))
+  
+  ## observed and expected frequencies
+  max0 <- if(is.null(max)) max(1.5 * max(y[w > 0]), 20L) else max  
+  obsrvd <- as.vector(xtabs(w ~ factor(y, levels = 1L:max0)))
+  expctd <- if(is.null(newdata)) {
+    colSums(predict(object, type = "prob", at = 1L:max0) * w)
+  } else {
+    colSums(predict(object, newdata = newdata, type = "prob", at = 1L:max0, na.action = na.omit) * w)
+  }
+  
+  ## try to guess a good maximum
+  if(is.null(max)) {
+    max <- if(all(expctd >= 1L)) max0 else max(ceiling(mean(y)), min(which(expctd < 1L)))
+    max <- min(max, length(expctd))
+  }
+  
+  ## observed and expected frequencies
+  obsrvd <- obsrvd[1L:max]
+  expctd <- expctd[1L:max]
+  
+  if(is.null(xlab)) xlab <- as.character(attr(mt, "variables"))[2L]
+  if(is.null(main)) main <- deparse(substitute(object))
+  plot.c.model.default(obsrvd, expctd, breaks = 0L:max + 0.5,
+                    xlab = xlab, main = main, width = width, ...)  
+}
+
+rootogram.glm <- function(object, newdata = NULL, breaks = NULL,
+                          max = NULL, xlab = NULL, main = NULL, width = NULL, ...) 
+{
+  family <- substr(family(object)$family, 1L, 17L)
+  if(!(family %in% c("negbin", "Negative Binomial", "poisson", "binomial", "gaussian"))) {
+    stop("family currently not supported")
+  }
+  
+  ## observed response
+  mt <- terms(object)
+  mf <- if(is.null(newdata)) {
+    model.frame(object)
+  } else {
+    model.frame(mt, newdata, na.action = na.omit)
+  }
+  y <- model.response(mf)
+  w <- model.weights(mf)
+  if(is.null(w)) w <- rep(1, NROW(y))
+  mu <- predict(object, newdata = newdata, type = "response", na.action = na.omit)
+  
+  if(family == "gaussian") {
+    ## estimated standard deviation (ML)
+    s <- sqrt(weighted.mean(residuals(object)^2, w))
+    
+    ## breaks
+    if(is.null(breaks)) breaks <- "Sturges"
+    breaks <- hist(y[w > 0], plot = FALSE, breaks = breaks)$breaks
+    obsrvd <- as.vector(xtabs(w ~ cut(y, breaks, include.lowest = TRUE)))
+    
+    ## expected frequencies
+    p <- matrix(NA, nrow = length(y), ncol = length(breaks) - 1L)
+    for(i in 1L:ncol(p)) p[, i] <- pnorm(breaks[i + 1L], mean = mu, sd = s) -
+      pnorm(breaks[i], mean = mu, sd = s)
+    expctd <- colSums(p * w)
+  } else if(family == "binomial") {
+    ## successes and failures
+    if(NCOL(y) < 2L) y <- cbind(y, 1L - y)
+    
+    ## number of attempts
+    size <- unique(rowSums(y))
+    if(length(size) > 1L) stop("rootogram only applicable to binomial distributions with same size")
+    at <- 0L:size
+    breaks <- -1L:size + 0.5
+    
+    ## observed and expected
+    obsrvd <- as.vector(xtabs(w ~ factor(y[, 1L], levels = at)))
+    p <- matrix(NA, length(mu), length(at))
+    for(i in at) p[, i + 1L] <- dbinom(i, prob = mu, size = size)
+    expctd <- colSums(p * w)
+  } else {
+    ## observed frequencies
+    max0 <- if(is.null(max)) max(1.5 * max(y[w > 0]), 20L) else max  
+    obsrvd <- as.vector(xtabs(w ~ factor(y, levels = 0L:max0)))
+    
+    ## expected frequencies
+    at <- 0L:max0
+    p <- matrix(NA, length(mu), length(at))
+    if(family == "poisson") {
+      for(i in at) p[, i + 1L] <- dpois(i, lambda = mu)
+    } else {
+      theta <- object$theta
+      if(is.null(theta)) theta <- get(".Theta", environment(family(object)$variance))
+      for(i in at) p[, i + 1L] <- dnbinom(i, mu = mu, size = theta)
+    }
+    expctd <- colSums(p * w)
+    
+    ## try to guess a good maximum
+    if(is.null(max)) {
+      max <- if(all(expctd >= 1L)) max0 else max(ceiling(mean(y)), min(which(expctd < 1L)) - 1L)
+      max <- min(max, length(expctd) - 1L)
+    }
+    breaks <- -1L:max + 0.5
+    
+    ## observed and expected frequencies
+    obsrvd <- obsrvd[1L:(max + 1L)]
+    expctd <- expctd[1L:(max + 1L)]
+  }
+  
+  if(is.null(xlab)) xlab <- as.character(attr(mt, "variables"))[2L]
+  if(is.null(main)) main <- deparse(substitute(object))
+  plot.c.model.default(obsrvd, expctd, breaks = breaks,
+                    xlab = xlab, main = main,
+                    width = if(family == "gaussian") 1 else 0.9, ...)  
+}
+
+
+
+rootogram.gam <- function(object, newdata = NULL, breaks = NULL,
+                          max = NULL, xlab = NULL, main = NULL, width = NULL, ...) 
+{
+  family <- substr(family(object)$family, 1L, 17L)
+  if(!(family %in% c("Negative Binomial", "poisson", "binomial", "gaussian"))) {
+    stop("family currently not supported")
+  }
+  
+  ## observed response
+  mt <- terms(object)
+  mf <- if(is.null(newdata)) {
+    model.frame(object)
+  } else {
+    model.frame(mt, newdata, na.action = na.omit)
+  }
+  y <- model.response(mf)
+  mu <- predict(object, newdata = object$model, type = "response", na.action = na.omit)
+  
+  if(family == "gaussian") {
+    ## estimated standard deviation (ML)
+    s <- sqrt(mean(residuals(object)^2))
+    
+    ## breaks
+    if(is.null(breaks)) breaks <- "Sturges"
+    yhist <- hist(y, plot = FALSE, breaks = breaks)
+    breaks <- yhist$breaks
+    obsrvd <- yhist$count
+    
+    ## expected frequencies
+    p <- matrix(NA, nrow = length(y), ncol = length(breaks) - 1L)
+    for(i in 1L:ncol(p)) p[, i] <- pnorm(yhist$breaks[i + 1L], mean = mu, sd = s) -
+      pnorm(yhist$breaks[i], mean = mu, sd = s)
+    expctd <- colSums(p)
+  } else if(family == "binomial") {
+    ## successes and failures
+    if(NCOL(y) < 2L) y <- cbind(y, 1L - y)
+    
+    ## number of attempts
+    size <- unique(rowSums(y))
+    if(length(size) > 1L) stop("rootogram only applicable to binomial distributions with same size")
+    at <- 0L:size
+    breaks <- -1L:size + 0.5
+    
+    ## observed and expected
+    obsrvd <- table(factor(y[, 1L], levels = at))
+    p <- matrix(NA, length(mu), length(at))
+    for(i in at) p[, i + 1L] <- dbinom(i, prob = mu, size = size)
+    expctd <- colSums(p)
+  } else {
+    ## observed frequencies
+    max0 <- if(is.null(max)) max(1.5 * max(y), 20L) else max  
+    obsrvd <- table(factor(y, levels = 0L:max0))
+    
+    ## expected frequencies
+    at <- 0L:max0
+    p <- matrix(NA, length(mu), length(at))
+    if(family == "poisson") {
+      for(i in at) p[, i + 1L] <- dpois(i, lambda = mu)
+    } else {
+      theta <- object$theta
+      if(is.null(theta)) {
+        theta <- if (inherits(family(object), "extended.family")) { # family = nb
+          ## for nb, theta is on log scale; transform
+          family(object)$getTheta(trans = TRUE)
+        } else {                                                    # family = negbin
+          family(object)$getTheta()
+        }
+      }
+      for(i in at) p[, i + 1L] <- dnbinom(i, mu = mu, size = theta)
+    }
+    expctd <- colSums(p)
+    
+    ## try to guess a good maximum
+    if(is.null(max)) {
+      max <- if(all(expctd >= 1L)) max0 else max(ceiling(mean(y)), min(which(expctd < 1L)) - 1L)
+      max <- min(max, length(expctd) - 1L)
+    }
+    breaks <- -1L:max + 0.5
+    
+    ## observed and expected frequencies
+    obsrvd <- obsrvd[1L:(max + 1L)]
+    expctd <- expctd[1L:(max + 1L)]
+  }
+  
+  if(is.null(xlab)) xlab <- as.character(attr(mt, "variables"))[2L]
+  if(is.null(main)) main <- deparse(substitute(object))
+  plot.c.model.default(obsrvd, expctd, breaks = breaks,
+                    xlab = xlab, main = main,
+                    width = if(family == "gaussian") 1 else 0.9, ...)  
+}                           
+                           
 #===========================================================================================================================
                      
 need <- c("rstanarm")  #, "arrangements", "gsl")
