@@ -7380,14 +7380,14 @@ fitdistr <- function (x, densfun, start, ...)
 
 #===========================================================================================================================
                            
-plot.c.model <- function(object, ...) {
+plot.c.model <- function(object, max = max(object$model[,1]), ...) {
   UseMethod("rootogram")
 }
 
 plot.c.model.default <- function(object, fitted, breaks = NULL,
                               style = c("hanging", "standing", "suspended"),
                               scale = c("sqrt", "raw"), plot = TRUE,
-                              width = NULL, xlab = NULL, ylab = NULL, main = NULL, ...)
+                              width = 0, xlab = NULL, ylab = NULL, main = NULL, ...)
 {
   ## rectangle style
   scale <- match.arg(scale)
