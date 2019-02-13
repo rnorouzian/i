@@ -7843,7 +7843,26 @@ rootogram.gam <- function(object, newdata = NULL, breaks = NULL,
                     xlab = xlab, main = main,
                     width = if(family == "gaussian") 1 else 0.9, ...)  
 }                           
-                           
+ 
+#===========================================================================================================================
+                       
+plot.fit <- function(..., main = TRUE, max = NULL){
+  
+  m <-list(...)
+  L <- length(m)
+  
+  org.par <- par(no.readonly = TRUE)
+  on.exit(par(org.par))
+  
+  if(L > 1L) { par(mfrow = n2mfrow(L)) ; par(mgp = c(1.5, .5, 0), mar = c(2.5, 2.5, 2, 1) + .1, 
+                                           tck = -.02)}
+  lab <- as.character(substitute(...()))
+  
+invisible(lapply(1:L, function(i) 
+  plot.c.model(m[[i]], width = 0, main = if(main) lab[i] else NA, max = max)))
+  
+}                       
+                       
 #===========================================================================================================================
                      
 need <- c("rstanarm")  #, "arrangements", "gsl")
