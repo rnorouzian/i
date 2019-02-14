@@ -7087,8 +7087,8 @@ rzbinom <- function (n, p.zero, size, prob)
          
 mode.find <- function(x, y, na.rm = TRUE, finite = TRUE){
   
-x <- x[if(na.rm) !is.na(x) & !is.nan(x) & if(finite) !is.infinite(x)]
-y <- y[if(na.rm) !is.na(y) & !is.nan(y) & if(finite) !is.infinite(y)]  
+x <- x[if(na.rm) !is.na(x) & if(finite) !is.infinite(x)]
+y <- y[if(na.rm) !is.na(y) & if(finite) !is.infinite(y)]  
 
   x[which.max(y)]
 }
@@ -7143,7 +7143,7 @@ plot.prob <- function(..., type = "h", lwd = 2, lend = 1, xlab = "Outcomes", yla
     
     plot(x[[i]], y[[i]], type = type, lwd = lwd, lend = lend, xlab = xlab, ylab = ylab, xaxt = "n", ylim = ylim, col = if(is.na(col)) adjustcolor(i, col.adj) else adjustcolor(col[i], col.adj), yaxt = "n", xaxs = xaxs, yaxs = yaxs)
     
-    text(mean(par('usr')[1:2]), max(y[[i]]), if(is.na(labels)) m[[i]] else labels[i], pos = 3, cex = cex.lab, font = 2, col = if(is.na(col)) i else col[i], xpd = NA)
+    text(mode.find(x[[i]], y[[i]]), max(y[[i]]), if(is.na(labels)) m[[i]] else labels[i], pos = 3, cex = cex.lab, font = 2, col = if(is.na(col)) i else col[i], xpd = NA)
     
     if(xaxt != "n") axis(1, at = x[[i]])
     if(yaxt != "n") axis(2)
