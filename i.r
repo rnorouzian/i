@@ -7004,29 +7004,35 @@ if(hdi){
 
 #===========================================================================================================================
        
-plot.count <- function(..., freq = FALSE, type = "h", lwd = 2, lend = 1, col = NA, col.adj = .5, xlab = "Outcomes", ylab = NA, xaxt = "s", labels = NA, cex.lab = .9, yaxt = "s", xaxs = "r", yaxs = "r"){
+plot.count <- function(..., freq = FALSE, type = "h", lwd = 2, lend = 1, col = NA, col.adj = 1, xlab = "Outcomes", ylab = NA, xaxt = "s", labels = NA, cex.lab = .9, yaxt = "s", xaxs = "r", yaxs = "r"){
   
   L <- if(all(sapply(list(...), inherits, "data.frame"))) as.list(...) else list(...)
   m <- if(all(sapply(list(...), inherits, "data.frame"))) names(L) else substitute(...())
   
   y <- lapply(L, function(x) if(freq)table(x) else table(x)/length(x))
   x <- lapply(y, function(x) as.numeric(names(x)))
-  xlim <- range(x)
-  ylim <- range(y)
-  ylab <- if(is.na(ylab) & freq) "Frequency" else if(is.na(ylab) & !freq) "Probability" else ylab
   
-  for(i in 1:length(L)){
+  xlim <- range(x, finite = TRUE)
+  ylim <- range(y, finite = TRUE)
+  
+  ylab <- if(is.na(ylab) & freq) "Frequency" else if(is.na(ylab) & !freq) "Probability" else ylab
+  h <- length(L)
+  
+  graphics.off()             
+  org.par <- par(no.readonly = TRUE)
+  on.exit(par(org.par))
+  
+  if(h > 1L) { par(mfrow = n2mfrow(h)) ; set.margin2()}
+  
+  for(i in 1:h){
     
-    graph(x[[i]], y[[i]], type = type, add = i!= 1, lend = 1, xlab = xlab, lwd = lwd, ylab = ylab, col = if(is.na(col)) adjustcolor(i, if(i >1) col.adj else 1) else adjustcolor(col[i], if(i > 1) col.adj else 1), ylim = ylim, xlim = xlim, xaxt = "n", yaxt = "n", xaxs = xaxs, yaxs = yaxs)
+    plot(x[[i]], y[[i]], type = type, lend = 1, xlab = xlab, lwd = lwd, ylab = ylab, col = if(is.na(col)) adjustcolor(i, col.adj) else adjustcolor(col[i], col.adj), ylim = ylim, xlim = xlim, xaxt = "n", yaxt = "n", xaxs = xaxs, yaxs = yaxs)
     
     text(mode.count(L[[i]]), max(y[[i]]), if(is.na(labels)) m[[i]] else labels[i], pos = 3, cex = cex.lab, font = 2, col = i, xpd = NA)
+  
+    if(xaxt != "n") axis(1, at = x[[i]])
+    if(yaxt != "n") axis(2)
   }
-
- x[-1] <- Map(setdiff, x[-1], x[-length(x)])
- at <- as.numeric(unlist(x))
-    
-  if(xaxt != "n") axis(1, at = at)
-  if(yaxt != "n") axis(2)
 }
 
 #===========================================================================================================================
