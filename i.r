@@ -7012,7 +7012,6 @@ plot.count <- function(..., freq = FALSE, type = "h", lwd = 2, lend = 1, col = N
   y <- lapply(L, function(x) if(freq)table(x) else table(x)/length(x))
   x <- lapply(y, function(x) as.numeric(names(x)))
   
-  xlim <- if(all.same) range(x, finite = TRUE) else NULL
   ylim <- if(all.same) range(y, finite = TRUE) else NULL
   
   ylab <- if(is.na(ylab) & freq) "Frequency" else if(is.na(ylab) & !freq) "Probability" else ylab
@@ -7026,7 +7025,7 @@ plot.count <- function(..., freq = FALSE, type = "h", lwd = 2, lend = 1, col = N
   
   for(i in 1:h){
     
-    plot(x[[i]], y[[i]], type = type, lend = 1, xlab = xlab, lwd = lwd, ylab = ylab, col = if(is.na(col)) adjustcolor(i, col.adj) else adjustcolor(col[i], col.adj), ylim = ylim, xlim = xlim, xaxt = "n", yaxt = "n", xaxs = xaxs, yaxs = yaxs)
+    plot(x[[i]], y[[i]], type = type, lend = 1, xlab = xlab, lwd = lwd, ylab = ylab, col = if(is.na(col)) adjustcolor(i, col.adj) else adjustcolor(col[i], col.adj), ylim = ylim, xaxt = "n", yaxt = "n", xaxs = xaxs, yaxs = yaxs)
     
     text(mode.count(L[[i]]), max(y[[i]]), if(is.na(labels)) m[[i]] else labels[i], pos = 3, cex = cex.lab, font = 2, col = i, xpd = NA)
     
@@ -7132,7 +7131,6 @@ plot.prob <- function(..., type = "h", lwd = 2, lend = 1, xlab = "Outcomes", yla
   L <- length(y)
   x <- lapply(1:L, function(i) eval(parse(text = as.character(x[[i]])[2])))
   
-  xlim <- if(all.same) range(x, finite = TRUE) else NULL
   ylim <- if(all.same) range(y, finite = TRUE) else NULL
   
   graphics.off()             
@@ -7143,14 +7141,14 @@ plot.prob <- function(..., type = "h", lwd = 2, lend = 1, xlab = "Outcomes", yla
   
   for(i in 1:L){
     
-    plot(x[[i]], y[[i]], type = type, lwd = lwd, lend = lend, xlab = xlab, ylab = ylab, xaxt = "n", ylim = ylim, xlim = xlim, col = if(is.na(col)) adjustcolor(i, col.adj) else adjustcolor(col[i], col.adj), yaxt = "n", xaxs = xaxs, yaxs = yaxs)
+    plot(x[[i]], y[[i]], type = type, lwd = lwd, lend = lend, xlab = xlab, ylab = ylab, xaxt = "n", ylim = ylim, col = if(is.na(col)) adjustcolor(i, col.adj) else adjustcolor(col[i], col.adj), yaxt = "n", xaxs = xaxs, yaxs = yaxs)
     
     text(mean(par('usr')[1:2]), max(y[[i]]), if(is.na(labels)) m[[i]] else labels[i], pos = 3, cex = cex.lab, font = 2, col = if(is.na(col)) i else col[i], xpd = NA)
     
     if(xaxt != "n") axis(1, at = x[[i]])
     if(yaxt != "n") axis(2)
   }
-}  
+}    
               
 
 
@@ -7874,8 +7872,7 @@ plot.fit <- function(..., main = TRUE, max = NULL){
   org.par <- par(no.readonly = TRUE)
   on.exit(par(org.par))
   
-  if(L > 1L) { par(mfrow = n2mfrow(L)) ; par(mgp = c(1.5, .5, 0), mar = c(2.5, 2.5, 2, 1) + .1, 
-                                           tck = -.02)}
+  if(L > 1L) { par(mfrow = n2mfrow(L)) ; set.margin2() }
   lab <- as.character(substitute(...()))
   
 invisible(lapply(1:L, function(i) 
