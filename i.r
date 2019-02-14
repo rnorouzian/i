@@ -7107,11 +7107,17 @@ at.set <- function(x, y, axis.tol, simplify = TRUE){
   if(simplify) as.numeric(unlist(x)) else x
 }
 
-
 #===========================================================================================================================
 
+set.margin2 <- function() 
+{
+    par(mgp = c(1.5, 0.5, 0), mar = c(2.5, 2.5, 2, 1) + 0.1, 
+        tck = -0.02)
+  }
+
+#===========================================================================================================================
               
-plot.prob <- function(..., type = "h", lwd = 2, lend = 1, xlab = "Outcomes", ylab = "Probability", xaxt = "s", axis.tol = 5, col = NA, col.adj = .5, labels = NA, cex.lab = .8){
+plot.prob <- function(..., type = "h", lwd = 2, lend = 1, xlab = "Outcomes", ylab = "Probability", xaxt = "s", col = NA, col.adj = 1, labels = NA, cex.lab = .8, yaxt = "s", xaxs = "r", yaxs = "r"){
   
   x <- match.call()[-1]
   y <- lapply(x, eval)
@@ -7119,18 +7125,25 @@ plot.prob <- function(..., type = "h", lwd = 2, lend = 1, xlab = "Outcomes", yla
   m <- substitute(x)
   L <- length(y)
   x <- lapply(1:L, function(i) eval(parse(text = as.character(x[[i]])[2])))
-
+  
   xlim <- range(x, finite = TRUE)
   ylim <- range(y, finite = TRUE)
   
+  graphics.off()             
+  org.par <- par(no.readonly = TRUE)
+  on.exit(par(org.par))
+  
+  if(L > 1L) { par(mfrow = n2mfrow(L)) ; set.margin2()}
+  
   for(i in 1:L){
     
-    graph(x[[i]], y[[i]], type = type, lwd = lwd, lend = lend, xlab = xlab, ylab = ylab, xaxt = "n", add = i !=1, ylim = ylim, xlim = xlim, col = if(is.na(col)) adjustcolor(i, if(i > 1) col.adj else 1) else adjustcolor(col[i], if(i > 1) col.adj else 1))
+    plot(x[[i]], y[[i]], type = type, lwd = lwd, lend = lend, xlab = xlab, ylab = ylab, xaxt = "n", ylim = ylim, xlim = xlim, col = if(is.na(col)) adjustcolor(i, col.adj) else adjustcolor(col[i], col.adj), yaxt = "n", xaxs = xaxs, yaxs = yaxs)
     
-    text(mode.find(x[[i]], y[[i]]), max(y[[i]]), if(is.na(labels)) m[[i]] else labels[i], pos = 3, cex = cex.lab, font = 2, col = if(is.na(col)) i else col[i], xpd = NA)
-  }
+    text(mean(par('usr')[1:2]), max(y[[i]]), if(is.na(labels)) m[[i]] else labels[i], pos = 3, cex = cex.lab, font = 2, col = if(is.na(col)) i else col[i], xpd = NA)
   
-  if(xaxt != "n") axis(1, at = at.set(x, y, axis.tol))
+    if(xaxt != "n") axis(1, at = x[[i]])
+    if(yaxt != "n") axis(2)
+    }
 }               
 
 
