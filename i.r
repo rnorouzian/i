@@ -7004,7 +7004,7 @@ if(hdi){
 
 #===========================================================================================================================
        
-plot.count <- function(..., freq = FALSE, type = "h", lwd = 2, lend = 1, col = NA, col.adj = 1, xlab = "Outcomes", ylab = NA, xaxt = "s", labels = NA, cex.lab = 1, yaxt = "s", xaxs = "r", yaxs = "r", x.same = FALSE, y.same = FALSE, digits = 1e2){
+plot.count <- function(..., freq = FALSE, type = "h", lwd = 2, lend = 1, col = NA, col.adj = 1, xlab = "Outcomes", ylab = NA, xaxt = "s", labels = NA, cex.lab = .8, yaxt = "s", xaxs = "r", yaxs = "r", x.same = FALSE, y.same = FALSE, digits = 1e2){
   
   L <- if(all(sapply(list(...), inherits, "data.frame"))) as.list(...) else list(...)
   m <- if(all(sapply(list(...), inherits, "data.frame"))) names(L) else substitute(...())
@@ -7123,7 +7123,7 @@ set.margin2 <- function()
 
 #===========================================================================================================================
               
-plot.prob <- function(..., type = "h", lwd = 2, lend = 1, xlab = "Outcomes", ylab = "Probability", xaxt = "s", col = NA, col.adj = 1, labels = NA, cex.lab = 1, yaxt = "s", xaxs = "r", yaxs = "r", x.same = FALSE, y.same = FALSE, digits = 1e2){
+plot.prob <- function(..., type = "h", lwd = 2, lend = 1, xlab = "Outcomes", ylab = "Probability", xaxt = "s", col = NA, col.adj = 1, labels = NA, cex.lab = .8, yaxt = "s", xaxs = "r", yaxs = "r", x.same = FALSE, y.same = FALSE, digits = 1e2){
   
   x <- match.call()[-1]
   y <- lapply(x, eval)
