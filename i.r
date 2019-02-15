@@ -7004,7 +7004,7 @@ if(hdi){
 
 #===========================================================================================================================
        
-plot.count <- function(..., freq = FALSE, type = "h", lwd = 2, lend = 1, col = NA, col.adj = 1, xlab = "Outcomes", ylab = NA, xaxt = "s", labels = NA, cex.lab = .9, yaxt = "s", xaxs = "r", yaxs = "r", x.same = FALSE, y.same = FALSE, digits = 1e2){
+plot.count <- function(..., freq = FALSE, type = "h", lwd = 2, lend = 1, col = NA, col.adj = 1, xlab = "Outcomes", ylab = NA, xaxt = "s", labels = NA, cex.lab = 1, yaxt = "s", xaxs = "r", yaxs = "r", x.same = FALSE, y.same = FALSE, digits = 1e2){
   
   L <- if(all(sapply(list(...), inherits, "data.frame"))) as.list(...) else list(...)
   m <- if(all(sapply(list(...), inherits, "data.frame"))) names(L) else substitute(...())
@@ -7028,7 +7028,7 @@ plot.count <- function(..., freq = FALSE, type = "h", lwd = 2, lend = 1, col = N
     
     plot(x[[i]], y[[i]], type = type, lend = 1, xlab = xlab, lwd = lwd, ylab = ylab, col = if(is.na(col)) adjustcolor(i, col.adj) else adjustcolor(col[i], col.adj), ylim = ylim, xlim = xlim, xaxt = "n", yaxt = "n", xaxs = xaxs, yaxs = yaxs)
     
-    text(mode.count(L[[i]]), max(y[[i]]), if(is.na(labels)) m[[i]] else labels[i], pos = 3, cex = cex.lab, font = 2, col = i, xpd = NA)
+    mtext(if(is.na(labels)) m[[i]] else labels[i], cex = cex.lab, font = 2, col = if(is.na(col)) i else col[i], xpd = NA)
     
     if(xaxt != "n") axis(1, at = x[[i]][round(y[[i]], digits) != 0])
     if(yaxt != "n") axis(2)
@@ -7123,7 +7123,7 @@ set.margin2 <- function()
 
 #===========================================================================================================================
               
-plot.prob <- function(..., type = "h", lwd = 2, lend = 1, xlab = "Outcomes", ylab = "Probability", xaxt = "s", col = NA, col.adj = 1, labels = NA, cex.lab = .8, yaxt = "s", xaxs = "r", yaxs = "r", x.same = FALSE, y.same = FALSE, digits = 1e2){
+plot.prob <- function(..., type = "h", lwd = 2, lend = 1, xlab = "Outcomes", ylab = "Probability", xaxt = "s", col = NA, col.adj = 1, labels = NA, cex.lab = 1, yaxt = "s", xaxs = "r", yaxs = "r", x.same = FALSE, y.same = FALSE, digits = 1e2){
   
   x <- match.call()[-1]
   y <- lapply(x, eval)
@@ -7145,7 +7145,7 @@ plot.prob <- function(..., type = "h", lwd = 2, lend = 1, xlab = "Outcomes", yla
     
     plot(x[[i]], y[[i]], type = type, lwd = lwd, lend = lend, xlab = xlab, ylab = ylab, xaxt = "n", ylim = ylim, xlim = xlim, col = if(is.na(col)) adjustcolor(i, col.adj) else adjustcolor(col[i], col.adj), yaxt = "n", xaxs = xaxs, yaxs = yaxs)
     
-    text(mode.find(x[[i]], y[[i]]), max(y[[i]]), if(is.na(labels)) m[[i]] else labels[i], pos = 3, cex = cex.lab, font = 2, col = if(is.na(col)) i else col[i], xpd = NA)
+    mtext(if(is.na(labels)) m[[i]] else labels[i], cex = cex.lab, font = 2, col = if(is.na(col)) i else col[i], xpd = NA)
     
     if(xaxt != "n") axis(1, at = x[[i]][round(y[[i]], digits) != 0])
     if(yaxt != "n") axis(2)
