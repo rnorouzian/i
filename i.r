@@ -7866,7 +7866,7 @@ rootogram.gam <- function(object, newdata = NULL, breaks = NULL,
  
 #===========================================================================================================================
                        
-plot.fit <- function(..., main = TRUE, max = NULL){
+plot.fit <- function(..., main = TRUE, max = NULL, scale = "raw"){
   
   m <-list(...)
   L <- length(m)
@@ -7878,7 +7878,7 @@ plot.fit <- function(..., main = TRUE, max = NULL){
   lab <- as.character(substitute(...()))
   
 invisible(lapply(1:L, function(i) 
-  plot.c.model(m[[i]], width = 0, main = if(main) lab[i] else NA, max = max)))
+  plot.c.model(m[[i]], width = 0, main = if(main) lab[i] else NA, max = max, scale = scale)))
   
 }                       
                        
