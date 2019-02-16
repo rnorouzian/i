@@ -7768,7 +7768,7 @@ rootogram.glm <- function(object, newdata = NULL, breaks = NULL,
   if(is.null(main)) main <- deparse(substitute(object))
   plot.c.model.default(obsrvd, expctd, breaks = breaks,
                     xlab = xlab, main = main,
-                    width = if(family == "gaussian") 1 else 0.9, ...)  
+                    width = if(family == "gaussian") 1 else width, ...)  
 }
 
 
@@ -7861,7 +7861,7 @@ rootogram.gam <- function(object, newdata = NULL, breaks = NULL,
   if(is.null(main)) main <- deparse(substitute(object))
   plot.c.model.default(obsrvd, expctd, breaks = breaks,
                     xlab = xlab, main = main,
-                    width = if(family == "gaussian") 1 else 0.9, ...)  
+                    width = if(family == "gaussian") 1 else width, ...)  
 }                           
  
 #===========================================================================================================================
