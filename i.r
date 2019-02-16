@@ -7866,32 +7866,79 @@ rootogram.gam <- function(object, newdata = NULL, breaks = NULL,
  
 #===========================================================================================================================
                        
-plot.fit <- function(..., main = TRUE, max = NULL, scale = "raw"){
+zero.count <- function(...){
+
+m <- as.character(substitute(...()))   
+  
+z <- function(fit){
+  
+mu <- predict(fit, type = "response")
+
+if(inherits(fit, "glm") && fit$family[[1]] == "poisson") exptd <- round(sum(dpois(x = 0, lambda = mu)))
+
+if(inherits(fit, "glm") && fit$family[[1]] == "binomial") exptd <- round(sum(dbinom(x = 0, size = sum(fit$model[1][1,]), prob = mu)))
+
+if(class(fit) %in% c("zeroinfl", "hurdle")) exptd <- round(sum(predict(fit, type = "prob")[,1]))
+
+obs <- sum(fit$y < 1)
+
+data.frame(obs.zeros = obs, pred.zeros = exptd)
+  
+ }
+
+output <- lapply(list(...), z)
+
+for(i in 1:length(m)) rownames(output[[i]]) <- m[i]
+
+return(output)
+}
+
+                       
+#===========================================================================================================================
+                       
+                       
+plot.c.fit <- function(..., main = TRUE, max = NULL, zero = FALSE){
   
   m <-list(...)
   L <- length(m)
   
+  graphics.off()
   org.par <- par(no.readonly = TRUE)
   on.exit(par(org.par))
   
   if(L > 1L) { par(mfrow = n2mfrow(L)) ; set.margin2() }
   lab <- as.character(substitute(...()))
   
-invisible(lapply(1:L, function(i) 
-  plot.c.model(m[[i]], width = 0, main = if(main) lab[i] else NA, max = max, scale = scale)))
+if(!zero) {
   
-}                       
+  invisible(lapply(1:L, function(i) 
+    plot.c.model(m[[i]], width = 0, main = if(main) lab[i] else NA, max = max, scale = "raw")))
+  }
+  else {
+    
+    zs <- zero.count(...)
+    
+    for(i in 1:L){
+      z <- as.numeric(zs[[i]])
+      r <- range(z)
+      plot(0:1, z, type = "h", lend = 1, lwd = 8, col = c(2, 4), xaxt = "n", xlab = "Zero Outcome", ylab = "Frequency", xlim = c(-1.5, 2.5), ylim = c(r[1], r[2]*1.1) )
+      axis(1, at = 0:1, labels = c("Obs.0s", "Pred.0s"), font = 2, mgp = c(2, .3, 0))
+      text(0:1, z, z, col = c(2, 4), pos = 3, xpd = NA)
+    }
+  }
+}                      
                        
 #===========================================================================================================================
                      
-need <- c("rstanarm")  #, "arrangements", "gsl")
+need <- c("rstanarm", "pscl")  #, "arrangements", "gsl")
 have <- need %in% rownames(installed.packages())
 if(any(!have)){ install.packages( need[!have] ) }
  
 options(warn = -1)
 suppressMessages({ 
     library("rstanarm")
-   # library("arrangements")
-   # library("gsl")
+    library("pscl")
+  # library("arrangements")
+  # library("gsl")
 })
                      
