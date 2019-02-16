@@ -7400,7 +7400,7 @@ fitdistr <- function (x, densfun, start, ...)
 
 #===========================================================================================================================
                            
-plot.c.model <- function(object, max = max(object$model[,1]), ...) {
+plot.c.model <- function(object, max = max(object$model[,1]), scale = "raw", ...) {
   UseMethod("rootogram")
 }
 
