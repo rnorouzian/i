@@ -7117,7 +7117,7 @@ at.set <- function(x, y, axis.tol, simplify = TRUE){
 
 set.margin2 <- function() 
 {
-    par(mgp = c(1.5, 0.5, 0), mar = c(2.5, 2.5, 2, 1) + 0.1, 
+    par(mgp = c(1.5, 0.5, 0), mar = c(2.5, 2.5, 2, 1) + .1, 
         tck = -0.02)
   }
 
@@ -7216,7 +7216,7 @@ is.false <- function(x) identical(FALSE, x)
 
 #===========================================================================================================================
                            
-fitdistr <- function (x, densfun, start, ...) 
+test.dist <- fitdistr <- function (x, densfun, start, ...) 
 {
   myfn <- function(parm, ...) -sum(log(dens(parm, ...)))
   mylogfn <- function(parm, ...) -sum(dens(parm, ..., log = TRUE))
