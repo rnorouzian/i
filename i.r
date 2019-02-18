@@ -7516,6 +7516,7 @@ plot.rootogram <- function(x,
     abline(h = 0, col = border, lty = 3)
     lines(d$x, d$line,
           col = col, pch = pch, type = type, lty = lty, lwd = lwd)
+    legend("topright", c("Model", "Data"), pch = c(19, NA), lwd = 2, col = c(col, 1), bty = "n")
   }
   
   ## draw plots
