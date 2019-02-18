@@ -5865,7 +5865,7 @@ players <- function(Step = 16, n.Players = 16, n.Steps = 16, step.size = .5, adj
     x.DENS = DENS$x
     y.DENS = DENS$y
 
-    plot( DENS, col = 'red', lwd = 3, xaxt = "n", xlab = "Distance Travelled",
+    plot( DENS, col = 'red', lwd = 3, xaxt = "n", xlab = "Positions",
          ylab = "Probability", font.axis = 2, font.lab = 2, xlim = c(-6, 6), main = NA, bty = 'n',
          zero.line = F)
 
