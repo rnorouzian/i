@@ -2501,30 +2501,30 @@ round(data.frame(mode = mode, mean = mean, sd = sd, mad = mad, lower = I[,1], up
 #=======================================================================
                          
                        
-#lm.sample2 <- function(fit, n = 1e4, no.names = TRUE)
-#{
-#  UseMethod("lm.sample2")
-#}                       
+lm.sample2 <- function(fit, n = 1e4, no.names = TRUE)
+{
+  UseMethod("lm.sample2")
+}                       
                 
                        
-#lm.sample2.default <- function(fit, n = 1e4, no.names = TRUE){
+lm.sample2.default <- function(fit, n = 1e4, no.names = TRUE){
  
-#if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")
+if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")
     
-#  output <- as.data.frame(MASS::mvrnorm(n = n, mu = c(coef(fit), sigma(fit)), Sigma = cov(as.matrix(fit))))
+  output <- as.data.frame(rmvnorm(n = n, mu = c(coef(fit), sigma(fit)), Sigma = cov(as.matrix(fit))))
   
-#  if(no.names == TRUE){
-#    for(i in 1:ncol(output)){
-#     if(colnames(output)[i] == "(Intercept)"){
-#        colnames(output)[i] <- "Intercept"
-#      }
-#      if(colnames(output)[i] == paste0("V", ncol(output))){
-#        colnames(output)[i] <- "Sigma"
-#      }
-#    }
-#  }
-#  output
-# }
+  if(no.names){
+    for(i in 1:ncol(output)){
+     if(colnames(output)[i] == "(Intercept)"){
+        colnames(output)[i] <- "Intercept"
+      }
+      if(colnames(output)[i] == paste0("V", ncol(output))){
+        colnames(output)[i] <- "Sigma"
+      }
+    }
+  }
+output
+}
                      
                        
 #======================================================================================
@@ -2542,7 +2542,7 @@ if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm
     
   output <- as.data.frame(fit)
   
-  if(no.names == TRUE){
+  if(no.names){
     for(i in 1:ncol(output)){
       if(colnames(output)[i] == "(Intercept)"){
         colnames(output)[i] <- "Intercept"
