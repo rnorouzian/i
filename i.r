@@ -7910,10 +7910,10 @@ plot.c.fit <- function(..., main = TRUE, max = NULL, zero = FALSE){
   if(L > 1L) { par(mfrow = n2mfrow(L)) ; set.margin2() }
   lab <- as.character(substitute(...()))
   
-if(!zero) {
-  
+  if(!zero) {
+    
   invisible(lapply(1:L, function(i) 
-    plot.c.model(m[[i]], width = 0, main = if(main) lab[i] else NA, max = max, scale = "raw")))
+      plot.c.model(m[[i]], width = 0, main = if(main) lab[i] else NA, max = max, scale = "raw", type = "b")) )
   }
   else {
     
@@ -7927,7 +7927,8 @@ if(!zero) {
       text(0:1, z, z, col = c(2, 4), pos = 3, xpd = NA)
     }
   }
-}                      
+}
+                      
 
 #===========================================================================================================================
                  
