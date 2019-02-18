@@ -7182,7 +7182,7 @@ compare.model <- function(..., digits = 1e2){
   
   L <- list(...)
   if(length(L) < 2) stop("You need to have a least '2' fitted models for a comparison.", call. = FALSE)
-  names(L) <- sapply(substitute(list(...))[-1], deparse)
+  names(L) <- substitute(...())
   combs <- t(combn(x = names(L), m = 2))
   
   p.value <- round(apply(combs, 1, function(i) pchisq(2 * abs(logLik(L[[i[2]]]) - logLik(L[[i[1]]])), df = abs(L[[i[1]]]$df.residual - L[[i[2]]]$df.residual), lower.tail = FALSE)), digits)
