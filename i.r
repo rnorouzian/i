@@ -7513,7 +7513,7 @@ plot.rootogram <- function(x,
       axis(2)
     }
     rect(xleft, ybottom, xright, ytop, border = border, col = fill)
-    abline(h = 0, col = border)
+    abline(h = 0, col = border, lty = 3)
     lines(d$x, d$line,
           col = col, pch = pch, type = type, lty = lty, lwd = lwd)
   }
