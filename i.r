@@ -2511,7 +2511,7 @@ lm.sample2.default <- function(fit, n = 1e4, no.names = TRUE){
  
 if(class(fit)[1] != "stanreg") stop("Error: 'fit' must be from package 'rstanarm's 'stan_glm()'.")
     
-  output <- as.data.frame(rmvnorm(n = n, mu = c(coef(fit), sigma(fit)), Sigma = cov(as.matrix(fit))))
+  output <- as.data.frame(rmvnorm(n = n, mean = c(coef(fit), sigma(fit)), sigma = cov(as.matrix(fit))))
   
   if(no.names){
     for(i in 1:ncol(output)){
