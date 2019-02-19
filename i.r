@@ -7902,10 +7902,10 @@ zero.count <- function(...){
   
   z <- function(fit){
     
-  z <-  plot.c.model(fit, plot = FALSE)[c("observed", "expected")]
+    z <-  plot.c.model(fit, plot = FALSE)
     
-    obs <- sum(z$observed < 1)
-    exptd <- sum(z$expected < 1)
+    obs <- z$observed[z$x == 0]
+    exptd <- round(z$expected[z$x == 0])
     
     data.frame(obs.zeros = obs, pred.zeros = exptd)
     
@@ -7916,7 +7916,7 @@ zero.count <- function(...){
   for(i in 1:length(m)) rownames(output[[i]]) <- m[i]
   
   return(output)
-}                       
+}                         
                        
                        
 #===========================================================================================================================
