@@ -7867,7 +7867,7 @@ rootogram.gam <- function(object, newdata = NULL, breaks = NULL,
  
 #===========================================================================================================================
                        
-zero.count <- function(...){
+zzz <- function(...){
 
 m <- as.character(substitute(...()))   
   
@@ -7894,6 +7894,30 @@ for(i in 1:length(m)) rownames(output[[i]]) <- m[i]
 return(output)
 }
 
+#===========================================================================================================================
+                       
+zero.count <- function(...){
+  
+  m <- as.character(substitute(...()))   
+  
+  z <- function(fit){
+    
+  z <-  plot.c.model(fit, plot = FALSE)[c("observed", "expected")]
+    
+    obs <- sum(z$observed < 1)
+    exptd <- sum(z$expected < 1)
+    
+    data.frame(obs.zeros = obs, pred.zeros = exptd)
+    
+  }
+  
+  output <- lapply(list(...), z)
+  
+  for(i in 1:length(m)) rownames(output[[i]]) <- m[i]
+  
+  return(output)
+}                       
+                       
                        
 #===========================================================================================================================
                        
