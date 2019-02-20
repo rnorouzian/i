@@ -7922,7 +7922,7 @@ zero.count <- function(...){
 #===========================================================================================================================
                        
                        
-plot.c.fit <- function(..., main = TRUE, max = NULL, zero = FALSE){
+plot.c.fit <- function(..., main = TRUE, max = NULL, zero = FALSE, scale = "raw"){
   
   m <-list(...)
   L <- length(m)
@@ -7936,8 +7936,8 @@ plot.c.fit <- function(..., main = TRUE, max = NULL, zero = FALSE){
   
   if(!zero) {
     
-  invisible(lapply(1:L, function(i) 
-      plot.c.model(m[[i]], width = 0, main = if(main) lab[i] else NA, max = max, scale = "raw", type = "b")) )
+    invisible(lapply(1:L, function(i) 
+      plot.c.model(m[[i]], width = 0, main = if(main) lab[i] else NA, max = max, scale = scale, type = "b")) )
   }
   else {
     
