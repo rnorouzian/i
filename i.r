@@ -3751,13 +3751,13 @@ dens.plot.default <- function(x, adjust = 1, na.rm = TRUE, n = 1e3, from = min(x
 #===================================================================================================================
                 
                 
-count.plot <- function(x, freq = FALSE, type = "h", lwd = 2, lend = 1, xlab = "Trials", ylab = NA, xaxt = "s", add = FALSE, ...)
+count.plot <- function(x, freq = FALSE, type = "h", lwd = 2, lend = 2, xlab = "Trials", ylab = NA, xaxt = "s", add = FALSE, ...)
 {
   UseMethod("count.plot")
 }
 
 
-count.plot.default <- function(x, freq = FALSE, type = "h", lwd = 2, lend = 1, xlab = "Outcomes", ylab = NA, xaxt = "s", add = FALSE, ...)
+count.plot.default <- function(x, freq = FALSE, type = "h", lwd = 2, lend = 2, xlab = "Outcomes", ylab = NA, xaxt = "s", add = FALSE, ...)
 {  
   x <- sapply(x, round)
   ylab <- if(is.na(ylab) & freq) "Frequency" else if(is.na(ylab) & !freq) "Probability" else ylab
@@ -6867,7 +6867,7 @@ random.block <- Vectorize(function(N, n.groups, keep = FALSE){
 #===========================================================================================================================
              
 
-plot.pr <- function(fun = dbinom(0:5, 5, .1), type = "h", lwd = 2, lend = 1, xlab = "Outcomes", ylab = "Probability", xaxt = "s", add = FALSE, ...)
+plot.pr <- function(fun = dbinom(0:5, 5, .1), type = "h", lwd = 2, lend = 2, xlab = "Outcomes", ylab = "Probability", xaxt = "s", add = FALSE, ...)
 {
   x <- match.call()$fun
   if(class(x) == "call") x <- as.numeric(as.character(x[[2]])) else stop("Use an appropriate R function for count probability distributions.", call. = FALSE)
@@ -6995,7 +6995,7 @@ if(hdi){
 
 #===========================================================================================================================
        
-plot.count <- function(..., freq = FALSE, type = "h", lwd = 2, lend = 1, col = NA, col.adj = 1, xlab = "Outcomes", ylab = NA, xaxt = "s", labels = NA, cex.lab = .8, yaxt = "s", xaxs = "r", yaxs = "r", x.same = FALSE, y.same = FALSE, digits = 1e2){
+plot.count <- function(..., freq = FALSE, type = "h", lwd = 2, lend = 2, col = NA, col.adj = 1, xlab = "Outcomes", ylab = NA, xaxt = "s", labels = NA, cex.lab = .8, yaxt = "s", xaxs = "r", yaxs = "r", x.same = FALSE, y.same = FALSE, digits = 1e2){
   
   L <- if(all(sapply(list(...), inherits, "data.frame"))) as.list(...) else list(...)
   m <- if(all(sapply(list(...), inherits, "data.frame"))) names(L) else substitute(...())
@@ -7114,7 +7114,7 @@ set.margin2 <- function()
 
 #===========================================================================================================================
               
-plot.prob <- function(..., type = "h", lwd = 2, lend = 1, xlab = "Outcomes", ylab = "Probability", xaxt = "s", col = NA, col.adj = 1, labels = NA, cex.lab = .8, yaxt = "s", xaxs = "r", yaxs = "r", x.same = FALSE, y.same = FALSE, digits = 1e2){
+plot.prob <- function(..., type = "h", lwd = 2, lend = 2, xlab = "Outcomes", ylab = "Probability", xaxt = "s", col = NA, col.adj = 1, labels = NA, cex.lab = .8, yaxt = "s", xaxs = "r", yaxs = "r", x.same = FALSE, y.same = FALSE, digits = 1e2){
   
   x <- match.call()[-1]
   y <- lapply(x, eval)
