@@ -7017,7 +7017,7 @@ plot.count <- function(..., freq = FALSE, type = "h", lwd = 2, lend = 2, col = N
   
   for(i in 1:h){
     
-    plot(x[[i]], y[[i]], type = type, lend = 1, xlab = xlab, lwd = lwd, ylab = ylab, col = if(is.na(col)) adjustcolor(i, col.adj) else adjustcolor(col[i], col.adj), ylim = ylim, xlim = xlim, xaxt = "n", yaxt = "n", xaxs = xaxs, yaxs = yaxs)
+    plot(x[[i]], y[[i]], type = type, lend = lend, xlab = xlab, lwd = lwd, ylab = ylab, col = if(is.na(col)) adjustcolor(i, col.adj) else adjustcolor(col[i], col.adj), ylim = ylim, xlim = xlim, xaxt = "n", yaxt = "n", xaxs = xaxs, yaxs = yaxs)
     
     mtext(if(is.na(labels)) m[[i]] else labels[i], cex = cex.lab, font = 2, col = if(is.na(col)) i else col[i], xpd = NA)
     
