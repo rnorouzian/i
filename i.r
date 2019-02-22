@@ -7952,7 +7952,18 @@ normalize <- function(x)
   x <- x - min(x)
   x/max(x)
 }                 
- 
+
+                   
+#===========================================================================================================================
+                   
+                   
+dens2freq <- function(dens.obj, n, support){
+  
+  if(class(dens.obj)[1] != "density") stop("'dens.obj' must be a 'density' object.", call. = FALSE)
+  approx(dens.obj$x, dens.obj$y * n, xout = support)
+}                   
+                   
+                   
 #===========================================================================================================================
                                         
 need <- c("rstanarm", "pscl", "glmmTMB")  #, "arrangements")
