@@ -7957,11 +7957,19 @@ normalize <- function(x)
 #===========================================================================================================================
                    
                    
-dens2freq <- function(dens.obj, n, support){
+dens2freq <- function(dens.obj){
   
   if(class(dens.obj)[1] != "density") stop("'dens.obj' must be a 'density' object.", call. = FALSE)
-  approx(dens.obj$x, dens.obj$y * n, xout = support)
-}                   
+  
+  count <- eval(parse(text = as.character(dens.obj$call[2])))
+  
+  if(!(all(is.whole(count)))) { message("warning: Non-integer (i.e., count) vector detected."); count <- round(count)}
+  
+  xout <- as.numeric(names(table(count)))
+  
+  approx(dens.obj$x, dens.obj$y * length(count), xout = xout)
+
+}                  
                    
                    
 #===========================================================================================================================
