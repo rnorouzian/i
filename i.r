@@ -4340,8 +4340,7 @@ plan.t.tests.default <- function(d = .1, sig.level = .05, power = .8, base.rate 
   
   ylim <- if(is.infinite(ylimb[2]) & is.null(ylim)) NULL else if(is.null(ylim)) ylimb else ylim
   
-  par(mfrow = c(2, 1)) #, mgp = c(2.5, .5, 0), mar = c(4, 4, 2, 2))
-  set.margin2()
+  par(mfrow = c(2, 1), mgp = c(2, .5, 0), mar = c(4, 4, 2, 2), tck = -.02)
       
   h0 <- curve(dcohen(x, 0, n1, n2), from, to, n = 1e4, xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i", ylim = ylim, font.lab = 2)
   
@@ -4501,8 +4500,7 @@ plan.f.tests.default <- function(pov, n.level, design, sig.level = .05, n.pred =
   
   est.power <- ppeta(a, df1, df2, peta, N, lower.tail = FALSE)
   
-  par(mfrow = c(2, 1)) #, mgp = c(2.5, .5, 0), mar = c(4, 4, 2, 2))
-  set.margin2()
+par(mfrow = c(2, 1), mgp = c(2, .5, 0), mar = c(4, 4, 2, 2), tck = -.02)
     
   h0 <- curve(dpeta(x, df1, df2, 0, N), from = 0, to = to, n = 1e4, xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i", ylim = ylim, font.lab = 2)
   
