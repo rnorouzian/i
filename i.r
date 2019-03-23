@@ -7971,6 +7971,17 @@ dens2freq <- function(dens.obj){
 
 }                  
                    
+#===========================================================================================================================
+                   
+                   
+ get.f.ci <- Vectorize(function(pov, N, design = 2 * 2, n.level = 2, n.pred = NULL, n.covar = 0, conf.level = .95){
+  
+  round(uniroot(function(x){
+    N - plan.f.ci(pov = pov, width = x, design = design, n.level = n.level, n.pred = n.pred, n.covar = n.covar, conf.level = conf.level)$to
+  }, c(.1, .35), extendInt = "yes")[[1]], 3)
+  
+})  
+                
                    
 #===========================================================================================================================
                                         
