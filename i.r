@@ -325,7 +325,7 @@ d.cic <- function(d, n1, n2 = NA, conf.level = .95, digits = 1e2){
     }
     
     CI <- sapply(c(alpha, 1-alpha),
-          function(x) uniroot(f, interval = c(-d+1e7, d+1e7), alpha = x, extendInt = "yes")[[1]])
+          function(x) uniroot(f, interval = c(-1e7, 1e7), alpha = x, extendInt = "yes")[[1]])
     
     return(c(Cohen.d = d, lower = CI[1], upper = CI[2], conf.level = conf.level))
   })
