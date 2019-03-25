@@ -299,7 +299,7 @@ d.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 1e2)
     }
     
     CI <- sapply(c(alpha, 1-alpha),
-          function(x) uniroot(f, interval = c(-q+1e7, q+1e7), alpha = x, q = q, df = df, extendInt = "yes")[[1]]*d.SE)
+          function(x) uniroot(f, interval = c(-1e7, 1e7), alpha = x, q = q, df = df, extendInt = "yes")[[1]]*d.SE)
     
     Cohen.d = ifelse(is.na(t), d, t*d.SE)
     
