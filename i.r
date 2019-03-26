@@ -7841,7 +7841,7 @@ CI.d <- function(d, n1, n2 = NA, conf.level = .95){
   U <- curve( dcohen(x, CI[2], n1, n2), n = 5e2, col = 2, add = TRUE, lwd = 2, xpd = TRUE)
   lines(CI, c(0, 0), lend = 1, lwd = 4) 
   abline(v = c(CI[1], CI[2], d), col = c(4, 2, 1), lty = 2 ) ; points(d, 0, pch = 21, bg = "cyan", col = "magenta", cex = 2)
-  text(CI, c(max(L$y)/2, max(U$y)/2), round(CI, 2) , srt = 90, pos = 3, col = c(4, 2), font = 2)
+  text(CI, c(max(L$y)/2, max(U$y)/2), round(CI, 3) , srt = 90, pos = 3, col = c(4, 2), font = 2)
   
 }
 
@@ -7861,7 +7861,7 @@ CI.peta <- function(peta, df1, df2, N, conf.level = .95){
   U <- curve( dpeta(x, df1, df2, CI[2], N), n = 5e2, col = 2, add = TRUE, lwd = 2, xpd = TRUE)
   lines(CI, c(0, 0), lend = 1, lwd = 4) 
   abline(v = c(CI[1], CI[2], peta), col = c(4, 2, 1), lty = 2 ); points(peta, 0, pch = 21, bg = "cyan", col = "magenta", cex = 2)
-  text(CI, c(max(L$y)/2, max(U$y)/2), round(CI, 2) , srt = 90, pos = 3, col = c(4, 2), font = 2)
+  text(CI, c(max(L$y)/2, max(U$y)/2), round(CI, 3) , srt = 90, pos = 3, col = c(4, 2), font = 2)
   
 }
 
@@ -7884,7 +7884,7 @@ CI.R2 <- function(R2, n.pred, N, conf.level = .95){
   U <- curve( dpeta(x, df1, df2, CI[2], N), n = 5e2, col = 2, add = TRUE, lwd = 2, xpd = TRUE)
   lines(CI, c(0, 0), lend = 1, lwd = 4)
   abline(v = c(CI[1], CI[2], R2), col = c(4, 2, 1), lty = 2 ) ; points(R2, 0, pch = 21, bg = "cyan", col = "magenta", cex = 2)
-  text(CI, c(max(L$y)/2, max(U$y)/2), round(CI, 2) , srt = 90, pos = 3, col = c(4, 2), font = 2)
+  text(CI, c(max(L$y)/2, max(U$y)/2), round(CI, 3) , srt = 90, pos = 3, col = c(4, 2), font = 2)
 }                   
                    
 
