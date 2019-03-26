@@ -7848,7 +7848,7 @@ CI.d <- function(d, n1, n2 = NA, conf.level = .95){
   min.d <- min(qcohen(1e-4, CI[1], n1, n2), qcohen(1e-4, CI[2], n1, n2 ))
   max.d <- max(qcohen(.9999, CI[1], n1, n2), qcohen(.9999, CI[2], n1, n2))
   
-  ylim <- c(0, max(dcohen(seq(min.d, max.d, l = 2e2), CI[1], n1, n2), dcohen(seq(min.d, max.d, l = 2e2), CI[2], n1, n2)))
+  ylim <- c(0, max(dcohen(seq(min.d, max.d, l = 5e2), CI[1], n1, n2), dcohen(seq(min.d, max.d, l = 5e2), CI[2], n1, n2), na.rm = TRUE))
   
   L <- curve( dcohen(x, CI[1], n1, n2), min.d, max.d, n = 5e2, col = 4, lwd = 2, xpd = TRUE, ylab = "Density", xlab = "Cohen's d", font.lab = 2, mgp = c(1.5, .5, 0), ylim = ylim)
   U <- curve( dcohen(x, CI[2], n1, n2), n = 5e2, col = 2, add = TRUE, lwd = 2, xpd = TRUE)
@@ -7868,7 +7868,7 @@ CI.peta <- function(peta, df1, df2, N, conf.level = .95){
   min.p <- min(qpeta(1e-5, df1, df2, CI[1], N), qpeta(1e-5, df1, df2, CI[2], N))
   max.p <- max(qpeta(.99999, df1, df2, CI[1], N), qpeta(.99999, df1, df2, CI[2], N))
   
-  ylim <- c(0, max(dpeta(seq(0, 1, l = 2e2), df1, df2, CI[1], N), dpeta(seq(0, 1, l = 2e2), df1, df2, CI[2], N)))
+  ylim <- c(0, max(dpeta(seq(0, 1, l = 5e2), df1, df2, CI[1], N), dpeta(seq(0, 1, l = 5e2), df1, df2, CI[2], N), na.rm = TRUE))
   
   L <- curve( dpeta(x, df1, df2, CI[1], N), min.p, max.p, n = 5e2, col = 4, lwd = 2, xpd = TRUE, ylab = "Density", xlab = bquote(eta[p]^2), font.lab = 2, mgp = c(1.75, .5, 0), ylim = ylim)
   U <- curve( dpeta(x, df1, df2, CI[2], N), n = 5e2, col = 2, add = TRUE, lwd = 2, xpd = TRUE)
@@ -7891,7 +7891,7 @@ CI.R2 <- function(R2, n.pred, N, conf.level = .95){
   min.r <- min(qpeta(1e-5, df1, df2, CI[1], N), qpeta(1e-5, df1, df2, CI[2], N))
   max.r <- max(qpeta(.99999, df1, df2, CI[1], N), qpeta(.99999, df1, df2, CI[2], N))
   
-  ylim <- c(0, max(dpeta(seq(0, 1, l = 1e2), df1, df2, CI[1], N), dpeta(seq(0, 1, l = 1e2), df1, df2, CI[2], N)))
+  ylim <- c(0, max(dpeta(seq(0, 1, l = 5e2), df1, df2, CI[1], N), dpeta(seq(0, 1, l = 5e2), df1, df2, CI[2], N), na.rm = TRUE))
   
   L <- curve( dpeta(x, df1, df2, CI[1], N), min.r, max.r, n = 5e2, col = 4, lwd = 2, xpd = TRUE, ylab = "Density", xlab = bquote(R^2), font.lab = 2, mgp = c(1.75, .5, 0), ylim = ylim)
   U <- curve( dpeta(x, df1, df2, CI[2], N), n = 5e2, col = 2, add = TRUE, lwd = 2, xpd = TRUE)
