@@ -7991,7 +7991,7 @@ CI.d <- function(d, n1, n2 = NA, conf.level = .95){
   min.d <- min(qcohen(1e-4, CI[1], n1, n2), qcohen(1e-4, CI[2], n1, n2 ))
   max.d <- max(qcohen(.9999, CI[1], n1, n2), qcohen(.9999, CI[2], n1, n2))
   
-  ylim <- c(0, max(dcohen(seq(min.d, max.d, l = 1e3), CI[1], n1, n2), dcohen(seq(min.d, max.d, l = 1e3), CI[2], n1, n2)))
+  ylim <- c(0, max(dcohen(seq(min.d, max.d, l = 2e2), CI[1], n1, n2), dcohen(seq(min.d, max.d, l = 2e2), CI[2], n1, n2)))
   
   L <- curve( dcohen(x, CI[1], n1, n2), min.d, max.d, n = 1e4, col = 4, lwd = 2, xpd = TRUE, ylab = "Density", xlab = "Cohen's d", font.lab = 2, mgp = c(1.5, .5, 0), ylim = ylim)
   U <- curve( dcohen(x, CI[2], n1, n2), n = 1e4, col = 2, add = TRUE, lwd = 2, xpd = TRUE)
