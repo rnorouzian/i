@@ -7828,7 +7828,18 @@ dens2freq <- function(dens.obj){
                 
 #===========================================================================================================================
                    
-                   
+get.t.ci <- Vectorize(function(d, n1, n2 = NA, conf.level = .95){
+   
+k <- if(!is.na(n2)) max(n1, n2) / min(n1, n2) else 1
+  
+round(uniroot(function(x){
+  n1 - as.numeric(plan.t.ci(d = d, conf.level = conf.level, width = x, paired = if(is.na(n2)) T else F, base.rate = k)$n1)
+  }, c(1e-2, 1), extendInt = "yes")[[1]], 3)
+  
+})     
+      
+#===========================================================================================================================      
+      
 CI.d <- function(d, n1, n2 = NA, conf.level = .95){
   
   CI <- as.numeric(d.ci(d = d, n1 = n1, n2 = n2, conf.level = conf.level)[2:3])
