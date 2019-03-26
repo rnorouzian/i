@@ -7982,6 +7982,67 @@ dens2freq <- function(dens.obj){
   
 })  
                 
+#===========================================================================================================================
+                   
+                   
+CI.d <- function(d, n1, n2 = NA, conf.level = .95){
+  
+  CI <- as.numeric(d.ci(d = d, n1 = n1, n2 = n2, conf.level = conf.level)[2:3])
+  min.d <- min(qcohen(1e-4, CI[1], n1, n2), qcohen(1e-4, CI[2], n1, n2 ))
+  max.d <- max(qcohen(.9999, CI[1], n1, n2), qcohen(.9999, CI[2], n1, n2))
+  
+  ylim <- c(0, max(dcohen(seq(min.d, max.d, l = 1e3), CI[1], n1, n2), dcohen(seq(min.d, max.d, l = 1e3), CI[2], n1, n2)))
+  
+  L <- curve( dcohen(x, CI[1], n1, n2), min.d, max.d, n = 1e4, col = 4, lwd = 2, xpd = TRUE, ylab = "Density", xlab = "Cohen's d", font.lab = 2, mgp = c(1.5, .5, 0), ylim = ylim)
+  U <- curve( dcohen(x, CI[2], n1, n2), n = 1e4, col = 2, add = TRUE, lwd = 2, xpd = TRUE)
+  lines(CI, c(0, 0), lend = 1, lwd = 4) 
+  abline(v = c(CI[1], CI[2], d), col = c(4, 2, 1), lty = 2 ) ; points(d, 0, pch = 21, bg = "cyan", col = "magenta", cex = 1.7)
+  text(CI, c(max(L$y)/2, max(U$y)/2), round(CI, 2) , srt = 90, pos = 3, col = c(4, 2))
+  
+}
+
+
+#===========================================================================================================================
+                   
+                   
+CI.peta <- function(peta, df1, df2, N, conf.level = .95){
+  
+  CI <- as.numeric(peta.ci(peta = peta, df1 = df1, df2 = df2, N = N, conf.level = conf.level)[2:3])
+  min.p <- min(qpeta(1e-5, df1, df2, CI[1], N), qpeta(1e-5, df1, df2, CI[2], N))
+  max.p <- max(qpeta(.99999, df1, df2, CI[1], N), qpeta(.99999, df1, df2, CI[2], N))
+  
+  ylim <- c(0, max(dpeta(seq(0, 1, l = 2e2), df1, df2, CI[1], N), dpeta(seq(0, 1, l = 2e2), df1, df2, CI[2], N)))
+  
+  L <- curve( dpeta(x, df1, df2, CI[1], N), min.p, max.p, n = 1e4, col = 4, lwd = 2, xpd = TRUE, ylab = "Density", xlab = bquote(eta[p]^2), font.lab = 2, mgp = c(1.75, .5, 0), ylim = ylim)
+  U <- curve( dpeta(x, df1, df2, CI[2], N), n = 1e4, col = 2, add = TRUE, lwd = 2, xpd = TRUE)
+  lines(CI, c(0, 0), lend = 1, lwd = 4) 
+  abline(v = c(CI[1], CI[2], peta), col = c(4, 2, 1), lty = 2 ); points(peta, 0, pch = 21, bg = "cyan", col = "magenta", cex = 1.7)
+  text(CI, c(max(L$y)/2, max(U$y)/2), round(CI, 2) , srt = 90, pos = 3, col = c(4, 2))
+  
+}
+
+
+#===========================================================================================================================
+                   
+                   
+CI.R2 <- function(R2, n.pred, N, conf.level = .95){
+  
+  CI <- as.numeric(R2.ci(R2 = R2, n.pred = n.pred, N = N, conf.level = conf.level)[2:3])
+  
+  df1 <- n.pred; df2 <- N - n.pred - 1
+  
+  min.r <- min(qpeta(1e-5, df1, df2, CI[1], N), qpeta(1e-5, df1, df2, CI[2], N))
+  max.r <- max(qpeta(.99999, df1, df2, CI[1], N), qpeta(.99999, df1, df2, CI[2], N))
+  
+  ylim <- c(0, max(dpeta(seq(0, 1, l = 2e2), df1, df2, CI[1], N), dpeta(seq(0, 1, l = 2e2), df1, df2, CI[2], N)))
+  
+  L <- curve( dpeta(x, df1, df2, CI[1], N), min.r, max.r, n = 1e4, col = 4, lwd = 2, xpd = TRUE, ylab = "Density", xlab = bquote(R^2), font.lab = 2, mgp = c(1.75, .5, 0), ylim = ylim)
+  U <- curve( dpeta(x, df1, df2, CI[2], N), n = 1e3, col = 2, add = TRUE, lwd = 2, xpd = TRUE)
+  lines(CI, c(0, 0), lend = 1, lwd = 4)
+  abline(v = c(CI[1], CI[2], R2), col = c(4, 2, 1), lty = 2 ) ; points(R2, 0, pch = 21, bg = "cyan", col = "magenta", cex = 1.7)
+  text(CI, c(max(L$y)/2, max(U$y)/2), round(CI, 2) , srt = 90, pos = 3, col = c(4, 2))
+}                   
+                   
                    
 #===========================================================================================================================
                                         
