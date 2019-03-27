@@ -7842,9 +7842,8 @@ round(uniroot(function(x){
       
 #===========================================================================================================================      
       
-CI.d <- function(d, n1, n2 = NA, conf.level = .95){
+CI.d <- function(d, n1, n2 = NA, conf.level = .95, CI){
   
-  CI <- as.numeric(d.ci(d = d, n1 = n1, n2 = n2, conf.level = conf.level)[2:3])
   min.d <- min(qcohen(1e-4, CI[1], n1, n2), qcohen(1e-4, CI[2], n1, n2 ))
   max.d <- max(qcohen(.9999, CI[1], n1, n2), qcohen(.9999, CI[2], n1, n2))
   
@@ -7862,9 +7861,8 @@ CI.d <- function(d, n1, n2 = NA, conf.level = .95){
 #===========================================================================================================================
                    
                    
-CI.peta <- function(peta, df1, df2, N, conf.level = .95){
+CI.peta <- function(peta, df1, df2, N, conf.level = .95, CI){
   
-  CI <- as.numeric(peta.ci(peta = peta, df1 = df1, df2 = df2, N = N, conf.level = conf.level)[2:3])
   min.p <- min(qpeta(1e-5, df1, df2, CI[1], N), qpeta(1e-5, df1, df2, CI[2], N))
   max.p <- max(qpeta(.99999, df1, df2, CI[1], N), qpeta(.99999, df1, df2, CI[2], N))
   
@@ -7882,11 +7880,7 @@ CI.peta <- function(peta, df1, df2, N, conf.level = .95){
 #===========================================================================================================================
                    
                    
-CI.R2 <- function(R2, n.pred, N, conf.level = .95){
-  
-  CI <- as.numeric(R2.ci(R2 = R2, n.pred = n.pred, N = N, conf.level = conf.level)[2:3])
-  
-  df1 <- n.pred; df2 <- N - n.pred - 1
+CI.R2 <- function(R2, df1, df2, N, conf.level = .95, CI){
   
   min.r <- min(qpeta(1e-5, df1, df2, CI[1], N), qpeta(1e-5, df1, df2, CI[2], N))
   max.r <- max(qpeta(.99999, df1, df2, CI[1], N), qpeta(.99999, df1, df2, CI[2], N))
@@ -7898,7 +7892,7 @@ CI.R2 <- function(R2, n.pred, N, conf.level = .95){
   lines(CI, c(0, 0), lend = 1, lwd = 4)
   abline(v = c(CI[1], CI[2], R2), col = c(4, 2, 1), lty = 2 ) ; points(R2, 0, pch = 21, bg = "cyan", col = "magenta", cex = 2)
   text(CI, c(max(L$y)/2, max(U$y)/2), round(CI, 3) , srt = 90, pos = 3, col = c(4, 2), font = 2)
-}                   
+}                       
                    
 
 #===========================================================================================================================
@@ -7925,11 +7919,11 @@ R2.ci <- function(R2, n.pred, N, f = NA, df1 = NA, df2 = NA, conf.level = .95, d
     on.exit(par(original.par))
     if(r > 1) { par(mfrow = n2mfrow(r)) ; set.margin2() }
     
-    I <- eq(a$R2, n.pred, N, conf.level)
+    I <- eq(a$R2, df1, df2, N, conf.level)
     
-    R2 <- I[[1]] ; n.pred <- I[[2]] ; N <- I[[3]] ; conf.level <- I[[4]]
+    R2 <- I[[1]] ; df1 <- I[[2]] ; df2 <- I[[3]]; N <- I[[4]] ; conf.level <- I[[5]]
     
-    for(i in 1:r) CI.R2(R2 = R2[i], n.pred = n.pred[i], N = N[i], conf.level = conf.level[i])
+    for(i in 1:r) CI.R2(R2 = R2[i], df1 = df1[i], df2 = df2[i], N = N[i], conf.level = conf.level[i], CI = c(a$lower[i], a$upper[i]))
     
   }
   
@@ -7985,7 +7979,7 @@ peta.ci.default <- function(peta, f = NA, df1, df2, N, conf.level = .95, digits 
    
    peta <- I[[1]] ; df1 <- I[[2]] ; df2 <- I[[3]]; N <- I[[4]] ; conf.level <- I[[5]]
    
-   for(i in 1:r) CI.peta(peta = peta[i], df1 = df1[i], df2 = df2[i], N = N[i], conf.level = conf.level[i])
+   for(i in 1:r) CI.peta(peta = peta[i], df1 = df1[i], df2 = df2[i], N = N[i], conf.level = conf.level[i], CI = c(a$lower[i], a$upper[i]))
    
  }
  
@@ -8040,7 +8034,7 @@ d.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 1e2,
     
     d <- I[[1]] ; n1 <- I[[2]] ; n2 <- I[[3]]; conf.level <- I[[4]]
     
-    for(i in 1:r) CI.d(d = d[i], n1 = n1[i], n2 = n2[i], conf.level = conf.level[i])
+    for(i in 1:r) CI.d(d = d[i], n1 = n1[i], n2 = n2[i], conf.level = conf.level[i], CI = c(a$lower[i], a$upper[i]))
     
   }
   
