@@ -7868,7 +7868,7 @@ CI.peta <- function(peta, df1, df2, N, conf.level = .95, CI){
   
   ylim <- c(0, max(dpeta(seq(0, 1, l = 5e2), df1, df2, CI[1], N), dpeta(seq(0, 1, l = 5e2), df1, df2, CI[2], N), na.rm = TRUE))
   
-  L <- curve( dpeta(x, df1, df2, CI[1], N), min.p, max.p, n = 5e2, col = 4, lwd = 2, xpd = TRUE, ylab = "Density", xlab = bquote(eta[p]^2), font.lab = 2, mgp = c(1.9, .5, 0), ylim = ylim)
+  L <- curve( dpeta(x, df1, df2, CI[1], N), min.p, max.p, n = 5e2, col = 4, lwd = 2, xpd = TRUE, ylab = "Density", xlab = bquote(eta[p]^2), font.lab = 2, mgp = c(1.8, .5, 0), ylim = ylim)
   U <- curve( dpeta(x, df1, df2, CI[2], N), n = 5e2, col = 2, add = TRUE, lwd = 2, xpd = TRUE)
   lines(CI, c(0, 0), lend = 1, lwd = 4) 
   abline(v = c(CI[1], CI[2], peta), col = c(4, 2, 1), lty = 2 ); points(peta, 0, pch = 21, bg = "cyan", col = "magenta", cex = 2)
