@@ -4924,7 +4924,7 @@ return(c(n1 = n1, n2 = n2))
              
 plan.t.cig <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = NA, base.rate = 1, paired = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", increase.by = "0%")
 {
-  UseMethod("plan.t.ci")
+  UseMethod("plan.t.cig")
 }
 
 
