@@ -5014,18 +5014,22 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.pred =
   if(regress) n.level <- n.pred
   if(!is.na(d)) { pov <- d2peta(d = d, n1 = 500, n2 = 500) ; n.level <- 2 ;
   message("\nNote: For 'pairwise' comparisons, 'total.N' is for '2' groups.") }
+  if(!is.na(d)) { pov <- d2peta(d = d, n1 = 500, n2 = 500) ; n.level <- 2 }
   if(!is.na(d) & is.na(width)) width <- d.width.meta(lower = lower, upper = upper)
   if(!is.na(d) & width >= .3) width <- .3
   if(!is.na(d) & pov <= .15) pov <- .15
   
   peta <- pov
   
-  fac <- if(increase.by != "0%" & reduce.by == "0%") { 1 + as.numeric(substr(increase.by, 1, nchar(increase.by)-1))/ 1e2 
-  } else if(reduce.by != "0%" & increase.by == "0%") { 1 - (as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2) 
+  inc <- if(is.character(increase.by)) as.numeric(substr(increase.by, 1, nchar(increase.by)-1))/ 1e2 else increase.by
+  red <- if(is.character(reduce.by)) as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2 else reduce.by
+  
+  fac <- if(inc != 0 & red == 0) { 1 + inc
+  } else if(red != 0 & inc == 0) { 1 - red 
   } else { 1 }
   
   
-  if(fac <= 0 || increase.by == "0%" & fac > 1) fac <- 1
+  if(fac <= 0 || inc == 0 & fac > 1) fac <- 1
   
   width <- width * fac
   
@@ -5060,7 +5064,8 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.pred =
       df2 <- uniroot(m, c(0, 1e3), width = width, extendInt = "yes")
       
       
-      if(round(df2$f.root, 3) != 0) stop("\n****************************\nImpossible planning: You may change your 'width' or 'lower' & 'upper' or 'tol'.\n****************************\n", call. = FALSE)
+      if(round(df2$f.root, 3) != 0) stop("\nImpossible planning: You may change your 'width'.", call. = FALSE)
+      
       
       df2 <- ceiling(df2[[1]])
       
@@ -5106,7 +5111,7 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.pred =
   names(a)[1] <- if(regress) "R2" else if(!is.na(d)) "d" else "peta"
   a[, 1] <- if(is.na(d)) pov else d
   a
-}                                                                                                                  
+}                                                                                  
                                                                                                                 
                                                                                                      
 #=====================================================================================================================================================
