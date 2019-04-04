@@ -5355,15 +5355,7 @@ d.width.meta <- Vectorize(function(lower, upper, n1 = 50, n2 = 50){
 #==========================================================================================================================================================================================================================                    
                     
 
-
-plan.f.ci <- function(pov, design = 2 * 2, n.level = 2, n.pred = NULL, n.covar = 0, conf.level = .95, width = NA, assure = .99, expect = FALSE, reduce.by = "0%", d = NA, lower, upper, increase.by = "0%", tol = 1e3)
-{
-  
-  UseMethod("plan.f.ci")
-  
-}
-
-plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.pred = NULL, n.covar = 0, conf.level = .95, width = NA, assure = .99, expect = FALSE, reduce.by = "0%", d = NA, lower, upper, increase.by = "0%", tol = 1e3){
+plan.f.cig <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.pred = NULL, n.covar = 0, conf.level = .95, width = NA, assure = .99, expect = FALSE, reduce.by = "0%", d = NA, lower, upper, increase.by = "0%", tol = 1e3){
   
   
   if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
