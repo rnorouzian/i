@@ -4922,13 +4922,13 @@ return(c(n1 = n1, n2 = n2))
                
 #=================================================================================================================
              
-plan.t.cig <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = NA, base.rate = 1, paired = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", increase.by = "0%")
+plan.t.ci <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = NA, base.rate = 1, paired = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", increase.by = "0%")
 {
-  UseMethod("plan.t.cig")
+  UseMethod("plan.t.ci")
 }
 
 
-plan.t.cig.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = NA, base.rate = 1, paired = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", increase.by = "0%"){
+plan.t.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = NA, base.rate = 1, paired = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", increase.by = "0%"){
   
   if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
   if(is.na(width) & missing(n1) || is.na(width) & is.na(t) & missing(d) || is.na(width) & !paired & missing(n2)) stop("Either provide 'width' or provide 't or d', 'n1' and/or 'n2' from prior study.", call. = FALSE)  
@@ -4936,12 +4936,15 @@ plan.t.cig.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width =
   if(is.na(width)) width <- d.width(d = d, t = t, n1 = n1, n2 = n2, conf.level = conf.level)
   if(expect) assure <- .5
   
-  fac <- if(increase.by != "0%" & reduce.by == "0%") { 1 + as.numeric(substr(increase.by, 1, nchar(increase.by)-1))/ 1e2 
-  } else if(reduce.by != "0%" & increase.by == "0%") { 1 - (as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2) 
+  inc <- if(is.character(increase.by)) as.numeric(substr(increase.by, 1, nchar(increase.by)-1))/ 1e2 else increase.by
+  red <- if(is.character(reduce.by)) as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2 else reduce.by
+  
+  fac <- if(inc != 0 & red == 0) { 1 + inc
+  } else if(red != 0 & inc == 0) { 1 - red 
   } else { 1 }
   
   
-  if(fac <= 0 || increase.by == "0%" & fac > 1) fac <- 1
+  if(fac <= 0 || inc == 0 & fac > 1) fac <- 1
   
   width <- width * fac
   
