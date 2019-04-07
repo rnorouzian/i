@@ -4,7 +4,7 @@ Break = "\n<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><
 notice = "   \"bayesL2\", a suite of R functions for Bayesian estimation in L2 research.
     Copyright (C) 2017-present  Reza Norouzian, rnorouzian@gmail.com
 
-    This program is free software: you can redistribute it under the 
+    This set of programs is free software: you can redistribute it under the 
     terms of the GNU General Public License as published by the Free 
     Software Foundation, either version 3 of the License, or any later 
     version.
