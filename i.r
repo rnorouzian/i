@@ -4961,7 +4961,7 @@ plan.t.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = 
       
       dbase <- function(df){
         sapply(c(alpha, 1 - alpha),
-               function(x) uniroot(f, c(-d+5e1, d+5e1), alpha = x, d = d, df = df, extendInt = "yes")[[1]]/sqrt(if(paired) df + 1 else ((k/(1 + k))^2)*(df + 2)))
+               function(x) uniroot(f, c(-5e1, 5e1), alpha = x, d = d, df = df, extendInt = "yes")[[1]]/sqrt(if(paired) df + 1 else ((k/(1 + k))^2)*(df + 2)))
       }
       
       m <- function(df, width){
@@ -4970,7 +4970,80 @@ plan.t.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = 
       
       df <- optimize(m, c(1, 1e7), width = width)
       
-      if(round(df$objective, 4) != 0) return(c(NaN, message("Warning: NaN produced. Are input values correct?")))
+      if(round(df$objective, 4) != 0) plan.t.ci <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = NA, base.rate = 1, paired = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", increase.by = "0%")
+{
+  UseMethod("plan.t.ci")
+}
+
+
+plan.t.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = NA, base.rate = 1, paired = FALSE, assure = .99, expect = FALSE, reduce.by = "0%", increase.by = "0%"){
+  
+  if(any(conf.level >= 1) || any(conf.level <= 0) || any(assure >= 1) || any(assure <= 0)) stop("'conf.level' and 'assure' must be between '0' and '1'.", call. = FALSE)
+  if(is.na(width) & missing(n1) || is.na(width) & is.na(t) & missing(d) || is.na(width) & !paired & missing(n2)) stop("Either provide 'width' or provide 't or d', 'n1' and/or 'n2' from prior study.", call. = FALSE)  
+  if(!is.na(t)) d <- t2d(t = t, n1 = n1, n2 = n2)
+  if(is.na(width)) width <- d.width(d = d, t = t, n1 = n1, n2 = n2, conf.level = conf.level)
+  if(expect) assure <- .5
+  
+  inc <- if(is.character(increase.by)) as.numeric(substr(increase.by, 1, nchar(increase.by)-1))/ 1e2 else increase.by
+  red <- if(is.character(reduce.by)) as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2 else reduce.by
+  
+  fac <- if(inc != 0 & red == 0) { 1 + inc
+  } else if(red != 0 & inc == 0) { 1 - red 
+  } else { 1 }
+  
+  
+  if(fac <= 0 || inc == 0 & fac > 1) fac <- 1
+  
+  width <- width * fac
+  
+  G <- Vectorize(function(d, conf.level, width, base.rate, paired, assure, expect){
+    
+    n.d <- function(d, conf.level, width, base.rate, paired, assure){
+      
+      alpha <- (1 - conf.level)/2
+      k <- base.rate 
+      
+      f <- function(ncp, alpha, d, df){
+        alpha - suppressWarnings(pt(d*sqrt(if(paired) df + 1 else ((k/(1 + k))^2)*(df + 2)), df, ncp, lower.tail = FALSE))
+      }
+      
+      dbase <- function(df){
+        sapply(c(alpha, 1 - alpha),
+               function(x) uniroot(f, c(-5e1, 5e1), alpha = x, d = d, df = df, extendInt = "yes")[[1]]/sqrt(if(paired) df + 1 else ((k/(1 + k))^2)*(df + 2)))
+      }
+      
+      m <- function(df, width){
+        abs(abs(diff(dbase(df))) - width)
+      }
+      
+      df <- optimize(m, c(1, 1e7), width = width)
+      
+      if(round(df$objective, 4) != 0) stop("Impossible planning: change input values.", call. = FALSE)
+      
+      n1 <- ceiling(if(paired) df[[1]] + 1 else (df[[1]] + 2)/(1 + k))
+      n2 <- if(paired) NA else round(k * n1)
+      
+      list(d = d, n1 = n1, n2 = n2, base.rate = base.rate, width = width, conf.level = conf.level, assure = assure, paired = paired)
+    }
+    
+    n <- n.d(d = d, conf.level = conf.level, width = width, paired = paired, base.rate = base.rate, assure = assure)
+    
+    a <- d.ci(d = d, n1 = n$n1, n2 = n$n2, conf.level = c(assure, 2*assure - 1))$upper
+    
+    dnew <- function(dnew = dnew, n1 = n$n1, n2 = n$n2, d = d, assure = assure){
+      total <- sum(pcohen(c(-dnew, dnew), d, n1 = n1, n2 = n2, lower.tail = c(TRUE, FALSE)))
+      return(abs(total - (1 - assure)))
+    }
+    
+    dnew <- optimize(dnew, a, d = d, assure = assure)[[1]]
+    n.d(d = dnew, conf.level = conf.level, width = width, paired = paired, base.rate = base.rate, assure = assure)
+  })
+  
+  if(paired) base.rate <- NA
+  a <- data.frame(t(G(d = d, conf.level = conf.level, width = width, paired = paired, base.rate = base.rate, assure = assure, expect = expect)), row.names = NULL)
+  a[,1] <- d
+  a                                                                                                          
+}
       
       n1 <- ceiling(if(paired) df[[1]] + 1 else (df[[1]] + 2)/(1 + k))
       n2 <- if(paired) NA else round(k * n1)
