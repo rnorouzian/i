@@ -8211,7 +8211,22 @@ d.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 1e2,
   
 }                               
                    
-                   
+
+#===========================================================================================================================
+                  
+                  
+dhnorm <- function(x, scale = 1, log = FALSE) 
+{
+  if(scale < 0) stop("'scale' must be larger than '0'.", call. = FALSE)
+  result <- rep(-Inf, length(x))
+  result[x >= 0] <- log(2) + dnorm(x[x >= 0], mean = 0, sd = scale, 
+                                   log = TRUE)
+  if(!log) 
+    result <- exp(result)
+  return(result)
+}                  
+                  
+                  
 #===========================================================================================================================
                                         
 need <- c("rstanarm", "pscl", "glmmTMB")  #, "arrangements")
