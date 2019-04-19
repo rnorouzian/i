@@ -8261,9 +8261,9 @@ as.numeric(crossprod(d, weight)) / sqrt(r*sum(weight)^2 + (1-r)*sum(weight^2))
                   
 cov.d <- function(d, n1, n2, r, no.names = FALSE){
   
-D <- diag(matrix(meta.se(d, n1, n2)))
+D <- diag(meta.se(d, n1, n2))
 
-m <- D*r*D
+m <- D%*%r%*%D
 if(!no.names) rownames(m) <- colnames(m) <- paste0("d", 1:length(d))
 
 return(m)
