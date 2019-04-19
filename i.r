@@ -8257,6 +8257,31 @@ as.numeric(crossprod(d, weight)) / sqrt(r*sum(weight)^2 + (1-r)*sum(weight^2))
 }                  
                   
 #===========================================================================================================================
+
+                  
+cov.d <- function(d, n1, n2, r, no.names = FALSE){
+  
+D <- diag(matrix(meta.se(d, n1, n2)))
+
+m <- D*r*D
+if(!no.names) rownames(m) <- colnames(m) <- paste0("d", 1:length(d))
+
+return(m)
+}
+
+
+#===========================================================================================================================
+
+
+autoreg.cov.d <- function(d, n1, n2, r = .5, no.names = FALSE){
+ 
+x <- diag(length(d)) 
+R <- r^abs(row(x)-col(x))
+
+cov.d(d, n1, n2, R, no.names)
+}
+                  
+#===========================================================================================================================
                                         
 need <- c("rstanarm", "pscl", "glmmTMB")  #, "arrangements")
 have <- need %in% rownames(installed.packages())
