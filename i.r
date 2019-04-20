@@ -8258,30 +8258,35 @@ as.numeric(crossprod(d, weight)) / sqrt(r*sum(weight)^2 + (1-r)*sum(weight^2))
                   
 #===========================================================================================================================
 
-cov.d <- function(d, n1, n2, r, no.names = FALSE, digits = 1e2){
+cov.d <- function(d, n1, n2, r.mat, no.names = FALSE, digits = 1e2){
+
+d <- as.vector(d)  
   
 D <- diag(meta.se(d, n1, n2))
 
-m <- D%*%r%*%D
+m <- D%*%r.mat%*%D
 if(!no.names) rownames(m) <- colnames(m) <- paste0("d", 1:length(d))
 
 return(round(m, digits))
 }
 
 
-#===========================================================================================================================
+#===============================================================================================
 
 
-autoreg.cov.d <- function(d, n1, n2, r = .5, no.names = FALSE, digits = 1e2){
- 
+autoreg.d <- function(d, n1, n2, r = .5, cov = FALSE, no.names = FALSE, digits = 1e2){
+
+d <- as.vector(d)  
 x <- diag(length(d)) 
-R <- r^abs(row(x)-col(x))
+R <- round(r^abs(row(x)-col(x)), digits)
 
-cov.d(d, n1, n2, R, no.names, digits)
-}                  
+covar <- cov.d(d, n1, n2, R, no.names, digits)
 
-                  
-#===========================================================================================================================
+if(cov) covar else R
+}
+
+
+#=========================================================================================================================
                   
 cor.mat <- function(r, dim) { 
   
@@ -8292,7 +8297,31 @@ m
 }
                   
 #===========================================================================================================================
-                                        
+   
+ave.dho <- function(d, n1, n2, r.mat, autoreg = FALSE){
+  
+  d <- as.vector(d)
+  
+  r <- if(length(r.mat) == 1 & !autoreg){ cor.mat(r.mat, length(d)) }
+  else if(length(r.mat) == 1 & autoreg) { autoreg.d(d, n1, n2, r = r.mat) } 
+  else if(length(r.mat) > 1 & all(dim(r.mat) == length(d))){ r.mat } 
+  else { stop("Incorrect 'r.mat' detected.", call. = FALSE) }
+  
+  d <- matrix(d)
+  
+  e <- matrix(rep(1, length(d)))
+  
+  S <- cov.d(d, n1, n2, r)
+  
+  w <- t((inv(S)%*%e) %*% inv((t(e)%*%inv(S)%*%e)))
+  rownames(w) <- "Ws:"
+  colnames(w) <- paste0("d", 1:dim(d)[1])
+  rownames(r) <- colnames(r) <- paste0("d", 1:dim(d)[1])
+  list(ave.d = as.vector(w%*%d), weights = w, cov.mat = S, r.mat = r)
+}
+                          
+#===========================================================================================================================
+                                     
 need <- c("rstanarm", "pscl", "glmmTMB")  #, "arrangements")
 have <- need %in% rownames(installed.packages())
 if(any(!have)){ install.packages( need[!have] ) }
