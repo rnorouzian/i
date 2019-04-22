@@ -8253,7 +8253,7 @@ meta.se <- function(d, n1, n2) sqrt( meta.var(d, n1, n2) )
                   
 #===========================================================================================================================                  
                   
-ave.drr <- function(d, r, weight){
+ave.drr <- function(d, r, weight = 1){
   
 p <- eq(d, weight)
 d <- p[[1]] ; weight <- p[[2]]
