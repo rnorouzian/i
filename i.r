@@ -8283,7 +8283,8 @@ cov.d <- function(d, n1, n2, r.mat, no.names = FALSE, digits = 1e2){
 
 autoreg.d <- function(d, n1, n2, r = .5, cov = FALSE, no.names = FALSE, digits = 1e2){
 
-d <- as.vector(d)  
+d <- as.vector(d)
+r <- as.vector(r)[1]     
 x <- diag(length(d)) 
 R <- round(r^abs(row(x)-col(x)), digits)
 
