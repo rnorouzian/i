@@ -8305,26 +8305,37 @@ m
                   
 #===========================================================================================================================
    
-ave.dho <- function(d, n1, n2, r.mat, autoreg = FALSE){
+ave.dho <- function(d, n1, n2, r.mat, autoreg = FALSE, alpha = .05){
   
   d <- as.vector(d)
   
-  r <- if(length(r.mat) == 1 & !autoreg){ cor.mat(r.mat, length(d)) }
-  else if(length(r.mat) == 1 & autoreg) { autoreg.d(d, n1, n2, r = r.mat) } 
-  else if(length(r.mat) > 1 & all(dim(r.mat) == length(d))){ r.mat } 
-  else { stop("Incorrect 'r.mat' detected.", call. = FALSE) }
+  r <- if(length(r.mat) == 1 & !autoreg) cor.mat(r.mat, length(d)) 
+  else if(length(r.mat) == 1 & autoreg)  autoreg.d(d, n1, n2, r = r.mat)  
+  else if(length(r.mat) > 1 & is.matrix(r.mat) & all(dim(r.mat) == length(d))) r.mat  
+  else stop("Incorrect 'r.mat' detected.", call. = FALSE) 
   
   d <- matrix(d)
   
   e <- matrix(rep(1, length(d)))
   
-  S <- cov.d(d, n1, n2, r)
+  A <- cov.d(d, n1, n2, r)
   
-  w <- t((inv(S)%*%e) %*% inv((t(e)%*%inv(S)%*%e)))
+  w <- t((inv(A)%*%e) %*% inv((t(e)%*%inv(A)%*%e)))
   rownames(w) <- "Ws:"
-  colnames(w) <- paste0("d", 1:dim(d)[1])
-  rownames(r) <- colnames(r) <- paste0("d", 1:dim(d)[1])
-  list(ave.d = as.vector(w%*%d), weights = w, cov.mat = S, r.mat = r)
+  colnames(w) <- paste0("w", 1:length(d))
+  rownames(r) <- colnames(r) <- paste0("d", 1:length(d))
+  se <- as.vector(sqrt(inv(t(e)%*%inv(A)%*%e)))
+  
+  M <- inv(A) - ((inv(A)%*%e%*%t(e)%*%inv(A)) %*% inv(diag(as.vector(t(e)%*%inv(A)%*%e), length(d), length(d))))
+  
+  Q <- as.vector(t(d)%*%M%*%d)
+  
+  p.value <- pchisq(Q, length(d) - 1, lower.tail = FALSE)
+  
+  pool <- if(p.value >= alpha) paste("YES (at", alpha, "sig.level).") else paste("NO (at", alpha, "sig.level).")
+    
+  list(pool = noquote(pool), Q.statistic = Q, p.value = p.value, ave.d = as.vector(w%*%d), 
+                 std.error = se, weights = w, cov.mat = A, r.mat = r)
 }
                           
 #===========================================================================================================================
