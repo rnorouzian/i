@@ -8264,15 +8264,17 @@ as.numeric(crossprod(d, weight)) / sqrt(r*sum(weight)^2 + (1-r)*sum(weight^2))
 #===========================================================================================================================
 
 cov.d <- function(d, n1, n2, r.mat, no.names = FALSE, digits = 1e2){
-
-d <- as.vector(d)  
   
-D <- diag(meta.se(d, n1, n2))
-
-m <- D%*%r.mat%*%D
-if(!no.names) rownames(m) <- colnames(m) <- paste0("d", 1:length(d))
-
-return(round(m, digits))
+  if(!is.matrix(r.mat)) stop("'r.mat' must be a matrix.", call. = FALSE)
+  
+  d <- as.vector(d)  
+  
+  D <- diag(meta.se(d, n1, n2))
+  
+  m <- D%*%r.mat%*%D
+  if(!no.names) rownames(m) <- colnames(m) <- paste0("d", 1:length(d))
+  
+  return(round(m, digits))
 }
 
 
