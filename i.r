@@ -8306,37 +8306,52 @@ m
                   
 #===========================================================================================================================
    
-ave.dho <- function(d, n1, n2, r.mat, autoreg = FALSE, alpha = .05){
+ave.dep <- function(d, n1, n2, r.mat = .8, autoreg = FALSE, sig.level = .05, check = FALSE, r.check = NA, digits = 8){
   
-  d <- matrix(d)
-  
-  r <- if(length(r.mat) == 1 & !autoreg) cor.mat(r.mat, length(d)) 
-  else if(length(r.mat) == 1 & autoreg)  autoreg.d(d, n1, n2, r = r.mat)  
-  else if(length(r.mat) > 1 & is.matrix(r.mat) & all(dim(r.mat) == length(d))) r.mat  
-  else stop("Incorrect 'r.mat' detected.", call. = FALSE) 
-  
-  e <- matrix(rep(1, length(d)))
-  
-  A <- cov.d(d, n1, n2, r)
-  
-  w <- t((inv(A)%*%e) %*% inv((t(e)%*%inv(A)%*%e)))
-  rownames(w) <- "Ws:"
-  colnames(w) <- paste0("w", 1:length(d))
-  rownames(r) <- colnames(r) <- paste0("d", 1:length(d))
+  G <- function(d, n1, n2, r.mat, autoreg, sig.level){
     
-  se <- as.vector(sqrt(inv(t(e)%*%inv(A)%*%e)))
-  
-  M <- inv(A)-((inv(A)%*%e%*%t(e)%*%inv(A))%*%inv(diag(as.vector(t(e)%*%inv(A)%*%e), length(d), length(d))))
-  
-  Q <- as.vector(t(d)%*%M%*%d)
-  
-  p.value <- pchisq(Q, length(d)-1, lower.tail = FALSE)
-  
-  pool <- if(p.value > alpha) paste("YES (at", alpha, "sig.level).") else paste("NO (at", alpha, "sig.level).")
+    d <- matrix(d)
     
-  list(pool = noquote(pool), Q.statistic = Q, p.value = p.value, ave.d = as.vector(w%*%d), 
-                 std.error = se, weights = w, cov.mat = A, r.mat = r)
+    r <- if(length(r.mat) == 1 & !autoreg) cor.mat(r.mat, length(d)) 
+    else if(length(r.mat) == 1 & autoreg)  autoreg.d(d, n1, n2, r = r.mat)  
+    else if(length(r.mat) > 1 & is.matrix(r.mat) & all(dim(r.mat) == length(d))) r.mat  
+    else stop("Incorrect 'r.mat' detected.", call. = FALSE) 
+    
+    e <- matrix(rep(1, length(d)))
+    
+    A <- cov.d(d, n1, n2, r)
+    
+    w <- t((inv(A)%*%e) %*% inv((t(e)%*%inv(A)%*%e)))
+    rownames(w) <- "Ws:"
+    colnames(w) <- paste0("w", 1:length(d))
+    rownames(r) <- colnames(r) <- paste0("d", 1:length(d))
+    
+    se <- as.vector(sqrt(inv(t(e)%*%inv(A)%*%e)))
+    
+    M <- inv(A)-((inv(A)%*%e%*%t(e)%*%inv(A))%*%inv(diag(as.vector(t(e)%*%inv(A)%*%e), length(d), length(d))))
+    
+    Q <- as.vector(t(d)%*%M%*%d)
+    
+    p.value <- pchisq(Q, length(d)-1, lower.tail = FALSE)
+    
+    ave.d <- as.vector(w%*%d)
+    
+    h <- round(c(se, Q, p.value, ave.d), digits)
+    se <- h[1] ; Q <- h[2] ; p.value <- h[3] ; ave.d <- h[4]
+    
+    pool <- paste0(if(p.value > sig.level) "YES" else "NO") #else paste("NO (at", sig.level, "alpha)")
+    
+    if(check) return(c(pool = pool, Q.statistic = Q, p.value = p.value, sig.level = sig.level, ave.d = ave.d, 
+                       std.error = se, autoreg = autoreg)) else
+                         list(pool = noquote(pool), Q.statistic = Q, p.value = p.value, sig.level = sig.level, ave.d = ave.d, 
+                              std.error = se, weights = w, cov.mat = A, r.mat = r)
+  }                  
+  
+  r.c <- if(is.na(r.check)) 4:8*.1 else r.check
+  if(check) { o <- t(data.frame(sapply(r.c, function(x)G(d = d, n1 = n1, n2 = n2, r.mat = x, autoreg = autoreg, sig.level = sig.level)))) ; rownames(o) <- paste0("(r = ", r.c,"):") ; noquote(o)}
+  else G(d = d, n1 = n1, n2 = n2, r.mat = r.mat, autoreg = autoreg, sig.level = sig.level)
 }
+
                           
 #===========================================================================================================================
                                      
