@@ -8248,8 +8248,16 @@ inv <- function (X, tol = sqrt(.Machine$double.eps))
 
 #===========================================================================================================================
         
-meta.var <- function(d, n1, n2) ((n1+n2)/(n1*n2)) + ((d^2) / (2*(n1+n2)) )
-meta.se <- function(d, n1, n2) sqrt( meta.var(d, n1, n2) )                  
+meta.var <- function(d, n1, n2, g = FALSE){
+  
+ v <- ((n1+n2)/(n1*n2)) + ((d^2) / (2*(n1+n2)) )
+ 
+ if(g) (d.unbias(d, n1, n2)/d)^2 * v else v
+}
+
+#===========================================================================================================================
+
+meta.se <- function(d, n1, n2, g = FALSE) sqrt( meta.var(d, n1, n2, g = g) )                 
                   
 #===========================================================================================================================                  
                   
@@ -8263,13 +8271,15 @@ as.numeric(crossprod(d, weight)) / sqrt(r*sum(weight)^2 + (1-r)*sum(weight^2))
                   
 #===========================================================================================================================
 
-cov.d <- function(d, n1, n2, r.mat, no.names = FALSE, digits = 1e2){
+cov.d <- function(d, n1, n2, r.mat, no.names = FALSE, g = FALSE, digits = 1e2){
   
   if(!is.matrix(r.mat)) stop("'r.mat' must be a matrix.", call. = FALSE)
   
   d <- as.vector(d)  
   
-  D <- diag(meta.se(d, n1, n2))
+  d <- if(g) d.unbias(d, n1, n2) else d
+  
+  D <- diag(meta.se(d, n1, n2, g = g))
   
   m <- D%*%r.mat%*%D
   if(!no.names) rownames(m) <- colnames(m) <- paste0("d", 1:length(d))
@@ -8279,7 +8289,6 @@ cov.d <- function(d, n1, n2, r.mat, no.names = FALSE, digits = 1e2){
 
 
 #===============================================================================================
-
 
 autoreg.d <- function(d, n1, n2, r = .5, cov = FALSE, no.names = FALSE, digits = 1e2){
 
@@ -8293,7 +8302,6 @@ covar <- cov.d(d, n1, n2, R, no.names, digits)
 if(cov) covar else R
 }
 
-
 #=========================================================================================================================
                   
 cor.mat <- function(r, dim) { 
@@ -8306,7 +8314,8 @@ m
                   
 #===========================================================================================================================
    
-ave.dep <- function(d, n1, n2, r.mat = .8, autoreg = FALSE, sig.level = .05, check = FALSE, r.check = NA, digits = 8){
+                  
+ave.dep <- function(d, n1, n2, r.mat = .8, autoreg = FALSE, sig.level = .05, check = FALSE, r.check = NA, g = FALSE, digits = 8){
   
   G <- function(d, n1, n2, r.mat, autoreg, sig.level){
     
@@ -8319,7 +8328,7 @@ ave.dep <- function(d, n1, n2, r.mat = .8, autoreg = FALSE, sig.level = .05, che
     
     e <- matrix(rep(1, length(d)))
     
-    A <- cov.d(d, n1, n2, r)
+    A <- cov.d(d, n1, n2, r, g = g)
     
     w <- t((inv(A)%*%e) %*% inv((t(e)%*%inv(A)%*%e)))
     rownames(w) <- "Ws:"
@@ -8341,9 +8350,9 @@ ave.dep <- function(d, n1, n2, r.mat = .8, autoreg = FALSE, sig.level = .05, che
     
     pool <- paste0(if(p.value > sig.level) "YES" else "NO") #else paste("NO (at", sig.level, "alpha)")
     
-    if(check) return(c(pool = pool, Q.statistic = Q, p.value = p.value, sig.level = sig.level, ave.d = ave.d, 
+    if(check) return(c(pool = pool, Q.stat = Q, p.value = p.value, alpha = sig.level, ave.d = ave.d, 
                        std.error = se, autoreg = autoreg)) else
-                         list(pool = noquote(pool), Q.statistic = Q, p.value = p.value, sig.level = sig.level, ave.d = ave.d, 
+                         list(pool = noquote(pool), Q.stat = Q, p.value = p.value, alpha = sig.level, ave.d = ave.d, 
                               std.error = se, weights = w, cov.mat = A, r.mat = r)
   }                  
   
