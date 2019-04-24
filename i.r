@@ -8348,7 +8348,7 @@ ave.dep <- function(d, n1, n2, r.mat = .8, autoreg = FALSE, sig.level = .05, che
     h <- round(c(se, Q, p.value, ave.d), digits)
     se <- h[1] ; Q <- h[2] ; p.value <- h[3] ; ave.d <- h[4]
     
-    pool <- paste0(if(p.value > sig.level) "YES" else "NO") #else paste("NO (at", sig.level, "alpha)")
+    pool <- paste0(if(p.value > sig.level) "YES" else "NO")
     
     if(check) return(c(pool = pool, Q.stat = Q, p.value = p.value, alpha = sig.level, ave.d = ave.d, 
                        std.error = se, autoreg = autoreg)) else
@@ -8356,7 +8356,7 @@ ave.dep <- function(d, n1, n2, r.mat = .8, autoreg = FALSE, sig.level = .05, che
                               std.error = se, weights = w, cov.mat = A, r.mat = r)
   }                  
   
-  r.c <- if(is.na(r.check)) 4:8*.1 else r.check
+  r.c <- if(is.na(r.check)) 4:8*.1 else as.vector(r.check)
   if(check) { o <- t(data.frame(sapply(r.c, function(x)G(d = d, n1 = n1, n2 = n2, r.mat = x, autoreg = autoreg, sig.level = sig.level)))) ; rownames(o) <- paste0("(r = ", r.c,"):") ; noquote(o)}
   else G(d = d, n1 = n1, n2 = n2, r.mat = r.mat, autoreg = autoreg, sig.level = sig.level)
 }
