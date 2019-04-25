@@ -8248,16 +8248,16 @@ inv <- function (X, tol = sqrt(.Machine$double.eps))
 
 #===========================================================================================================================
         
-meta.var <- function(d, n1, n2, g = FALSE){
+var.d <- function(d, n1, n2 = NA, g = FALSE){
   
- v <- ((n1+n2)/(n1*n2)) + ((d^2) / (2*(n1+n2)) )
- 
- if(g) (d.unbias(d, n1, n2)/d)^2 * v else v
+ v <- if(is.na(n2)) (1/n1) + ((d^2)/(2*n1)) else ((n1+n2)/(n1*n2)) + ((d^2)/(2*(n1+n2)) )
+  
+  if(g)(d.unbias(d, n1, n2)/d)^2 * v else v
 }
 
 #===========================================================================================================================
 
-meta.se <- function(d, n1, n2, g = FALSE) sqrt( meta.var(d, n1, n2, g = g) )                 
+se.d <- function(d, n1, n2 = NA, g = FALSE) sqrt( var.d(d, n1, n2 = n2, g = g) )                  
                   
 #===========================================================================================================================                  
                   
@@ -8271,7 +8271,7 @@ as.numeric(crossprod(d, weight)) / sqrt(r*sum(weight)^2 + (1-r)*sum(weight^2))
                   
 #===========================================================================================================================
 
-cov.d <- function(d, n1, n2, r.mat, no.names = FALSE, g = FALSE, digits = 1e2){
+cov.d <- function(d, n1, n2 = NA, r.mat, no.names = FALSE, g = FALSE, digits = 1e2){
   
   if(!is.matrix(r.mat)) stop("'r.mat' must be a matrix.", call. = FALSE)
   
@@ -8279,7 +8279,7 @@ cov.d <- function(d, n1, n2, r.mat, no.names = FALSE, g = FALSE, digits = 1e2){
   
   d <- if(g) d.unbias(d, n1, n2) else d
   
-  D <- diag(meta.se(d, n1, n2, g = g))
+  D <- diag(se.d(d, n1, n2, g = g))
   
   m <- D%*%r.mat%*%D
   if(!no.names) rownames(m) <- colnames(m) <- paste0("d", 1:length(d))
@@ -8290,7 +8290,7 @@ cov.d <- function(d, n1, n2, r.mat, no.names = FALSE, g = FALSE, digits = 1e2){
 
 #===============================================================================================
 
-autoreg.d <- function(d, n1, n2, r = .5, cov = FALSE, no.names = FALSE, digits = 1e2){
+autoreg.d <- function(d, n1 = NA, n2 = NA, r = .8, cov = FALSE, no.names = FALSE, digits = 1e2){
 
 d <- as.vector(d)
 r <- as.vector(r)[1]     
@@ -8315,14 +8315,14 @@ m
 #===========================================================================================================================
    
                   
-ave.dep <- function(d, n1, n2, r.mat = .8, autoreg = FALSE, sig.level = .05, check = FALSE, r.check = NA, g = FALSE, digits = 8){
+ave.dep <- function(d, n1, n2 = NA, r.mat = .8, autoreg = FALSE, sig.level = .05, check = FALSE, r.check = NA, g = FALSE, digits = 8){
   
   G <- function(d, n1, n2, r.mat, autoreg, sig.level){
     
     d <- matrix(d)
     
     r <- if(length(r.mat) == 1 & !autoreg) cor.mat(r.mat, length(d)) 
-    else if(length(r.mat) == 1 & autoreg)  autoreg.d(d, n1, n2, r = r.mat)  
+    else if(length(r.mat) == 1 & autoreg)  autoreg.d(d = d, r = r.mat)  
     else if(length(r.mat) > 1 & is.matrix(r.mat) & all(dim(r.mat) == length(d))) r.mat  
     else stop("Incorrect 'r.mat' detected.", call. = FALSE) 
     
