@@ -190,6 +190,7 @@ inv.cdf <- Vectorize(function(p, fun, lower, upper){
 
 eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengths(list(...))) - length(x)))) }
                             
+covv <- function(...)cov(cbind(...)) 
                             
 cor1 <- function(...)cor(cbind(...))
                             
