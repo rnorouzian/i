@@ -8350,14 +8350,14 @@ ave.dep <- function(d, n1, n2, r.mat = .8, autoreg = FALSE, sig.level = .05, che
     
     pool <- paste0(if(p.value > sig.level) "YES" else "NO")
     
-    if(check) return(c(pool = pool, Q.stat = Q, p.value = p.value, alpha = sig.level, ave.d = ave.d, 
+    if(check || !is.na(r.check)) return(c(pool = pool, Q.stat = Q, p.value = p.value, alpha = sig.level, ave.d = ave.d, 
                        std.error = se, autoreg = autoreg)) else
                          list(pool = noquote(pool), Q.stat = Q, p.value = p.value, alpha = sig.level, ave.d = ave.d, 
                               std.error = se, weights = w, cov.mat = A, r.mat = r)
   }                  
   
   r.c <- if(is.na(r.check)) 4:8*.1 else as.vector(r.check)
-  if(check) { o <- t(data.frame(sapply(r.c, function(x)G(d = d, n1 = n1, n2 = n2, r.mat = x, autoreg = autoreg, sig.level = sig.level)))) ; rownames(o) <- paste0("(r = ", r.c,"):") ; noquote(o)}
+  if(check || !is.na(r.check)) { o <- t(data.frame(sapply(r.c, function(x)G(d = d, n1 = n1, n2 = n2, r.mat = x, autoreg = autoreg, sig.level = sig.level)))) ; rownames(o) <- paste0("(r = ", r.c,"):") ; noquote(o)}
   else G(d = d, n1 = n1, n2 = n2, r.mat = r.mat, autoreg = autoreg, sig.level = sig.level)
 }
 
