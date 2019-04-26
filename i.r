@@ -8292,15 +8292,15 @@ cov.d <- function(d, n1, n2 = NA, r.mat, no.names = FALSE, g = FALSE, digits = 1
 #===============================================================================================
 
 autoreg.d <- function(d, n1 = NA, n2 = NA, r = .8, cov = FALSE, no.names = FALSE, digits = 1e2){
-
-d <- as.vector(d)
-r <- as.vector(r)[1]     
-x <- diag(length(d)) 
-R <- round(r^abs(row(x)-col(x)), digits)
-
-covar <- cov.d(d, n1, n2, R, no.names, digits)
-
-if(cov) covar else R
+  
+  d <- as.vector(d)
+  r <- as.vector(r)[1]     
+  x <- diag(length(d)) 
+  R <- round(r^abs(row(x)-col(x)), digits)
+  
+  covar <- cov.d(d, n1, n2, R, no.names, g, digits)
+  
+  if(cov) covar else R
 }
 
 #=========================================================================================================================
