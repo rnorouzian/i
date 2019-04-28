@@ -192,7 +192,7 @@ eq <- function(...){ lapply(list(...), function(x) c(x, rep(rev(x)[1], max(lengt
                             
 covv <- function(...)cov(cbind(...)) 
                             
-cor1 <- function(...)cor(cbind(...))
+corr <- function(...)cor(cbind(...))
                             
                             
 cor2 <- function(...) {
