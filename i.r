@@ -8364,7 +8364,28 @@ ave.dep <- function(d, n1, n2 = NA, r.mat = .8, autoreg = FALSE, sig.level = .05
   else G(d = d, n1 = n1, n2 = n2, r.mat = r.mat, autoreg = autoreg, sig.level = sig.level)
 }
 
-                          
+
+#===========================================================================================================================                                                          
+                                                          
+dcomp <- function(n1, n2 = NA, sd1, sd2, m1, m2, t = NA, mdif = NA, approx.var = FALSE, digits = 8)  
+{
+
+mi <- n1+n2-2  
+  
+sdp <- sqrt(((n1-1)*sd1^2 + (n2-1)*sd2^2) / mi)
+
+mdif <- if(is.na(mdif)) m2 - m1 else mdif
+
+d <- if(is.na(t)) mdif / sdp else t2d(t, n1, n2)
+    
+gd <- d.unbias(d, n1, n2)
+
+Var <- if(approx.var) var.d(d, n1, n2, TRUE) else ((n1+n2)/(n1*n2)) + (1 - (mi - 2)/(mi *(gd/d)^2))*gd^2  
+
+round(data.frame(d = gd, SE = sqrt(Var), Var = Var), digits)
+
+}                                                           
+                                                          
 #===========================================================================================================================
                                      
 need <- c("rstanarm", "pscl", "glmmTMB")  #, "arrangements")
