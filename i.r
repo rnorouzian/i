@@ -8391,8 +8391,94 @@ round(data.frame(d = gd, SE = sqrt(Var), Var = Var), digits)
 cfactor <- function(df) exp(lgamma(df/2)-log(sqrt(df/2)) - lgamma((df-1)/2))                                                          
                                                           
 #===========================================================================================================================
-                                     
-need <- c("rstanarm", "pscl", "glmmTMB")  #, "arrangements")
+
+                                                          
+sdif <- function(n = NA, mpre = NA, mpos = NA, sdpre = NA, sdpos = NA, r = NA, t = NA, F1 = NA){
+  
+if(!is.na(r)) sdpre^2+sdpos^2-2*r*sdpre*sdpos 
+  else sqrt((n*(mpos - mpre)^2)/ if(is.na(t)) F1 else t^2 )
+  
+}
+
+#=====================================================================================================
+
+
+rdif <- function(n = NA, mpre = NA, mpos = NA, sdpre = NA, sdpos = NA, t = NA, F1 = NA, sdif = NA) {
+  
+  sdif <- if(is.na(sdif))sdif(sdpre = sdpre, sdpos = sdpos, t = t, r = NA, n = n, mpos = mpos, mpre = mpre, F1 = F1) else sdif
+  (sdpre^2 - sdpos^2 - sdif^2)/(2*sdpre*sdpos)
+}
+
+
+#=====================================================================================================
+
+
+d.prepos <- function(n, mpre, mpos, sdpre = NA, sdpos = NA, r = NA, t = NA, sdif = NA, F1 = NA) 
+  {
+  
+  mdif <- mpos - mpre
+  sdif <- sdif(sdpre = sdpre, sdpos = sdpos, t = t, r = r, n = n, mpos = mpos, mpre = mpre, F1 = F1)
+  rdif <- if(is.na(r)) rdif(sdpre = sdpre, sdpos = sdpos, t = t, n = n, mpos = mpos, mpre = mpre, F1 = F1, sdif = sdif) else r
+  d <- mdif/sdif 
+  se <- se.d(d, n1 = n, g = TRUE)
+  data.frame(d = d*cfactor(n-1), SE = se, sdif = sdif, rdif = r)
+  
+}  
+  
+
+#=====================================================================================================
+
+
+t.testb <- function(m1, m2, s1, s2, n1, n2 = NA, m0 = 0, var.equal = FALSE, sdif = NA, r = NA, digits = 6){
+  
+  if(var.equal & !is.na(n2))
+    {
+    se <- sqrt( (1/n1 + 1/n2) * ((n1-1)*s1^2 + (n2-1)*s2^2)/(n1+n2-2) ) 
+    df <- n1+n2-2
+  } else if(!var.equal & !is.na(n2))
+    {
+    se <- sqrt( (s1^2/n1) + (s2^2/n2) )
+    df <- ((s1^2/n1 + s2^2/n2)^2)/((s1^2/n1)^2/(n1-1) + (s2^2/n2)^2/(n2-1))
+  }else
+  {
+    se <- if(!is.na(sdif)) sdif/sqrt(n1) else sdif(sdpre =s1, sdpos =s2, r = r, mpre =m1, mpos =m2, t = NA, F1 = NA)/sqrt(n1)
+    df <- n1 - 1
+  }
+  
+  t <- (m1-m2-m0)/se
+  
+  a <- round(data.frame(mean.dif = m1-m2, std.error = se, t.value = t, p.value = 2*pt(-abs(t),df)), digits)
+  a$paired <- if(is.na(n2)) TRUE else FALSE
+}      
+            
+#=====================================================================================================            
+          
+            
+d.interact <- function(dc, dt, nc, nt, digits = 6){
+
+G <- Vectorize(function(dc, dt, nc, nt, digits){
+
+like1 <- function(x) dt(d.unbias(dc, nc)*sqrt(nc), df = nc - 1, ncp = d.unbias(x, nc)*sqrt(nc))
+like2 <- function(x) dt(d.unbias(dt, nt)*sqrt(nt), df = nt - 1, ncp = d.unbias(x, nt)*sqrt(nt))
+
+d1 <- AbscontDistribution(d = like1, withStand = TRUE)
+d2 <- AbscontDistribution(d = like2, withStand = TRUE)
+
+like.dif <- function(x) d(d2 - d1)(x)
+
+Mean <- integrate(function(x) x*like.dif(x), -Inf, Inf)[[1]]
+  SE <- sqrt(integrate(function(x) x^2*like.dif(x), -Inf, Inf)[[1]] - Mean^2)
+
+  return(round(c(d.interact = dt-dc, SE = SE), digits))
+})
+
+data.frame(t(G(dc = dc, dt = dt, nc = nc, nt = nt, digits = digits)))
+
+}            
+            
+#=====================================================================================================          
+             
+need <- c("rstanarm", "pscl", "glmmTMB", "distr")  #, "arrangements")
 have <- need %in% rownames(installed.packages())
 if(any(!have)){ install.packages( need[!have] ) }
  
@@ -8401,6 +8487,7 @@ suppressMessages({
     library("rstanarm")
     library("pscl")
     library("glmmTMB")
+    library("distr")
   # library("arrangements")
 })
                      
