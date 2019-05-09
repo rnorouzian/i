@@ -8449,6 +8449,7 @@ t.testb <- function(m1, m2, s1, s2, n1, n2 = NA, m0 = 0, var.equal = FALSE, sdif
   
   a <- round(data.frame(mean.dif = m1-m2, std.error = se, t.value = t, p.value = 2*pt(-abs(t),df)), digits)
   a$paired <- if(is.na(n2)) TRUE else FALSE
+  a    
 }      
             
 #=====================================================================================================            
