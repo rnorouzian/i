@@ -8455,12 +8455,12 @@ t.testb <- function(m1, m2, s1, s2, n1, n2 = NA, m0 = 0, var.equal = FALSE, sdif
 #=====================================================================================================            
           
             
-d.interact <- function(dc, dt, nc, nt, digits = 6){
+d.interact <- function(dppc, dppt, nc, nt, digits = 6){
 
-G <- Vectorize(function(dc, dt, nc, nt, digits){
+G <- Vectorize(function(dppc, dppt, nc, nt, digits){
 
-like1 <- function(x) dt(d.unbias(dc, nc)*sqrt(nc), df = nc - 1, ncp = d.unbias(x, nc)*sqrt(nc))
-like2 <- function(x) dt(d.unbias(dt, nt)*sqrt(nt), df = nt - 1, ncp = d.unbias(x, nt)*sqrt(nt))
+like1 <- function(x) dt(d.unbias(dppc, nc)*sqrt(nc), df = nc - 1, ncp = d.unbias(x, nc)*sqrt(nc))
+like2 <- function(x) dt(d.unbias(dppt, nt)*sqrt(nt), df = nt - 1, ncp = d.unbias(x, nt)*sqrt(nt))
 
 d1 <- AbscontDistribution(d = like1, withStand = TRUE)
 d2 <- AbscontDistribution(d = like2, withStand = TRUE)
@@ -8470,12 +8470,13 @@ like.dif <- function(x) d(d2 - d1)(x)
 Mean <- integrate(function(x) x*like.dif(x), -Inf, Inf)[[1]]
   SE <- sqrt(integrate(function(x) x^2*like.dif(x), -Inf, Inf)[[1]] - Mean^2)
 
-  return(round(c(d.interact = dt-dc, SE = SE), digits))
+  return(round(c(d.interact = dppt-dppc, SE = SE), digits))
 })
 
-data.frame(t(G(dc = dc, dt = dt, nc = nc, nt = nt, digits = digits)))
+data.frame(t(G(dppc = dppc, dppt = dppt, nc = nc, nt = nt, digits = digits)))
 
-}            
+}
+         
             
 #=====================================================================================================          
              
