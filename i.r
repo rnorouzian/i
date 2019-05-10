@@ -8413,19 +8413,21 @@ rdif <- function(n = NA, mpre = NA, mpos = NA, sdpre = NA, sdpos = NA, t = NA, F
 #=====================================================================================================
 
 
-d.prepos <- function(n, mpre, mpos, sdpre = NA, sdpos = NA, r = NA, t = NA, sdif = NA, F1 = NA, digits = 6, d.per.study = NA, long = NA, control = NA, extract = NA) 
+d.prepos <- function(n, mpre, mpos, sdpre = NA, sdpos = NA, r = NA, t = NA, sdif = NA, F1 = NA, digits = 6, d.per.study = NA, long = NA, control = NA, extract = NA, study.name = NA) 
 {
   
   ll <- d.per.study
   
   nm <- if(!missing(long) & long) "long" else if(!missing(long) & !long) "short"
   cc <- if(!missing(control) & control) "control" else if(!missing(control) & !control) "treatment"
+
   
   mdif <- mpos - mpre
   sdif <- if(is.na(sdif)) sdif(sdpre = sdpre, sdpos = sdpos, t = t, r = r, n = n, mpos = mpos, mpre = mpre, F1 = F1) else sdif
+  corr. <- if(is.na(r)) rdif(n = n, mpre = mpre, mpos = mpos, sdpre = sdpre, sdpos = sdpos, sdif = sdif) else r
   d <- mdif/sdif 
   se <- se.d(d, n1 = n, g = TRUE)
-  out <- round(data.frame(d = d*cfactor(n-1), SE = se, sdif = sdif), digits)
+  out <- round(data.frame(d = d*cfactor(n-1), SE = se, sdif = sdif, r.dif = corr.), digits)
   
   if(is.na(ll)) out else {
     
@@ -8435,7 +8437,7 @@ d.prepos <- function(n, mpre, mpos, sdpre = NA, sdpos = NA, r = NA, t = NA, sdif
     
     
     h <- split(out, rep(seq_along(ll), ll))
-    names(h) <- paste0("Study", seq_along(h))
+    names(h) <- if(is.na(study.name)) paste0("Study", seq_along(h)) else study.name
     h <- lapply(h, `row.names<-`, NULL)
     
     if(!missing(long) & !missing(extract)) h <- switch(extract,
@@ -8453,8 +8455,6 @@ d.prepos <- function(n, mpre, mpos, sdpre = NA, sdpos = NA, r = NA, t = NA, sdif
   }
   
 }  
- 
-  
   
 
 #=====================================================================================================
@@ -8486,7 +8486,7 @@ t.testb <- function(m1, m2, s1, s2, n1, n2 = NA, m0 = 0, var.equal = FALSE, sdif
 #=====================================================================================================            
           
     
-d.interact <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long = NA, extract = NA){
+d.interact <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long = NA, extract = NA, study.name = NA){
 
 ll <- d.per.study
 
@@ -8515,7 +8515,7 @@ if(sum(ll) != nrow(out)) stop("Incorrect 'd.per.study' detected.", call. = FALSE
 if(!missing(long))out[nm] <- long
   
 h <- split(out, rep(seq_along(ll), ll))
-names(h) <- paste0("Study", seq_along(h))
+names(h) <- if(is.na(study.name)) paste0("Study", seq_along(h)) else study.name
 h <- lapply(h, `row.names<-`, NULL)
 
 if(!missing(long) & !missing(extract)) h <- switch(extract,
@@ -8523,7 +8523,7 @@ if(!missing(long) & !missing(extract)) h <- switch(extract,
                                               "short" = lapply(h, subset, subset = !long))
   
 result <- if(!missing(long) & !missing(extract)) Filter(nrow, h) else h
-if(length(result) == 0) NA else result
+if(length(result) == 0) NA else result 
    }
 }
          
