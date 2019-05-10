@@ -8395,7 +8395,7 @@ cfactor <- function(df) exp(lgamma(df/2)-log(sqrt(df/2)) - lgamma((df-1)/2))
                                                           
 sdif <- function(n = NA, mpre = NA, mpos = NA, sdpre = NA, sdpos = NA, r = NA, t = NA, F1 = NA){
   
-if(!is.na(r)) sdpre^2+sdpos^2-2*r*sdpre*sdpos 
+if(!is.na(r)) sqrt(sdpre^2+sdpos^2-2*r*sdpre*sdpos)
   else sqrt((n*(mpos - mpre)^2)/ if(is.na(t)) F1 else t^2 )
   
 }
