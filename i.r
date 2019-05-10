@@ -8455,15 +8455,17 @@ t.testb <- function(m1, m2, s1, s2, n1, n2 = NA, m0 = 0, var.equal = FALSE, sdif
 #=====================================================================================================            
           
             
-d.interact <- function(dppc, dppt, nc, nt, digits = 6){
+d.interact <- function(dppc, dppt, nc, nt, digits = 6, n.d.per.study = NA){
+
+ll <- n.d.per.study
 
 G <- Vectorize(function(dppc, dppt, nc, nt, digits){
 
 like1 <- function(x) dt(d.unbias(dppc, nc)*sqrt(nc), df = nc - 1, ncp = d.unbias(x, nc)*sqrt(nc))
 like2 <- function(x) dt(d.unbias(dppt, nt)*sqrt(nt), df = nt - 1, ncp = d.unbias(x, nt)*sqrt(nt))
 
-d1 <- AbscontDistribution(d = like1, withStand = TRUE)
-d2 <- AbscontDistribution(d = like2, withStand = TRUE)
+d1 <- AbscontDistribution(d = like1)
+d2 <- AbscontDistribution(d = like2)
 
 like.dif <- function(x) d(d2 - d1)(x)
 
@@ -8473,8 +8475,15 @@ Mean <- integrate(function(x) x*like.dif(x), -Inf, Inf)[[1]]
   return(round(c(d.interact = dppt-dppc, SE = SE), digits))
 })
 
-data.frame(t(G(dppc = dppc, dppt = dppt, nc = nc, nt = nt, digits = digits)))
+out <- data.frame(t(G(dppc = dppc, dppt = dppt, nc = nc, nt = nt, digits = digits)))
+if(is.na(ll)) out else {
 
+if(sum(ll) != nrow(out)) stop("Incorrect 'n.d.per.study' detected.", call. = FALSE)
+h <- split(out, rep(seq_along(ll), ll))
+names(h) <- paste0("Study", seq_along(h))
+h <- lapply(h, `row.names<-`, NULL)
+h
+ }
 }
          
             
