@@ -8454,8 +8454,7 @@ t.testb <- function(m1, m2, s1, s2, n1, n2 = NA, m0 = 0, var.equal = FALSE, sdif
             
 #=====================================================================================================            
           
-            
-d.interact <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long, extract){
+d.interact <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long = NA, extract = NA){
 
 ll <- d.per.study
 
@@ -8491,10 +8490,10 @@ if(!missing(long) & !missing(extract)) h <- switch(extract,
                                               "long" = lapply(h, subset, subset = long),
                                               "short" = lapply(h, subset, subset = !long))
   
-if(!missing(long) & !missing(extract) & !is.null(nrow(h))) Filter(nrow, h) else if(!missing(long) & !missing(extract) & is.null(nrow(h))) NA else h
- }
-}
-         
+result <- if(!missing(long) & !missing(extract)) Filter(nrow, h) else h
+if(length(result) == 0) NA else result
+  }
+}       
             
 #=====================================================================================================          
              
