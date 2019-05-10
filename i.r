@@ -8413,17 +8413,38 @@ rdif <- function(n = NA, mpre = NA, mpos = NA, sdpre = NA, sdpos = NA, t = NA, F
 #=====================================================================================================
 
 
-d.prepos <- function(n, mpre, mpos, sdpre = NA, sdpos = NA, r = NA, t = NA, sdif = NA, F1 = NA) 
-  {
+d.prepos <- function(n, mpre, mpos, sdpre = NA, sdpos = NA, r = NA, t = NA, sdif = NA, F1 = NA, digits = 6, d.per.study = NA, long = NA, extract = NA) 
+{
+  
+  ll <- d.per.study
+  
+  nm <- if(!missing(long) & long) "long" else if(!missing(long) & !long) "short"
   
   mdif <- mpos - mpre
-  sdif <- sdif(sdpre = sdpre, sdpos = sdpos, t = t, r = r, n = n, mpos = mpos, mpre = mpre, F1 = F1)
-  rdif <- if(is.na(r)) rdif(sdpre = sdpre, sdpos = sdpos, t = t, n = n, mpos = mpos, mpre = mpre, F1 = F1, sdif = sdif) else r
+  sdif <- if(is.na(sdif)) sdif(sdpre = sdpre, sdpos = sdpos, t = t, r = r, n = n, mpos = mpos, mpre = mpre, F1 = F1) else sdif
   d <- mdif/sdif 
   se <- se.d(d, n1 = n, g = TRUE)
-  data.frame(d = d*cfactor(n-1), SE = se, sdif = sdif, rdif = r)
+  out <- round(data.frame(d = d*cfactor(n-1), SE = se, sdif = sdif), digits)
+  
+  if(is.na(ll)) out else {
+    
+    if(sum(ll) != nrow(out)) stop("Incorrect 'd.per.study' detected.", call. = FALSE)
+    if(!missing(long))out[nm] <- long
+    
+    h <- split(out, rep(seq_along(ll), ll))
+    names(h) <- paste0("Study", seq_along(h))
+    h <- lapply(h, `row.names<-`, NULL)
+    
+    if(!missing(long) & !missing(extract)) h <- switch(extract,
+                                                       "long" = lapply(h, subset, subset = long),
+                                                       "short" = lapply(h, subset, subset = !long))
+    
+    result <- if(!missing(long) & !missing(extract)) Filter(nrow, h) else h
+    if(length(result) == 0) NA else result
+  }
   
 }  
+  
   
 
 #=====================================================================================================
@@ -8454,6 +8475,7 @@ t.testb <- function(m1, m2, s1, s2, n1, n2 = NA, m0 = 0, var.equal = FALSE, sdif
             
 #=====================================================================================================            
           
+    
 d.interact <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long = NA, extract = NA){
 
 ll <- d.per.study
@@ -8462,8 +8484,8 @@ nm <- if(!missing(long) & long) "long" else if(!missing(long) & !long) "short"
 
 G <- Vectorize(function(dppc, dppt, nc, nt, digits){
 
-like1 <- function(x) dt(d.unbias(dppc, nc)*sqrt(nc), df = nc - 1, ncp = d.unbias(x, nc)*sqrt(nc))
-like2 <- function(x) dt(d.unbias(dppt, nt)*sqrt(nt), df = nt - 1, ncp = d.unbias(x, nt)*sqrt(nt))
+like1 <- function(x) dt(dppc*sqrt(nc), df = nc - 1, ncp = x*sqrt(nc))
+like2 <- function(x) dt(dppt*sqrt(nt), df = nt - 1, ncp = x*sqrt(nt))
 
 d1 <- AbscontDistribution(d = like1)
 d2 <- AbscontDistribution(d = like2)
@@ -8473,7 +8495,7 @@ like.dif <- function(x) d(d2 - d1)(x)
 Mean <- integrate(function(x) x*like.dif(x), -Inf, Inf)[[1]]
   SE <- sqrt(integrate(function(x) x^2*like.dif(x), -Inf, Inf)[[1]] - Mean^2)
 
-  return(round(c(d.interact = dppt-dppc, SE = SE), digits))
+  return(round(c(d.interact = Mean, SE = SE), digits))
 })
 
 out <- data.frame(t(G(dppc = dppc, dppt = dppt, nc = nc, nt = nt, digits = digits)))
@@ -8492,9 +8514,10 @@ if(!missing(long) & !missing(extract)) h <- switch(extract,
   
 result <- if(!missing(long) & !missing(extract)) Filter(nrow, h) else h
 if(length(result) == 0) NA else result
-  }
-}       
-            
+   }
+}
+         
+             
 #=====================================================================================================          
              
 need <- c("rstanarm", "pscl", "glmmTMB", "distr")  #, "arrangements")
