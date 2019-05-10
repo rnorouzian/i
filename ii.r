@@ -1,48 +1,47 @@
 
-peta2F <- function(peta, df1, df2) (peta / df1) / ((1 - peta)/df2)
 
-peta2ncp <- function(peta, N) (peta*N) / (1 - peta)
 
-peta.ci <- function(peta, f = NA, df1, df2, N, conf.level = .9, digits = 9){
+install.packages("distr") 
+library(distr)   # load the package
 
-ci <- Vectorize(function(peta, f, N, df1, df2, conf.level){
-    
-  q <- ifelse(is.na(f), peta2F(peta, df1, df2), f) 
-  
-    alpha <- (1 - conf.level)/2
-    
-    u <- function (ncp, alpha, q, df1, df2) {
-      suppressWarnings(pf(q = q, df1 = df1, df2 = df2, ncp, lower.tail = FALSE)) - alpha
-    }
-    
-    g <- try(uniroot(u, c(0, q+1e7), alpha = alpha, q = q, df1 = df1, df2 = df2, extendInt = "yes")[[1]], silent = TRUE)
-    if(inherits(g, "try-error")) g <- 0
-    h <- try(uniroot(u, c(0, q+1e7), alpha = 1-alpha, q = q, df1 = df1, df2 = df2, extendInt = "yes")[[1]], silent = TRUE)
-    if(inherits(h, "try-error")) h <- 0
-    I <- c(g, h)
-    
-    I <- I / (I + N)
-    
-    P.eta.sq <- if(is.na(f)) peta else F2peta(f, df1, df2)
-    
-    return(c(P.eta.sq = P.eta.sq, lower = I[1], upper = I[2], conf.level = conf.level, ncp = peta2ncp(P.eta.sq, N), F.value = q))
+
+d.interact <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long = NA, extract = NA){
+
+ll <- d.per.study
+
+if(!is.na(long)) nm <- if(long) "long" else "short"
+
+G <- Vectorize(function(dppc, dppt, nc, nt, digits){
+
+like1 <- function(x) dt(dppc*sqrt(nc), df = nc - 1, ncp = x*sqrt(nc))
+like2 <- function(x) dt(dppt*sqrt(nt), df = nt - 1, ncp = x*sqrt(nt))
+
+d1 <- AbscontDistribution(d = like1)
+d2 <- AbscontDistribution(d = like2)
+
+like.dif <- function(x) d(d2 - d1)(x)
+
+Mean <- integrate(function(x) x*like.dif(x), -Inf, Inf)[[1]]
+  SE <- sqrt(integrate(function(x) x^2*like.dif(x), -Inf, Inf)[[1]] - Mean^2)
+
+  return(round(c(d.interact = dppt-dppc, SE = SE), digits))
 })
 
-peta <- if(missing(peta)) NA else peta
+out <- data.frame(t(G(dppc = dppc, dppt = dppt, nc = nc, nt = nt, digits = digits)))
+if(is.na(ll)) out else {
 
-round(data.frame(t(ci(peta = peta, f = f, N = N, df1 = df1, df2 = df2, conf.level = conf.level))), digits = digits)
+if(sum(ll) != nrow(out)) stop("Incorrect 'd.per.study' detected.", call. = FALSE)
+if(!is.na(long))out[nm] <- long
+  
+h <- split(out, rep(seq_along(ll), ll))
+names(h) <- paste0("Study", seq_along(h))
+h <- lapply(h, `row.names<-`, NULL)
+
+set <- if(extract == "long") long else if (extract == "short") !long
+if(!is.na(long) & !is.na(extract)) lapply(h, function(x) subset(x, subset = set))
+ }
 }
 
+# Example of Use:
+d.interact(1:4, 1:4 , 30, 30, d.per.study = c(1, 2, 1), long = c(T, F, T, T), extract = "long")
 
-R2.ci <- function(R2, n.pred, N, f = NA, df1 = NA, df2 = NA, conf.level = .9, digits = 9){ 
-  
-  if(is.na(df1) & is.na(df2)){
-    df1 <- n.pred
-    df2 <- N - n.pred - 1
-  }    
-  a <- if(!missing(R2)){ peta.ci(peta = R2, df1 = df1, df2 = df2, N = N, conf.level = conf.level, digits = digits)
-    } else { peta.ci(f = f, df1 = df1, df2 = df2, N = N, conf.level = conf.level, digits = digits) }
-  
-  names(a)[1] <- "R2"
-  a
-}
