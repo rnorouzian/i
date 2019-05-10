@@ -8455,9 +8455,11 @@ t.testb <- function(m1, m2, s1, s2, n1, n2 = NA, m0 = 0, var.equal = FALSE, sdif
 #=====================================================================================================            
           
             
-d.interact <- function(dppc, dppt, nc, nt, digits = 6, n.d.per.study = NA){
+d.interact <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long, extract){
 
-ll <- n.d.per.study
+ll <- d.per.study
+
+nm <- if(!missing(long) & long) "long" else if(!missing(long) & !long) "short"
 
 G <- Vectorize(function(dppc, dppt, nc, nt, digits){
 
@@ -8478,11 +8480,18 @@ Mean <- integrate(function(x) x*like.dif(x), -Inf, Inf)[[1]]
 out <- data.frame(t(G(dppc = dppc, dppt = dppt, nc = nc, nt = nt, digits = digits)))
 if(is.na(ll)) out else {
 
-if(sum(ll) != nrow(out)) stop("Incorrect 'n.d.per.study' detected.", call. = FALSE)
+if(sum(ll) != nrow(out)) stop("Incorrect 'd.per.study' detected.", call. = FALSE)
+if(!missing(long))out[nm] <- long
+  
 h <- split(out, rep(seq_along(ll), ll))
 names(h) <- paste0("Study", seq_along(h))
 h <- lapply(h, `row.names<-`, NULL)
-h
+
+if(!missing(long) & !missing(extract)) h <- switch(extract,
+                                              "long" = lapply(h, subset, subset = long),
+                                              "short" = lapply(h, subset, subset = !long))
+  
+if(!missing(long) & !missing(extract) & !is.null(nrow(h))) Filter(nrow, h) else if(!missing(long) & !missing(extract) & is.null(nrow(h))) NA else h
  }
 }
          
