@@ -8421,7 +8421,6 @@ d.prepos <- function(n, mpre, mpos, sdpre = NA, sdpos = NA, r = NA, t = NA, sdif
   nm <- if(!missing(long) & long) "long" else if(!missing(long) & !long) "short"
   cc <- if(!missing(control) & control) "control" else if(!missing(control) & !control) "treatment"
   
-  
   mdif <- mpos - mpre
   sdif <- if(is.na(sdif)) sdif(sdpre = sdpre, sdpos = sdpos, t = t, r = r, n = n, mpos = mpos, mpre = mpre, F1 = F1) else sdif
   corr. <- if(is.na(r)) rdif(n = n, mpre = mpre, mpos = mpos, sdpre = sdpre, sdpos = sdpos, sdif = sdif) else r
@@ -8472,11 +8471,11 @@ t.testb <- function(m1, m2, s1, s2, n1, n2 = NA, m0 = 0, var.equal = FALSE, sdif
     df <- ((s1^2/n1 + s2^2/n2)^2)/((s1^2/n1)^2/(n1-1) + (s2^2/n2)^2/(n2-1))
   }else
   {
-    se <- if(!is.na(sdif)) sdif/sqrt(n1) else sdif(sdpre =s1, sdpos =s2, r = r, mpre =m1, mpos =m2, t = NA, F1 = NA)/sqrt(n1)
+    se <- if(!is.na(sdif)) sdif/sqrt(n1) else sdif(sdpre = s1, sdpos = s2, r = r)/sqrt(n1)
     df <- n1 - 1
   }
   
-  t <- (m1-m2-m0)/se
+  t <- (m2-m1-m0)/se
   
   a <- round(data.frame(mean.dif = m1-m2, std.error = se, t.value = t, p.value = 2*pt(-abs(t),df)), digits)
   a$paired <- if(is.na(n2)) TRUE else FALSE
@@ -8497,10 +8496,10 @@ G <- Vectorize(function(dppc, dppt, nc, nt, digits){
 like1 <- function(x) dt(dppc*sqrt(nc), df = nc - 1, ncp = x*sqrt(nc))
 like2 <- function(x) dt(dppt*sqrt(nt), df = nt - 1, ncp = x*sqrt(nt))
 
-d1 <- AbscontDistribution(d = like1)
-d2 <- AbscontDistribution(d = like2)
+d1 <- distr::AbscontDistribution(d = like1)
+d2 <- distr::AbscontDistribution(d = like2)
 
-like.dif <- function(x) d(d2 - d1)(x)
+like.dif <- function(x) distr::d(d2 - d1)(x)
 
 Mean <- integrate(function(x) x*like.dif(x), -Inf, Inf)[[1]]
   SE <- sqrt(integrate(function(x) x^2*like.dif(x), -Inf, Inf)[[1]] - Mean^2)
