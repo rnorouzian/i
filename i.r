@@ -8547,7 +8547,7 @@ meta.bayes <- function(y, labels = NULL, ...)
 #=====================================================================================================
                
                
-d.interact2 <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long = NA, extract = NA, study.name = NA){
+d.interact2 <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long = NA, extract = NA, study.name = NA, n.sim = 2e4){
   
   ll <- d.per.study
   
@@ -8561,7 +8561,7 @@ d.interact2 <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long =
     d1 <- distr::AbscontDistribution(d = like1)
     d2 <- distr::AbscontDistribution(d = like2)
     
-    dif <- distr::r(d2 - d1)(2e4)
+    dif <- distr::r(d2 - d1)(n.sim)
     
     Mean <- mean(dif)
     SE <- sd(dif)
@@ -8586,8 +8586,7 @@ d.interact2 <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long =
     result <- if(!missing(long) & !missing(extract)) Filter(nrow, h) else h
     if(length(result) == 0) NA else result 
   }
-}               
-               
+}                        
                
                
 #=====================================================================================================          
