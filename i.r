@@ -8530,20 +8530,7 @@ if(length(result) == 0) NA else result
 #=====================================================================================================
         
              
-meta.bayes <- function(y, labels = NULL, ...)
-{
- 
-    d <- sapply(1:length(y), function(i) y[[i]][,1])
-    sd <- sapply(1:length(y), function(i) y[[i]][,2])
-    labels <- names(y)
-  
-  
-  result <- bayesmeta(     y = d,
-                       sigma = sd,
-                      labels = labels, ...)
-  result$call <- match.call(expand.dots = FALSE)
-  return(result)
-}             
+             
                     
              
 #=====================================================================================================          
