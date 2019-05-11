@@ -8527,19 +8527,38 @@ if(length(result) == 0) NA else result
    }
 }
          
+#=====================================================================================================
+        
+             
+meta.bayes <- function(y, labels = NULL, ...)
+{
+ 
+    d <- sapply(1:length(y), function(i) y[[i]][,1])
+    sd <- sapply(1:length(y), function(i) y[[i]][,2])
+    labels <- names(y)
+  
+  
+  result <- bayesmeta(     y = d,
+                       sigma = sd,
+                      labels = labels, ...)
+  result$call <- match.call(expand.dots = FALSE)
+  return(result)
+}             
+                    
              
 #=====================================================================================================          
              
-need <- c("rstanarm", "pscl", "glmmTMB", "distr")  #, "arrangements")
+need <- c("rstanarm", "distr", "bayesmeta")  #, "pscl", "glmmTMB", "arrangements")
 have <- need %in% rownames(installed.packages())
 if(any(!have)){ install.packages( need[!have] ) }
  
 options(warn = -1)
 suppressMessages({ 
     library("rstanarm")
-    library("pscl")
-    library("glmmTMB")
+    #library("pscl")
+    #library("glmmTMB")
     library("distr")
+    library("bayesmeta")
   # library("arrangements")
 })
                      
