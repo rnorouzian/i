@@ -8544,7 +8544,52 @@ meta.bayes <- function(y, labels = NULL, ...)
   return(result)
 }             
                     
-             
+#=====================================================================================================
+               
+               
+d.interact2 <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long = NA, extract = NA, study.name = NA){
+  
+  ll <- d.per.study
+  
+  nm <- if(!missing(long) & long) "long" else if(!missing(long) & !long) "short"
+  
+  G <- Vectorize(function(dppc, dppt, nc, nt, digits){
+    
+    like1 <- function(x) dt(dppc*sqrt(nc), df = nc - 1, ncp = x*sqrt(nc))
+    like2 <- function(x) dt(dppt*sqrt(nt), df = nt - 1, ncp = x*sqrt(nt))
+    
+    d1 <- distr::AbscontDistribution(d = like1)
+    d2 <- distr::AbscontDistribution(d = like2)
+    
+    dif <- distr::r(d2 - d1)(2e4)
+    
+    Mean <- mean(dif)
+    SE <- sd(dif)
+    
+    return(round(c(d.interact = Mean, SE = SE), digits))
+  })
+  
+  out <- data.frame(t(G(dppc = dppc, dppt = dppt, nc = nc, nt = nt, digits = digits)))
+  if(is.na(ll)) out else {
+    
+    if(sum(ll) != nrow(out)) stop("Incorrect 'd.per.study' detected.", call. = FALSE)
+    if(!missing(long))out[nm] <- long
+    
+    h <- split(out, rep(seq_along(ll), ll))
+    names(h) <- if(is.na(study.name)) paste0("Study", seq_along(h)) else study.name
+    h <- lapply(h, `row.names<-`, NULL)
+    
+    if(!missing(long) & !missing(extract)) h <- switch(extract,
+                                                       "long" = lapply(h, subset, subset = long),
+                                                       "short" = lapply(h, subset, subset = !long))
+    
+    result <- if(!missing(long) & !missing(extract)) Filter(nrow, h) else h
+    if(length(result) == 0) NA else result 
+  }
+}               
+               
+               
+               
 #=====================================================================================================          
              
 need <- c("rstanarm", "distr", "bayesmeta")  #, "pscl", "glmmTMB", "arrangements")
