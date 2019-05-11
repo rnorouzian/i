@@ -8548,15 +8548,15 @@ meta.bayes <- function(y, labels = NULL, ...)
              
 #=====================================================================================================          
              
-need <- c("rstanarm", "distr", "bayesmeta", "pscl", "glmmTMB")  #, "pscl", "glmmTMB", "arrangements")
+need <- c("rstanarm", "distr", "bayesmeta")  #, "pscl", "glmmTMB", "arrangements")
 have <- need %in% rownames(installed.packages())
 if(any(!have)){ install.packages( need[!have] ) }
  
 options(warn = -1)
 suppressMessages({ 
     library("rstanarm")
-    library("pscl")
-    library("glmmTMB")
+  # library("pscl")
+  # library("glmmTMB")
     library("distr")
     library("bayesmeta")
   # library("arrangements")
