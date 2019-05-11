@@ -8413,7 +8413,48 @@ rdif <- function(n = NA, mpre = NA, mpos = NA, sdpre = NA, sdpos = NA, t = NA, F
 #=====================================================================================================
 
 
-
+d.prepos <- function(n, mpre, mpos, sdpre = NA, sdpos = NA, r = NA, t = NA, sdif = NA, F1 = NA, digits = 6, d.per.study = NA, long = NA, control = NA, extract = NA, study.name = NA) 
+{
+  
+  ll <- d.per.study
+  
+  nm <- if(!missing(long) & long) "long" else if(!missing(long) & !long) "short"
+  cc <- if(!missing(control) & control) "control" else if(!missing(control) & !control) "treatment"
+  
+  
+  mdif <- mpos - mpre
+  sdif <- if(is.na(sdif)) sdif(sdpre = sdpre, sdpos = sdpos, t = t, r = r, n = n, mpos = mpos, mpre = mpre, F1 = F1) else sdif
+  corr. <- if(is.na(r)) rdif(n = n, mpre = mpre, mpos = mpos, sdpre = sdpre, sdpos = sdpos, sdif = sdif) else r
+  d <- mdif/sdif 
+  se <- se.d(d, n1 = n, g = TRUE)
+  out <- round(data.frame(d = d*cfactor(n-1), SE = se, sdif = sdif, rprpos = corr.), digits)
+  
+  if(is.na(ll)) out else {
+    
+    if(sum(ll) != nrow(out)) stop("Incorrect 'd.per.study' detected.", call. = FALSE)
+    if(!missing(long))out[nm] <- long
+    if(!missing(control)) out[cc] <- control
+    
+    
+    h <- split(out, rep(seq_along(ll), ll))
+    names(h) <- if(is.na(study.name)) paste0("Study", seq_along(h)) else study.name
+    h <- lapply(h, `row.names<-`, NULL)
+    
+    if(!missing(long) & !missing(extract)) h <- switch(extract,
+                                                       "long" = lapply(h, subset, subset = long),
+                                                       "short" = lapply(h, subset, subset = !long),
+                                                       "control" = lapply(h, subset, subset = control),
+                                                       "treatment" = lapply(h, subset, subset = !control),
+                                                       "clong" = lapply(h, subset, subset = control & long),
+                                                       "cshort" = lapply(h, subset, subset = control & !long),
+                                                       "tlong" = lapply(h, subset, subset = !control & long),
+                                                       "tshort" = lapply(h, subset, subset = !control & !long))
+    
+    result <- if(!missing(long) & !missing(extract)) Filter(nrow, h) else h
+    if(length(result) == 0) NA else result
+  }
+  
+}
   
 
 #=====================================================================================================
@@ -8507,15 +8548,15 @@ meta.bayes <- function(y, labels = NULL, ...)
              
 #=====================================================================================================          
              
-need <- c("rstanarm", "distr", "bayesmeta")  #, "pscl", "glmmTMB", "arrangements")
+need <- c("rstanarm", "distr", "bayesmeta", "pscl", "glmmTMB")  #, "pscl", "glmmTMB", "arrangements")
 have <- need %in% rownames(installed.packages())
 if(any(!have)){ install.packages( need[!have] ) }
  
 options(warn = -1)
 suppressMessages({ 
     library("rstanarm")
-    #library("pscl")
-    #library("glmmTMB")
+    library("pscl")
+    library("glmmTMB")
     library("distr")
     library("bayesmeta")
   # library("arrangements")
