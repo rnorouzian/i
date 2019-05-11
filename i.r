@@ -203,6 +203,8 @@ cor2 <- function(...) {
 
 length.char <- function(x) lengths(gregexpr("\\w+", x))
                             
+ch2vec <- function(x) unlist(strsplit(x, ", "))                            
+                            
 #==================================================================================================================                            
                             
                             
