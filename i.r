@@ -8489,7 +8489,7 @@ t.testb <- function(m1, m2, s1, s2, n1, n2 = NA, m0 = 0, var.equal = FALSE, sdif
 #=====================================================================================================            
           
     
-d.interactb <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long, extract = NA, study.name = NA, group.name = NA){
+d.interact <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long, extract = NA, study.name = NA, group.name = NA){
   
   ll <- d.per.study
   
@@ -8553,7 +8553,7 @@ meta.bayes <- function(y, labels = NULL, ...)
 #=====================================================================================================
                
                
-d.interact <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long, extract = NA, study.name = NA, group.name = NA, n.sim = 2e4){
+dint <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long, extract = NA, study.name = NA, group.name = NA, n.sim = 2e4){
   
   ll <- d.per.study
   
@@ -8570,7 +8570,7 @@ d.interact <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long, e
     Mean <- mean(dif)
     SE <- sd(dif)
     
-    return(round(c(d.interact = Mean, SE = SE), digits))
+    return(round(c(dint = Mean, SE = SE), digits))
   })
   
   out <- data.frame(t(G(dppc = dppc, dppt = dppt, nc = nc, nt = nt, digits = digits)))
