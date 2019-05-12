@@ -8488,7 +8488,7 @@ t.testb <- function(m1, m2, s1, s2, n1, n2 = NA, m0 = 0, var.equal = FALSE, sdif
 #=====================================================================================================            
           
     
-d.interact <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long = NA, extract = NA, study.name = NA){
+d.interactb <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long = NA, extract = NA, study.name = NA){
 
 ll <- d.per.study
 
@@ -8550,7 +8550,7 @@ meta.bayes <- function(y, labels = NULL, ...)
 #=====================================================================================================
                
                
-d.interact2 <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long = NA, extract = NA, study.name = NA, n.sim = 2e4){
+d.interact <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long = NA, extract = NA, study.name = NA, n.sim = 2e4){
   
   ll <- d.per.study
   
