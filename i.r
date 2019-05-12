@@ -8416,31 +8416,32 @@ rdif <- function(n = NA, mpre = NA, mpos = NA, sdpre = NA, sdpos = NA, t = NA, F
 #=====================================================================================================
 
 
-d.prepos <- function(n, mpre, mpos, sdpre = NA, sdpos = NA, r = NA, t = NA, sdif = NA, F1 = NA, digits = 6, d.per.study = NA, long = NA, control = NA, extract = NA, study.name = NA) 
+d.prepos <- function(n, mpre, mpos, sdpre = NA, sdpos = NA, r = NA, t = NA, sdif = NA, F1 = NA, digits = 6, d.per.study = NA, long, control, extract = NA, study.name = NA, group.name = NA) 
 {
   
   ll <- d.per.study
-  
-  nm <- if(!missing(long) & long) "long" else if(!missing(long) & !long) "short"
-  cc <- if(!missing(control) & control) "control" else if(!missing(control) & !control) "treatment"
-  
+    
   mdif <- mpos - mpre
   sdif <- if(is.na(sdif)) sdif(sdpre = sdpre, sdpos = sdpos, t = t, r = r, n = n, mpos = mpos, mpre = mpre, F1 = F1) else sdif
-  corr. <- if(is.na(r)) rdif(n = n, mpre = mpre, mpos = mpos, sdpre = sdpre, sdpos = sdpos, sdif = sdif) else r
+  cor. <- if(is.na(r)) rdif(n = n, mpre = mpre, mpos = mpos, sdpre = sdpre, sdpos = sdpos, sdif = sdif) else r
   d <- mdif/sdif 
   se <- se.d(d, n1 = n, g = TRUE)
-  out <- round(data.frame(d = d*cfactor(n-1), SE = se, sdif = sdif, rprpos = corr.), digits)
-  
+  out <- round(data.frame(d = d*cfactor(n-1), SE = se, sdif = sdif, rpr.po = cor.), digits)
+
+     
   if(is.na(ll)) out else {
     
     if(sum(ll) != nrow(out)) stop("Incorrect 'd.per.study' detected.", call. = FALSE)
-    if(!missing(long))out[nm] <- long
-    if(!missing(control)) out[cc] <- control
+    if(!missing(long)) out$long <- long
+    if(!missing(control)) out$control <- control
+    
+    if(!is.na(group.name) & length(group.name) == sum(ll)) row.names(out) <- group.name else if(!is.na(group.name) & length(group.name) != sum(ll)) stop("'group.name' incorrectly specified.", call. = FALSE)
     
     
     h <- split(out, rep(seq_along(ll), ll))
-    names(h) <- if(is.na(study.name)) paste0("Study", seq_along(h)) else study.name
-    h <- lapply(h, `row.names<-`, NULL)
+    names(h) <- if(is.na(study.name)) paste0("Study", seq_along(h)) else if(!is.na(study.name) & length(study.name) == length(h)) study.name else if(!is.na(study.name) & length(study.name) != length(h)) stop("'study.name' incorrectly specified.", call. = FALSE)
+    if(is.na(group.name)) h <- lapply(h, `row.names<-`, NULL) 
+    
     
     if(!missing(long) & !missing(extract)) h <- switch(extract,
                                                        "long" = lapply(h, subset, subset = long),
@@ -8488,46 +8489,48 @@ t.testb <- function(m1, m2, s1, s2, n1, n2 = NA, m0 = 0, var.equal = FALSE, sdif
 #=====================================================================================================            
           
     
-d.interactb <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long = NA, extract = NA, study.name = NA){
-
-ll <- d.per.study
-
-nm <- if(!missing(long) & long) "long" else if(!missing(long) & !long) "short"
-
-G <- Vectorize(function(dppc, dppt, nc, nt, digits){
-
-like1 <- function(x) dt(dppc*sqrt(nc), df = nc - 1, ncp = x*sqrt(nc))
-like2 <- function(x) dt(dppt*sqrt(nt), df = nt - 1, ncp = x*sqrt(nt))
-
-d1 <- distr::AbscontDistribution(d = like1)
-d2 <- distr::AbscontDistribution(d = like2)
-
-like.dif <- function(x) distr::d(d2 - d1)(x)
-
-Mean <- integrate(function(x) x*like.dif(x), -Inf, Inf)[[1]]
-  SE <- sqrt(integrate(function(x) x^2*like.dif(x), -Inf, Inf)[[1]] - Mean^2)
-
-  return(round(c(d.interact = Mean, SE = SE), digits))
-})
-
-out <- data.frame(t(G(dppc = dppc, dppt = dppt, nc = nc, nt = nt, digits = digits)))
-if(is.na(ll)) out else {
-
-if(sum(ll) != nrow(out)) stop("Incorrect 'd.per.study' detected.", call. = FALSE)
-if(!missing(long))out[nm] <- long
+d.interactb <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long, extract = NA, study.name = NA, group.name = NA){
   
-h <- split(out, rep(seq_along(ll), ll))
-names(h) <- if(is.na(study.name)) paste0("Study", seq_along(h)) else study.name
-h <- lapply(h, `row.names<-`, NULL)
-
-if(!missing(long) & !missing(extract)) h <- switch(extract,
-                                              "long" = lapply(h, subset, subset = long),
-                                              "short" = lapply(h, subset, subset = !long))
+  ll <- d.per.study
   
-result <- if(!missing(long) & !missing(extract)) Filter(nrow, h) else h
-if(length(result) == 0) NA else result 
-   }
+  G <- Vectorize(function(dppc, dppt, nc, nt, digits){
+    
+    like1 <- function(x) dt(dppc*sqrt(nc), df = nc - 1, ncp = x*sqrt(nc))
+    like2 <- function(x) dt(dppt*sqrt(nt), df = nt - 1, ncp = x*sqrt(nt))
+    
+    d1 <- distr::AbscontDistribution(d = like1)
+    d2 <- distr::AbscontDistribution(d = like2)
+    
+    like.dif <- function(x) distr::d(d2 - d1)(x)
+    
+    Mean <- integrate(function(x) x*like.dif(x), -Inf, Inf)[[1]]
+    SE <- sqrt(integrate(function(x) x^2*like.dif(x), -Inf, Inf)[[1]] - Mean^2)
+    
+    return(round(c(d.interact = Mean, SE = SE), digits))
+  })
+  
+  out <- data.frame(t(G(dppc = dppc, dppt = dppt, nc = nc, nt = nt, digits = digits)))
+  if(is.na(ll)) out else {
+    
+    if(sum(ll) != nrow(out)) stop("Incorrect 'd.per.study' detected.", call. = FALSE)
+    if(!missing(long)) out$long <- long
+    
+    if(!is.na(group.name) & length(group.name) == sum(ll)) row.names(out) <- group.name else if(!is.na(group.name) & length(group.name) != sum(ll)) stop("'group.name' incorrectly specified.", call. = FALSE)
+    
+    
+    h <- split(out, rep(seq_along(ll), ll))
+    names(h) <- if(is.na(study.name)) paste0("Study", seq_along(h)) else if(!is.na(study.name) & length(study.name) == length(h)) study.name else if(!is.na(study.name) & length(study.name) != length(h)) stop("'study.name' incorrectly specified.", call. = FALSE)
+    if(is.na(group.name)) h <- lapply(h, `row.names<-`, NULL)
+    
+    if(!missing(long) & !missing(extract)) h <- switch(extract,
+                                                       "long" = lapply(h, subset, subset = long),
+                                                       "short" = lapply(h, subset, subset = !long))
+    
+    result <- if(!missing(long) & !missing(extract)) Filter(nrow, h) else h
+    if(length(result) == 0) NA else result 
+  }
 }
+        
          
 #=====================================================================================================
         
@@ -8550,11 +8553,9 @@ meta.bayes <- function(y, labels = NULL, ...)
 #=====================================================================================================
                
                
-d.interact <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long = NA, extract = NA, study.name = NA, n.sim = 2e4){
+d.interact <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long, extract = NA, study.name = NA, group.name = NA, n.sim = 2e4){
   
   ll <- d.per.study
-  
-  nm <- if(!missing(long) & long) "long" else if(!missing(long) & !long) "short"
   
   G <- Vectorize(function(dppc, dppt, nc, nt, digits){
     
@@ -8576,11 +8577,13 @@ d.interact <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long = 
   if(is.na(ll)) out else {
     
     if(sum(ll) != nrow(out)) stop("Incorrect 'd.per.study' detected.", call. = FALSE)
-    if(!missing(long))out[nm] <- long
+    if(!missing(long)) out$long <- long
+    
+    if(!is.na(group.name) & length(group.name) == sum(ll)) row.names(out) <- group.name else if(!is.na(group.name) & length(group.name) != sum(ll)) stop("'group.name' incorrectly specified.", call. = FALSE)
     
     h <- split(out, rep(seq_along(ll), ll))
-    names(h) <- if(is.na(study.name)) paste0("Study", seq_along(h)) else study.name
-    h <- lapply(h, `row.names<-`, NULL)
+    names(h) <- if(is.na(study.name)) paste0("Study", seq_along(h)) else if(!is.na(study.name) & length(study.name) == length(h)) study.name else if(!is.na(study.name) & length(study.name) != length(h)) stop("'study.name' incorrectly specified.", call. = FALSE)
+    if(is.na(group.name)) h <- lapply(h, `row.names<-`, NULL)
     
     if(!missing(long) & !missing(extract)) h <- switch(extract,
                                                        "long" = lapply(h, subset, subset = long),
