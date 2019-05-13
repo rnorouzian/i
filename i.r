@@ -8419,19 +8419,18 @@ rdif <- function(n = NA, mpre = NA, mpos = NA, sdpre = NA, sdpos = NA, t = NA, F
 d.prepos <- function(n, mpre, mpos, sdpre = NA, sdpos = NA, r = NA, t = NA, sdif = NA, F1 = NA, d.per.study = NA, extract, study.name = NA, group.name = NA, ...) 
 {
   
-  #cl <- match.call()
-  
   ll <- d.per.study
   if(!missing(extract)) s <- substitute(extract)
   
+  d <- if(!is.na(t) & !missing(n)) t2d(t, n) else {
   mdif <- mpos - mpre
   sdif <- if(is.na(sdif)) sdif(sdpre = sdpre, sdpos = sdpos, t = t, r = r, n = n, mpos = mpos, mpre = mpre, F1 = F1) else sdif
   cor. <- if(is.na(r)) rdif(n = n, mpre = mpre, mpos = mpos, sdpre = sdpre, sdpos = sdpos, sdif = sdif) else r
-  d <- mdif/sdif 
+  d <- mdif/sdif }
   se <- se.d(d, n1 = n, g = TRUE)
-  out <- data.frame(d = d*cfactor(n-1), SE = se, sdif = sdif, rpr.po = cor., ...)
+  out <- data.frame(d = d*cfactor(n-1), SE = se, sdif = sdif, rpr.po = if(!is.na(t) & !missing(n)) r else cor., ...)
   
-    if(is.na(ll)) out else {
+  if(is.na(ll)) out else {
     
     if(sum(ll) != nrow(out)) stop("Incorrect 'd.per.study' detected.", call. = FALSE)
     
