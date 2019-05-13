@@ -8542,9 +8542,10 @@ meta.bayes <- function(y, labels = NULL, ...)
 #=====================================================================================================
                
                
-dint <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long, extract = NA, study.name = NA, group.name = NA, n.sim = 2e4){
+dint <- function(dppc, dppt, nc, nt, d.per.study = NA, study.name = NA, group.name = NA, n.sim = 2e4, digits = 6, extract, ...){
   
   ll <- d.per.study
+  if(!missing(extract)) s <- substitute(extract)
   
   G <- Vectorize(function(dppc, dppt, nc, nt, digits){
     
@@ -8557,16 +8558,16 @@ dint <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long, extract
     dif <- distr::r(d2 - d1)(n.sim)
     
     Mean <- mean(dif)
-    SE <- sd(dif)
+    SD <- sd(dif)
     
-    return(round(c(dint = Mean, SE = SE), digits))
+    return(round(c(dint = Mean, SD = SD), digits))
   })
   
-  out <- data.frame(t(G(dppc = dppc, dppt = dppt, nc = nc, nt = nt, digits = digits)))
+  out <- data.frame(t(G(dppc = dppc, dppt = dppt, nc = nc, nt = nt, digits = digits)), ...)
+  
   if(is.na(ll)) out else {
     
     if(sum(ll) != nrow(out)) stop("Incorrect 'd.per.study' detected.", call. = FALSE)
-    if(!missing(long)) out$long <- long
     
     if(!is.na(group.name) & length(group.name) == sum(ll)) row.names(out) <- group.name else if(!is.na(group.name) & length(group.name) != sum(ll)) stop("'group.name' incorrectly specified.", call. = FALSE)
     
@@ -8574,14 +8575,13 @@ dint <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long, extract
     names(h) <- if(is.na(study.name)) paste0("Study", seq_along(h)) else if(!is.na(study.name) & length(study.name) == length(h)) study.name else if(!is.na(study.name) & length(study.name) != length(h)) stop("'study.name' incorrectly specified.", call. = FALSE)
     if(is.na(group.name)) h <- lapply(h, `row.names<-`, NULL)
     
-    if(!missing(long) & !missing(extract)) h <- switch(extract,
-                                                       "long" = lapply(h, subset, subset = long),
-                                                       "short" = lapply(h, subset, subset = !long))
+    if(!missing(extract)) h <- lapply(h, function(x) do.call("subset", list(x, s)))
     
-    result <- if(!missing(long) & !missing(extract)) Filter(nrow, h) else h
-    if(length(result) == 0) NA else result 
+    result <- if(!missing(extract)) Filter(nrow, h) else h
+    
+    if(length(result) == 0) NA else result
   }
-}                        
+}                                                
                
                
 #=====================================================================================================          
