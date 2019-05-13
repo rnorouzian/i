@@ -8416,49 +8416,38 @@ rdif <- function(n = NA, mpre = NA, mpos = NA, sdpre = NA, sdpos = NA, t = NA, F
 #=====================================================================================================
 
 
-d.prepos <- function(n, mpre, mpos, sdpre = NA, sdpos = NA, r = NA, t = NA, sdif = NA, F1 = NA, digits = 6, d.per.study = NA, long, control, extract = NA, study.name = NA, group.name = NA) 
+d.prepos <- function(n, mpre, mpos, sdpre = NA, sdpos = NA, r = NA, t = NA, sdif = NA, F1 = NA, d.per.study = NA, extract, study.name = NA, group.name = NA, ...) 
 {
   
+  #cl <- match.call()
+  
   ll <- d.per.study
-    
+  if(!missing(extract)) s <- substitute(extract)
+  
   mdif <- mpos - mpre
   sdif <- if(is.na(sdif)) sdif(sdpre = sdpre, sdpos = sdpos, t = t, r = r, n = n, mpos = mpos, mpre = mpre, F1 = F1) else sdif
   cor. <- if(is.na(r)) rdif(n = n, mpre = mpre, mpos = mpos, sdpre = sdpre, sdpos = sdpos, sdif = sdif) else r
   d <- mdif/sdif 
   se <- se.d(d, n1 = n, g = TRUE)
-  out <- round(data.frame(d = d*cfactor(n-1), SE = se, sdif = sdif, rpr.po = cor.), digits)
-
-     
-  if(is.na(ll)) out else {
+  out <- data.frame(d = d*cfactor(n-1), SE = se, sdif = sdif, rpr.po = cor., ...)
+  
+    if(is.na(ll)) out else {
     
     if(sum(ll) != nrow(out)) stop("Incorrect 'd.per.study' detected.", call. = FALSE)
-    if(!missing(long)) out$long <- long
-    if(!missing(control)) out$control <- control
     
     if(!is.na(group.name) & length(group.name) == sum(ll)) row.names(out) <- group.name else if(!is.na(group.name) & length(group.name) != sum(ll)) stop("'group.name' incorrectly specified.", call. = FALSE)
     
-    
     h <- split(out, rep(seq_along(ll), ll))
     names(h) <- if(is.na(study.name)) paste0("Study", seq_along(h)) else if(!is.na(study.name) & length(study.name) == length(h)) study.name else if(!is.na(study.name) & length(study.name) != length(h)) stop("'study.name' incorrectly specified.", call. = FALSE)
-    if(is.na(group.name)) h <- lapply(h, `row.names<-`, NULL) 
+    if(is.na(group.name)) h <- lapply(h, `row.names<-`, NULL)
     
+    if(!missing(extract)) h <- lapply(h, function(x) do.call("subset", list(x, s))) 
     
-    if(!missing(long) & !missing(extract)) h <- switch(extract,
-                                                       "long" = lapply(h, subset, subset = long),
-                                                       "short" = lapply(h, subset, subset = !long),
-                                                       "control" = lapply(h, subset, subset = control),
-                                                       "treatment" = lapply(h, subset, subset = !control),
-                                                       "clong" = lapply(h, subset, subset = control & long),
-                                                       "cshort" = lapply(h, subset, subset = control & !long),
-                                                       "tlong" = lapply(h, subset, subset = !control & long),
-                                                       "tshort" = lapply(h, subset, subset = !control & !long))
+    result <- if(!missing(extract)) Filter(nrow, h) else h
     
-    result <- if(!missing(long) & !missing(extract)) Filter(nrow, h) else h
     if(length(result) == 0) NA else result
   }
-  
 }
-  
 
 #=====================================================================================================
 
