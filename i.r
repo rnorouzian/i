@@ -8610,7 +8610,17 @@ dint <- function(dppc, dppt, nc, nt, d.per.study = NULL, study.name = NULL, grou
   }
 }                                              
                
-               
+#=====================================================================================================
+                                      
+extract <- function(List, extract){
+
+s <- substitute(extract)  
+ 
+h <- lapply(List, function(x) do.call("subset", list(x, s)))
+
+Filter(nrow, h)
+}                                      
+                                      
 #=====================================================================================================          
              
 need <- c("rstanarm", "distr", "bayesmeta")  #, "pscl", "glmmTMB", "arrangements")
