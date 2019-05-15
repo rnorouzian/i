@@ -8569,7 +8569,7 @@ meta.bayes <- function(y, labels = NULL, ...)
 #=====================================================================================================
                
                
-dint <- function(dppc, dppt, nc, nt, d.per.study = NA, study.name = NA, group.name = NA, n.sim = 2e4, digits = 6, extract, ...){
+dint <- function(dppc, dppt, nc, nt, d.per.study = NULL, study.name = NULL, group.name = NULL, n.sim = 1e5, digits = 6, extract, ...){
   
   ll <- d.per.study
   if(!missing(extract)) s <- substitute(extract)
@@ -8592,15 +8592,15 @@ dint <- function(dppc, dppt, nc, nt, d.per.study = NA, study.name = NA, group.na
   
   out <- data.frame(t(G(dppc = dppc, dppt = dppt, nc = nc, nt = nt, digits = digits)), ...)
   
-  if(is.na(ll)) out else {
+  if(is.null(ll)) out else {
     
     if(sum(ll) != nrow(out)) stop("Incorrect 'd.per.study' detected.", call. = FALSE)
     
-    if(!is.na(group.name) & length(group.name) == sum(ll)) row.names(out) <- group.name else if(!is.na(group.name) & length(group.name) != sum(ll)) stop("'group.name' incorrectly specified.", call. = FALSE)
+    if(!is.null(group.name) & length(group.name) == sum(ll)) row.names(out) <- group.name else if(!is.null(group.name) & length(group.name) != sum(ll)) stop("'group.name' incorrectly specified.", call. = FALSE)
     
     h <- split(out, rep(seq_along(ll), ll))
-    names(h) <- if(is.na(study.name)) paste0("Study", seq_along(h)) else if(!is.na(study.name) & length(study.name) == length(h)) study.name else if(!is.na(study.name) & length(study.name) != length(h)) stop("'study.name' incorrectly specified.", call. = FALSE)
-    if(is.na(group.name)) h <- lapply(h, `row.names<-`, NULL)
+    names(h) <- if(is.null(study.name)) paste0("Study", seq_along(h)) else if(!is.null(study.name) & length(study.name) == length(h)) study.name else if(!is.null(study.name) & length(study.name) != length(h)) stop("'study.name' incorrectly specified.", call. = FALSE)
+    if(is.null(group.name)) h <- lapply(h, `row.names<-`, NULL)
     
     if(!missing(extract)) h <- lapply(h, function(x) do.call("subset", list(x, s)))
     
@@ -8608,7 +8608,7 @@ dint <- function(dppc, dppt, nc, nt, d.per.study = NA, study.name = NA, group.na
     
     if(length(result) == 0) NA else result
   }
-}                                                
+}                                              
                
                
 #=====================================================================================================          
