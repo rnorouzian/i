@@ -8396,49 +8396,77 @@ cfactor <- function(df) exp(lgamma(df/2)-log(sqrt(df/2)) - lgamma((df-1)/2))
 #===========================================================================================================================
 
                                                           
-sdif <- function(n = NA, mpre = NA, mpos = NA, sdpre = NA, sdpos = NA, r = NA, t = NA, F1 = NA){
+sdif <- function(n = NULL, mpre = NULL, mpos = NULL, sdpre = NULL, sdpos = NULL, r = NULL, t = NULL, F1 = NULL,
+                 sdp = NULL){
   
-if(!is.na(r)) sqrt(sdpre^2+sdpos^2-2*r*sdpre*sdpos)
-  else sqrt((n*(mpos - mpre)^2)/ if(is.na(t)) F1 else t^2 )
+  if(!is.null(r) & !is.null(sdpre) & !is.null(sdpos)) sqrt(sdpre^2+sdpos^2-2*r*sdpre*sdpos)
+  else if(!is.null(n) & is.null(r) & !is.null(t) & !is.null(mpre) & !is.null(mpos)) sqrt((n*(mpos - mpre)^2)/(if(is.null(F1) & !is.null(t))t^2 else if(!is.null(F1) & is.null(t)) F1)) 
+  else if(!is.null(r) & !is.null(sdp)) sqrt(2*sdp^2*(1-r)) else NA
   
 }
 
-#=====================================================================================================
-
-
-rdif <- function(n = NA, mpre = NA, mpos = NA, sdpre = NA, sdpos = NA, t = NA, F1 = NA, sdif = NA) {
+#===========================================================================================================================
+                                                                                                              
+                                                                                                              
+rdif <- function(n = NULL, mpre = NULL, mpos = NULL, sdpre = NULL, sdpos = NULL, t = NULL, F1 = NULL, sdif = NULL, 
+                 sdp = NULL) {
   
-  sdif <- if(is.na(sdif))sdif(sdpre = sdpre, sdpos = sdpos, t = t, r = NA, n = n, mpos = mpos, mpre = mpre, F1 = F1) else sdif
-  (sdpre^2 - sdpos^2 - sdif^2)/(2*sdpre*sdpos)
+  sdif <- if(is.null(sdif))sdif(sdpre = sdpre, sdpos = sdpos, t = t, r = NULL, n = n, mpos = mpos, mpre = mpre, F1 = F1, sdp = sdp) else sdif
+  if(!is.null(sdif) & is.null(sdp) & !is.null(sdpre) & !is.null(sdpos)) (sdpre^2 + sdpos^2 - sdif^2)/(2*sdpre*sdpos) else if(!is.null(sdp) & !is.null(sdif)) 1 - (sdif^2/(2*sdp^2)) 
+  else NA
 }
 
+      
+#===========================================================================================================================
+      
+    
+autoreg <- function(steps, r){
+  
+  steps <- if(length(steps) == 1) steps+1 else length(steps)+1
+  x <- diag(steps)
+  r <- data.frame(r^abs(row(x)-col(x)))
+  rownames(r) <- colnames(r) <- c("pre", paste0("post", 1:(steps-1)))
+  return(r)
+}    
+    
+    
+#============================================================================================================================
 
-#=====================================================================================================
 
-
-d.prepos <- function(n, mpre, mpos, sdpre = NA, sdpos = NA, r = NA, t = NA, sdif = NA, F1 = NA, d.per.study = NA, extract, study.name = NA, group.name = NA, ...) 
+d.prepos <- function(n = NULL, mpre = NULL, mpos = NULL, sdpre = NULL, sdpos = NULL, r = NULL, autoreg = FALSE, t = NULL, sdif = NULL, sdp = NULL, F1 = NULL, df2 = NULL, d.per.study = NULL, extract, study.name = NULL, group.name = NULL, long, ...) 
 {
   
   ll <- d.per.study
   if(!missing(extract)) s <- substitute(extract)
   
-  d <- if(!is.na(t) & !missing(n)) t2d(t, n) else {
-  mdif <- mpos - mpre
-  sdif <- if(is.na(sdif)) sdif(sdpre = sdpre, sdpos = sdpos, t = t, r = r, n = n, mpos = mpos, mpre = mpre, F1 = F1) else sdif
-  cor. <- if(is.na(r)) rdif(n = n, mpre = mpre, mpos = mpos, sdpre = sdpre, sdpos = sdpos, sdif = sdif) else r
-  d <- mdif/sdif }
-  se <- se.d(d, n1 = n, g = TRUE)
-  out <- data.frame(d = d*cfactor(n-1), SE = se, sdif = sdif, rpr.po = if(!is.na(t) & !missing(n)) r else cor., ...)
+  r <- ifelse(!missing(long) & is.logical(long) & autoreg & length(unique(long)) == 2  & !is.null(r) & !long, autoreg(2, r)[,1][-1][1], 
+              ifelse(!missing(long) & is.logical(long) & autoreg & length(unique(long)) == 2  & !is.null(r) & long,  autoreg(2, r)[,1][-1][2], 
+                     ifelse(!missing(long) & !is.logical(long) & autoreg & !is.na(r), autoreg(max(long, na.rm = T), r)[,1][-1][long], 
+                            ifelse(!autoreg || !is.logical(long) || length(unique(long)) > 2, r, r))))
   
-  if(is.na(ll)) out else {
+  if(!missing(long) & !is.logical(long) & autoreg & !is.null(r)) r <- autoreg(max(long, na.rm = T), r)[,1][-1][long] else r <- r
+  
+  d <- if(!is.null(t) & !missing(n)) t2d(t, n) else if(!is.null(F1) & !missing(n)) t2d(sqrt(F1), n) else if(!is.null(F1) & missing(n) & !is.null(df2)) t2d(sqrt(F1), df2+2) else NULL
+ 
+   mdif <- if(!is.null(mpre) & !is.null(mpre)) mpos - mpre else NULL
+    sdif <- if(is.null(sdif)) sdif(sdpre = sdpre, sdpos = sdpos, t = t, r = r, n = n, mpos = mpos, mpre = mpre, F1 = F1, sdp = sdp) else sdif
+    cor. <- if(is.null(r)) rdif(n = n, mpre = mpre, mpos = mpos, sdpre = sdpre, sdpos = sdpos, sdif = sdif, sdp = sdp) else r
+    if(!is.null(mdif) & is.null(d) & !is.null(sdif)) d <- mdif/sdif 
+    
+  se <- se.d(d, n1 = n, g = TRUE)
+  out <- data.frame(d = d*cfactor(n-1), SE = se, sdif = sdif, rpr.po = cor., long, ...)
+  
+  if(all(is.null(out$d))) stop("\ninsufficient info. to calculate effect size(s).", call. = FALSE)
+  
+  if(is.null(ll)) out else {
     
     if(sum(ll) != nrow(out)) stop("Incorrect 'd.per.study' detected.", call. = FALSE)
     
-    if(!is.na(group.name) & length(group.name) == sum(ll)) row.names(out) <- group.name else if(!is.na(group.name) & length(group.name) != sum(ll)) stop("'group.name' incorrectly specified.", call. = FALSE)
+    if(!is.null(group.name) & length(group.name) == sum(ll)) row.names(out) <- group.name else if(!is.null(group.name) & length(group.name) != sum(ll)) stop("'group.name' incorrectly specified.", call. = FALSE)
     
     h <- split(out, rep(seq_along(ll), ll))
-    names(h) <- if(is.na(study.name)) paste0("Study", seq_along(h)) else if(!is.na(study.name) & length(study.name) == length(h)) study.name else if(!is.na(study.name) & length(study.name) != length(h)) stop("'study.name' incorrectly specified.", call. = FALSE)
-    if(is.na(group.name)) h <- lapply(h, `row.names<-`, NULL)
+    names(h) <- if(is.null(study.name)) paste0("Study", seq_along(h)) else if(!is.null(study.name) & length(study.name) == length(h)) study.name else if(!is.null(study.name) & length(study.name) != length(h)) stop("'study.name' incorrectly specified.", call. = FALSE)
+    if(is.null(group.name)) h <- lapply(h, `row.names<-`, NULL)
     
     if(!missing(extract)) h <- lapply(h, function(x) do.call("subset", list(x, s))) 
     
