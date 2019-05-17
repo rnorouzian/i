@@ -8216,7 +8216,7 @@ d.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, digits = 1e2,
 }                               
                    
 
-#===========================================================================================================================
+#=========================== META-ANALYSIS IN COMPLEX STRUCTURE ISLA RESEARCH ===========================================
                   
                   
 dhnorm <- function(x, scale = 1, log = FALSE) 
@@ -8433,9 +8433,12 @@ autoreg <- function(steps, r){
 #============================================================================================================================
 
 
-d.prepos <- function(n = NULL, mpre = NULL, mpos = NULL, sdpre = NULL, sdpos = NULL, r = NULL, autoreg = FALSE, t = NULL, sdif = NULL, sdp = NULL, F1 = NULL, df2 = NULL, d.per.study = NULL, extract, study.name = NULL, group.name = NULL, long, ...) 
+d.prepos <- function(n = NULL, mpre = NULL, mpos = NULL, sdpre = NULL, sdpos = NULL, r = NULL, autoreg = FALSE, t = NULL, sdif = NULL, sdp = NULL, F1 = NULL, df2 = NULL, d.per.study = NULL, extract, study.name = NULL, group.name = NULL, long, control, ...) 
 {
+
+  if(missing(control) || missing(long)) stop("'long' or/and 'control' is/are missing.", call. = FALSE)  
   
+  cl <- match.call()
   ll <- d.per.study
   if(!missing(extract)) s <- substitute(extract)
   
@@ -8452,9 +8455,10 @@ d.prepos <- function(n = NULL, mpre = NULL, mpos = NULL, sdpre = NULL, sdpos = N
     sdif <- if(is.null(sdif)) sdif(sdpre = sdpre, sdpos = sdpos, t = t, r = r, n = n, mpos = mpos, mpre = mpre, F1 = F1, sdp = sdp) else sdif
     cor. <- if(is.null(r)) rdif(n = n, mpre = mpre, mpos = mpos, sdpre = sdpre, sdpos = sdpos, sdif = sdif, sdp = sdp) else r
     if(!is.null(mdif) & is.null(d) & !is.null(sdif)) d <- mdif/sdif 
+  
+    se <- se.d(d, n1 = n, g = TRUE)
     
-  se <- se.d(d, n1 = n, g = TRUE)
-  out <- data.frame(d = d*cfactor(n-1), SE = se, sdif = sdif, rpr.po = cor., long, ...)
+  out <- data.frame(d = d*cfactor(n-1), SE = se, sdif = sdif, rpr.po = cor., long, control, ...)
   
   if(all(is.null(out$d))) stop("\ninsufficient info. to calculate effect size(s).", call. = FALSE)
   
@@ -8472,7 +8476,10 @@ d.prepos <- function(n = NULL, mpre = NULL, mpos = NULL, sdpre = NULL, sdpos = N
     
     result <- if(!missing(extract)) Filter(nrow, h) else h
     
-    if(length(result) == 0) NA else result
+    z <- if(length(result) == 0) NA else result
+    
+    if(!is.na(z)) append(z, list(call = cl)) else z
+    
   }
 }
 
@@ -8569,7 +8576,64 @@ meta.bayes <- function(y, labels = NULL, ...)
 #=====================================================================================================
                
                
-dint <- function(dppc, dppt, nc, nt, d.per.study = NULL, study.name = NULL, group.name = NULL, n.sim = 1e5, digits = 6, extract, ...){
+reget <- function(List, what, omit.last = TRUE){
+  
+  s <- substitute(what)  
+  
+  if(omit.last) List[[length(List)]] <- NULL
+  
+  h <- lapply(List, function(x) do.call("subset", list(x, s)))
+  
+  res <- Filter(nrow, h)
+  
+  if(length(res) == 0) NULL else res
+}            
+
+#=====================================================================================================
+              
+pair <- function(j, k){
+  lapply(seq_along(j), function(i) {x1 <- expand.grid(d1 = j[[i]]$d, d2 = k[[i]]$d); 
+  row.names(x1) <- c(outer(row.names(j[[i]]), row.names(k[[i]]), FUN = paste)); 
+  setNames(split(as.matrix(x1), row(x1)), paste(names(k[i]), row.names(x1), sep = "|"))})
+}
+
+#=====================================================================================================
+              
+              
+dint <- function(object, dppc, dppt, nc, nt, d.per.study = NULL, study.name = NULL, group.name = NULL, n.sim = 1e5, digits = 6, 
+                 extract, ...){
+  
+if(!missing(object)){
+    
+  m <- as.list(object$call)
+    
+  cl <- reget(object, control & long)
+  cs <- reget(object, control & !long)
+  
+  tl <- reget(object, !control & long)
+  ts <- reget(object, !control & !long)  
+  
+  if(is.null(c(cl, cs, tl, ts))) stop("Either 'control' or 'long' incorrectly coded.", call. = FALSE)
+  
+ nc1 <- ncs <- eval(m$n)[eval(m$control) & eval(m$long) == FALSE]
+ nc2 <- ncl <- eval(m$n)[eval(m$control) & eval(m$long)]
+  
+ nt1 <- nts <- eval(m$n)[eval(m$control) == FALSE & eval(m$long) == FALSE]
+ nt2 <- ntl <- eval(m$n)[eval(m$control) == FALSE & eval(m$long)]
+  
+ dps <- pair(cs, ts)
+ dpl <- pair(cl, tl)
+  
+ dppc1 <- dppcs <- sapply(1:length(dps), function(i) dps[[i]][[1]][1])
+ dppt1 <- dppts <- sapply(1:length(dps), function(i) dps[[i]][[1]][2])
+  
+ dppc2 <- dppcl <- sapply(1:length(dpl), function(i) dpl[[i]][[1]][1])
+ dppt2 <- dpptl <- sapply(1:length(dpl), function(i) dpl[[i]][[1]][2])
+
+ group.name1 <- unlist(sapply(1:length(dps), function(i) names(dps[[i]])))
+ group.name2 <- unlist(sapply(1:length(dpl), function(i) names(dpl[[i]])))
+    
+}
   
   ll <- d.per.study
   if(!missing(extract)) s <- substitute(extract)
@@ -8579,8 +8643,8 @@ dint <- function(dppc, dppt, nc, nt, d.per.study = NULL, study.name = NULL, grou
     like1 <- function(x) dt(dppc*sqrt(nc), df = nc - 1, ncp = x*sqrt(nc))
     like2 <- function(x) dt(dppt*sqrt(nt), df = nt - 1, ncp = x*sqrt(nt))
     
-    d1 <- distr::AbscontDistribution(d = like1)
-    d2 <- distr::AbscontDistribution(d = like2)
+    d1 <- AbscontDistribution(d = like1)
+    d2 <- AbscontDistribution(d = like2)
     
     dif <- distr::r(d2 - d1)(n.sim)
     
@@ -8590,35 +8654,51 @@ dint <- function(dppc, dppt, nc, nt, d.per.study = NULL, study.name = NULL, grou
     return(round(c(dint = Mean, SD = SD), digits))
   })
   
-  out <- data.frame(t(G(dppc = dppc, dppt = dppt, nc = nc, nt = nt, digits = digits)), ...)
+  if(!missing(object)){
   
+  SHORT <- data.frame(t(G(dppc = dppc1, dppt = dppt1, nc = nc1, nt = nt1, digits = digits)))
+  row.names(SHORT) <- group.name1
+  
+  LONG <- data.frame(t(G(dppc = dppc2, dppt = dppt2, nc = nc2, nt = nt2, digits = digits)))
+  row.names(LONG) <- group.name2
+  
+  list(SHORT = SHORT, LONG = LONG)
+  
+  } else {
+  
+  out <- data.frame(t(G(dppc = dppc, dppt = dppt, nc = nc, nt = nt, digits = digits)), ...)
+    
   if(is.null(ll)) out else {
     
-    if(sum(ll) != nrow(out)) stop("Incorrect 'd.per.study' detected.", call. = FALSE)
-    
-    if(!is.null(group.name) & length(group.name) == sum(ll)) row.names(out) <- group.name else if(!is.null(group.name) & length(group.name) != sum(ll)) stop("'group.name' incorrectly specified.", call. = FALSE)
+  if(sum(ll) != nrow(out)) stop("Incorrect 'd.per.study' detected.", call. = FALSE)
+   
+    ur <- try(if(!is.null(group.name) & length(group.name) == sum(ll)) row.names(out) <- group.name else if(!is.null(group.name) & length(group.name) != sum(ll)) stop("'group.name' incorrectly specified.", call. = FALSE), silent = TRUE)
     
     h <- split(out, rep(seq_along(ll), ll))
     names(h) <- if(is.null(study.name)) paste0("Study", seq_along(h)) else if(!is.null(study.name) & length(study.name) == length(h)) study.name else if(!is.null(study.name) & length(study.name) != length(h)) stop("'study.name' incorrectly specified.", call. = FALSE)
-    if(is.null(group.name)) h <- lapply(h, `row.names<-`, NULL)
+    if(inherits(ur, "try-error")) h <- lapply(h, `row.names<-`, NULL)
     
     if(!missing(extract)) h <- lapply(h, function(x) do.call("subset", list(x, s)))
     
     result <- if(!missing(extract)) Filter(nrow, h) else h
     
     if(length(result) == 0) NA else result
-  }
-}                                              
+     }
+   }  
+}
+                                              
                
 #=====================================================================================================
                                       
 extract <- function(List, extract){
 
-s <- substitute(extract)  
+  s <- substitute(extract)  
  
-h <- lapply(List, function(x) do.call("subset", list(x, s)))
+  h <- lapply(List, function(x) do.call("subset", list(x, s)))
 
-Filter(nrow, h)
+res <- Filter(nrow, h)
+  
+ if(length(res) == 0) NULL else res
 }                                      
                                       
 #=====================================================================================================          
