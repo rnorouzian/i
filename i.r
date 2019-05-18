@@ -8630,8 +8630,8 @@ if(!missing(object)){
  dppc2 <- dppcl <- sapply(1:length(dpl), function(i) dpl[[i]][[1]][1])
  dppt2 <- dpptl <- sapply(1:length(dpl), function(i) dpl[[i]][[1]][2])
 
- group.name1 <- unlist(sapply(1:length(dps), function(i) names(dps[[i]])))
- group.name2 <- unlist(sapply(1:length(dpl), function(i) names(dpl[[i]])))
+ group.name1 <- unlist(lapply(1:length(dps), function(i) names(dps[[i]])))
+ group.name2 <- unlist(lapply(1:length(dpl), function(i) names(dpl[[i]])))
     
 }
   
