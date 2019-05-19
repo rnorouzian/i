@@ -8583,12 +8583,14 @@ reget <- function(List, what, omit.last = TRUE){
   
   if(omit.last) List[[length(List)]] <- NULL
   
+  if(class(List)[1] != "list") List <- list(List)
+  
   h <- lapply(List, function(x) do.call("subset", list(x, s)))
   
   res <- Filter(nrow, h)
   
   if(length(res) == 0) NULL else res
-}            
+}          
 
 #=====================================================================================================
               
@@ -8696,10 +8698,12 @@ if(!missing(object)){
 extract <- function(List, extract){
 
   s <- substitute(extract)  
- 
+    
+  if(class(List)[1] != "list") List <- list(List)
+    
   h <- lapply(List, function(x) do.call("subset", list(x, s)))
 
-res <- Filter(nrow, h)
+  res <- Filter(nrow, h)
   
  if(length(res) == 0) NULL else res
 }                                      
