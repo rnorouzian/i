@@ -8435,7 +8435,7 @@ autoreg <- function(steps, r){
 
 d.prepos <- function(n = NULL, mpre = NULL, mpos = NULL, sdpre = NULL, sdpos = NULL, r = NULL, autoreg = FALSE, t = NULL, sdif = NULL, sdp = NULL, F1 = NULL, df2 = NULL, d.per.study = NULL, extract, study.name = NULL, group.name = NULL, long, control, ...) 
 {
-
+  
   if(missing(control) || missing(long)) stop("'long' or/and 'control' is/are missing.", call. = FALSE)  
   
   cl <- match.call()
@@ -8450,23 +8450,24 @@ d.prepos <- function(n = NULL, mpre = NULL, mpos = NULL, sdpre = NULL, sdpos = N
   if(!missing(long) & !is.logical(long) & autoreg & !is.null(r)) r <- autoreg(max(long, na.rm = T), r)[,1][-1][long] else r <- r
   
   d <- if(!is.null(t) & !missing(n)) t2d(t, n) else if(!is.null(F1) & !missing(n)) t2d(sqrt(F1), n) else if(!is.null(F1) & missing(n) & !is.null(df2)) t2d(sqrt(F1), df2+2) else NULL
- 
-   mdif <- if(!is.null(mpre) & !is.null(mpre)) mpos - mpre else NULL
-    sdif <- if(is.null(sdif)) sdif(sdpre = sdpre, sdpos = sdpos, t = t, r = r, n = n, mpos = mpos, mpre = mpre, F1 = F1, sdp = sdp) else sdif
-    cor. <- if(is.null(r)) rdif(n = n, mpre = mpre, mpos = mpos, sdpre = sdpre, sdpos = sdpos, sdif = sdif, sdp = sdp) else r
-    if(!is.null(mdif) & is.null(d) & !is.null(sdif)) d <- mdif/sdif 
   
-    se <- se.d(d, n1 = n, g = TRUE)
-    
+  mdif <- if(!is.null(mpre) & !is.null(mpre)) mpos - mpre else NULL
+  sdif <- if(is.null(sdif)) sdif(sdpre = sdpre, sdpos = sdpos, t = t, r = r, n = n, mpos = mpos, mpre = mpre, F1 = F1, sdp = sdp) else sdif
+  cor. <- if(is.null(r)) rdif(n = n, mpre = mpre, mpos = mpos, sdpre = sdpre, sdpos = sdpos, sdif = sdif, sdp = sdp) else r
+  if(!is.null(mdif) & is.null(d) & !is.null(sdif)) d <- mdif/sdif 
+  
+  se <- se.d(d, n1 = n, g = TRUE)
+  
   out <- data.frame(d = d*cfactor(n-1), SE = se, sdif = sdif, rpr.po = cor., long, control, ...)
   
   if(all(is.null(out$d))) stop("\ninsufficient info. to calculate effect size(s).", call. = FALSE)
   
+  if(!is.null(group.name) & length(group.name) == nrow(out)) row.names(out) <- group.name else if(!is.null(group.name) & length(group.name) != nrow(out)) stop("'group.name' incorrectly specified.", call. = FALSE)
+  
+  
   if(is.null(ll)) out else {
     
     if(sum(ll) != nrow(out)) stop("Incorrect 'd.per.study' detected.", call. = FALSE)
-    
-    if(!is.null(group.name) & length(group.name) == sum(ll)) row.names(out) <- group.name else if(!is.null(group.name) & length(group.name) != sum(ll)) stop("'group.name' incorrectly specified.", call. = FALSE)
     
     h <- split(out, rep(seq_along(ll), ll))
     names(h) <- if(is.null(study.name)) paste0("Study", seq_along(h)) else if(!is.null(study.name) & length(study.name) == length(h)) study.name else if(!is.null(study.name) & length(study.name) != length(h)) stop("'study.name' incorrectly specified.", call. = FALSE)
@@ -8667,6 +8668,8 @@ if(!missing(object)){
   } else {
   
   out <- data.frame(t(G(dppc = dppc, dppt = dppt, nc = nc, nt = nt, digits = digits)), ...)
+  
+  if(!is.null(group.name) & length(group.name) == nrow(out)) row.names(out) <- group.name else if(!is.null(group.name) & length(group.name) != nrow(out)) stop("'group.name' incorrectly specified.", call. = FALSE)
     
   if(is.null(ll)) out else {
     
