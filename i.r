@@ -8436,7 +8436,7 @@ autoreg <- function(steps, r){
 d.prepos <- function(n = NULL, mpre = NULL, mpos = NULL, sdpre = NULL, sdpos = NULL, r = NULL, autoreg = FALSE, t = NULL, sdif = NULL, sdp = NULL, F1 = NULL, df2 = NULL, d.per.study = NULL, extract, study.name = NULL, group.name = NULL, long, control, ...) 
 {
   
-  if(missing(control) || missing(long)) stop("'long' or/and 'control' is/are missing.", call. = FALSE)  
+  if(missing(control) || missing(long)) stop("'long' or/and 'control' missing.", call. = FALSE)  
   
   cl <- match.call()
   ll <- d.per.study
@@ -8458,14 +8458,14 @@ d.prepos <- function(n = NULL, mpre = NULL, mpos = NULL, sdpre = NULL, sdpos = N
   
   se <- se.d(d, n1 = n, g = TRUE)
   
-  out <- data.frame(d = d*cfactor(n-1), SE = se, sdif = sdif, rpr.po = cor., long, control, ...)
+  out <- data.frame(d = d*cfactor(n-1), SE = se, n = n, sdif = sdif, rpr.po = cor., long, control, ...)
   
   if(all(is.null(out$d))) stop("\ninsufficient info. to calculate effect size(s).", call. = FALSE)
   
   if(!is.null(group.name) & length(group.name) == nrow(out)) row.names(out) <- group.name else if(!is.null(group.name) & length(group.name) != nrow(out)) stop("'group.name' incorrectly specified.", call. = FALSE)
   
   
-  if(is.null(ll)) out else {
+if(is.null(ll)) out else {
     
     if(sum(ll) != nrow(out)) stop("Incorrect 'd.per.study' detected.", call. = FALSE)
     
@@ -8480,9 +8480,93 @@ d.prepos <- function(n = NULL, mpre = NULL, mpos = NULL, sdpre = NULL, sdpos = N
     z <- if(length(result) == 0) NA else result
     
     if(!is.na(z)) append(z, list(call = cl)) else z
-    
   }
 }
+
+
+#============================================================================================================================
+                                      
+                                      
+fuse <- function(..., per.study){
+  
+  ll <- per.study
+   L <- list(...)
+  
+  g <- split(L, rep(seq_along(ll), ll))
+  
+  lapply(g, function(x) do.call(rbind, x))
+  
+}
+
+#============================================================================================================================
+         
+
+dint <- function(..., per.study, study.name = NULL, group.name = NULL, n.sim = 1e5, digits = 6){
+
+L <- fuse(... = ..., per.study = per.study)
+  
+G <- function(m, per.study, study.name, group.name, n.sim, digits
+              ){
+  
+    cl <- reget(m, control & long, F)
+    cs <- reget(m, control & !long, F)
+    
+    tl <- reget(m, !control & long, F)
+    ts <- reget(m, !control & !long, F)  
+    
+    if(all(sapply(list(cl, tl, cs, ts), is.null))) stop("Either 'control' or 'long' incorrectly coded.", call. = FALSE)
+    
+    short <- all(sapply(list(cl, tl), is.null))
+    
+    nc1 <- ncs <- m$n[m$control & m$long == FALSE]
+    nc2 <- ncl <- m$n[m$control & m$long]
+    
+    nt1 <- nts <- m$n[m$control == FALSE & m$long == FALSE]
+    nt2 <- ntl <- m$n[m$control == FALSE & m$long]
+    
+    dps <- pair(cs, ts)
+    if(!short)dpl <- pair(cl, tl)
+    
+    dppc1 <- dppcs <- sapply(1:length(dps), function(i) dps[[i]][[1]][1])
+    dppt1 <- dppts <- sapply(1:length(dps), function(i) dps[[i]][[1]][2])
+    
+    if(!short)dppc2 <- dppcl <- sapply(1:length(dpl), function(i) dpl[[i]][[1]][1])
+    if(!short)dppt2 <- dpptl <- sapply(1:length(dpl), function(i) dpl[[i]][[1]][2])
+    
+    group.name1 <- unlist(lapply(1:length(dps), function(i) names(dps[[i]])))
+    if(!short)group.name2 <- unlist(lapply(1:length(dpl), function(i) names(dpl[[i]])))
+
+  
+  G <- Vectorize(function(dppc, dppt, nc, nt, digits){
+    
+    like1 <- function(x) dt(dppc*sqrt(nc), df = nc - 1, ncp = x*sqrt(nc))
+    like2 <- function(x) dt(dppt*sqrt(nt), df = nt - 1, ncp = x*sqrt(nt))
+    
+    d1 <- AbscontDistribution(d = like1)
+    d2 <- AbscontDistribution(d = like2)
+    
+    dif <- distr::r(d2 - d1)(n.sim)
+    
+    Mean <- mean(dif)
+    SD <- sd(dif)
+    
+    return(round(c(dint = Mean, SD = SD), digits))
+  })
+    
+    SHORT <- data.frame(t(G(dppc = dppc1, dppt = dppt1, nc = nc1, nt = nt1, digits = digits)))
+    row.names(SHORT) <- group.name1
+    
+    if(!short)LONG <- data.frame(t(G(dppc = dppc2, dppt = dppt2, nc = nc2, nt = nt2, digits = digits)))
+    if(!short)row.names(LONG) <- group.name2
+    
+    if(!short) list(SHORT = SHORT, LONG = LONG) else list(SHORT = SHORT)
+}
+
+h <- lapply(1:length(L), function(i) G(m = L[[i]], study.name = study.name, group.name = group.name, n.sim = n.sim, digits = digits))
+names(h) <- if(is.null(study.name)) paste0("Study", seq_along(h)) else if(!is.null(study.name) & length(study.name) == length(h)) study.name else if(!is.null(study.name) & length(study.name) != length(h)) stop("'study.name' incorrectly specified.", call. = FALSE)
+h
+}
+
 
 #=====================================================================================================
 
@@ -8603,7 +8687,7 @@ pair <- function(j, k){
 #=====================================================================================================
               
               
-dint <- function(object, dppc, dppt, nc, nt, d.per.study = NULL, study.name = NULL, group.name = NULL, n.sim = 1e5, digits = 6, 
+dint2 <- function(object, dppc, dppt, nc, nt, d.per.study = NULL, study.name = NULL, group.name = NULL, n.sim = 1e5, digits = 6, 
                  extract, ...){
   
 if(!missing(object)){
@@ -8707,7 +8791,61 @@ extract <- function(List, extract){
   
  if(length(res) == 0) NULL else res
 }                                      
-                                      
+              
+              
+#=====================================================================================================
+              
+              
+meta.within <- function(..., per.study, study.name = NULL, outcome.name = NULL, tau.prior = function(x){dhnorm(x)}){
+  
+  L <- dint(... = ..., per.study = per.study, study.name = study.name)
+  
+G <- function(object, study.name, tau.prior, outcome.name)
+{
+  
+    d1 <- object$SHORT$dint
+    sd1 <- object$SHORT$SD
+
+    d2 <- object$LONG$dint
+    sd2 <- object$LONG$SD
+ 
+  short <- all(sapply(list(d2, sd2), is.null))
+  if(short & length(d1) == 1) { message("\nWarning: No need to meta for a single 'dint'.")  
+  
+    return(c(dint = d1, SD = sd1))
+    
+  }
+  result1 <- bayesmeta(     y = d1,
+                            sigma = sd1,
+                            labels = NULL, tau.prior = tau.prior)
+  result1$call <- match.call(expand.dots = FALSE)
+  
+  
+  if(!short) result2 <- bayesmeta(     y = d2,
+                                       sigma = sd2,
+                                       labels = NULL, tau.prior = tau.prior)
+  if(!short) result2$call <- match.call(expand.dots = FALSE)
+  
+  
+  short <- c(result1$summary["mean","mu"], result1$summary["sd","mu"])
+  
+  if(!short) long <- c(result2$summary["mean","mu"], result2$summary["sd","mu"])
+  
+  out <- if(!short) data.frame(Mean.dint.short = short[1], SD.dint.short  = short[2], Mean.dint.long = long[1], SD.dint.long = long[2]) else data.frame(Mean.dint.short = short[1], SD.dint.short  = short[2])
+  
+  if(!is.null(outcome.name))outcome.name <- paste0(outcome.name, ":")
+  rownames(out) <- outcome.name
+  out
+  
+   }             
+
+h <- lapply(1:length(L), function(i) G(object = L[[i]], study.name = study.name, outcome.name = outcome.name, tau.prior = tau.prior))
+names(h) <- if(is.null(study.name)) paste0("Study", seq_along(h)) else if(!is.null(study.name) & length(study.name) == length(h)) study.name else if(!is.null(study.name) & length(study.name) != length(h)) stop("'study.name' incorrectly specified.", call. = FALSE)
+h
+}              
+              
+              
+              
 #=====================================================================================================          
              
 need <- c("rstanarm", "distr", "bayesmeta")  #, "pscl", "glmmTMB", "arrangements")
