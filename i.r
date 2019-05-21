@@ -8800,53 +8800,55 @@ meta.within <- function(..., per.study, study.name = NULL, outcome.name = NULL, 
   
   L <- dint(... = ..., per.study = per.study, study.name = study.name)
   
-G <- function(object, study.name, tau.prior, outcome.name)
-{
-  
+  G <- function(object, study.name, tau.prior, outcome.name)
+  {
+    
     d1 <- object$SHORT$dint
     sd1 <- object$SHORT$SD
-
+    
     d2 <- object$LONG$dint
     sd2 <- object$LONG$SD
- 
-  Short <- all(sapply(list(d2, sd2), is.null))
     
-  if(Short & length(d1) == 1) { message("\nNote: Studies with a single 'dint' are skipped.")  
-  
-    return(c(dint = d1, SD = sd1))
+    Short <- all(sapply(list(d2, sd2), is.null))
     
-  }
-  result1 <- bayesmeta(     y = d1,
-                            sigma = sd1,
-                            labels = NULL, tau.prior = tau.prior)
-  result1$call <- match.call(expand.dots = FALSE)
+    if(Short & length(d1) == 1) { #message("\nNote: Studies with a single 'dint' are skipped.")  
+      
+      out <- data.frame(dint = d1, SD = sd1);
+             
+             if(!is.null(outcome.name))outcome.name <- paste0(outcome.name, ":");
+             rownames(out) <- outcome.name;
+             return(out)
+    }
+    result1 <- bayesmeta(     y = d1,
+                              sigma = sd1,
+                              labels = NULL, tau.prior = tau.prior)
+    result1$call <- match.call(expand.dots = FALSE)
+    
+    
+    if(!Short) result2 <- bayesmeta(     y = d2,
+                                         sigma = sd2,
+                                         labels = NULL, tau.prior = tau.prior)
+    if(!Short) result2$call <- match.call(expand.dots = FALSE)
+    
+    
+    short <- c(result1$summary["mean","mu"], result1$summary["sd","mu"])
+    
+    if(!Short) long <- c(result2$summary["mean","mu"], result2$summary["sd","mu"])
+    
+    out <- if(!Short) data.frame(Mean.dint.short = short[1], SD.dint.short  = short[2], Mean.dint.long = long[1], SD.dint.long = long[2]) else data.frame(Mean.dint.short = short[1], SD.dint.short  = short[2])
+    
+    if(!is.null(outcome.name))outcome.name <- paste0(outcome.name, ":")
+    rownames(out) <- outcome.name
+    out
+    
+  }             
   
-  
-  if(!Short) result2 <- bayesmeta(     y = d2,
-                                       sigma = sd2,
-                                       labels = NULL, tau.prior = tau.prior)
-  if(!Short) result2$call <- match.call(expand.dots = FALSE)
-  
-  
-  short <- c(result1$summary["mean","mu"], result1$summary["sd","mu"])
-  
-  if(!Short) long <- c(result2$summary["mean","mu"], result2$summary["sd","mu"])
-  
-  out <- if(!Short) data.frame(Mean.dint.short = short[1], SD.dint.short  = short[2], Mean.dint.long = long[1], SD.dint.long = long[2]) else data.frame(Mean.dint.short = short[1], SD.dint.short  = short[2])
-  
-  if(!is.null(outcome.name))outcome.name <- paste0(outcome.name, ":")
-  rownames(out) <- outcome.name
-  out
-  
-   }             
-
-h <- lapply(1:length(L), function(i) G(object = L[[i]], study.name = study.name, outcome.name = outcome.name, tau.prior = tau.prior))
-names(h) <- if(is.null(study.name)) paste0("Study", seq_along(h)) else if(!is.null(study.name) & length(study.name) == length(h)) study.name else if(!is.null(study.name) & length(study.name) != length(h)) stop("'study.name' incorrectly specified.", call. = FALSE)
-h
-}              
+  h <- lapply(1:length(L), function(i) G(object = L[[i]], study.name = study.name, outcome.name = outcome.name, tau.prior = tau.prior))
+  names(h) <- if(is.null(study.name)) paste0("Study", seq_along(h)) else if(!is.null(study.name) & length(study.name) == length(h)) study.name else if(!is.null(study.name) & length(study.name) != length(h)) stop("'study.name' incorrectly specified.", call. = FALSE)
+  h
+}     
               
-              
-              
+            
 #=====================================================================================================          
              
 need <- c("rstanarm", "distr", "bayesmeta")  #, "pscl", "glmmTMB", "arrangements")
