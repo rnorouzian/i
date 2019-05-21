@@ -8809,8 +8809,9 @@ G <- function(object, study.name, tau.prior, outcome.name)
     d2 <- object$LONG$dint
     sd2 <- object$LONG$SD
  
-  short <- all(sapply(list(d2, sd2), is.null))
-  if(short & length(d1) == 1) { message("\nWarning: No need to meta for a single 'dint'.")  
+  Short <- all(sapply(list(d2, sd2), is.null))
+    
+  if(Short & length(d1) == 1) { message("\nNote: Studies with a single 'dint' are skipped.")  
   
     return(c(dint = d1, SD = sd1))
     
@@ -8821,17 +8822,17 @@ G <- function(object, study.name, tau.prior, outcome.name)
   result1$call <- match.call(expand.dots = FALSE)
   
   
-  if(!short) result2 <- bayesmeta(     y = d2,
+  if(!Short) result2 <- bayesmeta(     y = d2,
                                        sigma = sd2,
                                        labels = NULL, tau.prior = tau.prior)
-  if(!short) result2$call <- match.call(expand.dots = FALSE)
+  if(!Short) result2$call <- match.call(expand.dots = FALSE)
   
   
   short <- c(result1$summary["mean","mu"], result1$summary["sd","mu"])
   
-  if(!short) long <- c(result2$summary["mean","mu"], result2$summary["sd","mu"])
+  if(!Short) long <- c(result2$summary["mean","mu"], result2$summary["sd","mu"])
   
-  out <- if(!short) data.frame(Mean.dint.short = short[1], SD.dint.short  = short[2], Mean.dint.long = long[1], SD.dint.long = long[2]) else data.frame(Mean.dint.short = short[1], SD.dint.short  = short[2])
+  out <- if(!Short) data.frame(Mean.dint.short = short[1], SD.dint.short  = short[2], Mean.dint.long = long[1], SD.dint.long = long[2]) else data.frame(Mean.dint.short = short[1], SD.dint.short  = short[2])
   
   if(!is.null(outcome.name))outcome.name <- paste0(outcome.name, ":")
   rownames(out) <- outcome.name
