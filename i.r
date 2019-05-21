@@ -8811,9 +8811,9 @@ meta.within <- function(..., per.study, study.name = NULL, outcome.name = NULL, 
     
     Short <- all(sapply(list(d2, sd2), is.null))
     
-    if(Short & length(d1) == 1) { #message("\nNote: Studies with a single 'dint' are skipped.")  
+    if(Short & length(d1) == 1) { 
       
-      out <- data.frame(dint = d1, SD = sd1);
+      out <- data.frame(dint.short = d1, SD.dint.short = sd1);
              
              if(!is.null(outcome.name))outcome.name <- paste0(outcome.name, ":");
              rownames(out) <- outcome.name;
@@ -8845,8 +8845,9 @@ meta.within <- function(..., per.study, study.name = NULL, outcome.name = NULL, 
   
   h <- lapply(1:length(L), function(i) G(object = L[[i]], study.name = study.name, outcome.name = outcome.name, tau.prior = tau.prior))
   names(h) <- if(is.null(study.name)) paste0("Study", seq_along(h)) else if(!is.null(study.name) & length(study.name) == length(h)) study.name else if(!is.null(study.name) & length(study.name) != length(h)) stop("'study.name' incorrectly specified.", call. = FALSE)
+  message("\nNote: Studies with a single 'dint' are safely skipped.\n")
   h
-}     
+}
               
             
 #=====================================================================================================          
