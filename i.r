@@ -8863,19 +8863,19 @@ if(!test[2]) message("Warning: Insufficient studies to meta-analyze 'long-term' 
 Short <- all(sapply(list(d2, sd2), is.null))
 
 
-if(isTRUE(test[1])) result1 <- bayesmeta(     y = d1,
+if(test[1]) result1 <- bayesmeta(     y = d1,
                            sigma = sd1,
                            labels = study.name, tau.prior = tau.prior)
-if(isTRUE(test[1])) result1$call <- match.call(expand.dots = FALSE)
+if(test[1]) result1$call <- match.call(expand.dots = FALSE)
   
   
-if(!Short & isTRUE(test[2])) result2 <- bayesmeta(     y = d2,
+if(!Short & test[2]) result2 <- bayesmeta(     y = d2,
                                        sigma = sd2,
                                        labels = study.name, tau.prior = tau.prior)
-if(!Short & isTRUE(test[2])) result2$call <- match.call(expand.dots = FALSE)
+if(!Short & test[2]) result2$call <- match.call(expand.dots = FALSE)
   
   
-if(!Short & isTRUE(test[2])) list(SHORT = result1, LONG = result2) else list(SHORT = result1)
+if(!Short & test[2]) list(SHORT = result1, LONG = result2) else list(SHORT = result1)
 
 }                   
               
