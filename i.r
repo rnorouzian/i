@@ -8849,7 +8849,52 @@ meta.within <- function(..., per.study, study.name = NULL, outcome.name = NULL, 
   h
 }
               
-            
+#=====================================================================================================
+              
+
+meta.bayes <- function(..., per.study, study.name = NULL, outcome.name = NULL, tau.prior = function(x){dhnorm(x)})
+{
+  
+
+j <- meta.within(... = ..., per.study = per.study, study.name = study.name, outcome.name = outcome.name, tau.prior = tau.prior)
+  
+
+d1 <- unlist(lapply(1:length(j), function(i) j[[i]]$Mean.dint.short))
+
+sd1 <- unlist(lapply(1:length(j), function(i) j[[i]]$SD.dint.short))
+
+
+d2 <- unlist(lapply(1:length(j), function(i) j[[i]]$Mean.dint.long))
+
+sd2 <- unlist(lapply(1:length(j), function(i) j[[i]]$SD.dint.long))
+
+test <- sapply(list(d1, d2), function(x) length(x) >= 2)
+
+if(!test[1] & !test[2]) stop("Insufficient studies to meta-analyze either 'short-' or 'long-term' effects.", call. = FALSE)
+
+if(!test[2]) message("Warning: Insufficient studies to meta-analyze 'long-term' effects.")
+
+
+Short <- all(sapply(list(d2, sd2), is.null))
+
+
+if(isTRUE(test[1])) result1 <- bayesmeta(     y = d1,
+                           sigma = sd1,
+                           labels = study.name, tau.prior = tau.prior)
+if(isTRUE(test[1])) result1$call <- match.call(expand.dots = FALSE)
+  
+  
+if(!Short & isTRUE(test[2])) result2 <- bayesmeta(     y = d2,
+                                       sigma = sd2,
+                                       labels = study.name, tau.prior = tau.prior)
+if(!Short & isTRUE(test[2])) result2$call <- match.call(expand.dots = FALSE)
+  
+  
+if(!Short & isTRUE(test[2])) list(SHORT = result1, LONG = result2) else list(SHORT = result1)
+
+}                   
+              
+              
 #=====================================================================================================          
              
 need <- c("rstanarm", "distr", "bayesmeta")  #, "pscl", "glmmTMB", "arrangements")
