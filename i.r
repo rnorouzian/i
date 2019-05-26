@@ -8642,22 +8642,7 @@ d.interact <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long, e
          
 #=====================================================================================================
         
-             
-meta.bayes <- function(y, labels = NULL, ...)
-{
-  
-  d <- sapply(1:length(y), function(i) y[[i]][,1])
-  sd <- sapply(1:length(y), function(i) y[[i]][,2])
-  labels <- names(y)
-  
-  
-  result <- bayesmeta(     y = d,
-                           sigma = sd,
-                           labels = labels, ...)
-  result$call <- match.call(expand.dots = FALSE)
-  return(result)
-}             
-                    
+                           
 #=====================================================================================================
                
                
