@@ -8666,7 +8666,7 @@ reget <- function(List, what, omit.last = TRUE){
 pair <- function(j, k){
   lapply(seq_along(j), function(i) {x1 <- expand.grid(d1 = j[[i]]$d, d2 = k[[i]]$d); 
   row.names(x1) <- c(outer(row.names(j[[i]]), row.names(k[[i]]), FUN = paste)); 
-  setNames(split(as.matrix(x1), row(x1)), paste(names(k[i]), row.names(x1), sep = "|"))})
+  setNames(split(as.matrix(x1), row(x1)), paste(names(k[i]), row.names(x1), sep = ""))})
 }
 
 #=====================================================================================================
