@@ -8879,7 +8879,20 @@ if(!Short & test[2]) list(SHORT = result1, LONG = result2) else list(SHORT = res
 
 }                   
               
-              
+#=====================================================================================================
+               
+fill <- function(refdf, ...) 
+  {
+  L <- list(...)
+  res <- lapply(L, function(x) {
+    toadd <- setdiff(names(refdf), names(x))
+    x[toadd] <- refdf[toadd]
+    x
+  })
+  c(list(refdf), res)
+}               
+               
+               
 #=====================================================================================================          
              
 need <- c("rstanarm", "distr", "bayesmeta")  #, "pscl", "glmmTMB", "arrangements")
