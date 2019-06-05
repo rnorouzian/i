@@ -8433,7 +8433,7 @@ autoreg <- function(steps, r){
 #============================================================================================================================
 
 
-d.prepos <- function(n = NULL, mpre = NULL, mpos = NULL, sdpre = NULL, sdpos = NULL, r = NULL, autoreg = FALSE, t = NULL, sdif = NULL, sdp = NULL, F1 = NULL, df2 = NULL, d.per.study = NULL, extract, study.name = NULL, group.name = NULL, long, control, ...) 
+d.prepos2 <- function(n = NULL, mpre = NULL, mpos = NULL, sdpre = NULL, sdpos = NULL, r = NULL, autoreg = FALSE, t = NULL, sdif = NULL, sdp = NULL, F1 = NULL, df2 = NULL, d.per.study = NULL, extract, study.name = NULL, group.name = NULL, long, control, ...) 
 {
   
   if(missing(control) || missing(long)) stop("'long' or/and 'control' missing.", call. = FALSE)  
@@ -8483,11 +8483,89 @@ if(is.null(ll)) out else {
   }
 }
 
-
 #============================================================================================================================
                                       
                                       
-fuse <- function(..., per.study){
+d.prepos <- function(n = NULL, mpre = NULL, mpos = NULL, sdpre = NULL, sdpos = NULL, r = NULL, autoreg = FALSE, t = NULL, sdif = NULL, sdp = NULL, F1 = NULL, df2 = NULL, d.per.study = NULL, extract, study.name = NULL, group.name = NULL, post, control, ...) 
+{
+  
+  if(missing(control) || missing(post)) stop("'post' or/and 'control' missing.", call. = FALSE)  
+  
+  #cl <- match.call()
+  ll <- d.per.study
+  if(!missing(extract)) s <- substitute(extract)
+  
+ # r <- ifelse(!missing(long) & is.logical(long) & autoreg & length(unique(long)) == 2  & !is.null(r) & !long, autoreg(2, r)[,1][-1][1], 
+ #             ifelse(!missing(long) & is.logical(long) & autoreg & length(unique(long)) == 2  & !is.null(r) & long,  autoreg(2, r)[,1][-1][2], 
+ #                    ifelse(!missing(long) & !is.logical(long) & autoreg & !is.na(r), autoreg(max(long, na.rm = T), r)[,1][-1][long], 
+ #                           ifelse(!autoreg || !is.logical(long) || length(unique(long)) > 2, r, r))))
+  
+ # if(!missing(long) & !is.logical(long) & autoreg & !is.null(r)) r <- autoreg(max(long, na.rm = T), r)[,1][-1][long] else r <- r
+  
+  if(!is.logical(post) & autoreg & !is.null(r)) r <- autoreg(max(post, na.rm = T), r)[,1][-1][post] else r <- r
+  
+  d <- if(!is.null(t) & !missing(n)) t2d(t, n) else if(!is.null(F1) & !missing(n)) t2d(sqrt(F1), n) else if(!is.null(F1) & missing(n) & !is.null(df2)) t2d(sqrt(F1), df2+2) else NULL
+  
+  mdif <- if(!is.null(mpre) & !is.null(mpre)) mpos - mpre else NULL
+  sdif <- if(is.null(sdif)) sdif(sdpre = sdpre, sdpos = sdpos, t = t, r = r, n = n, mpos = mpos, mpre = mpre, F1 = F1, sdp = sdp) else sdif
+  cor. <- if(is.null(r)) rdif(n = n, mpre = mpre, mpos = mpos, sdpre = sdpre, sdpos = sdpos, sdif = sdif, sdp = sdp) else r
+  if(!is.null(mdif) & is.null(d) & !is.null(sdif)) d <- mdif/sdif 
+  
+  se <- se.d(d, n1 = n, g = TRUE)
+  
+  out <- data.frame(d = d*cfactor(n-1), SE = se, n = n, sdif = sdif, rpr.po = cor., post, control, ...)
+  
+  if(all(is.null(out$d))) stop("\ninsufficient info. to calculate effect size(s).", call. = FALSE)
+  
+  if(!is.null(group.name) & length(group.name) == nrow(out)) row.names(out) <- group.name else if(!is.null(group.name) & length(group.name) != nrow(out)) stop("'group.name' incorrectly specified.", call. = FALSE)
+  
+  
+if(is.null(ll)) out else {
+    
+    if(sum(ll) != nrow(out)) stop("Incorrect 'd.per.study' detected.", call. = FALSE)
+    
+    h <- split(out, rep(seq_along(ll), ll))
+    names(h) <- if(is.null(study.name)) paste0("Study", seq_along(h)) else if(!is.null(study.name) & length(study.name) == length(h)) study.name else if(!is.null(study.name) & length(study.name) != length(h)) stop("'study.name' incorrectly specified.", call. = FALSE)
+    if(is.null(group.name)) h <- lapply(h, `row.names<-`, NULL)
+    
+    if(!missing(extract)) h <- lapply(h, function(x) do.call("subset", list(x, s))) 
+    
+    result <- if(!missing(extract)) Filter(nrow, h) else h
+    
+   # z <- if(length(result) == 0) NA else result
+    
+    if(length(result) == 0) NA else result
+    
+    #if(!is.na(z)) append(z, list(call = cl)) else z
+  }
+}                                      
+                                      
+                                      
+                                      
+#============================================================================================================================
+ 
+                                      
+dit <- Vectorize(function(dppc, dppt, nc, nt, n.sim, digits){
+  
+  like1 <- function(x) dt(dppc*sqrt(nc), df = nc - 1, ncp = x*sqrt(nc))
+  like2 <- function(x) dt(dppt*sqrt(nt), df = nt - 1, ncp = x*sqrt(nt))
+  
+  d1 <- AbscontDistribution(d = like1)
+  d2 <- AbscontDistribution(d = like2)
+  
+  dif <- distr::r(d2 - d1)(n.sim)
+  
+  Mean <- mean(dif)
+  SD <- sd(dif)
+  
+  return(round(c(dint = Mean, SD = SD), digits))
+})                                      
+                                      
+                                      
+#============================================================================================================================
+                                      
+                                      
+fuse2 <- function(..., per.study){
   
   ll <- per.study
    L <- list(...)
@@ -8501,7 +8579,35 @@ fuse <- function(..., per.study){
 #============================================================================================================================
          
 
-dint <- function(..., per.study, study.name = NULL, group.name = NULL, n.sim = 1e5, digits = 6){
+fuse <- function(..., per.study){
+  
+  ll <- per.study
+  
+  L <- list(...)
+  
+  if(all(sapply(list(...), inherits, "list"))){
+    
+  g <- lapply(1:length(L), function(i) split(L[[i]], rep(seq_along(ll), ll)))
+  
+  h <- lapply(1:length(L), function(i) lapply(g[[i]], function(x) do.call(rbind, x)))
+  
+  lapply(1:length(h), function(i) Filter(nrow, h[[i]]))
+  
+  } else {
+    
+    g <- split(L, rep(seq_along(ll), ll))
+    
+    h <- lapply(g, function(x) do.call(rbind, x))
+    
+    Filter(nrow, h)
+  }
+}         
+         
+         
+#============================================================================================================================
+         
+
+dint3 <- function(..., per.study, study.name = NULL, group.name = NULL, n.sim = 1e5, digits = 6){
 
 L <- fuse(... = ..., per.study = per.study)
   
@@ -8570,7 +8676,99 @@ h
 
 #=====================================================================================================
 
+dint <- function(..., per.study, study.name = NULL, group.name = NULL, n.sim = 1e5, digits = 6, by = NULL)
+  {
 
+L <- fuse(... = ..., per.study = per.study)
+
+if(!is.null(by)){
+  
+s <- substitute(by)    
+
+k <- as.list(s)
+
+if("control" %in% k || "!control" %in% k) stop("'control' can't be a moderating variable either alone or with other variables.", call. = FALSE)
+
+h <- lapply(L, function(x) do.call("subset", list(x, s)))
+
+res <- Filter(nrow, h)
+
+L <- if(length(res) == 0) stop("No study with the requested moderators found.", call. = FALSE) else res
+}
+  
+G <- function(m, per.study, study.name, group.name, n.sim, digits)
+  {
+  
+    cc <- reget(m, control, F)
+    
+    if(is.null(cc)) stop("Required 'control' group not found.", call. = FALSE)
+  
+    cdel1 <- reget(m, control & post == 2, F)
+    cdel2 <- reget(m, control & post == 3, F)
+    cs <- reget(m, control & post == 1, F)
+    
+    tdel1 <- reget(m, !control & post == 2, F)
+    tdel2 <- reget(m, !control & post == 3, F)
+    ts <- reget(m, !control & post == 1, F)  
+    
+    if(all(sapply(list(cdel1, cdel2, tdel1, tdel2, ts, cs), is.null))) stop("Either 'control' or 'post' incorrectly coded.", call. = FALSE)
+    
+    short <- all(sapply(list(cs, ts), function(x) !is.null(x)))
+    
+    del1 <- all(sapply(list(cdel1, tdel1), function(x) !is.null(x)))
+    
+    del2 <- all(sapply(list(cdel2, tdel2), function(x) !is.null(x)))
+    
+    
+    nc1 <- ncs <- m$n[m$control & m$post == 1]
+    nc2 <- ncdel1 <- m$n[m$control & m$post == 2]
+    nc3 <- ncdel2 <- m$n[m$control & m$post == 3]
+    
+    nt1 <- nts <- m$n[m$control == FALSE & m$post == 1]
+    nt2 <- ntdel1 <- m$n[m$control == FALSE & m$post == 2]
+    nt3 <- ntdel2 <- m$n[m$control == FALSE & m$post == 3]
+    
+    
+    if(short){
+      dps <- pair(cs, ts)  
+      dppc1 <- dppcs <- sapply(1:length(dps), function(i) dps[[i]][[1]][1])
+      dppt1 <- dppts <- sapply(1:length(dps), function(i) dps[[i]][[1]][2])
+      group.name1 <- unlist(lapply(1:length(dps), function(i) names(dps[[i]])))
+      SHORT <- data.frame(t(dit(dppc = dppc1, dppt = dppt1, nc = nc1, nt = nt1, n.sim = n.sim, digits = digits)))
+      row.names(SHORT) <- group.name1
+    }
+    
+    if(del1){
+      dpdel1 <- pair(cdel1, tdel1)
+      dppc2 <- dppcdel1 <- sapply(1:length(dpdel1), function(i) dpdel1[[i]][[1]][1])
+      dppt2 <- dpptdel1 <- sapply(1:length(dpdel1), function(i) dpdel1[[i]][[1]][2])
+      group.name2 <- unlist(lapply(1:length(dpdel1), function(i) names(dpdel1[[i]])))
+      DEL1 <- data.frame(t(dit(dppc = dppc2, dppt = dppt2, nc = nc2, nt = nt2, n.sim = n.sim, digits = digits)))
+      row.names(DEL1) <- group.name2
+    }
+    
+    if(del2){
+      dpdel2 <- pair(cdel2, tdel2)
+      dppc3 <- dppcdel2 <- sapply(1:length(dpdel2), function(i) dpdel2[[i]][[1]][1])
+      dppt3 <- dpptdel2 <- sapply(1:length(dpdel2), function(i) dpdel2[[i]][[1]][2])
+      group.name3 <- unlist(lapply(1:length(dpdel2), function(i) names(dpdel2[[i]])))
+      DEL2 <- data.frame(t(dit(dppc = dppc3, dppt = dppt3, nc = nc3, nt = nt3, n.sim = n.sim, digits = digits)))
+      row.names(DEL2) <- group.name3
+    }
+    
+    
+    list(SHORT = if(short) SHORT else NULL, DEL1 = if(del1) DEL1 else NULL, DEL2 = if(del2) DEL2 else NULL) 
+}
+
+h <- lapply(1:length(L), function(i) G(m = L[[i]], study.name = study.name, group.name = group.name, n.sim = n.sim, digits = digits))
+names(h) <- if(is.null(study.name)) paste0("Study", seq_along(h)) else if(!is.null(study.name) & length(study.name) == length(h)) study.name else if(!is.null(study.name) & length(study.name) != length(h)) stop("'study.name' incorrectly specified.", call. = FALSE)
+h
+}            
+            
+            
+#=====================================================================================================
+            
+            
 t.testb <- function(m1, m2, s1, s2, n1, n2 = NA, m0 = 0, var.equal = FALSE, sdif = NA, r = NA, digits = 6){
   
   if(var.equal & !is.na(n2))
@@ -8781,7 +8979,7 @@ extract <- function(List, extract){
 #=====================================================================================================
               
               
-meta.within <- function(..., per.study, study.name = NULL, outcome.name = NULL, tau.prior = function(x){dhnorm(x)}){
+meta.within2 <- function(..., per.study, study.name = NULL, outcome.name = NULL, tau.prior = function(x){dhnorm(x)}){
   
   L <- dint(... = ..., per.study = per.study, study.name = study.name)
   
@@ -8835,9 +9033,108 @@ meta.within <- function(..., per.study, study.name = NULL, outcome.name = NULL, 
 }
               
 #=====================================================================================================
-              
 
-meta.bayes <- function(..., per.study, study.name = NULL, outcome.name = NULL, tau.prior = function(x){dhnorm(x)})
+meta.within <- function(..., per.study, study.name = NULL, outcome.name = NULL, tau.prior = function(x){dhnorm(x)}, by = NULL){
+  
+  L <- dint(... = ..., per.study = per.study, study.name = study.name, by = by)
+  
+  G <- function(object, study.name, tau.prior, outcome.name)
+  {
+    
+    d1 <- object$SHORT$dint
+    sd1 <- object$SHORT$SD
+    
+    d2 <- object$DEL1$dint
+    sd2 <- object$DEL1$SD
+    
+    d3 <- object$DEL2$dint
+    sd3 <- object$DEL2$SD
+    
+    
+    Short <- all(sapply(list(d1), function(x) !is.null(x)))
+    
+    Del1 <- all(sapply(list(d2), function(x) !is.null(x)))
+    
+    Del2 <- all(sapply(list(d3), function(x) !is.null(x)))
+    
+    
+    if(Short & length(d1) == 1) { 
+      
+      out <- data.frame(Mean.dint.short = d1, SD.dint.short = sd1);
+             
+             if(!is.null(outcome.name))outcome.name <- paste0(outcome.name, ":");
+             rownames(out) <- outcome.name;
+             return(out)
+    }
+    
+    
+    if(Del1 & length(d2) == 1) { 
+      
+      out <- data.frame(Mean.dint.del1 = d2, SD.dint.del1 = sd2);
+      
+      if(!is.null(outcome.name))outcome.name <- paste0(outcome.name, ":");
+      rownames(out) <- outcome.name;
+      return(out)
+    }
+    
+    
+    if(Del2 & length(d3) == 1) { 
+      
+      out <- data.frame(Mean.dint.del2 = d3, SD.dint.del2 = sd3);
+      
+      if(!is.null(outcome.name))outcome.name <- paste0(outcome.name, ":");
+      rownames(out) <- outcome.name;
+      return(out)
+    }
+    
+    
+    if(Short & length(d1) > 1){
+    result1 <- bayesmeta(     y = d1,
+                              sigma = sd1,
+                              labels = NULL, tau.prior = tau.prior)
+    result1$call <- match.call(expand.dots = FALSE)
+    
+    short <- c(result1$summary["mean","mu"], result1$summary["sd","mu"])
+    
+    }
+    
+    
+    if(Del1 & length(d2) > 1) {
+      result2 <- bayesmeta(     y = d2,
+                                sigma = sd2,
+                                labels = NULL, tau.prior = tau.prior)
+     result2$call <- match.call(expand.dots = FALSE)
+     
+     del1 <- c(result2$summary["mean","mu"], result2$summary["sd","mu"])
+    }
+    
+    
+    if(Del2 & length(d3) > 1) {
+      result3 <- bayesmeta(     y = d3,
+                                sigma = sd3,
+                                labels = NULL, tau.prior = tau.prior)
+      result3$call <- match.call(expand.dots = FALSE)
+      
+      del2 <- c(result3$summary["mean","mu"], result3$summary["sd","mu"])
+    }
+    
+    
+    out <- data.frame(Mean.dint.short = if(Short)short[1] else NA, SD.dint.short = if(Short) short[2]else NA, Mean.dint.del1 = if(Del1)del1[1]else NA, SD.dint.del1 = if(Del1)del1[2]else NA, Mean.dint.del2 = if(Del2)del2[1]else NA, SD.dint.del2 = if(Del2)del2[2]else NA) 
+    
+    if(!is.null(outcome.name))outcome.name <- paste0(outcome.name, ":")
+    rownames(out) <- outcome.name
+    out
+  }             
+  
+  h <- lapply(1:length(L), function(i) G(object = L[[i]], study.name = study.name, outcome.name = outcome.name, tau.prior = tau.prior))
+  names(h) <- if(is.null(study.name)) paste0("Study", seq_along(h)) else if(!is.null(study.name) & length(study.name) == length(h)) study.name else if(!is.null(study.name) & length(study.name) != length(h)) stop("'study.name' incorrectly specified.", call. = FALSE)
+  h
+}              
+              
+#======================================================================================================
+
+              
+meta.bayes2 <- function(..., per.study, study.name = NULL, outcome.name = NULL, tau.prior = function(x){dhnorm(x)})
 {
   
 
@@ -8877,10 +9174,177 @@ if(!Short & test[2]) result2$call <- match.call(expand.dots = FALSE)
   
 if(!Short & test[2]) list(SHORT = result1, LONG = result2) else list(SHORT = result1)
 
-}                   
+}  
+               
+#=====================================================================================================  
+               
+               
+meta.within <- function(..., per.study, study.name = NULL, outcome.name = NULL, tau.prior = function(x){dhnorm(x)}, by = NULL){
+  
+  L <- dint(... = ..., per.study = per.study, study.name = study.name, by = by)
+  
+  G <- function(object, study.name, tau.prior, outcome.name)
+  {
+    
+    d1 <- object$SHORT$dint
+    sd1 <- object$SHORT$SD
+    
+    d2 <- object$DEL1$dint
+    sd2 <- object$DEL1$SD
+    
+    d3 <- object$DEL2$dint
+    sd3 <- object$DEL2$SD
+    
+    
+    Short <- all(sapply(list(d1), function(x) !is.null(x)))
+    
+    Del1 <- all(sapply(list(d2), function(x) !is.null(x)))
+    
+    Del2 <- all(sapply(list(d3), function(x) !is.null(x)))
+    
+    
+    if(Short & length(d1) == 1) { 
+      
+      out <- data.frame(Mean.dint.short = d1, SD.dint.short = sd1);
+             
+             if(!is.null(outcome.name))outcome.name <- paste0(outcome.name, ":");
+             rownames(out) <- outcome.name;
+             return(out)
+    }
+    
+    
+    if(Del1 & length(d2) == 1) { 
+      
+      out <- data.frame(Mean.dint.del1 = d2, SD.dint.del1 = sd2);
+      
+      if(!is.null(outcome.name))outcome.name <- paste0(outcome.name, ":");
+      rownames(out) <- outcome.name;
+      return(out)
+    }
+    
+    
+    if(Del2 & length(d3) == 1) { 
+      
+      out <- data.frame(Mean.dint.del2 = d3, SD.dint.del2 = sd3);
+      
+      if(!is.null(outcome.name))outcome.name <- paste0(outcome.name, ":");
+      rownames(out) <- outcome.name;
+      return(out)
+    }
+    
+    
+    if(Short & length(d1) > 1){
+    result1 <- bayesmeta(     y = d1,
+                              sigma = sd1,
+                              labels = NULL, tau.prior = tau.prior)
+    result1$call <- match.call(expand.dots = FALSE)
+    
+    short <- c(result1$summary["mean","mu"], result1$summary["sd","mu"])
+    
+    }
+    
+    
+    if(Del1 & length(d2) > 1) {
+      result2 <- bayesmeta(     y = d2,
+                                sigma = sd2,
+                                labels = NULL, tau.prior = tau.prior)
+     result2$call <- match.call(expand.dots = FALSE)
+     
+     del1 <- c(result2$summary["mean","mu"], result2$summary["sd","mu"])
+    }
+    
+    
+    if(Del2 & length(d3) > 1) {
+      result3 <- bayesmeta(     y = d3,
+                                sigma = sd3,
+                                labels = NULL, tau.prior = tau.prior)
+      result3$call <- match.call(expand.dots = FALSE)
+      
+      del2 <- c(result3$summary["mean","mu"], result3$summary["sd","mu"])
+    }
+    
+    
+    out <- data.frame(Mean.dint.short = if(Short)short[1] else NA, SD.dint.short = if(Short) short[2]else NA, Mean.dint.del1 = if(Del1)del1[1]else NA, SD.dint.del1 = if(Del1)del1[2]else NA, Mean.dint.del2 = if(Del2)del2[1]else NA, SD.dint.del2 = if(Del2)del2[2]else NA) 
+    
+    if(!is.null(outcome.name))outcome.name <- paste0(outcome.name, ":")
+    rownames(out) <- outcome.name
+    out
+  }             
+  
+  h <- lapply(1:length(L), function(i) G(object = L[[i]], study.name = study.name, outcome.name = outcome.name, tau.prior = tau.prior))
+  names(h) <- if(is.null(study.name)) paste0("Study", seq_along(h)) else if(!is.null(study.name) & length(study.name) == length(h)) study.name else if(!is.null(study.name) & length(study.name) != length(h)) stop("'study.name' incorrectly specified.", call. = FALSE)
+  h
+}               
+               
+#=====================================================================================================
+
+              
+meta.bayes <- function(..., per.study, study.name = NULL, outcome.name = NULL, tau.prior = function(x){dhnorm(x)}, by = NULL)
+{
+  
+
+j <- meta.within(... = ..., per.study = per.study, study.name = study.name, outcome.name = outcome.name, tau.prior = tau.prior, by = by)
+  
+
+d1 <- unlist(lapply(1:length(j), function(i) j[[i]]$Mean.dint.short))
+
+sd1 <- unlist(lapply(1:length(j), function(i) j[[i]]$SD.dint.short))
+
+
+d2 <- unlist(lapply(1:length(j), function(i) j[[i]]$Mean.dint.del1))
+
+sd2 <- unlist(lapply(1:length(j), function(i) j[[i]]$SD.dint.del1))
+
+
+d3 <- unlist(lapply(1:length(j), function(i) j[[i]]$Mean.dint.del2))
+
+sd3 <- unlist(lapply(1:length(j), function(i) j[[i]]$SD.dint.del2))
+
+
+test <- sapply(list(d1, d2, d3), function(x) length(x) >= 2 & all(!is.na(x)))
+
+
+if(all(!test)) stop("Insufficient studies to meta-analyze either 'short-' or 'long-term' effects.", call. = FALSE)
+
+
+if(test[1]) { result1 <- bayesmeta(     y = d1,
+                                    sigma = sd1,
+                                   labels = study.name, tau.prior = tau.prior)
+   result1$call <- match.call(expand.dots = FALSE)
+} 
+  
+
+if(test[2]) { result2 <- bayesmeta(     y = d2,
+                                    sigma = sd2,
+                                   labels = study.name, tau.prior = tau.prior)
+   result2$call <- match.call(expand.dots = FALSE)
+}  
+  
+
+if(test[3]) { result3 <- bayesmeta(     y = d3,
+                                    sigma = sd3,
+                                   labels = study.name, tau.prior = tau.prior)
+   result3$call <- match.call(expand.dots = FALSE)
+}  
+
+if(!test[1]) message("NOTE: No or insufficient studies to meta-analyze 'short-term' effects.")
+if(!test[2]) message("NOTE: No or insufficient studies to meta-analyze 'delayed 1' effects.")
+if(!test[3]) message("NOTE: No or insufficient studies to meta-analyze 'delayed 2' effects.")
+
+list(SHORT = if(test[1]) result1 else NULL, DEL1 = if(test[2]) result2 else NULL, DEL2 = if(test[3]) result3 else NULL)
+#if(all(test)) list(SHORT = result1, DEL1 = result2, DEL2 = result3)
+#if(test[1] & test[2] & !test[3]) list(SHORT = result1, DEL1 = result2)
+#if(test[1] & !test[2] & !test[3]) list(SHORT = result1)
+#if(!test[1] & test[2] & !test[3]) list(DEL1 = result2)
+#if(!test[1] & !test[2] & test[3]) list(DEL2 = result3)
+#if(!test[1] & test[2] & test[3]) list(DEL1 = result2, DEL2 = result3)
+
+}              
+              
               
 #=====================================================================================================
-               
+              
+              
 fill <- function(refdf, ...) 
   {
   L <- list(...)
