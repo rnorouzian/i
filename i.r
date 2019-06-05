@@ -8491,18 +8491,10 @@ d.prepos <- function(n = NULL, mpre = NULL, mpos = NULL, sdpre = NULL, sdpos = N
   
   if(missing(control) || missing(post)) stop("'post' or/and 'control' missing.", call. = FALSE)  
   
-  #cl <- match.call()
   ll <- d.per.study
   if(!missing(extract)) s <- substitute(extract)
   
- # r <- ifelse(!missing(long) & is.logical(long) & autoreg & length(unique(long)) == 2  & !is.null(r) & !long, autoreg(2, r)[,1][-1][1], 
- #             ifelse(!missing(long) & is.logical(long) & autoreg & length(unique(long)) == 2  & !is.null(r) & long,  autoreg(2, r)[,1][-1][2], 
- #                    ifelse(!missing(long) & !is.logical(long) & autoreg & !is.na(r), autoreg(max(long, na.rm = T), r)[,1][-1][long], 
- #                           ifelse(!autoreg || !is.logical(long) || length(unique(long)) > 2, r, r))))
-  
- # if(!missing(long) & !is.logical(long) & autoreg & !is.null(r)) r <- autoreg(max(long, na.rm = T), r)[,1][-1][long] else r <- r
-  
-  if(!is.logical(post) & autoreg & !is.null(r)) r <- autoreg(max(post, na.rm = T), r)[,1][-1][post] else r <- r
+  r <- if(!is.logical(post) & autoreg & !is.null(r)) autoreg(max(post, na.rm = T), r)[,1][-1][post] else r
   
   d <- if(!is.null(t) & !missing(n)) t2d(t, n) else if(!is.null(F1) & !missing(n)) t2d(sqrt(F1), n) else if(!is.null(F1) & missing(n) & !is.null(df2)) t2d(sqrt(F1), df2+2) else NULL
   
@@ -8531,13 +8523,9 @@ if(is.null(ll)) out else {
     if(!missing(extract)) h <- lapply(h, function(x) do.call("subset", list(x, s))) 
     
     result <- if(!missing(extract)) Filter(nrow, h) else h
-    
-   # z <- if(length(result) == 0) NA else result
-    
+        
     if(length(result) == 0) NA else result
-    
-    #if(!is.na(z)) append(z, list(call = cl)) else z
-  }
+   }
 }                                      
                                       
                                       
@@ -8676,6 +8664,7 @@ h
 
 #=====================================================================================================
 
+            
 dint <- function(..., per.study, study.name = NULL, group.name = NULL, n.sim = 1e5, digits = 6, by = NULL)
   {
 
@@ -9034,6 +9023,7 @@ meta.within2 <- function(..., per.study, study.name = NULL, outcome.name = NULL,
               
 #=====================================================================================================
 
+              
 meta.within <- function(..., per.study, study.name = NULL, outcome.name = NULL, tau.prior = function(x){dhnorm(x)}, by = NULL){
   
   L <- dint(... = ..., per.study = per.study, study.name = study.name, by = by)
@@ -9130,6 +9120,7 @@ meta.within <- function(..., per.study, study.name = NULL, outcome.name = NULL, 
   names(h) <- if(is.null(study.name)) paste0("Study", seq_along(h)) else if(!is.null(study.name) & length(study.name) == length(h)) study.name else if(!is.null(study.name) & length(study.name) != length(h)) stop("'study.name' incorrectly specified.", call. = FALSE)
   h
 }              
+              
               
 #======================================================================================================
 
