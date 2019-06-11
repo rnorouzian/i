@@ -9170,9 +9170,9 @@ if(!Short & test[2]) list(SHORT = result1, LONG = result2) else list(SHORT = res
 #=====================================================================================================  
                
                
-meta.within <- function(..., per.study, study.name = NULL, outcome.name = NULL, tau.prior = function(x){dhnorm(x)}, by = NULL){
+meta.within <- function(..., per.study, study.name = NULL, group.name = NULL, outcome.name = NULL, tau.prior = function(x){dhnorm(x)}, by = NULL){
   
-  L <- dint(... = ..., per.study = per.study, study.name = study.name, by = by)
+  L <- dint(... = ..., per.study = per.study, group.name = group.name, study.name = study.name, by = by)
   
   G <- function(object, study.name, tau.prior, outcome.name)
   {
@@ -9270,11 +9270,11 @@ meta.within <- function(..., per.study, study.name = NULL, outcome.name = NULL, 
 #=====================================================================================================
 
               
-meta.bayes <- function(..., per.study, study.name = NULL, outcome.name = NULL, tau.prior = function(x){dhnorm(x)}, by = NULL)
+meta.bayes <- function(..., per.study, group.name = NULL, study.name = NULL, outcome.name = NULL, tau.prior = function(x){dhnorm(x)}, by = NULL, long = FALSE)
 {
   
 
-j <- meta.within(... = ..., per.study = per.study, study.name = study.name, outcome.name = outcome.name, tau.prior = tau.prior, by = by)
+j <- meta.within(... = ..., per.study = per.study, group.name = group.name, study.name = study.name, outcome.name = outcome.name, tau.prior = tau.prior, by = by)
   
 
 d1 <- unlist(lapply(1:length(j), function(i) j[[i]]$Mean.dint.short))
@@ -9318,19 +9318,36 @@ if(test[3]) { result3 <- bayesmeta(     y = d3,
    result3$call <- match.call(expand.dots = FALSE)
 }  
 
+
+if(test[2] & test[3] & long){
+  
+ddelys <- c(result2$summary["mean","mu"], result3$summary["mean","mu"])
+sdelys <- c(result2$summary["sd","mu"], result3$summary["sd","mu"])
+
+       result4 <- bayesmeta(     y = ddelys,
+                             sigma = sdelys,
+                            labels = c("Delay1", "Delay2"), tau.prior = tau.prior)
+   result4$call <- match.call(expand.dots = FALSE)
+
+   if(test[1])return(list(SHORT = result1, LONG = result4))
+   if(!test[1])return(list(LONG = result4))
+}
+
 if(!test[1]) message("NOTE: No or insufficient studies to meta-analyze 'short-term' effects.")
 if(!test[2]) message("NOTE: No or insufficient studies to meta-analyze 'delayed 1' effects.")
 if(!test[3]) message("NOTE: No or insufficient studies to meta-analyze 'delayed 2' effects.")
 
-list(SHORT = if(test[1]) result1 else NULL, DEL1 = if(test[2]) result2 else NULL, DEL2 = if(test[3]) result3 else NULL)
-#if(all(test)) list(SHORT = result1, DEL1 = result2, DEL2 = result3)
-#if(test[1] & test[2] & !test[3]) list(SHORT = result1, DEL1 = result2)
-#if(test[1] & !test[2] & !test[3]) list(SHORT = result1)
-#if(!test[1] & test[2] & !test[3]) list(DEL1 = result2)
-#if(!test[1] & !test[2] & test[3]) list(DEL2 = result3)
-#if(!test[1] & test[2] & test[3]) list(DEL1 = result2, DEL2 = result3)
 
-}              
+if(!long || long & !test[2] || long & !test[3]){ 
+
+if(all(test)) return(list(SHORT = result1, DEL1 = result2, DEL2 = result3))
+if(test[1] & test[2] & !test[3]) return(list(SHORT = result1, DEL1 = result2))
+if(test[1] & !test[2] & !test[3]) return(list(SHORT = result1))
+if(!test[1] & test[2] & !test[3]) return(list(DEL1 = result2))
+if(!test[1] & !test[2] & test[3]) return(list(DEL2 = result3))
+if(!test[1] & test[2] & test[3]) return(list(DEL1 = result2, DEL2 = result3))
+   }             
+}      
               
               
 #=====================================================================================================
