@@ -8690,7 +8690,7 @@ G <- function(m, per.study, study.name, group.name, n.sim, digits)
   
     cc <- reget(m, control, F)
     
-    if(is.null(cc)) stop("Required 'control' group not found.", call. = FALSE)
+    if(is.null(cc)) stop("Required 'control/comparison' group not found.", call. = FALSE)
   
     cdel1 <- reget(m, control & post == 2, F)
     cdel2 <- reget(m, control & post == 3, F)
@@ -8825,10 +8825,7 @@ d.interact <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long, e
     if(length(result) == 0) NA else result 
   }
 }
-        
-         
-#=====================================================================================================
-        
+                
                            
 #=====================================================================================================
                
@@ -9021,107 +9018,7 @@ meta.within2 <- function(..., per.study, study.name = NULL, outcome.name = NULL,
   h
 }
               
-#=====================================================================================================
-
-              
-meta.within <- function(..., per.study, study.name = NULL, outcome.name = NULL, tau.prior = function(x){dhnorm(x)}, by = NULL){
-  
-  L <- dint(... = ..., per.study = per.study, study.name = study.name, by = by)
-  
-  G <- function(object, study.name, tau.prior, outcome.name)
-  {
-    
-    d1 <- object$SHORT$dint
-    sd1 <- object$SHORT$SD
-    
-    d2 <- object$DEL1$dint
-    sd2 <- object$DEL1$SD
-    
-    d3 <- object$DEL2$dint
-    sd3 <- object$DEL2$SD
-    
-    
-    Short <- all(sapply(list(d1), function(x) !is.null(x)))
-    
-    Del1 <- all(sapply(list(d2), function(x) !is.null(x)))
-    
-    Del2 <- all(sapply(list(d3), function(x) !is.null(x)))
-    
-    
-    if(Short & length(d1) == 1) { 
-      
-      out <- data.frame(Mean.dint.short = d1, SD.dint.short = sd1);
-             
-             if(!is.null(outcome.name))outcome.name <- paste0(outcome.name, ":");
-             rownames(out) <- outcome.name;
-             return(out)
-    }
-    
-    
-    if(Del1 & length(d2) == 1) { 
-      
-      out <- data.frame(Mean.dint.del1 = d2, SD.dint.del1 = sd2);
-      
-      if(!is.null(outcome.name))outcome.name <- paste0(outcome.name, ":");
-      rownames(out) <- outcome.name;
-      return(out)
-    }
-    
-    
-    if(Del2 & length(d3) == 1) { 
-      
-      out <- data.frame(Mean.dint.del2 = d3, SD.dint.del2 = sd3);
-      
-      if(!is.null(outcome.name))outcome.name <- paste0(outcome.name, ":");
-      rownames(out) <- outcome.name;
-      return(out)
-    }
-    
-    
-    if(Short & length(d1) > 1){
-    result1 <- bayesmeta(     y = d1,
-                              sigma = sd1,
-                              labels = NULL, tau.prior = tau.prior)
-    result1$call <- match.call(expand.dots = FALSE)
-    
-    short <- c(result1$summary["mean","mu"], result1$summary["sd","mu"])
-    
-    }
-    
-    
-    if(Del1 & length(d2) > 1) {
-      result2 <- bayesmeta(     y = d2,
-                                sigma = sd2,
-                                labels = NULL, tau.prior = tau.prior)
-     result2$call <- match.call(expand.dots = FALSE)
-     
-     del1 <- c(result2$summary["mean","mu"], result2$summary["sd","mu"])
-    }
-    
-    
-    if(Del2 & length(d3) > 1) {
-      result3 <- bayesmeta(     y = d3,
-                                sigma = sd3,
-                                labels = NULL, tau.prior = tau.prior)
-      result3$call <- match.call(expand.dots = FALSE)
-      
-      del2 <- c(result3$summary["mean","mu"], result3$summary["sd","mu"])
-    }
-    
-    
-    out <- data.frame(Mean.dint.short = if(Short)short[1] else NA, SD.dint.short = if(Short) short[2]else NA, Mean.dint.del1 = if(Del1)del1[1]else NA, SD.dint.del1 = if(Del1)del1[2]else NA, Mean.dint.del2 = if(Del2)del2[1]else NA, SD.dint.del2 = if(Del2)del2[2]else NA) 
-    
-    if(!is.null(outcome.name))outcome.name <- paste0(outcome.name, ":")
-    rownames(out) <- outcome.name
-    out
-  }             
-  
-  h <- lapply(1:length(L), function(i) G(object = L[[i]], study.name = study.name, outcome.name = outcome.name, tau.prior = tau.prior))
-  names(h) <- if(is.null(study.name)) paste0("Study", seq_along(h)) else if(!is.null(study.name) & length(study.name) == length(h)) study.name else if(!is.null(study.name) & length(study.name) != length(h)) stop("'study.name' incorrectly specified.", call. = FALSE)
-  h
-}              
-              
-              
+          
 #======================================================================================================
 
               
