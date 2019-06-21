@@ -8533,7 +8533,7 @@ if(is.null(ll)) out else {
 #============================================================================================================================
  
                                       
-dit <- Vectorize(function(dppc, dppt, nc, nt, n.sim, digits){
+dit <- Vectorize(function(dppc, dppt, nc, nt, n.sim = 1e5, digits = 9){
   
   like1 <- function(x) dt(dppc*sqrt(nc), df = nc - 1, ncp = x*sqrt(nc))
   like2 <- function(x) dt(dppt*sqrt(nt), df = nt - 1, ncp = x*sqrt(nt))
