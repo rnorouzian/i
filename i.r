@@ -9290,8 +9290,10 @@ d.prepos <- function(study.name = NA, group.name = NA, n = NA, mpre = NA, mpos =
   
   if(missing(control) || missing(post)) stop("'post' or/and 'control' missing.", call. = FALSE)  
   
-  r <- ifelse(!is.logical(post) & autoreg & !is.na(r), autoreg(max(post, na.rm = TRUE), r)[,1][-1][post], r)
+  #r <- ifelse(!is.logical(post) & autoreg & !is.na(r), autoreg(max(post, na.rm = TRUE), r)[,1][-1][post], r)
   
+  r <- if(!is.logical(post) & autoreg & !is.na(r)) autoreg(max(post, na.rm = TRUE), r)[,1][-1][post] else r
+        
   d <- ifelse(!is.na(t) & !missing(n), t2d(t, n), ifelse(!is.na(F1) & !missing(n), t2d(sqrt(F1), n), ifelse(!is.na(F1) & missing(n) & !is.na(df2), t2d(sqrt(F1), df2+2), NA)))
   mdif <- ifelse(!is.na(mpre) & !is.na(mpre), mpos - mpre, NA)
   sdif <- ifelse(is.na(sdif), sdif(sdpre = sdpre, sdpos = sdpos, t = t, r = r, n = n, mpos = mpos, mpre = mpre, F1 = F1, sdp = sdp), sdif)
