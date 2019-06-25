@@ -9284,15 +9284,14 @@ fill <- function(refdf, ...)
 }               
                
 #=====================================================================================================
+         
                
 d.prepos <- function(study.name = NA, group.name = NA, n = NA, mpre = NA, mpos = NA, sdpre = NA, sdpos = NA, r = NA, autoreg = FALSE, t = NA, sdif = NA, sdp = NA, F1 = NA, df2 = NA, post, control, ...) 
 {
   
   if(missing(control) || missing(post)) stop("'post' or/and 'control' missing.", call. = FALSE)  
   
-  #r <- ifelse(!is.logical(post) & autoreg & !is.na(r), autoreg(max(post, na.rm = TRUE), r)[,1][-1][post], r)
-  
-  r <- if(!is.logical(post) & autoreg & !is.na(r)) autoreg(max(post, na.rm = TRUE), r)[,1][-1][post] else r
+  r <- ifelse(autoreg & !is.na(r), autoreg(max(post, na.rm = TRUE), r)[,1][-1][post], r)
         
   d <- ifelse(!is.na(t) & !missing(n), t2d(t, n), ifelse(!is.na(F1) & !missing(n), t2d(sqrt(F1), n), ifelse(!is.na(F1) & missing(n) & !is.na(df2), t2d(sqrt(F1), df2+2), NA)))
   mdif <- ifelse(!is.na(mpre) & !is.na(mpre), mpos - mpre, NA)
