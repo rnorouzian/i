@@ -9577,9 +9577,9 @@ if(test[2] & test[3] & long){
 ddelys <- c(result2$summary["mean","mu"], result3$summary["mean","mu"])
 sdelys <- c(result2$summary["sd","mu"], result3$summary["sd","mu"])
 
-       result4 <- bayesmeta(     y = ddelys,
-                             sigma = sdelys,
-                            labels = c("Delay1", "Delay2"), tau.prior = tau.prior)
+              result4 <- bayesmeta(     y = ddelys,
+                                    sigma = sdelys,
+                                   labels = c("Delay1", "Delay2"), tau.prior = tau.prior)
    result4$call <- match.call(expand.dots = FALSE)
 
    if(test[1])return(list(SHORT = result1, LONG = result4))
