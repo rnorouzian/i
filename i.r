@@ -9291,7 +9291,7 @@ d.prepos <- function(study.name = NA, group.name = NA, n = NA, mpre = NA, mpos =
   
   if(missing(control) || missing(post)) stop("'post' or/and 'control' missing.", call. = FALSE)  
   
-  r <- ifelse(autoreg & !is.na(r), autoreg(max(post, na.rm = TRUE), r)[,1][-1][post], r)
+  r <- ifelse(autoreg == TRUE & !is.na(r), autoreg(max(post, na.rm = TRUE), r)[,1][-1][post], r)
         
   d <- ifelse(!is.na(t) & !missing(n), t2d(t, n), ifelse(!is.na(F1) & !missing(n), t2d(sqrt(F1), n), ifelse(!is.na(F1) & missing(n) & !is.na(df2), t2d(sqrt(F1), df2+2), NA)))
   mdif <- ifelse(!is.na(mpre) & !is.na(mpre), mpos - mpre, NA)
@@ -9322,9 +9322,11 @@ L <- if(!is.null(data)){
   
   m <- split(data, data$study.name) ; m[[1]] <- NULL
   
-  dot.names <- names(m[[1]])[!names(m[[1]]) %in% formalArgs(d.prepos)]
+  ar <- formalArgs(d.prepos)
   
-  args <- lapply(m, function(x) unclass(x[c(head(formalArgs(d.prepos), -1), dot.names)]))
+  dot.names <- names(m[[1]])[!names(m[[1]]) %in% ar]
+  
+  args <- lapply(m, function(x) unclass(x[c(head(ar, -1), dot.names)]))
   
   argsT <- setNames(lapply(names(args[[1]]), 
            function(i) lapply(args, `[[`, i)), names(args[[1]]))
@@ -9579,7 +9581,7 @@ sdelys <- c(result2$summary["sd","mu"], result3$summary["sd","mu"])
 
               result4 <- bayesmeta(     y = ddelys,
                                     sigma = sdelys,
-                                   labels = c("Delay1", "Delay2"), tau.prior = tau.prior)
+                                   labels = c("Delay_1", "Delay_2"), tau.prior = tau.prior)
    result4$call <- match.call(expand.dots = FALSE)
 
    if(test[1])return(list(SHORT = result1, LONG = result4))
