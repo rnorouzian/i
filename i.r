@@ -8497,7 +8497,7 @@ if(is.null(ll)) out else {
     
     if(!missing(extract)) h <- lapply(h, function(x) do.call("subset", list(x, s))) 
     
-    result <- if(!missing(extract)) Filter(nrow, h) else h
+    result <- if(!missing(extract)) Filter(NROW, h) else h
     
     z <- if(length(result) == 0) NA else result
     
@@ -8544,7 +8544,7 @@ if(is.null(ll)) out else {
     
     if(!missing(extract)) h <- lapply(h, function(x) do.call("subset", list(x, s))) 
     
-    result <- if(!missing(extract)) Filter(nrow, h) else h
+    result <- if(!missing(extract)) Filter(NROW, h) else h
         
     if(length(result) == 0) NA else result
    }
@@ -8601,7 +8601,7 @@ fuse <- function(..., per.study){
   
   h <- lapply(1:length(L), function(i) lapply(g[[i]], function(x) do.call(rbind, x)))
   
-  lapply(1:length(h), function(i) Filter(nrow, h[[i]]))
+  lapply(1:length(h), function(i) Filter(NROW, h[[i]]))
   
   } else {
     
@@ -8609,7 +8609,7 @@ fuse <- function(..., per.study){
     
     h <- lapply(g, function(x) do.call(rbind, x))
     
-    Filter(nrow, h)
+    Filter(NROW, h)
   }
 }         
          
@@ -8843,7 +8843,7 @@ d.interact <- function(dppc, dppt, nc, nt, digits = 6, d.per.study = NA, long, e
                                                        "long" = lapply(h, subset, subset = long),
                                                        "short" = lapply(h, subset, subset = !long))
     
-    result <- if(!missing(long) & !missing(extract)) Filter(nrow, h) else h
+    result <- if(!missing(long) & !missing(extract)) Filter(NROW, h) else h
     if(length(result) == 0) NA else result 
   }
 }
@@ -8862,7 +8862,7 @@ reget <- function(List, what, omit.last = TRUE){
   
   h <- lapply(List, function(x) do.call("subset", list(x, s)))
   
-  res <- Filter(nrow, h)
+  res <- Filter(NROW, h)
   
   if(length(res) == 0) NULL else res
 }          
@@ -8960,7 +8960,7 @@ if(!missing(object)){
     
     if(!missing(extract)) h <- lapply(h, function(x) do.call("subset", list(x, s)))
     
-    result <- if(!missing(extract)) Filter(nrow, h) else h
+    result <- if(!missing(extract)) Filter(NROW, h) else h
     
     if(length(result) == 0) NA else result
      }
@@ -8978,7 +8978,7 @@ extract <- function(List, extract){
     
   h <- lapply(List, function(x) do.call("subset", list(x, s)))
 
-  res <- Filter(nrow, h)
+  res <- Filter(NROW, h)
   
  if(length(res) == 0) NULL else res
 }                                      
@@ -9297,11 +9297,11 @@ d.prepos <- function(study.name = NA, group.name = NA, n = NA, mpre = NA, mpos =
   mdif <- ifelse(!is.na(mpre) & !is.na(mpre), mpos - mpre, NA)
   sdif <- ifelse(is.na(sdif), sdif(sdpre = sdpre, sdpos = sdpos, t = t, r = r, n = n, mpos = mpos, mpre = mpre, F1 = F1, sdp = sdp), sdif)
   cor. <- ifelse(is.na(r), rdif(n = n, mpre = mpre, mpos = mpos, sdpre = sdpre, sdpos = sdpos, sdif = sdif, sdp = sdp), r)
-  d <- ifelse(!is.na(mdif) & is.na(d) & !is.na(sdif), mdif/sdif, d)*cfactor(n-1) 
+  d <- ifelse(!is.na(mdif) & is.na(d) & !is.na(sdif), mdif/sdif, d)
   
   se <- se.d(d, n1 = n, g = TRUE)
   
-out <- data.frame(d = d, SE = se, n = n, sdif = sdif, rpr.po = cor., post, control, ...)
+out <- data.frame(d = d*cfactor(n-1), SE = se, n = n, sdif = sdif, rpr.po = cor., post, control, ...)
 
 if(!anyNA(group.name) & length(group.name) == nrow(out)) row.names(out) <- as.character(group.name) else if(!anyNA(group.name) & length(group.name) != nrow(out)) stop("'group.name' incorrectly specified.", call. = FALSE)
   
@@ -9322,11 +9322,11 @@ L <- if(!is.null(data)){
   
   m <- split(data, data$study.name) ; m[[1]] <- NULL
   
-  ar <- formalArgs(d.prepos)
+  ar <- head(formalArgs(d.prepos), -1)
   
   dot.names <- names(m[[1]])[!names(m[[1]]) %in% ar]
   
-  args <- lapply(m, function(x) unclass(x[c(head(ar, -1), dot.names)]))
+  args <- lapply(m, function(x) unclass(x[c(ar, dot.names)]))
   
   argsT <- setNames(lapply(names(args[[1]]), 
            function(i) lapply(args, `[[`, i)), names(args[[1]]))
@@ -9346,7 +9346,7 @@ if("control" %in% k || "!control" %in% k) stop("'control' can't be a moderating 
 
 H <- lapply(L, function(x) do.call("subset", list(x, s)))
 
-res <- Filter(nrow, H)
+res <- Filter(NROW, H)
 
 L <- if(length(res) == 0) stop("No study with the requested moderators found.", call. = FALSE) else res
 }
@@ -9525,7 +9525,7 @@ meta.within <- function(..., per.study = NULL, study.name = NA, group.name = NA,
 #=====================================================================================================
               
               
-meta.bayes <- function(..., per.study = NULL, group.name = NA, study.name = NA, outcome.name = NA, tau.prior = function(x){dhnorm(x)}, by, long = FALSE, data = NULL)
+meta.bayes6 <- function(..., per.study = NULL, group.name = NA, study.name = NA, outcome.name = NA, tau.prior = function(x){dhnorm(x)}, by, long = FALSE, data = NULL)
 {
   
 j <- eval(substitute(meta.within(... = ..., per.study = per.study, group.name = group.name, study.name = study.name, outcome.name = outcome.name, tau.prior = tau.prior, by = by, data = data)))
@@ -9604,6 +9604,98 @@ if(!test[1] & test[2] & test[3]) return(list(DEL1 = result2, DEL2 = result3))
    }             
 }
   
+#=====================================================================================================
+               
+               
+               
+meta.bayes <- function(..., per.study = NULL, group.name = NA, study.name = NA, outcome.name = NA, tau.prior = function(x){dhnorm(x)}, by, long = FALSE, data = NULL)
+{
+  
+
+j <- eval(substitute(meta.within(... = ..., per.study = per.study, group.name = group.name, study.name = study.name, outcome.name = outcome.name, tau.prior = tau.prior, by = by, data = data)))
+  
+if(!is.null(data)) study.name <- names(j)
+
+if(anyNA(study.name)) study.name <- NULL
+
+d1 <- unlist(sapply(j, `[[`, 'Mean.dint.short'))
+d1 <- d1[!is.na(d1)]
+
+sd1 <- unlist(sapply(j, `[[`, 'SD.dint.short'))
+sd1 <- sd1[!is.na(sd1)]
+
+d2 <- unlist(sapply(j, `[[`, 'Mean.dint.del1'))
+d2 <- d2[!is.na(d2)]
+
+sd2 <- unlist(sapply(j, `[[`, 'SD.dint.del1'))
+sd2 <- sd2[!is.na(sd2)]
+
+d3 <- unlist(sapply(j, `[[`, 'Mean.dint.del2') )
+d3 <- d3[!is.na(d3)]
+
+sd3 <- unlist(sapply(j, `[[`, 'SD.dint.del2'))
+sd3 <- sd3[!is.na(sd3)]
+  
+ds <- Filter(NROW, list(d1, d2, d3))
+sds <- Filter(NROW, list(sd1, sd2, sd3))
+
+test <- sapply(list(d1, d2, d3), function(x) length(x) >= 2)
+
+if(all(!test)) stop("Insufficient studies to meta-analyze either 'short-' or 'long-term' effects.", call. = FALSE)
+
+
+if(test[1]) { result1 <- bayesmeta(     y = ds[[1]],
+                                    sigma = sds[[1]],
+                                   labels = names(ds[[1]]), tau.prior = tau.prior)
+   result1$call <- match.call(expand.dots = FALSE)
+} 
+  
+
+if(test[2]) { result2 <- bayesmeta(     y = ds[[2]],
+                                    sigma = sds[[2]],
+                                   labels = names(ds[[2]]), tau.prior = tau.prior)
+   result2$call <- match.call(expand.dots = FALSE)
+}  
+  
+
+if(test[3]) { result3 <- bayesmeta(     y = ds[[3]],
+                                    sigma = sds[[3]],
+                                   labels = names(ds[[3]]), tau.prior = tau.prior)
+   result3$call <- match.call(expand.dots = FALSE)
+}  
+
+
+if(test[2] & test[3] & long){
+  
+ddelys <- c(result2$summary["mean","mu"], result3$summary["mean","mu"])
+sdelys <- c(result2$summary["sd","mu"], result3$summary["sd","mu"])
+
+             result4 <- bayesmeta(      y = ddelys,
+                                    sigma = sdelys,
+                                   labels = c("Delay1", "Delay2"), tau.prior = tau.prior)
+   result4$call <- match.call(expand.dots = FALSE)
+
+   if(test[1])return(list(SHORT = result1, LONG = result4))
+   if(!test[1])return(list(LONG = result4))
+}
+
+if(!test[1]) message("NOTE: No or insufficient studies to meta-analyze 'short-term' effects.")
+if(!test[2]) message("NOTE: No or insufficient studies to meta-analyze 'delayed 1' effects.")
+if(!test[3]) message("NOTE: No or insufficient studies to meta-analyze 'delayed 2' effects.")
+
+
+if(!long || long & !test[2] || long & !test[3]){ 
+
+if(all(test)) return(list(SHORT = result1, DEL1 = result2, DEL2 = result3))
+if(test[1] & test[2] & !test[3]) return(list(SHORT = result1, DEL1 = result2))
+if(test[1] & !test[2] & !test[3]) return(list(SHORT = result1))
+if(!test[1] & test[2] & !test[3]) return(list(DEL1 = result2))
+if(!test[1] & !test[2] & test[3]) return(list(DEL2 = result3))
+if(!test[1] & test[2] & test[3]) return(list(DEL1 = result2, DEL2 = result3))
+   }             
+}               
+               
+               
                
 #=====================================================================================================
                
