@@ -9608,7 +9608,7 @@ if(!test[1] & test[2] & test[3]) return(list(DEL1 = result2, DEL2 = result3))
                
                
                
-meta.bayes <- function(..., per.study = NULL, group.name = NA, study.name = NA, outcome.name = NA, tau.prior = function(x){dhnorm(x)}, by, long = FALSE, data = NULL)
+meta.bayes6 <- function(..., per.study = NULL, group.name = NA, study.name = NA, outcome.name = NA, tau.prior = function(x){dhnorm(x)}, by, long = FALSE, data = NULL)
 {
   
 
@@ -9640,6 +9640,86 @@ ds <- Filter(NROW, list(d1, d2, d3))
 sds <- Filter(NROW, list(sd1, sd2, sd3))
 
 test <- sapply(list(d1, d2, d3), function(x) length(x) >= 2)
+
+if(all(!test)) stop("Insufficient studies to meta-analyze either 'short-' or 'long-term' effects.", call. = FALSE)
+
+
+if(test[1]) { result1 <- bayesmeta(     y = ds[[1]],
+                                    sigma = sds[[1]],
+                                   labels = names(ds[[1]]), tau.prior = tau.prior)
+   result1$call <- match.call(expand.dots = FALSE)
+} 
+  
+
+if(test[2]) { result2 <- bayesmeta(     y = ds[[2]],
+                                    sigma = sds[[2]],
+                                   labels = names(ds[[2]]), tau.prior = tau.prior)
+   result2$call <- match.call(expand.dots = FALSE)
+}  
+  
+
+if(test[3]) { result3 <- bayesmeta(     y = ds[[3]],
+                                    sigma = sds[[3]],
+                                   labels = names(ds[[3]]), tau.prior = tau.prior)
+   result3$call <- match.call(expand.dots = FALSE)
+}  
+
+
+if(test[2] & test[3] & long){
+  
+ddelys <- c(result2$summary["mean","mu"], result3$summary["mean","mu"])
+sdelys <- c(result2$summary["sd","mu"], result3$summary["sd","mu"])
+
+             result4 <- bayesmeta(      y = ddelys,
+                                    sigma = sdelys,
+                                   labels = c("Delay1", "Delay2"), tau.prior = tau.prior)
+   result4$call <- match.call(expand.dots = FALSE)
+
+   if(test[1])return(list(SHORT = result1, LONG = result4))
+   if(!test[1])return(list(LONG = result4))
+}
+
+if(!test[1]) message("NOTE: No or insufficient studies to meta-analyze 'short-term' effects.")
+if(!test[2]) message("NOTE: No or insufficient studies to meta-analyze 'delayed 1' effects.")
+if(!test[3]) message("NOTE: No or insufficient studies to meta-analyze 'delayed 2' effects.")
+
+
+if(!long || long & !test[2] || long & !test[3]){ 
+
+if(all(test)) return(list(SHORT = result1, DEL1 = result2, DEL2 = result3))
+if(test[1] & test[2] & !test[3]) return(list(SHORT = result1, DEL1 = result2))
+if(test[1] & !test[2] & !test[3]) return(list(SHORT = result1))
+if(!test[1] & test[2] & !test[3]) return(list(DEL1 = result2))
+if(!test[1] & !test[2] & test[3]) return(list(DEL2 = result3))
+if(!test[1] & test[2] & test[3]) return(list(DEL1 = result2, DEL2 = result3))
+   }             
+}               
+               
+
+               
+#=====================================================================================================
+               
+               
+               
+meta.bayes <- function(..., per.study = NULL, group.name = NA, study.name = NA, outcome.name = NA, tau.prior = function(x){dhnorm(x)}, by, long = FALSE, data = NULL)
+{
+  
+
+j <- eval(substitute(meta.within(... = ..., per.study = per.study, group.name = group.name, study.name = study.name, outcome.name = outcome.name, tau.prior = tau.prior, by = by, data = data)))
+  
+if(!is.null(data)) study.name <- names(j)
+
+if(anyNA(study.name)) study.name <- NULL
+
+L <- lapply(c('Mean.dint.short', 'SD.dint.short', 'Mean.dint.del1', 'SD.dint.del1', 'Mean.dint.del2',
+              'SD.dint.del2'), function(i) {V <- unlist(sapply(j, `[[`, i)); V[!is.na(V)]})
+
+d <- list(L[[1]], L[[3]], L[[5]])
+
+ds <- Filter(NROW, d)
+sds <- Filter(NROW, list(L[[2]], L[[4]], L[[6]]))
+
+test <- sapply(d, function(x) length(x) >= 2)
 
 if(all(!test)) stop("Insufficient studies to meta-analyze either 'short-' or 'long-term' effects.", call. = FALSE)
 
