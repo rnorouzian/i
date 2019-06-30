@@ -9778,8 +9778,13 @@ if(!test[1] & test[2] & test[3]) return(list(DEL1 = result2, DEL2 = result3))
                
                
 #=====================================================================================================
+
+find.obj <- function(object, package){
+  
+ls(paste0("package:", substitute(package)), pattern = substitute(object))
+}               
                
-               
+#=====================================================================================================               
 convolve <- function(dens1, dens2,
                      cdf1=Vectorize(function(x){integrate(dens1,-Inf,x)$value}),
                      cdf2=Vectorize(function(x){integrate(dens2,-Inf,x)$value}),
