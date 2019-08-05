@@ -8312,10 +8312,9 @@ autoreg.d <- function(d, n1 = NA, n2 = NA, r = .8, cov = FALSE, no.names = FALSE
                   
 cor.mat <- function(r, dim) { 
   
-m <- diag(dim) 
-m[lower.tri(m)] <- r
-m[upper.tri(m)] <- t(m)[upper.tri(t(m))]
-m
+  m <- matrix(r, dim, dim)
+  diag(m) <- 1
+  m
 }
                   
 #===========================================================================================================================
