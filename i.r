@@ -9942,6 +9942,35 @@ funnel.bayesmeta <- function(x,
   invisible()
 }
 
+#=====================================================================================================
+               
+
+efa <- function(x, factors, data = NULL, covmat = NULL, n.obs = NA,
+                subset, na.action, start = NULL, center = FALSE,
+                scores = c("none", "regression", "Bartlett"),
+                rotation = "varimax", control = NULL, ...)
+{
+  
+fit <- factanal(x, factors, data = data, covmat, n.obs = n.obs,
+           subset, na.action, start = start,
+           scores = scores,
+           rotation = rotation, control = control, ...)
+
+fit$call <- match.call(expand.dots = FALSE)
+
+noncent <- if(is.null(data)) scale(as.data.frame(x), center = center) else scale(as.data.frame(data), center = center)
+
+Rvv_1 <- solve(fit$correlation)
+Pvf <- loadings(fit)
+Wvf <- Rvv_1%*%Pvf
+
+scores <- data.frame(noncent%*%Wvf)
+
+fit$scores <- scores
+
+return(fit)
+}               
+               
                
 #=====================================================================================================          
              
