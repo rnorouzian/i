@@ -9946,30 +9946,31 @@ funnel.bayesmeta <- function(x,
                
 
 efa <- function(x, factors, data = NULL, covmat = NULL, n.obs = NA,
-                subset, na.action, start = NULL, center = FALSE,
+                subset, na.action = "na.omit", start = NULL, center = FALSE,
                 scores = c("none", "regression", "Bartlett"),
                 rotation = "varimax", control = NULL, ...)
 {
   
-fit <- factanal(x, factors, data = data, covmat, n.obs = n.obs,
-           subset, na.action, start = start,
-           scores = scores,
-           rotation = rotation, control = control, ...)
-
-fit$call <- match.call(expand.dots = FALSE)
-
-noncent <- if(is.null(data)) scale(as.data.frame(x), center = center) else scale(as.data.frame(data), center = center)
-
-Rvv_1 <- solve(fit$correlation)
-Pvf <- loadings(fit)
-Wvf <- Rvv_1%*%Pvf
-
-scores <- data.frame(noncent%*%Wvf)
-
-fit$scores <- scores
-
-return(fit)
-}               
+  
+  cc <- match.call(expand.dots = FALSE)
+  cc[[1]] <- quote(factanal)
+  fit <- eval.parent(cc)
+  fit$call <- match.call(expand.dots = FALSE)
+  
+  if(is.data.frame(x) & na.action == "na.omit" || is.data.frame(x) & na.action == "na.exclude") x <- na.omit(x)
+  
+  noncent <- if(is.null(data)) scale(as.data.frame(x), center = center) else scale(as.data.frame(data), center = center)
+  
+  Rvv_1 <- solve(fit$correlation)
+  Pvf <- fit$loadings
+  Wvf <- Rvv_1%*%Pvf
+  
+  scores <- data.frame(noncent%*%Wvf)
+  
+  fit$scores <- scores
+  
+  return(fit)
+}                
                
                
 #=====================================================================================================          
