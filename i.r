@@ -4094,15 +4094,15 @@ abline(h = 1, v = alpha, col = 8)
 #========================================================================================================================
     
 
-plan.t.tests <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, paired = FALSE, d.range = seq(.1, .5, .05),
+plan.t.test <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, paired = FALSE, d.range = seq(.1, .5, .05),
                           two.tailed = TRUE, xlab = "Cohen's d", xlim = c(NULL, NULL), ylim = NULL)
 {
   
-  UseMethod("plan.t.tests")
+  UseMethod("plan.t.test")
 }
     
     
-plan.t.tests.default <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, paired = FALSE, d.range = seq(.1, .5, .05),
+plan.t.test.default <- function(d = .1, sig.level = .05, power = .8, base.rate = 1, paired = FALSE, d.range = seq(.1, .5, .05),
                                   two.tailed = TRUE, xlab = "Cohen's d", xlim = c(NULL, NULL), ylim = NULL){
   
   graphics.off()  
@@ -4274,15 +4274,15 @@ gpower.peta.b <- function(peta, rho = .5, N, m, n.group){
 #===============================================================================================================================
 
                   
-plan.f.tests <- function(pov, n.level, design, sig.level = .05, n.covar = 0, n.pred = NA, power = .8, peta.range = seq(1e-1, .9, 1e-1),
+plan.f.test <- function(pov, n.level, design, sig.level = .05, n.covar = 0, n.pred = NA, power = .8, peta.range = seq(1e-1, .9, 1e-1),
                          xlab = NULL, ylim = NULL, to = NULL, regress = FALSE, d = NA)
 {
   
-  UseMethod("plan.f.tests")
+  UseMethod("plan.f.test")
 }
 
 
-plan.f.tests.default <- function(pov, n.level, design, sig.level = .05, n.pred = NA, n.covar = 0, power = .8, peta.range = seq(1e-1, .9, 1e-1),
+plan.f.test.default <- function(pov, n.level, design, sig.level = .05, n.pred = NA, n.covar = 0, power = .8, peta.range = seq(1e-1, .9, 1e-1),
                                  xlab = NULL, ylim = NULL, to = NULL, regress = FALSE, d = NA){
   
   graphics.off()  
