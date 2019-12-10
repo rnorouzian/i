@@ -3873,7 +3873,7 @@ dpeta <- function(x, df1, df2, pbase = 0, N, log = FALSE){
   ncp <- (pbase * N) / (1 - pbase)
   d <- df2 / df1
   f <- x / (1 - x) * d
-  df(f, df1, df2, ncp, log = log) * d * ( 1 / (1 - x) + x / (1 - x)^2 )
+  stats::df(f, df1, df2, ncp, log = log) * d * ( 1 / (1 - x) + x / (1 - x)^2 )
 }
 
 
@@ -3891,7 +3891,7 @@ ppeta <- function(q, df1, df2, pbase = 0, N, lower.tail = TRUE, log.p = FALSE){
   ncp <- (pbase * N) / (1 - pbase)
   d <- df2 / df1
   f <- q / (1 - q) * d
-  pf(f, df1, df2, ncp, lower.tail = lower.tail, log.p = log.p)
+  stats::pf(f, df1, df2, ncp, lower.tail = lower.tail, log.p = log.p)
 })
 p(q = q, df1 = df1, df2 = df2, pbase = pbase, N = N, lower.tail = lower.tail, log.p = log.p)
 }
@@ -3910,7 +3910,7 @@ qpeta <- function(p, df1, df2, pbase = 0, N, lower.tail = TRUE, log.p = FALSE){
   pbase[pbase < 0] <- 0
   ncp <- (pbase * N) / (1 - pbase)
   d <- df2 / df1
-  f <- qf(p, df1, df2, ncp, lower.tail = lower.tail, log.p = log.p)
+  f <- stats::qf(p, df1, df2, ncp, lower.tail = lower.tail, log.p = log.p)
   f / (f + d)
 })
 q(p = p, df1 = df1, df2 = df2, pbase = pbase, N = N, lower.tail = lower.tail, log.p = log.p)
@@ -3925,7 +3925,7 @@ rpeta <- function(n, df1, df2, pbase = 0, N){
   pbase[pbase < 0] <- 0
   ncp <- (pbase * N) / (1 - pbase)
   d <- df2 / df1
-  f <- rf(n, df1, df2, ncp)
+  f <- stats::rf(n, df1, df2, ncp)
   f / (f + d)
 }
     
@@ -3937,7 +3937,7 @@ dpetab <- function(x, df1, df2, ncp = 0, log = FALSE){
   x[x < 0] <- 0
   d <- df2 / df1
   f <- x / (1 - x) * d
-  df(f, df1, df2, ncp, log = log) * d * ( 1 / (1 - x) + x / (1 - x)^2 )
+  stats::df(f, df1, df2, ncp, log = log) * d * ( 1 / (1 - x) + x / (1 - x)^2 )
 }
 
 
@@ -3949,7 +3949,7 @@ ppetab <- function(q, df1, df2, ncp = 0, lower.tail = TRUE, log.p = FALSE){
   q[q < 0] <- 0
   d <- df2 / df1
   f <- q / (1 - q) * d
-  pf(f, df1, df2, ncp, lower.tail = lower.tail, log.p = log.p)
+  stats::pf(f, df1, df2, ncp, lower.tail = lower.tail, log.p = log.p)
 }
 
 
@@ -3960,7 +3960,7 @@ qpetab <- function(p, df1, df2, ncp = 0, lower.tail = TRUE, log.p = FALSE){
   p[p > 1] <- 1
   p[p < 0] <- 0
   d <- df2 / df1
-  f <- qf(p, df1, df2, ncp, lower.tail = lower.tail, log.p = log.p)
+  f <- stats::qf(p, df1, df2, ncp, lower.tail = lower.tail, log.p = log.p)
   f / (f + d)
 }
 
@@ -3970,7 +3970,7 @@ qpetab <- function(p, df1, df2, ncp = 0, lower.tail = TRUE, log.p = FALSE){
 
 rpetab <- function(n, df1, df2, ncp = 0){
   d <- df2 / df1
-  f <- rf(n, df1, df2, ncp)
+  f <- stats::rf(n, df1, df2, ncp)
   f / (f + d)
 }
     
