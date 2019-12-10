@@ -4303,7 +4303,7 @@ plan.f.test.default <- function(pov, n.level, design, sig.level = .05, n.pred = 
   if(n.level <= 1 & !regress) stop("Error: You must have at least '2 levels'.")
   if(n.level < 1) stop("Error: You must have at least '2 levels' or '1 predictor' for regression.")
   xlab <- if(is.null(xlab) && !regress) bquote(eta[p]^2) else if(is.null(xlab) && regress) bquote(bold(R^2)) else xlab
-  if(!regress && missing(design)) stop("Error: 'design' must be numerically specified e.g., 'design = 2 * 4'.", call. = FALSE)
+  if(!regress && missing(design)) stop("'design' must be numerically specified e.g., 'design = 2*4'.", call. = FALSE)
   if(regress){ n.level <- n.level + 1 ; design <- n.level }
   df1 <- n.level - 1
   if(n.covar < 0) n.covar <- 0
