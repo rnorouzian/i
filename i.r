@@ -4183,14 +4183,14 @@ plan.t.test.default <- function(d = .1, sig.level = .05, power = .8, base.rate =
   from <- if(is.null(from)) min(qcohen(1e-5, 0, n1, n2), qcohen(1e-5, d2, n1, n2), na.rm = TRUE) else from
   to <- if(is.null(to)) max(qcohen(.99999, 0, n1, n2), qcohen(.99999, d2, n1, n2), na.rm = TRUE) else to
   
-  x <- seq(from, to, 1e-4)
+  x <- seq(from, to, 1e-3)
   ylimb <- c(0, max(c(dcohen(x, 0, n1, n2), dcohen(x, d2, n1, n2)), na.rm = TRUE) )
   
   ylim <- if(is.infinite(ylimb[2]) & is.null(ylim)) NULL else if(is.null(ylim)) ylimb else ylim
   
   par(mfrow = c(2, 1), mgp = c(2.5, .5, 0), mar = c(4, 4, 2, 2), tck = -.02)
       
-  h0 <- curve(dcohen(x, 0, n1, n2), from, to, n = 1e4, xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i", ylim = ylim, font.lab = 2)
+  h0 <- curve(dcohen(x, 0, n1, n2), from, to, n = 1e3, xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i", ylim = ylim, font.lab = 2)
   
   x1 <- seq(from, a, length.out = 1e3) ; y1 <- dcohen(x1, 0, n1, n2) 
   x2 <- seq(b, to, length.out = 1e3) ; y2 <- dcohen(x2, 0, n1, n2)
@@ -4210,7 +4210,7 @@ plan.t.test.default <- function(d = .1, sig.level = .05, power = .8, base.rate =
   #text(g, par('usr')[4], bquote(bold(critical~ bolditalic(d) == .(crit))), pos = 3, cex = .7, font = 2, xpd = TRUE) 
   text(g, par('usr')[4], paste("critical d =", crit), pos = 3, cex = .7, font = 2, xpd = TRUE)
   
-  h1 <- curve(dcohen(x, d2, n1, n2), from, to, n = 1e4, add = TRUE) 
+  h1 <- curve(dcohen(x, d2, n1, n2), from, to, n = 1e3, add = TRUE) 
   x1 <- seq(from, a, length.out = 1e3) ; y1 <- dcohen(x1, d2, n1, n2) 
   x2 <- seq(b, to, length.out = 1e3) ; y2 <- dcohen(x2, d2, n1, n2)
   if(d2 < 0 & !two.tailed || two.tailed) polygon(c(from, x1, a), c(0, y1, 0), border = NA, density = 15, col = 4, xpd = TRUE)
