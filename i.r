@@ -6453,7 +6453,7 @@ plan.mrm <- function(peta, n.rep, n.group, factor.type = c("between", "within", 
 
 
 plan.mrm.default <- function(peta, n.rep, n.group, factor.type = c("between", "within", "bw"), sig.level = .05, n.covar = 0, power = .8, eps = .9,
-         rho = .5, d = NA){
+                             rho = .5, d = NA){
   
   if(!anyNA(d)) peta <- d2peta(d = d, n1 = 300, n2 = 300)
   
@@ -6475,7 +6475,7 @@ plan.mrm.default <- function(peta, n.rep, n.group, factor.type = c("between", "w
     if(n.covar < 0) n.covar <- 0
     g <- sapply(list(n.group, n.covar, m), round)
     n.group <- g[1] ; n.covar <- g[2] ; m <- g[3]
-  
+    
     
     df1 <- switch(factor.type, between = n.group - 1, within = (m - 1)*eps, bw = (n.group - 1)*(m - 1)*eps)
     
@@ -6507,7 +6507,9 @@ plan.mrm.default <- function(peta, n.rep, n.group, factor.type = c("between", "w
     
     est.power <- ppetab(a, df1, df2, ncp, lower.tail = FALSE)
     
-    list(peta = peta, total.N = N, balanced.N = balanced.N, factor.type = factor.type, n.group = n.group, n.rep = n.rep, n.covar = n.covar, sig.level = sig.level, crit.peta = a, est.power = est.power)
+    ro <- sapply(list(a, est.power), round, 4)
+    
+    list(peta = peta, total.N = N, balanced.N = balanced.N, factor.type = factor.type, n.group = n.group, n.rep = n.rep, n.covar = n.covar, sig.level = sig.level, crit.peta = ro[1], est.power = ro[2])
   })
   
   if(!anyNA(d) & any(n.group == 2)) message("\nNote: For 'pairwise' comparisons, 'total.N' is for '2' groups.\n")    
@@ -6519,7 +6521,7 @@ plan.mrm.default <- function(peta, n.rep, n.group, factor.type = c("between", "w
   names(a)[1] <- if(!is.na(d)) "d" else "peta"
   a[, 1] <- if(is.na(d)) peta else d
   a
-}               
+}
                
 #===========================================================================================================================
                
