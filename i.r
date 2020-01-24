@@ -9985,8 +9985,8 @@ suppressMessages({
     library("rstanarm")
   # library("pscl")
   # library("glmmTMB")
-    library("distr")
-    library("bayesmeta")
+  #  library("distr")
+  #  library("bayesmeta")
   # library("arrangements")
 })
                      
