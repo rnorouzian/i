@@ -9976,7 +9976,7 @@ efa <- function(x, factors, data = NULL, covmat = NULL, n.obs = NA,
                
 #=====================================================================================================          
              
-need <- c("rstanarm", "distr", "bayesmeta")  #, "pscl", "glmmTMB", "arrangements")
+need <- c("rstanarm")  #, "distr", "bayesmeta", "pscl", "glmmTMB", "arrangements")
 have <- need %in% rownames(installed.packages())
 if(any(!have)){ install.packages( need[!have] ) }
  
