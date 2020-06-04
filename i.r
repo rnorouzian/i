@@ -6841,9 +6841,9 @@ random <- function(N, n.groups, keep = FALSE)
                
 random.default <- function(N, n.groups, keep = FALSE){
   
-  r <- lapply(list(N, n.groups), round)
-  N <- r[[1]]
-  n.groups <- r[[2]]
+  r <- round(c(N, n.groups))
+  N <- r[1]
+  n.groups <- r[2]
   
   n <- N
   N <- ceiling(N/n.groups) * n.groups
