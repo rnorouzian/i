@@ -9976,7 +9976,29 @@ efa <- function(x, factors, data = NULL, covmat = NULL, n.obs = NA,
   
   return(fit)
 }                
+
+#=====================================================================================================
                
+tcurve <- function(t = seq(0, 2,.5), n1 = 30, n2 = NA, biased = TRUE, labels = TRUE, obs.t = NULL, ...){
+  
+  N <- ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
+  df <- ifelse(is.na(n2), n1 - 1, (n1 + n2) - 2)
+  
+  if(!biased) t <- exp2d(t/sqrt(N), n1, n2)*sqrt(N)
+  options(warn = -1) ; t <- sort(t)
+  min.d = qt(1e-5, df, min(t))  ;  max.d = qt(.99999, df, max(t))  
+  
+  for(i in 1:length(t)){      
+    H = curve(dt(x, df, t[i]), min.d, max.d, n = 1e3, xlab = bquote(t[i]), ...,
+              ylab = NA, type = "n", add = i!= 1, bty = "n", axes = FALSE, font.lab = 2, yaxs = "i")
+    
+    polygon(H, col = adjustcolor(i, .7), border = NA, xpd = NA)
+    if(labels) text(t[i], max(H$y), bquote(bolditalic(H[.(i-1)])), pos = 3, xpd = NA)
+    axis(1, at = round(t[i], 3), col = i, col.axis = i, font = 2, ...)
+    segments(t[i], 0, t[i], dt(t[i], df, t[i]), lty = 3)
+    if(!is.null(obs.t)) points(obs.t, 0, pch = 23, bg = "cyan", col = 'magenta', cex = 2, xpd = NA)
+  }
+}                              
                
 #=====================================================================================================          
              
