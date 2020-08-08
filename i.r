@@ -6836,14 +6836,8 @@ pov.curve <- povcurve <- function(pov = seq(0, .5, .1), df1 = 3, df2 = 73, N = 7
                
 #===========================================================================================================================
                
-               
-random <- function(N, n.groups, keep = FALSE)
-{
-  UseMethod("random")
-}
-               
-               
-random.default <- function(N, n.groups, keep = FALSE){
+                              
+random <- function(N, n.groups, keep = FALSE){
   
   r <- round(c(N, n.groups))
   N <- r[1]
@@ -6859,7 +6853,7 @@ random.default <- function(N, n.groups, keep = FALSE){
   if(n != N) a[(n+1):N] <- NA
   a <- matrix(a, n.groups, n.set)
   
-  a[] <- sprintf("%s%d: %d", "p", seq_len(N), a)
+  a[] <- sprintf("%s%d:~%d", "p", seq_len(N), a)
   rownames(a) <- rep(" ", n.groups)
   colnames(a) <- rep(" ", n.set)
   
