@@ -23,13 +23,13 @@ Break = "\n*********************************************************************
 
 cite <- "To cite the package use:\n\nNorouzian, R., de Miranda, M. A., & Plonsky, L. (2018). The Bayesian \nrevolution in second language research: An applied approach. Language Learning, 64, 1032-1075.
 \nNorouzian, R., de Miranda, M. A., & Plonsky, L. (2019). A Bayesian approach to measuring evidence \nin L2 research: An empirical investigation. Modern Language Journal, 103, 248-263.
-\nNorouzian, R. (in press). Sample size planning in quantitative L2 research: A pragmatic approach. \nStudies in Second Language Acquisition."
+\nNorouzian, R. (2020). Sample size planning in quantitative L2 research: A pragmatic approach. \nStudies in Second Language Acquisition, 4, 849-870."
 
 cat(Break, cite, Break)
 
 #==================================================================================================================
 
-palette('R3')
+#palette('R3')
 
 #==================================================================================================================
 
