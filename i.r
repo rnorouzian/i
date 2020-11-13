@@ -10010,5 +10010,5 @@ tcurve <- function(t = seq(0, 2,.5), n1 = 30, n2 = NA, biased = TRUE, labels = T
   #  library("distr")
   #  library("bayesmeta")
   # library("arrangements")
-})
+#})
                      
