@@ -5076,7 +5076,7 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.pred =
       df2 <- uniroot(m, c(0, 1e3), width = width, extendInt = "yes")
       
       
-      if(round(df2$f.root, 3) != 0) stop("\nImpossible planning: You may change your 'width'.", call. = FALSE)
+      if(round(df2$f.root, 3) != 0) return( c(1, message("\n 1 or more impossible planning (denoted 'NA'): You may change your 'width'."))[1])
       
       
       df2 <- ceiling(df2[[1]])
@@ -5100,7 +5100,9 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.pred =
     
     a <- peta.ci(peta = peta, df1 = n$df1, df2 = n$df2, N = n$total.N, conf.level = 2*assure - 1)
     
-    nLU <- sapply(c(a$lower, a$upper), function(x) n.f(peta = x, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar)$total.N)
+    nLU <- try(sapply(c(a$lower, a$upper), function(x) n.f(peta = x, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar)$total.N), silent = TRUE)
+    
+    if(inherits(nLU, "try-error")) return(c(peta = peta, total.N = NA, width = NA, n.level = n.level, design = design, conf.level = conf.level, max.width = NA))
     
     NN1 <- max(nLU, na.rm = TRUE)
     
@@ -5123,7 +5125,7 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.pred =
   names(a)[1] <- if(regress) "R2" else if(!is.na(d)) "d" else "peta"
   a[, 1] <- if(is.na(d)) pov else d
   a
-}                                                                                  
+}                                                 
                                                                                                                 
                                                                                                      
 #=====================================================================================================================================================
