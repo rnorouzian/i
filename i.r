@@ -5076,7 +5076,7 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.pred =
       df2 <- uniroot(m, c(0, 1e3), width = width, extendInt = "yes")
       
       
-      if(round(df2$f.root, 3) != 0) return( c(1, message("\n 1 or more impossible planning (denoted 'NA'): You may change your 'width'."))[1])
+      if(round(df2$f.root, 3) != 0) return( c(1, message("\n impossible planning found (denoted 'NA'): You may change your 'width'."))[1])
       
       
       df2 <- ceiling(df2[[1]])
