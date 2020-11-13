@@ -5076,7 +5076,7 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.pred =
       df2 <- uniroot(m, c(0, 1e3), width = width, extendInt = "yes")
       
       
-      if(round(df2$f.root, 3) != 0) return( c(1, message("\n impossible planning found (denoted 'NA'): You may change your 'width'."))[1])
+      if(round(df2$f.root, 3) != 0) return( c(1, message("\nimpossible planning found (denoted 'NA'): You may change your 'width'."))[1])
       
       
       df2 <- ceiling(df2[[1]])
@@ -5102,7 +5102,7 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.pred =
     
     nLU <- try(sapply(c(a$lower, a$upper), function(x) n.f(peta = x, width = width, assure = assure, n.level = n.level, regress = regress, conf.level = conf.level, design = design, n.covar = n.covar)$total.N), silent = TRUE)
     
-    if(inherits(nLU, "try-error")) return(c(peta = peta, total.N = NA, width = NA, n.level = n.level, design = design, conf.level = conf.level, max.width = NA))
+    if(inherits(nLU, "try-error")) return(c(peta = peta, total.N = NA, width = width, n.level = n.level, design = design, conf.level = conf.level, max.width = NA))
     
     NN1 <- max(nLU, na.rm = TRUE)
     
