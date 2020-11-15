@@ -10002,7 +10002,7 @@ tcurve <- function(t = seq(0, 2,.5), n1 = 30, n2 = NA, biased = TRUE, labels = T
 #have <- need %in% rownames(installed.packages())
 #if(any(!have)){ install.packages( need[!have] ) }
  
-#options(warn = -1)
+options(warn = -1)
 #suppressMessages({ 
 #    library("rstanarm")
   # library("pscl")
