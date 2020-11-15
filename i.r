@@ -5024,13 +5024,25 @@ plan.f.ci.default <- function(pov, design = 2 * 2, f = NA, n.level = 2, n.pred =
   if(expect) assure <- .5
   regress <- if(!is.null(n.pred)) TRUE else FALSE
   if(regress) n.level <- n.pred
-  if(!is.na(d)) { pov <- d2peta(d = d, n1 = 500, n2 = 500) ; n.level <- 2 ;
-  message("\nNote: For 'pairwise' comparisons, 'total.N' is for '2' groups.") }
-  if(!is.na(d)) { pov <- d2peta(d = d, n1 = 500, n2 = 500) ; n.level <- 2 }
-  if(!is.na(d) & is.na(width)) width <- d.width.meta(lower = lower, upper = upper)
-  if(!is.na(d) & width >= .3) width <- .3
-  if(!is.na(d) & pov <= .15) pov <- .15
+ # if(!is.na(d)) { pov <- d2peta(d = d, n1 = 500, n2 = 500) ; n.level <- 2 ;
+ # message("\nNote: For 'pairwise' comparisons, 'total.N' is for '2' groups.") }
+  #if(!is.na(d)) { pov <- d2peta(d = d, n1 = 500, n2 = 500) ; n.level <- 2 }
+ # if(!is.na(d) & is.na(width)) width <- d.width.meta(lower = lower, upper = upper)
+ # if(!is.na(d) & width >= .3) width <- .3
+ # if(!is.na(d) & pov <= .15) pov <- .15
   
+#------------- 
+    
+if(!anyNA(d)) { pov <- d2peta(d = d, n1 = 500, n2 = 500) ; n.level <- 2 ;
+message("\nNote: For 'pairwise' comparisons, 'total.N' is for '2' groups.") }
+
+width <- ifelse(!is.na(d) & is.na(width), d.width.meta(lower = lower, upper = upper), width)
+width <- ifelse(!is.na(d) & width >= .3,  .3, width)
+pov <- ifelse(!is.na(d) & pov <= .15,  .15, pov)   
+  
+ #--------------
+    
+    
   peta <- pov
   
   inc <- if(is.character(increase.by)) as.numeric(substr(increase.by, 1, nchar(increase.by)-1))/ 1e2 else increase.by
