@@ -5126,7 +5126,7 @@ pov <- ifelse(!is.na(d) & pov <= .15,  .15, pov)
     
     NN3 <- if(!(peta.max %inn% c(a$lower, a$upper))) NN1 else max(NN1, NN2)
     
-    max.w <- round(root(pov = peta, df1 = n$df1, N = NN3, df2 = NN3 - design - n.covar, conf.level = conf.level)$w, 7)
+    max.w <- round(root(pov = peta, df1 = n$df1, N = NN3, df2 = NN3 - design - n.covar, conf.level = conf.level)$w, 3)
     
     return(c(peta = peta, total.N = NN3, width = width, n.level = n.level, design = design, conf.level = conf.level, max.width = max.w))
     
