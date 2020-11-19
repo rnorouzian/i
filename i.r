@@ -4279,7 +4279,7 @@ gpower.peta.b <- function(peta, rho = .5, N, m, n.group){
 #===============================================================================================================================
 
                   
-plan.f.test <- function(pov, n.level, design, sig.level = .05, n.covar = 0, n.pred = NA, power = .8, peta.range = seq(1e-1, .9, 1e-1),
+plan.f.test <- function(pov, n.level, design, sig.level = .05, n.covar = 0, n.pred = NULL, power = .8, peta.range = seq(1e-1, .9, 1e-1),
                          xlab = NULL, ylim = NULL, to = NULL, d = NA)
 {
   
@@ -4287,8 +4287,8 @@ plan.f.test <- function(pov, n.level, design, sig.level = .05, n.covar = 0, n.pr
 }
 
 
-plan.f.test.default <- function(pov, n.level, design, sig.level = .05, n.pred = NA, n.covar = 0, power = .8, peta.range = seq(1e-1, .9, 1e-1),
-                                 xlab = NULL, ylim = NULL, to = NULL, d = NA){
+plan.f.test.default <- function(pov, n.level, design, sig.level = .05, n.pred = NULL, n.covar = 0, power = .8, peta.range = seq(1e-1, .9, 1e-1),
+                                xlab = NULL, ylim = NULL, to = NULL, d = NA){
   
   graphics.off()  
   original.par <- par(no.readonly = TRUE)
@@ -4306,13 +4306,13 @@ plan.f.test.default <- function(pov, n.level, design, sig.level = .05, n.pred = 
   if(!is.na(d)) pov <- d2peta(d = d, n1 = 300, n2 = 300) 
   peta <- pov
   
-  if(n.level <= 1 & !regress) stop("Error: You must have at least '2 levels'.")
-  if(n.level < 1) stop("Error: You must have at least '2 levels' or '1 predictor' for regression.")
+  if(any(n.level < 1)) stop("Error: You must have at least '2 levels' or '1 predictor' for regression.", call. = FALSE)
+  if(any(n.level <= 1) & !regress) stop("Error: You must have at least '2 levels'.", call. = FALSE)
   xlab <- if(is.null(xlab) && !regress) bquote(eta[p]^2) else if(is.null(xlab) && regress) bquote(bold(R^2)) else xlab
   if(!regress && missing(design)) stop("'design' must be numerically specified e.g., 'design = 2*4'.", call. = FALSE)
   if(regress){ n.level <- n.level + 1 ; design <- n.level }
   df1 <- n.level - 1
-  if(n.covar < 0) n.covar <- 0
+  n.covar[n.covar < 0] <- 0
   x <- sapply(list(n.level, design, n.covar), round)
   n.level <- x[1] ; design <- x[2] ; n.covar <- x[3]
   
@@ -4354,8 +4354,8 @@ plan.f.test.default <- function(pov, n.level, design, sig.level = .05, n.pred = 
   
   est.power <- ppeta(a, df1, df2, peta, N, lower.tail = FALSE)
   
-par(mfrow = c(2, 1), mgp = c(2.5, .5, 0), mar = c(4, 4, 2, 2), tck = -.02)
-    
+  par(mfrow = c(2, 1), mgp = c(2.5, .5, 0), mar = c(4, 4, 2, 2), tck = -.02)
+  
   h0 <- curve(dpeta(x, df1, df2, 0, N), from = 0, to = to, n = 1e4, xlab = xlab, ylab = NA, yaxt = "n", bty = "n", yaxs = "i", ylim = ylim, font.lab = 2)
   
   x = seq(a, to, length.out = 1e3) ; y = dpeta(x, df1, df2, 0, N)
@@ -4397,7 +4397,6 @@ par(mfrow = c(2, 1), mgp = c(2.5, .5, 0), mar = c(4, 4, 2, 2), tck = -.02)
   setNames(r, c("method", ifelse(regress, "R-squared", "peta squared"), "est.power", ifelse(regress, "crit.Rsq", "crit.peta"), 
                 "sig.level", "n.covar", "design", ifelse(regress, "n.pred", "n.level"), "df1", "df2", "total.N", "balanced.N"))
 }
-
          
                                  
 #=====================================================================================================================================
