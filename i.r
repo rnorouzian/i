@@ -4280,7 +4280,7 @@ gpower.peta.b <- function(peta, rho = .5, N, m, n.group){
 
                   
 plan.f.test <- function(pov, n.level, design, sig.level = .05, n.covar = 0, n.pred = NA, power = .8, peta.range = seq(1e-1, .9, 1e-1),
-                         xlab = NULL, ylim = NULL, to = NULL, regress = FALSE, d = NA)
+                         xlab = NULL, ylim = NULL, to = NULL, d = NA)
 {
   
   UseMethod("plan.f.test")
@@ -4288,13 +4288,14 @@ plan.f.test <- function(pov, n.level, design, sig.level = .05, n.covar = 0, n.pr
 
 
 plan.f.test.default <- function(pov, n.level, design, sig.level = .05, n.pred = NA, n.covar = 0, power = .8, peta.range = seq(1e-1, .9, 1e-1),
-                                 xlab = NULL, ylim = NULL, to = NULL, regress = FALSE, d = NA){
+                                 xlab = NULL, ylim = NULL, to = NULL, d = NA){
   
   graphics.off()  
   original.par <- par(no.readonly = TRUE)
   on.exit(par(original.par))
   options(warn = -1)
-  if(regress & !is.na(n.pred)) n.level <- n.pred
+  regress <- if(!is.null(n.pred)) TRUE else FALSE
+  if(regress) n.level <- n.pred  
   
   peta2 <- peta.range
   
