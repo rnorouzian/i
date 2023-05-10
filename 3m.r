@@ -1,4 +1,6 @@
-# functions for 'formetafor'
+#==== Cite as:
+# Norouzian, R., & Bui, G. (in press). Meta-analysis of Second Language Research with Complex Research Designs. Studies in Second Languages Acquisition.
+#====
 
 # H===============================================================================================================================
 
