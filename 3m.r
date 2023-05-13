@@ -1,6 +1,16 @@
-#==== Cite as:
-# Norouzian, R., & Bui, G. (in press). Meta-analysis of Second Language Research with Complex Research Designs. Studies in Second Languages Acquisition.
-#====
+
+Break = "<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>\n"
+
+notice = " R programs for conducting complex L2 meta-analyses.
+ Copyright (C) 2022-present  Reza Norouzian, rnorouzian@gmail.com\n"
+
+message(Break, notice, Break)
+
+Break = "\n*********************************************************************************\n"
+
+cite <- "To cite this package use:\n\nNorouzian, R., & Bui, G. (in press). Meta-analysis of Second Language Research with\nComplex Research Designs. Studies in Second Languages Acquisition."
+
+cat(Break, cite, Break)
 
 # H===============================================================================================================================
 
