@@ -1,7 +1,7 @@
 
 Break = "<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>\n"
 
-notice = " R programs for conducting complex L2 meta-analyses.
+notice = " R programs for meta-analyzing complex L2 studies.
  Copyright (C) 2022-present  Reza Norouzian, rnorouzian@gmail.com\n"
 
 message(Break, notice, Break)
