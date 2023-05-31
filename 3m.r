@@ -1789,6 +1789,15 @@ r2z_tran <- list(
   name = "r2z"
 )                                
 
+# M===============================================================================================================================================
+        
+pct_dif_tran <- list(
+  linkfun = function(mu) log(mu/100 + 1),
+  linkinv = function(eta) 100 * (exp(eta) - 1),
+  mu.eta = function(eta) 100 * exp(eta),
+  name = "log(pct_dif)"
+)        
+        
 #======================== WCF Meta Dataset ======================================================================================================                
 
 wcf <- read.csv("https://raw.githubusercontent.com/hkil/m/master/wcf.csv")
