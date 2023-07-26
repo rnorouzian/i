@@ -1804,21 +1804,14 @@ coef.post_rma <- function(post_rma_fit, none_names = NULL, ...){
   
   
   specs <- post_rma_fit$specs
+  ems <- post_rma_fit$ems
   
   post_rma_fit <- type.convert(post_rma_fit$table, as.is=TRUE)
   
-  nms <- names(post_rma_fit)
+  disp <- if(is.null(ems@misc$display)) seq_len(nrow(ems@linfct)) else ems@misc$display
   
-  contr <- if(any("contr" %in% as.character(post_rma_fit$call)) || any(c("pairwise","revpairwise","tukey","consec",
-                                                                         "poly","trt.vs.ctrl","trt.vs.ctrlk","trt.vs.ctrl1",
-                                                                         "dunnett","mean_chg","eff","del.eff","identity") %in% as.character(specs))) "Contrast" else NULL
-  
-  vv <- nms[!nms %in% c("Mean","Response","SE","Df","Lower","Upper","t",      
-                        "p-value","Sig.",contr,"F","Df1","Df2",
-                        "Estimate","Term","Block Contrast","(M)UTOS Term", none_names)]
-  
-  Term <-sapply(seq_len(nrow(post_rma_fit)), 
-                function(i) paste0(as.vector(unlist(post_rma_fit[vv][i,])), collapse = " "))
+  largs = as.list(ems@grid[disp, seq_along(ems@levels), drop = FALSE])
+  Term <- do.call(paste, largs)
   
   ave_eff <- if(!is.null(post_rma_fit$Mean)) post_rma_fit$Mean 
   else if(!is.null(post_rma_fit$Response)) post_rma_fit$Response 
@@ -1826,7 +1819,7 @@ coef.post_rma <- function(post_rma_fit, none_names = NULL, ...){
   
   setNames(ave_eff, Term)
   
-}        
+}          
 #======================== WCF Meta Dataset ======================================================================================================                
 
 wcf <- read.csv("https://raw.githubusercontent.com/hkil/m/master/wcf.csv")
