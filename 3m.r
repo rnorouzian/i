@@ -1700,7 +1700,7 @@ con_rma <- function(post_rma_fit, method, type,
   out <- roundi(out, digits = digits)
   
   out <- list(table = out, specs = post_rma_fit$specs, call = post_rma_fit$call, fit = post_rma_fit$fit, rma.mv_fit = post_rma_fit$rma.mv_fit, ems = post_rma_fit$ems,
-              tran. = post_rma_fit$tran., type. = post_rma_fit$type.)
+              tran. = post_rma_fit$tran., type. = post_rma_fit$type., con = con)
   
   class(out) <- "contrast_rma"
   
