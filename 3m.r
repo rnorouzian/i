@@ -1093,7 +1093,7 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
   lookup <- c(Contrast="contrast",Estimate="estimate",Mean="emmean",Response="response",t="t.ratio",
               Df="df","p-value"="p.value",Lower="lower.CL",Upper="upper.CL",
               Df1="df1", Df2="df2","F"="F.ratio",Term="model term",
-              Lower="asymp.LCL", Upper="asymp.UCL", z="z.ratio")
+              Lower="asymp.LCL", Upper="asymp.UCL", z="z.ratio", Ratio = "ratio")
   
   if(!is.null(block_vars)) names(lookup)[13] <- "Block Term"
   
@@ -1666,9 +1666,10 @@ con_rma <- function(post_rma_fit, method, type,
   
   infer <- c(ci, p_value)
   
-  lookup <- c(Contrast="contrast",Estimate="estimate","Mean"="emmean","Response"="response",t="t.ratio",
+  lookup <- c(Contrast="contrast",Estimate="estimate",Mean="emmean",Response="response",t="t.ratio",
               Df="df","p-value"="p.value",Lower="lower.CL",Upper="upper.CL",
-              Df1="df1", Df2="df2","F"="F.ratio",Term="model term")
+              Df1="df1", Df2="df2","F"="F.ratio",Term="model term",
+              Lower="asymp.LCL", Upper="asymp.UCL", z="z.ratio", Ratio = "ratio")
 
   tran. <- post_rma_fit$tran.
   
