@@ -1506,7 +1506,7 @@ prob_rma <- function(post_rma_fit, target_effect = 0, condition = c("or larger",
 
 sense_rma <- function(post_rma_fit = NULL, var_name, fit = NULL, 
                       r = (3:7)*.1, cluster = NULL, clean_names = NULL,
-                      regression = NULL, label_lines = TRUE, none_names=NULL,
+                      regression = NULL, label_lines = TRUE,
                       cex_labels = .55, plot_coef = TRUE, plot_hetro = TRUE, digits = 3, 
                       ..., sep = get_emm_option("sep")){
   
@@ -1551,12 +1551,16 @@ sense_rma <- function(post_rma_fit = NULL, var_name, fit = NULL,
   }   
   
   if(!is.null(post_rma_fit)){
-    
+
+   disp <- if(is.null(ems@misc$display)) seq_len(nrow(ems@linfct)) else ems@misc$display
+   largs <- as.list(ems@grid[disp, seq_along(ems@levels), drop = FALSE])
+   largs$sep <- sep
+   Term <- do.call(paste, largs)
+      
     tran. <- post_rma_fit$tran.
     type. <- post_rma_fit$type.
     specs <- post_rma_fit$specs
     ems <- post_rma_fit$ems
-    
   }
   
   cluster_name <- if(is.null(cluster)) strsplit(fit$s.names,"/",fixed=TRUE)[[1]] else cluster
@@ -1602,13 +1606,6 @@ sense_rma <- function(post_rma_fit = NULL, var_name, fit = NULL,
   } else {
     
     if(!is.null(post_rma_fit)){
-      
-      disp <- if(is.null(ems@misc$display)) seq_len(nrow(ems@linfct)) else ems@misc$display
-      
-      largs <- as.list(ems@grid[disp, seq_along(ems@levels), drop = FALSE])
-      largs$sep <- sep
-      Term <- do.call(paste, largs)
-      
       
       post_rma_list <- lapply(model_list, function(i) 
         setNames(predict(post_rma(i, specs, tran = tran., type = type.)$ems),Term))
@@ -1795,7 +1792,7 @@ pct_dif_tran <- list(
 
 # M==============================================================================================================================================
 
-coef.post_rma <- function(post_rma_fit, none_names = NULL, ..., sep = get_emm_option("sep")){
+coef.post_rma <- function(post_rma_fit, ..., sep = get_emm_option("sep")){
   
   if(!inherits(post_rma_fit, "post_rma"))
     stop("post_rma_fit can be either from 'post_rma()' or 'contrast_rma()'.", call. = FALSE)
@@ -1813,7 +1810,7 @@ coef.post_rma <- function(post_rma_fit, none_names = NULL, ..., sep = get_emm_op
 
 #================================================================================================================================================
 
-coef.contrast_rma <- function(post_rma_fit, none_names = NULL, ..., sep = get_emm_option("sep")){
+coef.contrast_rma <- function(post_rma_fit, ..., sep = get_emm_option("sep")){
   
   if(!inherits(post_rma_fit, "contrast_rma"))
     stop("post_rma_fit can be either from 'post_rma()' or 'contrast_rma()'.", call. = FALSE)
