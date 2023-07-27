@@ -1800,26 +1800,50 @@ pct_dif_tran <- list(
 
 # M==============================================================================================================================================
 
-coef.post_rma <- function(post_rma_fit, none_names = NULL, ...){
+coef.post_rma <- function(post_rma_fit, none_names = NULL, ..., sep = get_emm_option("sep")){
   
-  
-  specs <- post_rma_fit$specs
   ems <- post_rma_fit$ems
-  
-  post_rma_fit <- type.convert(post_rma_fit$table, as.is=TRUE)
   
   disp <- if(is.null(ems@misc$display)) seq_len(nrow(ems@linfct)) else ems@misc$display
   
-  largs = as.list(ems@grid[disp, seq_along(ems@levels), drop = FALSE])
+  largs <- as.list(ems@grid[disp, seq_along(ems@levels), drop = FALSE])
+  largs$sep <- sep
   Term <- do.call(paste, largs)
   
-  ave_eff <- if(!is.null(post_rma_fit$Mean)) post_rma_fit$Mean 
-  else if(!is.null(post_rma_fit$Response)) post_rma_fit$Response 
-  else post_rma_fit$Estimate
+  setNames(predict(ems), Term) 
+} 
+
+#================================================================================================================================================
+
+vcov.post_rma <- function(post_rma_fit, ..., sep = get_emm_option("sep")){
+
+object <- post_rma_fit$ems  
   
-  setNames(ave_eff, Term)
-  
-}          
+vcov.emmGrid = function(object, ..., sep) {
+    tol = get_emm_option("estble.tol")
+    if (!is.null(hook <- object@misc$vcovHook)) {
+        if (is.character(hook)) 
+            hook = get(hook)
+        hook(object, tol = tol, ...)
+    }
+    else {
+        if(is.null(disp <- object@misc$display))
+            disp = seq_len(nrow(object@linfct))
+        X = object@linfct[disp, , drop = FALSE]
+        estble = estimability::is.estble(X, object@nbasis, tol) 
+        X[!estble, ] = NA
+        X = X[, !is.na(object@bhat), drop = FALSE]
+        rtn = X %*% tcrossprod(object@V, X)
+        largs = as.list(object@grid[disp, seq_along(object@levels), drop = FALSE])
+        largs$sep = sep
+        rownames(rtn) = colnames(rtn) = do.call(paste, largs)
+        return(rtn)
+    }
+}
+
+vcov.emmGrid(object = object, ..., sep = sep)
+}        
+        
 #======================== WCF Meta Dataset ======================================================================================================                
 
 wcf <- read.csv("https://raw.githubusercontent.com/hkil/m/master/wcf.csv")
