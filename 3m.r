@@ -1507,7 +1507,8 @@ prob_rma <- function(post_rma_fit, target_effect = 0, condition = c("or larger",
 sense_rma <- function(post_rma_fit = NULL, var_name, fit = NULL, 
                       r = (3:7)*.1, cluster = NULL, clean_names = NULL,
                       regression = NULL, label_lines = TRUE, none_names=NULL,
-                      cex_labels = .55, plot_coef = TRUE, plot_hetro = TRUE, digits = 3, ...){
+                      cex_labels = .55, plot_coef = TRUE, plot_hetro = TRUE, digits = 3, 
+                      ..., sep = get_emm_option("sep")){
   
   
   if(is.null(fit) & is.null(post_rma_fit)) stop("Provide either 'fit=' or 'post_rma_fit='.", call. = TRUE)
@@ -1516,8 +1517,6 @@ sense_rma <- function(post_rma_fit = NULL, var_name, fit = NULL,
   if(!is.null(post_rma_fit) & !inherits(post_rma_fit, "post_rma")) stop("post_rma_fit is not 'post_rma()'.", call. = FALSE) 
   if(fit$withG || fit$withH || fit$withR) stop("These models not yet supported.", call. = FALSE)
   
-  tran. <- post_rma_fit$tran.
-  type. <- post_rma_fit$type.
   
   dat <- get_data_(fit)
   
@@ -1553,9 +1552,11 @@ sense_rma <- function(post_rma_fit = NULL, var_name, fit = NULL,
   
   if(!is.null(post_rma_fit)){
     
+    tran. <- post_rma_fit$tran.
+    type. <- post_rma_fit$type.
     specs <- post_rma_fit$specs
+    ems <- post_rma_fit$ems
     
-    post_rma_fit <- post_rma_fit$table
   }
   
   cluster_name <- if(is.null(cluster)) strsplit(fit$s.names,"/",fixed=TRUE)[[1]] else cluster
@@ -1581,8 +1582,8 @@ sense_rma <- function(post_rma_fit = NULL, var_name, fit = NULL,
   output <- if(regression){
     
     fixed_eff_list <- lapply(model_list, function(i) setNames(coef(summary(i))$estimate, rownames(fit$b)))
-   
-     if(plot_coef){    
+    
+    if(plot_coef){    
       
       matplot(t(as.data.frame(fixed_eff_list)), type = "l", xaxt = "n", ylab = "Estimates", ...)
       
@@ -1602,20 +1603,15 @@ sense_rma <- function(post_rma_fit = NULL, var_name, fit = NULL,
     
     if(!is.null(post_rma_fit)){
       
-      nms <- names(post_rma_fit)
+      disp <- if(is.null(ems@misc$display)) seq_len(nrow(ems@linfct)) else ems@misc$display
       
-      vv <- nms[!nms %in% c("Mean","Response","SE","Df","Lower","Upper","t",      
-                            "p-value","Sig.","Contrast","F","Df1","Df2",
-                            "Estimate","Term","Block Contrast","(M)UTOS Term", none_names=none_names)]
+      largs <- as.list(ems@grid[disp, seq_along(ems@levels), drop = FALSE])
+      largs$sep <- sep
+      Term <- do.call(paste, largs)
       
-      Term <-sapply(seq_len(nrow(post_rma_fit)), 
-                    function(i) paste0(as.vector(unlist(post_rma_fit[vv][i,])), collapse = " "))
-      
-      ave_col <- if(!is.null(post_rma_fit$Mean)) "Mean" else 
-        if(!is.null(post_rma_fit$Estimate)) "Estimate" else "Response"
       
       post_rma_list <- lapply(model_list, function(i) 
-        setNames(as.numeric(post_rma(i, specs, tran = tran., type = type.)$table[[ave_col]]),Term))
+        setNames(predict(post_rma(i, specs, tran = tran., type = type.)$ems),Term))
       
     } else {
       
@@ -1648,9 +1644,10 @@ sense_rma <- function(post_rma_fit = NULL, var_name, fit = NULL,
     axis(1, at = axTicks(1), labels = xaxis_lab, ...)
   }  
   out <- rbind(output, Total_variation_in_SD = total_hetros)
-  out <- cbind(out, sd = sapply(1:nrow(out), function(i) sd(out[i,])))
+  out <- cbind(out, sd = apply(out, 1, sd))
   roundi(rownames_to_column(out, "Term"), digits = digits)
-}                                               
+} 
+                                              
 
 #M================================================================================================================================================
 
