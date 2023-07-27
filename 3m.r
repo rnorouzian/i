@@ -1243,7 +1243,7 @@ categorical moderators (a block of them) are equal to each other.")
   if(!is.null(get_cols)) out <- dplyr::select(out, tidyselect::all_of(get_cols))
   
   out <- list(table = out, specs = specs, call = cl, fit = fit, rma.mv_fit = rma.mv_fit, ems = ems,
-              tran. = tran., type. = type., df. = df., sigma. = sigma.)
+              tran. = tran., type. = type., df. = df., sigma. = sigma., digits = digits)
   
   class(out) <- "post_rma"
   return(out)
@@ -1700,7 +1700,7 @@ con_rma <- function(post_rma_fit, method, type,
   out <- roundi(out, digits = digits)
   
   out <- list(table = out, specs = post_rma_fit$specs, call = post_rma_fit$call, fit = post_rma_fit$fit, rma.mv_fit = post_rma_fit$rma.mv_fit, ems = post_rma_fit$ems,
-              tran. = post_rma_fit$tran., type. = post_rma_fit$type., con = con)
+              tran. = post_rma_fit$tran., type. = post_rma_fit$type., con = con, digits = digits)
   
   class(out) <- "contrast_rma"
   
