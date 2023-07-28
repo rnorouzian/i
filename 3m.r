@@ -74,6 +74,34 @@ get_vars_ <- function(gls_fit, as_fml = TRUE){
 
 is_qdrg <- function(rma_fit){ is.null(rma_fit$call$yi) }
 
+# M================================================================================================================================
+
+ mask <- function(data, what, full = FALSE){
+  
+  data[] <- lapply(data, function(x) type.convert(as.character(x), as.is = TRUE))
+  
+  f1 <- function(x) as.numeric(factor(x, levels = unique(x)))
+  f2 <- function(x) {
+    temp <- substr(x, 1, 1)
+    paste0(temp, ave(x, temp, FUN = function(y) match(y, unique(y))))
+  }
+  cols <- names(data)[sapply(data, is.numeric)]
+  num.cols <- cols[cols %in% what]
+  cols <- names(data)[sapply(data, is.character)]
+  char.cols <- cols[cols %in% what]
+  
+  if(!full){
+    
+    if(length(num.cols))  data[num.cols] <- lapply(data[num.cols], f1)
+    if(length(char.cols)) data[char.cols] <- lapply(data[char.cols], f2)
+    
+  }else{
+    
+    data[what] <- lapply(data[what], f1)
+  }
+  return(data)
+}                  
+                 
 # H===============================================================================================================================
 
 tran_detect <- function(rma_fit){
