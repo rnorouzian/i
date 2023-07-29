@@ -76,6 +76,23 @@ is_qdrg <- function(rma_fit){ is.null(rma_fit$call$yi) }
 
 # M================================================================================================================================
 
+add_blank_row <- function(data, n_blank_row = 1, by = "study", 
+                          file_name = NULL, na = "")
+{
+  
+  data <- full_clean(data)
+  dat <- group_split(data, !!rlang::sym(by)) %>% 
+    map_dfr(~ .x[1:(nrow(.x) + n_blank_row),])
+  
+  if(!is.null(file_name)){
+    file_name <- paste0(file_name, ".csv")
+    write_csv(dat, file_name, na = na)
+  }
+  return(dat)
+} 
+
+# M================================================================================================================================                 
+
  mask <- function(data, what, full = FALSE){
   
   data[] <- lapply(data, function(x) type.convert(as.character(x), as.is = TRUE))
