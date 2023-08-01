@@ -1597,15 +1597,16 @@ sense_rma <- function(post_rma_fit = NULL, var_name, fit = NULL,
   
   if(!is.null(post_rma_fit)){
 
+    tran. <- post_rma_fit$tran.
+    type. <- post_rma_fit$type.
+    specs <- post_rma_fit$specs
+    ems <- post_rma_fit$ems
+   
    disp <- if(is.null(ems@misc$display)) seq_len(nrow(ems@linfct)) else ems@misc$display
    largs <- as.list(ems@grid[disp, seq_along(ems@levels), drop = FALSE])
    largs$sep <- sep
    Term <- do.call(paste, largs)
       
-    tran. <- post_rma_fit$tran.
-    type. <- post_rma_fit$type.
-    specs <- post_rma_fit$specs
-    ems <- post_rma_fit$ems
   }
   
   cluster_name <- if(is.null(cluster)) strsplit(fit$s.names,"/",fixed=TRUE)[[1]] else cluster
