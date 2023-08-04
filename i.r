@@ -4948,12 +4948,13 @@ plan.t.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = 
   inc <- if(is.character(increase.by)) as.numeric(substr(increase.by, 1, nchar(increase.by)-1))/ 1e2 else increase.by
   red <- if(is.character(reduce.by)) as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2 else reduce.by
   
-  fac <- if(inc != 0 & red == 0) { 1 + inc
-  } else if(red != 0 & inc == 0) { 1 - red 
-  } else { 1 }
+fac <- if(all(inc != 0 & red == 0)) { 1 + inc
+} else if(all(red != 0 & inc == 0)) { 1 - red 
+} else { 1 }
   
   
-  if(fac <= 0 || inc == 0 & fac > 1) fac <- 1
+fac[fac <= 0] <- 1
+fac[inc == 0 & fac > 1] <- 1
   
   width <- width * fac
   
@@ -5052,8 +5053,8 @@ fac <- if(all(inc != 0 & red == 0)) { 1 + inc
 } else if(all(red != 0 & inc == 0)) { 1 - red 
 } else { 1 }
   
-  
-  if(fac <= 0 || inc == 0 & fac > 1) fac <- 1
+fac[fac <= 0] <- 1
+fac[inc == 0 & fac > 1] <- 1
   
   width <- width * fac
   
