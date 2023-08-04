@@ -4945,8 +4945,11 @@ plan.t.ci.default <- function(d, t = NA, n1, n2 = NA, conf.level = .95, width = 
   if(is.na(width)) width <- d.width(d = d, t = t, n1 = n1, n2 = n2, conf.level = conf.level)
   if(expect) assure <- .5
   
-inc <- ifelse(is.character(increase.by), as.numeric(substr(increase.by, 1, nchar(increase.by)-1))/ 1e2, increase.by)
-red <- ifelse(is.character(reduce.by), as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2, reduce.by)
+#inc <- ifelse(is.character(increase.by), as.numeric(substr(increase.by, 1, nchar(increase.by)-1))/ 1e2, increase.by)
+#red <- ifelse(is.character(reduce.by), as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2, reduce.by)
+
+inc <- if(is.character(increase.by)) as.numeric(substr(increase.by, 1, nchar(increase.by)-1))/ 1e2 else increase.by
+red <- if(is.character(reduce.by)) as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2 else reduce.by    
   
 fac <- ifelse(inc != 0 & red == 0, 1 + inc, 
               ifelse(red != 0 & inc == 0, 1 - red, 1))
@@ -5044,9 +5047,12 @@ pov <- ifelse(!is.na(d) & pov <= .15,  .15, pov)
     
   peta <- pov
   
-inc <- ifelse(is.character(increase.by), as.numeric(substr(increase.by, 1, nchar(increase.by)-1))/ 1e2, increase.by)
-red <- ifelse(is.character(reduce.by), as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2, reduce.by)
-  
+#inc <- ifelse(is.character(increase.by), as.numeric(substr(increase.by, 1, nchar(increase.by)-1))/ 1e2, increase.by)
+#red <- ifelse(is.character(reduce.by), as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2, reduce.by)
+
+inc <- if(is.character(increase.by)) as.numeric(substr(increase.by, 1, nchar(increase.by)-1))/ 1e2 else increase.by
+red <- if(is.character(reduce.by)) as.numeric(substr(reduce.by, 1, nchar(reduce.by)-1))/ 1e2 else reduce.by    
+    
 fac <- ifelse(inc != 0 & red == 0, 1 + inc, 
               ifelse(red != 0 & inc == 0, 1 - red, 1))
   
