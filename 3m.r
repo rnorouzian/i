@@ -134,8 +134,7 @@ tran_detect <- function(rma_fit){
     if (is.element(rma_fit$measure, "PLO")) {
       "logit"
     } else
-      
-      
+
       if (is.element(rma_fit$measure, "PAS")) {
         emmeans::make.tran("asin.sqrt", 1)
         
@@ -146,11 +145,28 @@ tran_detect <- function(rma_fit){
           
         } else
           
-          if (is.element(rma_fit$measure, c("ZCOR","ZPCOR"))) {
+          if (is.element(rma_fit$measure, c("ZPHI","ZTET","ZPB","ZBIS","ZCOR","ZPCOR","ZSPCOR"))) {
             
             r2z_tran
             
-          } else FALSE
+          } else 
+            
+            if (is.element(rma_fit$measure, "AHW")) {
+              
+              AHW_tran 
+              
+            } else 
+              
+              if (is.element(rma_fit$measure, "ABT")) {
+                
+                ABT_tran
+              
+              } else
+                if (is.element(rma_fit$measure, "ZR2")){
+                  
+                  ZR2_tran  
+                  
+                } else FALSE
   
 }
 
@@ -1818,17 +1834,6 @@ plot_rma <- function(fit, formula, ylab, CIs = TRUE, CIarg = list(lwd = .5, alph
                                 
 # M===============================================================================================================================================
 
-r2z_tran <- list(
-  linkfun = function(mu) atanh(mu),
-  linkinv = function(eta) tanh(eta),
-  mu.eta = function(eta) 1/cosh(eta)^2,
-  valideta = function (eta) 
-    all(is.finite(eta)) && all(abs(eta) <= 1),
-  name = "r2z"
-)                                
-
-# M===============================================================================================================================================
-        
 pct_dif_tran <- list(
   linkfun = function(mu) log(mu/100 + 1),
   linkinv = function(eta) 100 * (exp(eta) - 1),
@@ -1939,6 +1944,50 @@ vcov.contrast_rma <- function(post_rma_fit, ..., sep = get_emm_option("sep")){
   
   vcov.emmGrid(object = object, ..., sep = sep)
 }        
+
+#================================================================================================================================================
+
+AHW_tran <- list(
+  linkfun = function(mu) transf.ahw(mu),
+  linkinv = function(eta) transf.iahw(eta),
+  mu.eta = function(eta) 3*(1-eta)^2,
+  valideta = function (eta) 
+    all(is.finite(eta)) && all(eta <= 1) && all(eta >= 0),
+  name = "AHW"
+)
+
+#================================================================================================================================================
+
+ZR2_tran <- list(
+  linkfun = function(mu) transf.r2toz(mu),
+  linkinv = function(eta) transf.ztor2(eta),
+  mu.eta = function(eta) 2*sinh(eta)/cosh(eta)^3,
+  valideta = function (eta) 
+    all(is.finite(eta)) && all(eta <= 1) && all(eta >= 0),
+  name = "ZR2"
+)
+
+#================================================================================================================================================
+
+ABT_tran <- list(
+  linkfun = function(mu) transf.abt(mu),
+  linkinv = function(eta) transf.iabt(eta),
+  mu.eta = function(eta) 1/(1-eta),
+  valideta = function (eta) 
+    all(is.finite(eta)) && all(eta <= 1) && all(eta >= 0),
+  name = "ABT"
+)
+
+# M===============================================================================================================================================
+        
+r2z_tran <- list(
+  linkfun = function(mu) atanh(mu),
+  linkinv = function(eta) tanh(eta),
+  mu.eta = function(eta) 1/cosh(eta)^2,
+  valideta = function (eta) 
+    all(is.finite(eta)) && all(abs(eta) <= 1),
+  name = "r2z"
+)                                        
         
 #======================== WCF Meta Dataset ======================================================================================================                
 
