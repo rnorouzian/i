@@ -1823,7 +1823,7 @@ r2z_tran <- list(
   linkinv = function(eta) tanh(eta),
   mu.eta = function(eta) 1/cosh(eta)^2,
   valideta = function (eta) 
-    all(is.finite(eta)) && all(eta > -1) && all(eta < 1),
+    all(is.finite(eta)) && all(abs(eta) <= 1),
   name = "r2z"
 )                                
 
