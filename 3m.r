@@ -41,7 +41,7 @@ numerize_case <- function(X, num_except = NULL, num_zero = FALSE){
 
 rm.allrowNA <- function(X) { 
   
-  X[rowSums(is.na(X) | X == "") != ncol(X), , drop = FALSE]  
+  X[rowSums(is.na(X) | X == "" | X == "NA") != ncol(X), , drop = FALSE]  
   
 }
 
@@ -49,7 +49,7 @@ rm.allrowNA <- function(X) {
 
 rm.allcolNA <- function(X) { 
   
-  X[, colSums(is.na(X) | X == "") != nrow(X), drop = FALSE]
+  X[, colSums(is.na(X) | X == "" | X == "NA") != nrow(X), drop = FALSE]
   
 }
 
