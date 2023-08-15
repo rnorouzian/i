@@ -377,11 +377,12 @@ meta_tree <- function(data, ..., effect = TRUE, highest_level_name = NULL,
                       abb_names = FALSE, abb_length = 6, abb_except = NULL, 
                       num_names = FALSE, num_except = NULL, num_zero = FALSE, 
                       panel_label = TRUE, cex = 1, cex_main = 1, rev_order = TRUE, 
-                      rev_page = FALSE, reset = TRUE, index = NULL, cex_top = 1, subset) 
+                      rev_page = FALSE, reset = TRUE, index = NULL, cex_top = 1, 
+                      detail=TRUE, subset) 
 {
   
   data <- full_clean(data) %>%
-    mutate(effect = row_number())
+    dplyr::mutate(effect = dplyr::row_number())
   
   if(!missing(subset)) {
     
@@ -424,13 +425,14 @@ meta_tree <- function(data, ..., effect = TRUE, highest_level_name = NULL,
     
     hlist <- data %>%
       dplyr::group_by(!!sym(sss)) %>%
-      dplyr::mutate(grp = dplyr::across(tidyselect::all_of(str_cols[-1]), ~ {
+      dplyr::mutate(grp = dplyr::across(tidyselect::all_of(str_cols[-1]), if(detail) ~ {
         tmp <- dplyr::n_distinct(.)
         dplyr::case_when(tmp == 1 ~ 1, tmp == n() ~ 2, tmp > 1 & tmp < n() ~ 3,  TRUE ~ 4)
-      }) %>%
+      } else { ~ n_distinct(.) == 1 }) %>%
         purrr::reduce(stringr::str_c, collapse = "")) %>%
       dplyr::ungroup(.) %>%
       dplyr::group_split(grp, .keep = FALSE)
+    
     
     hlist <- if(rev_order) rev(hlist) else hlist
     
@@ -519,7 +521,7 @@ meta_tree <- function(data, ..., effect = TRUE, highest_level_name = NULL,
     invisible(lapply(list2plot, data.tree_, toplab, cex, rowcount, cex.main = cex_main, main = main, cex_top = cex_top))
   }
 }
-
+                        
 # M================================================================================================================================================
 
 interactive_outlier <- function(fit, cook = NULL, st_del_res_z = NULL, 
