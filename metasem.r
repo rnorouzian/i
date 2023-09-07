@@ -74,12 +74,10 @@ metasem <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   
   Cov <- if(is.null(obs_names)) vec2mat(rs) else vec2mat(rs, dimnames=obs_names)
   aCov <- vcov(post)
-  
-  
+   
   Cov <- if(is.pd(Cov)) Cov else 
     if(nearpd) Matrix::nearPD(Cov, corr = TRUE) else 
       stop("r matrix not positive definite: Don't remove NAs or/and use 'nearpd=TRUE'.")
-  
   
   aCov <- if(is.pd(aCov)) aCov else 
     if(nearpd) Matrix::nearPD(aCov) else 
