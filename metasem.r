@@ -40,7 +40,84 @@ rma_clusters <- function (obj)
 
 #==============================================================================
 
+coef2mat <- function(coefs, sep="[^[:alnum:]]+"){
+  row.col <- do.call(rbind, strsplit(names(coefs), sep))
+  nm <- sort(unique(c(row.col)))
+  corr <- matrix(NA, length(nm), length(nm), dimnames=list(nm, nm))
+  diag(corr) <- 1
+  corr[rbind(row.col, row.col[,2:1])] <- coefs
+  return(corr)
+}
+
+#==============================================================================
+
+vcov_match <- function(r_mat, v_mat){
+  
+  sep <- unique(gsub("[a-zA-Z0-9]", "", rownames(v_mat)))
+  col.row <- outer(colnames(r_mat), rownames(r_mat), FUN=paste, sep=sep)
+  
+  v.names <- strsplit(rownames(v_mat), "[^[:alnum:]]+") |>
+    lapply(sort, decreasing=TRUE) |>
+    sapply(paste, collapse=sep)              
+  
+  ord <- match(col.row[lower.tri(r_mat)], v.names)
+  return(v_mat[ord,ord])
+}
+
+#==============================================================================
+
 metasem <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL, 
+                    n_fun=mean, cluster_name=NULL, 
+                    nearpd=FALSE, tran=NULL, 
+                    sep="[^[:alnum:]]+", ...){
+  
+  if(!inherits(rma_fit, "rma.mv")) stop("Model is not 'rma.mv()'.", call. = FALSE)
+  
+  JziLw._ <- if(is.null(rma_fit$formula.yi)) as.character(rma_fit$call$yi) else 
+    .all.vars(rma_fit$formula.yi)[1]
+  
+  cor_var <- if(is.null(cor_var)) 
+    as.formula(paste("~",(.all.vars(rma_fit$formula.mods)[1]), collapse = "~"))
+  else cor_var
+  
+  dat <- get_data_(rma_fit)
+  
+  cluster_name <- if(is.null(cluster_name)){ 
+    mod_struct <- rma_clusters(rma_fit)
+    names(mod_struct$level_dat)[which.min(mod_struct$level_dat)]
+  } else cluster_name
+  
+  
+  n <- if(is.null(n)) sum(sapply(group_split(dplyr::filter(dat, !is.na(!!!JziLw._) & !is.na(!!!n_name)), 
+                                             !!!cluster_name), function(i) 
+                                               n_fun(unique(i[[n_name]])))) else n
+  
+  post <- post_rma(rma_fit, cor_var, tran=tran, type="response")
+  
+  Rs <- coef(post)
+  
+  Cov <- coef2mat(Rs, sep = sep)
+  aCov <- vcov(post)
+  
+  aCov <- vcov_match(Cov, aCov)
+  
+  RAM <- lavaan2RAM(sem_model, rownames(Cov))
+  
+  Cov <- if(is.pd(Cov)) Cov else 
+    if(nearpd) Matrix::nearPD(Cov, corr=TRUE) else 
+      stop("r matrix not positive definite: Don't remove NAs or/and use 'nearpd=TRUE'.")
+  
+  aCov <- if(is.pd(aCov)) aCov else 
+    if(nearpd) Matrix::nearPD(aCov) else 
+      stop("Sampling covariance matrix not positive definite: Don't remove NAs or/and use 'nearpd=TRUE'.")
+  
+  wls(Cov=Cov, aCov=aCov, n=n, RAM=RAM, ...)  
+  
+}
+
+#==============================================================================
+                                 
+metasem2 <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL, 
                     n_fun=mean, obs_names=NULL, cluster_name=NULL, 
                     nearpd=FALSE, clean_data=TRUE, tran=NULL, ...){
   
@@ -88,6 +165,7 @@ metasem <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
 }
 
 #==============================================================================
+                                 
 source("https://raw.githubusercontent.com/rnorouzian/i/master/3m.r")
                                  
 needzzsf <- c('lavaan', 'semPlot', 'metaSEM', 'Matrix')      
