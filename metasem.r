@@ -117,52 +117,7 @@ metasem <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
 
 #==============================================================================
                                  
-metasem2 <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL, 
-                    n_fun=mean, obs_names=NULL, cluster_name=NULL, 
-                    nearpd=FALSE, clean_data=TRUE, tran=NULL, ...){
-  
-  if(!inherits(rma_fit, "rma.mv")) stop("Model is not 'rma.mv()'.", call. = FALSE)
-  
-  JziLw._ <- if(is.null(rma_fit$formula.yi)) as.character(rma_fit$call$yi) else 
-    .all.vars(rma_fit$formula.yi)[1]
-  
-  cor_var <- if(is.null(cor_var)) 
-    as.formula(paste("~",(.all.vars(rma_fit$formula.mods)[1]), collapse = "~"))
-  else cor_var
-  
-  cluster_name <- if(is.null(cluster_name)){ 
-    mod_struct <- rma_clusters(rma_fit)
-    names(mod_struct$level_dat)[which.min(mod_struct$level_dat)]
-  } else cluster_name
-  
-  dat <- get_data_(rma_fit)
-  
-  dat <- if(clean_data) full_clean(dat) else dat
-  
-  n <- if(is.null(n)) sum(sapply(group_split(dplyr::filter(dat, !is.na(!!!JziLw._) & !is.na(!!!n_name)), 
-                                             !!!cluster_name), function(i) 
-                                               n_fun(unique(i[[n_name]])))) else n
-  
-  RAM <- lavaan2RAM(sem_model, obs_names)
-  
-  post <- post_rma(rma_fit, cor_var, tran=tran, type="response")
-  
-  rs <- coef(post)
-  
-  Cov <- if(is.null(obs_names)) vec2mat(rs) else vec2mat(rs, dimnames=obs_names)
-  aCov <- vcov(post)
-   
-  Cov <- if(is.pd(Cov)) Cov else 
-    if(nearpd) Matrix::nearPD(Cov, corr = TRUE) else 
-      stop("r matrix not positive definite: Don't remove NAs or/and use 'nearpd=TRUE'.")
-  
-  aCov <- if(is.pd(aCov)) aCov else 
-    if(nearpd) Matrix::nearPD(aCov) else 
-      stop("Sampling covariance matrix not positive definite: Don't remove NAs or/and use 'nearpd=TRUE'.")
-  
-  wls(Cov=Cov, aCov=aCov, n=n, RAM=RAM, ...)  
-  
-}
+ 
 
 #==============================================================================
                                  
