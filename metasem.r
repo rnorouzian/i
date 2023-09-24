@@ -94,6 +94,8 @@ metasem <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   if(!ok) stop("'cluster_name=' is incorrect.", call.=FALSE)
   
   n_name <- trimws(n_name)
+  ok <- n_name %in% names(dat)
+  if(!ok) stop("'n_name=' is incorrect.", call.=FALSE)  
   
   n <- if(is.null(n)) sum(sapply(group_split(dplyr::filter(dat, !is.na(!!!JziLw._) & !is.na(!!!n_name)), 
                                              !!!cluster_name), function(i) 
