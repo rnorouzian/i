@@ -73,6 +73,8 @@ metasem <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   
   if(!inherits(rma_fit, "rma.mv")) stop("Model is not 'rma.mv()'.", call. = FALSE)
   
+  dat <- get_data_(rma_fit)
+  
   JziLw._ <- if(is.null(rma_fit$formula.yi)) as.character(rma_fit$call$yi) else 
     .all.vars(rma_fit$formula.yi)[1]
   
@@ -80,13 +82,18 @@ metasem <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
     as.formula(paste("~",(.all.vars(rma_fit$formula.mods)[1]), collapse = "~"))
   else cor_var
   
-  dat <- get_data_(rma_fit)
+  ok <- as.character(cor_var)[2] %in% names(dat)
+  if(!ok) stop("Select an accurate 'cor_var= ~VARIABLE_NAME'.", call.=FALSE)
   
   cluster_name <- if(is.null(cluster_name)){ 
     mod_struct <- rma_clusters(rma_fit)
     names(mod_struct$level_dat)[which.min(mod_struct$level_dat)]
   } else cluster_name
   
+  ok <- trimws(cluster_name) %in% names(dat)
+  if(!ok) stop("'cluster_name=' is incorrect.", call.=FALSE)
+  
+  n_name <- trimws(n_name)
   
   n <- if(is.null(n)) sum(sapply(group_split(dplyr::filter(dat, !is.na(!!!JziLw._) & !is.na(!!!n_name)), 
                                              !!!cluster_name), function(i) 
@@ -114,7 +121,6 @@ metasem <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   wls(Cov=Cov, aCov=aCov, n=n, RAM=RAM, ...)  
   
 }
-
 #==============================================================================
                                  
  
