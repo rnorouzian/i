@@ -54,6 +54,7 @@ coef2mat <- function(coefs, sep="[^[:alnum:]]+"){
 vcov_match <- function(r_mat, v_mat){
   
   sep <- unique(gsub("[a-zA-Z0-9]", "", rownames(v_mat)))
+  
   col.row <- outer(colnames(r_mat), rownames(r_mat), FUN=paste, sep=sep)
   
   v.names <- strsplit(rownames(v_mat), "[^[:alnum:]]+") |>
@@ -61,6 +62,7 @@ vcov_match <- function(r_mat, v_mat){
     sapply(paste, collapse=sep)              
   
   ord <- match(col.row[lower.tri(r_mat)], v.names)
+  if(all(is.na(ord))) ord <- match(col.row[lower.tri(r_mat)], lapply(strsplit(v.names, "\\W"), function(x) paste(rev(x), collapse=sep)))
   return(v_mat[ord,ord])
 }
 
