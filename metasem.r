@@ -126,7 +126,117 @@ metasem <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   
 }
 #==============================================================================
-
+lavaan2RAM2 <- function (model, obs.variables = NULL, A.notation = "ON", S.notation = "WITH", 
+                         M.notation = "mean", A.start = 0.1, S.start = 0.5, M.start = 0, 
+                         auto.var = TRUE, std.lv = TRUE, ngroups = 1, ...) 
+{
+  my.model <- if(inherits(model,"data.frame")) model else lavaan::lavaanify(model, fixed.x = FALSE, auto.var = auto.var, 
+                                std.lv = std.lv, ngroups = ngroups, ...)
+  max.gp <- max(my.model$group)
+  out <- list()
+  for (gp in seq_len(max.gp)) {
+    mod <- my.model[my.model$group == gp, ]
+    if (any((mod$op == "=~" | mod$op == "~") & is.na(mod$ustart))) {
+      mod[(mod$op == "=~" | mod$op == "~") & is.na(mod$ustart), 
+      ]$ustart <- A.start
+    }
+    if (any(mod$op == "~1" & is.na(mod$ustart))) {
+      mod[mod$op == "~1" & is.na(mod$ustart), ]$ustart <- M.start
+    }
+    if (any(mod$op == "~~" & is.na(mod$ustart) & (mod$lhs == 
+                                                  mod$rhs))) {
+      mod[mod$op == "~~" & is.na(mod$ustart) & (mod$lhs == 
+                                                  mod$rhs), ]$ustart <- S.start
+    }
+    if (any(mod$op == "~~" & is.na(mod$ustart) & (mod$lhs != 
+                                                  mod$rhs))) {
+      mod[mod$op == "~~" & is.na(mod$ustart) & (mod$lhs != 
+                                                  mod$rhs), ]$ustart <- 0
+    }
+    all.var <- unique(c(mod$lhs, mod$rhs))
+    latent <- unique(mod[mod$op == "=~", ]$lhs)
+    observed <- all.var[!(all.var %in% latent)]
+    observed <- observed[observed != ""]
+    if (!is.null(obs.variables)) {
+      if (!identical(sort(observed), sort(obs.variables))) {
+        stop("Names in \"obs.variables\" do not agree with those in model.\n")
+      }
+      else {
+        observed <- obs.variables
+      }
+    }
+    if (length(latent) > 0) {
+      all.var <- c(observed, latent)
+    }
+    else {
+      all.var <- observed
+    }
+    no.lat <- length(latent)
+    no.obs <- length(observed)
+    no.all <- no.lat + no.obs
+    Amatrix <- matrix(0, ncol = no.all, nrow = no.all, dimnames = list(all.var, 
+                                                                       all.var))
+    Smatrix <- matrix(0, ncol = no.all, nrow = no.all, dimnames = list(all.var, 
+                                                                       all.var))
+    Mmatrix <- matrix(0, nrow = 1, ncol = no.all, dimnames = list(1, 
+                                                                  all.var))
+    for (i in seq_len(nrow(mod))) {
+      if (mod[i, ]$label == "") {
+        switch(mod[i, ]$op, `=~` = mod[i, ]$label <- paste0(mod[i, 
+        ]$rhs, A.notation, mod[i, ]$lhs), `~` = mod[i, 
+        ]$label <- paste0(mod[i, ]$lhs, A.notation, 
+                          mod[i, ]$rhs), `~~` = mod[i, ]$label <- paste0(mod[i, 
+                          ]$lhs, S.notation, mod[i, ]$rhs), `~1` = mod[i, 
+                          ]$label <- paste0(mod[i, ]$lhs, M.notation))
+      }
+    }
+    key <- with(mod, ifelse(free == 0, yes = ustart, no = paste(ustart, 
+                                                                label, sep = "*")))
+    for (i in seq_len(nrow(mod))) {
+      my.line <- mod[i, ]
+      switch(my.line$op, `=~` = Amatrix[my.line$rhs, my.line$lhs] <- key[i], 
+             `~` = Amatrix[my.line$lhs, my.line$rhs] <- key[i], 
+             `~~` = Smatrix[my.line$lhs, my.line$rhs] <- Smatrix[my.line$rhs, 
+                                                                 my.line$lhs] <- key[i], `~1` = Mmatrix[1, my.line$lhs] <- key[i])
+    }
+    Fmatrix <- create.Fmatrix(c(rep(1, no.obs), rep(0, no.lat)), 
+                              as.mxMatrix = FALSE)
+    dimnames(Fmatrix) <- list(observed, all.var)
+    out[[gp]] <- list(A = Amatrix, S = Smatrix, F = Fmatrix, 
+                      M = Mmatrix)
+  }
+  names(out) <- seq_along(out)
+  if (length(grep("^\\.", my.model$lhs)) > 0) {
+    my.model <- my.model[-grep("^\\.", my.model$lhs), ]
+  }
+  if (any(my.model$group == 0)) {
+    mxalgebra <- list()
+    con_index <- 1
+    y <- my.model[my.model$group == 0, , drop = FALSE]
+    for (i in seq_len(nrow(y))) {
+      switch(y[i, "op"], `:=` = {
+        eval(parse(text = paste0(y[i, "lhs"], "<- mxAlgebra(", 
+                                 y[i, "rhs"], ", name=\"", y[i, "lhs"], "\")")))
+        eval(parse(text = paste0("mxalgebra <- c(mxalgebra, ", 
+                                 y[i, "lhs"], "=", y[i, "lhs"], ")")))
+      }, if (y[i, "op"] %in% c("==", ">", "<")) {
+        eval(parse(text = paste0("constraint", con_index, 
+                                 " <- mxConstraint(", y[i, "lhs"], y[i, "op"], 
+                                 y[i, "rhs"], ", name=\"constraint", con_index, 
+                                 "\")")))
+        eval(parse(text = paste0("mxalgebra <- c(mxalgebra, constraint", 
+                                 con_index, "=constraint", con_index, ")")))
+        con_index <- con_index + 1
+      })
+    }
+    out[[1]] <- list(A = out[[1]]$A, S = out[[1]]$S, F = out[[1]]$F, 
+                     M = out[[1]]$M, mxalgebras = mxalgebra)
+  }
+  if (max.gp == 1) {
+    out <- out[[1]]
+  }
+  out
+}
 #==============================================================================
                                  
 source("https://raw.githubusercontent.com/rnorouzian/i/master/3m.r")
