@@ -1078,7 +1078,7 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
                       reverse = FALSE, digits = 3, xlab = "Estimated Effect", shift_up = NULL, shift_down = NULL, 
                       drop_rows = NULL, mutos_name = "(M)UTOS Term", drop_cols = NULL, contrast_contrasts = FALSE, 
                       na.rm = TRUE, robust = FALSE, cluster, show0df = FALSE, sig = TRUE, contr, horiz = TRUE,
-                      get_rows = NULL, get_cols = NULL, df = NULL, tran = NULL, sigma=NULL, ...)
+                      get_rows = NULL, get_cols = NULL, df = NULL, tran = NULL, sigma=NULL, data=NULL, ...)
   {
   
   if(!inherits(fit, c("rma.uni", "rma.mv"))) stop("Model is not 'rma()/rma.mv()'.", call. = FALSE)
@@ -1088,7 +1088,7 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
   
   cl <- match.call()
   
-  data_. <- get_data_(fit)
+  data_. <- if(is.null(data)) get_data_(fit) else data
   
   infer <- c(ci, p_value)
   
