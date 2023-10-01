@@ -112,7 +112,7 @@ metasem <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   
   aCov <- vcov_match(Cov, aCov)
   
-  RAM <- lavaan2RAM(sem_model, rownames(Cov))
+  RAM <- lavaan2RAM2(sem_model, rownames(Cov))
   
   Cov <- if(is.pd(Cov)) Cov else 
     if(nearpd) Matrix::nearPD(Cov, corr=TRUE) else 
