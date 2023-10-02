@@ -140,72 +140,75 @@ metasem_3m <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
                        nearpd=FALSE, tran=NULL, ngroups = 1L,
                        sep="[^[:alnum:]]+", moderator=NULL, data=NULL, tol=1e-06, ...){
   
-no_mod <- is.null(moderator)
-
-out <- if(no_mod) { 
+  no_mod <- is.null(moderator)
   
-  metasem(rma_fit=rma_fit, sem_model=sem_model, 
-          n_name=n_name, cor_var=cor_var, n=n, 
-          n_fun=n_fun, cluster_name=cluster_name, 
-          nearpd=nearpd, tran=tran, sep=sep, data=data, tol=tol, ...)
-  
-} else {
+  out <- if(no_mod) { 
     
-  
-dat_ <- if(is.null(data)) get_data_(rma_fit) else data
-
-mod <- .all.vars(moderator)[1]
-ok <- mod %in% names(dat_)
-if(!ok) stop("'moderator=' not found in the data.", call.=FALSE)
-  
-pp <- lavaanify(sem_model, auto.var=TRUE, std.lv=TRUE, fixed.x=FALSE)
-
-regs <- subset(pp, free!=0 & op %in% "~")
-cors <- subset(pp, free!=0 & op %in% "~~")
-lat <- subset(pp, free!=0 & op %in% "=~")
-
-mod_lvls <- as.vector(na.omit(unique(dat_[[mod]])))
-
-mod_list <- lapply(mod_lvls, function(i) 
-  suppressWarnings(update(rma_fit, subset = get(mod) == i, data = dat_)))
-
-
-mod_list <- lapply(1:length(mod_list[[1]]), function(i) 
-                   { mod_list[[1]][[i]]$data <- filter(dat_, !!sym(mod) == mod_lvls[i]); 
-                     return(mod_list[[1]][[i]]) })
-
-mod_list <- lapply(mod_list, function(x) {x$call$subset <- NULL; return(x)})
-
-
-ll = setNames(lapply(1:length(mod_lvls), function(i) transform(pp, label = 
-                                                        ifelse(free!=0 & op %in% "~", 
-                                                               paste0("b",1:nrow(regs),letters[i],"*"),
-                                                               ifelse(free!=0 & op %in% "~~",
-                                                                      paste0("r", 1:nrow(cors),letters[i],"*"),
-                                                                      ifelse(free!=0 & op %in% "=~",
-                                                                             paste0("v", 1:nrow(lat),letters[i],"*"),label))))),
-              mod_lvls
-)
-
-wls_list <- lapply(1:length(ll), function(i) metasem(rma_fit=mod_list[[i]], sem_model=ll[[i]], 
-            n_name=n_name, cor_var=cor_var, n=n, data=data,
-            n_fun=n_fun, cluster_name=cluster_name, tol=tol,
-            nearpd=nearpd, tran=tran, sep=sep, model=mod_lvls[i], run=FALSE, ...=...))  
-
-wls_model <- mxModel(model="combined", wls_list, mxFitFunctionMultigroup(mod_lvls))
-
-wls_fit <- mxRun(wls_model, intervals=TRUE)
-
-ss <- summary(wls_fit)
-
-res <- cbind(ss$parameters[-c(3:4,7:10)], ss$CI[c("lbound","ubound")])
-
-names(res)[4:6] <- c("SE", "Lower", "Upper") 
-
-res
-
+    metasem(rma_fit=rma_fit, sem_model=sem_model, 
+            n_name=n_name, cor_var=cor_var, n=n, 
+            n_fun=n_fun, cluster_name=cluster_name, 
+            nearpd=nearpd, tran=tran, sep=sep, data=data, tol=tol, ...)
+    
+  } else {
+    
+    
+    dat_ <- if(is.null(data)) get_data_(rma_fit) else data
+    
+    mod <- .all.vars(moderator)[1]
+    ok <- mod %in% names(dat_)
+    if(!ok) stop("'moderator=' not found in the data.", call.=FALSE)
+    
+    pp <- lavaanify(sem_model, auto.var=TRUE, std.lv=TRUE, fixed.x=FALSE)
+    
+    regs <- subset(pp, free!=0 & op %in% "~")
+    cors <- subset(pp, free!=0 & op %in% "~~")
+    lat <- subset(pp, free!=0 & op %in% "=~")
+    
+    mod_lvls <- as.vector(na.omit(unique(dat_[[mod]])))
+    
+    mod_list <- lapply(mod_lvls, function(i) 
+      suppressWarnings(update.rma(rma_fit, subset = get(mod) == i, data = dat_)))
+    
+    
+    mod_list <- lapply(1:length(mod_list), function(i) 
+    { mod_list[[i]]$data <- filter(dat_, !!sym(mod) == mod_lvls[i]); 
+    return(mod_list[[i]]) })
+    
+    mod_list <- lapply(mod_list, function(x) {x$call$subset <- NULL; return(x)})
+    
+    
+    ll = setNames(lapply(1:length(mod_lvls), function(i) transform(pp, label = 
+                                                                     ifelse(free!=0 & op %in% "~", 
+                                                                            paste0("b",1:nrow(regs),letters[i],"*"),
+                                                                            ifelse(free!=0 & op %in% "~~",
+                                                                                   paste0("r", 1:nrow(cors),letters[i],"*"),
+                                                                                   ifelse(free!=0 & op %in% "=~",
+                                                                                          paste0("v", 1:nrow(lat),letters[i],"*"),label))))),
+                  mod_lvls
+    )
+    
+    
+    mod_lvls <- str_remove(mod_lvls, "[^[:alnum:]]+")
+    
+    wls_list <- lapply(1:length(ll), function(i) metasem(rma_fit=mod_list[[i]], sem_model=ll[[i]], 
+                                                         n_name=n_name, cor_var=cor_var, n=n, data=data,
+                                                         n_fun=n_fun, cluster_name=cluster_name, tol=tol,
+                                                         nearpd=nearpd, tran=tran, sep=sep, model=mod_lvls[i], run=FALSE, ...=...))  
+    
+    wls_model <- mxModel(model="combined", wls_list, mxFitFunctionMultigroup(mod_lvls))
+    
+    wls_fit <- mxRun(wls_model, intervals=TRUE)
+    
+    ss <- summary(wls_fit)
+    
+    res <- cbind(ss$parameters[-c(3:4,7:10)], ss$CI[c("lbound","ubound")])
+    
+    names(res)[4:6] <- c("SE", "Lower", "Upper") 
+    
+    res
+    
   }
-
+  
   return(out)
   
 }
