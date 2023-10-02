@@ -103,7 +103,7 @@ metasem <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
                                               !!!cluster_name), function(i) 
                                                 n_fun(unique(i[[n_name]])))) else n
   
-  post <- post_rma(fit=rma_fit, specs=cor_var, tran=tran, type="response", data = data)
+  post <- post_rma(fit=rma_fit, specs=cor_var, tran=tran, type="response", data=data)
   
   Rs <- coef(post)
   
@@ -113,16 +113,21 @@ metasem <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   aCov <- vcov_match(Cov, aCov)
   
   RAM <- lavaan2RAM2(sem_model, rownames(Cov))
-  
-  Cov <- if(is.pd(Cov, tol=tol)) Cov else 
+
+ ok_Cov <- !inherits(try(solve(Cov), silent=TRUE), "try-error")
+ok_aCov <- !inherits(try(solve(aCov), silent=TRUE), "try-error")                                 
+                                  
+  Cov <- if(is.pd(Cov, tol=tol) & ok_Cov) Cov else 
     if(nearpd) as.matrix(Matrix::nearPD(Cov, corr=TRUE)$mat) else 
       stop("r matrix not positive definite: 
            1) If no moderator involved, Don't remove NAs or/and use 'nearpd=TRUE'.
            2) If a moderator's involved, available data is insufficient for moderator analysis.")
   
-  aCov <- if(is.pd(aCov, cor.analysis=FALSE, tol=tol)) aCov else 
+  aCov <- if(is.pd(aCov, cor.analysis=FALSE, tol=tol) & ok_aCov) aCov else 
     if(nearpd) as.matrix(Matrix::nearPD(aCov)$mat) else 
-      stop("Sampling covariance matrix not positive definite: Don't remove NAs or/and use 'nearpd=TRUE'.")
+      stop("Sampling covariance matrix not positive definite: 
+           1) If no moderator involved, Don't remove NAs or/and use 'nearpd=TRUE'.
+           2) If a moderator's involved, available data is insufficient for moderator analysis.")
   
   wls(Cov=Cov, aCov=aCov, n=n, RAM=RAM, ...)  
   
