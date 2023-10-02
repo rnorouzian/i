@@ -179,11 +179,11 @@ metasem_3m <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
     
     ll = setNames(lapply(1:length(mod_lvls), function(i) transform(pp, label = 
                                                                      ifelse(free!=0 & op %in% "~", 
-                                                                            paste0("b",1:nrow(regs),letters[i],"*"),
+                                                                            paste0("b",1:nrow(regs),letters[i]),
                                                                             ifelse(free!=0 & op %in% "~~",
-                                                                                   paste0("r", 1:nrow(cors),letters[i],"*"),
+                                                                                   paste0("r", 1:nrow(cors),letters[i]),
                                                                                    ifelse(free!=0 & op %in% "=~",
-                                                                                          paste0("v", 1:nrow(lat),letters[i],"*"),label))))),
+                                                                                          paste0("v", 1:nrow(lat),letters[i]),label))))),
                   mod_lvls
     )
     
