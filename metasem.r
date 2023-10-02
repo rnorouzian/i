@@ -120,14 +120,14 @@ ok_aCov <- !inherits(try(solve(aCov), silent=TRUE), "try-error")
   Cov <- if(is.pd(Cov, tol=tol) & ok_Cov) Cov else 
     if(nearpd) as.matrix(Matrix::nearPD(Cov, corr=TRUE)$mat) else 
       stop("r matrix not positive definite: 
-           1) If no moderator involved, Don't remove NAs or/and use 'nearpd=TRUE'.
-           2) If a moderator's involved, available data is insufficient for moderator analysis.")
+           1) If no moderator or subsetting's involved, Don't remove NAs or/and use 'nearpd=TRUE'.
+           2) If a moderator or subsetting's involved, available data is insufficient for moderator analysis.")
   
   aCov <- if(is.pd(aCov, cor.analysis=FALSE, tol=tol) & ok_aCov) aCov else 
     if(nearpd) as.matrix(Matrix::nearPD(aCov)$mat) else 
       stop("Sampling covariance matrix not positive definite: 
-           1) If no moderator involved, Don't remove NAs or/and use 'nearpd=TRUE'.
-           2) If a moderator's involved, available data is insufficient for moderator analysis.")
+           1) If no moderator or subsetting's involved, Don't remove NAs or/and use 'nearpd=TRUE'.
+           2) If a moderator or subsetting's involved, available data is insufficient for moderator analysis.")
   
   wls(Cov=Cov, aCov=aCov, n=n, RAM=RAM, ...)  
   
@@ -170,9 +170,9 @@ mod_list <- lapply(mod_lvls, function(i)
   suppressWarnings(update(rma_fit, subset = get(mod) == i, data = dat_)))
 
 
-mod_list <- lapply(1:length(m_list[[1]]), function(i) 
-                   { m_list[[1]][[i]]$data <- filter(dat_, !!sym(mod) == mod_lvls[i]); 
-                     return(m_list[[1]][[i]]) })
+mod_list <- lapply(1:length(mod_list[[1]]), function(i) 
+                   { mod_list[[1]][[i]]$data <- filter(dat_, !!sym(mod) == mod_lvls[i]); 
+                     return(mod_list[[1]][[i]]) })
 
 mod_list <- lapply(mod_list, function(x) {x$call$subset <- NULL; return(x)})
 
