@@ -115,13 +115,13 @@ metasem <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   RAM <- lavaan2RAM2(sem_model, rownames(Cov))
   
   Cov <- if(is.pd(Cov)) Cov else 
-    if(nearpd) Matrix::nearPD(Cov, corr=TRUE) else 
+    if(nearpd) as.matrix(Matrix::nearPD(Cov, corr=TRUE)$mat) else 
       stop("r matrix not positive definite: 
            1) If no moderator involved, Don't remove NAs or/and use 'nearpd=TRUE'.
            2) If a moderator's involved, available data is insufficient for moderator analysis.")
   
   aCov <- if(is.pd(aCov)) aCov else 
-    if(nearpd) Matrix::nearPD(aCov) else 
+    if(nearpd) as.matrix(Matrix::nearPD(aCov)$mat) else 
       stop("Sampling covariance matrix not positive definite: Don't remove NAs or/and use 'nearpd=TRUE'.")
   
   wls(Cov=Cov, aCov=aCov, n=n, RAM=RAM, ...)  
