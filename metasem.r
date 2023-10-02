@@ -71,7 +71,7 @@ vcov_match <- function(r_mat, v_mat){
 metasem <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL, 
                     n_fun=mean, cluster_name=NULL, 
                     nearpd=FALSE, tran=NULL, 
-                    sep="[^[:alnum:]]+", data=NULL,...){
+                    sep="[^[:alnum:]]+", data=NULL, tol=1e-06, ...){
   
   if(!inherits(rma_fit, "rma.mv")) stop("Model is not 'rma.mv()'.", call. = FALSE)
   
@@ -114,13 +114,13 @@ metasem <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   
   RAM <- lavaan2RAM2(sem_model, rownames(Cov))
   
-  Cov <- if(is.pd(Cov)) Cov else 
+  Cov <- if(is.pd(Cov, tol=tol)) Cov else 
     if(nearpd) as.matrix(Matrix::nearPD(Cov, corr=TRUE)$mat) else 
       stop("r matrix not positive definite: 
            1) If no moderator involved, Don't remove NAs or/and use 'nearpd=TRUE'.
            2) If a moderator's involved, available data is insufficient for moderator analysis.")
   
-  aCov <- if(is.pd(aCov)) aCov else 
+  aCov <- if(is.pd(aCov, cor.analysis=FALSE, tol=tol)) aCov else 
     if(nearpd) as.matrix(Matrix::nearPD(aCov)$mat) else 
       stop("Sampling covariance matrix not positive definite: Don't remove NAs or/and use 'nearpd=TRUE'.")
   
@@ -133,7 +133,7 @@ metasem <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
 metasem_3m <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL, 
                        n_fun=mean, cluster_name=NULL, 
                        nearpd=FALSE, tran=NULL, ngroups = 1L,
-                       sep="[^[:alnum:]]+", moderator=NULL, data=NULL, ...){
+                       sep="[^[:alnum:]]+", moderator=NULL, data=NULL, tol=1e-06, ...){
   
 no_mod <- is.null(moderator)
 
@@ -142,7 +142,7 @@ out <- if(no_mod) {
   metasem(rma_fit=rma_fit, sem_model=sem_model, 
           n_name=n_name, cor_var=cor_var, n=n, 
           n_fun=n_fun, cluster_name=cluster_name, 
-          nearpd=nearpd, tran=tran, sep=sep, data=data, ...)
+          nearpd=nearpd, tran=tran, sep=sep, data=data, tol=tol, ...)
   
 } else {
     
@@ -184,7 +184,7 @@ ll = setNames(lapply(1:length(mod_lvls), function(i) transform(pp, label =
 
 wls_list <- lapply(1:length(ll), function(i) metasem(rma_fit=mod_list[[i]], sem_model=ll[[i]], 
             n_name=n_name, cor_var=cor_var, n=n, data=data,
-            n_fun=n_fun, cluster_name=cluster_name, 
+            n_fun=n_fun, cluster_name=cluster_name, tol=tol,
             nearpd=nearpd, tran=tran, sep=sep, model=mod_lvls[i], run=FALSE, ...=...))  
 
 wls_model <- mxModel(model="combined", wls_list, mxFitFunctionMultigroup(mod_lvls))
