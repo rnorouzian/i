@@ -70,7 +70,7 @@ vcov_match <- function(r_mat, v_mat){
 
 metasem <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL, 
                     n_fun=mean, cluster_name=NULL, model.name=NULL,
-                    nearpd=FALSE, tran=NULL, cor.analysis=TRUE, 
+                    nearpd=FALSE, tran=NULL,
                     sep="[^[:alnum:]]+", data=NULL, tol=1e-06, ...){
   
   if(!inherits(rma_fit, "rma.mv")) stop("Model is not 'rma.mv()'.", call. = FALSE)
@@ -129,13 +129,9 @@ ok_aCov <- !inherits(try(solve(aCov), silent=TRUE), "try-error")
            1) If no moderator or subsetting's involved, Don't remove NAs or/and use 'nearpd=TRUE'.
            2) If a moderator or subsetting's involved, available data is insufficient for moderator analysis.")
   
-   if (cor.analysis == TRUE) {
-    if (is.null(model.name)) model.name <- "TSSEM2 Correlation"
-  } else {
-    if (is.null(model.name)) model.name <- "TSSEM2 Covariance"
-  }
+    if(is.null(model.name)) model.name <- "TSSEM2 Correlation"
   
-  wls(Cov=Cov, aCov=aCov, n=n, RAM=RAM, cor.analysis=cor.analysis, model.name=model.name, ...)  
+  wls(Cov=Cov, aCov=aCov, n=n, RAM=RAM, model.name=model.name, ...)  
   
 }
                                   
