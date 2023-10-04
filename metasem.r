@@ -138,21 +138,21 @@ ok_aCov <- !inherits(try(solve(aCov), silent=TRUE), "try-error")
 #==============================================================================
                                   
 metasem_3m <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL, 
-                       n_fun=mean, cluster_name=NULL, 
-                       nearpd=FALSE, tran=NULL, ngroups = 1L,
-                       sep="[^[:alnum:]]+", moderator=NULL, data=NULL, tol=1e-06, ...){
+                         n_fun=mean, cluster_name=NULL, model.name=NULL,
+                         nearpd=FALSE, tran=NULL, ngroups=1L, run=TRUE,
+                         sep="[^[:alnum:]]+", moderator=NULL, data=NULL, 
+                         ...){
   
   no_mod <- is.null(moderator)
   
   out <- if(no_mod) { 
     
     metasem(rma_fit=rma_fit, sem_model=sem_model, 
-            n_name=n_name, cor_var=cor_var, n=n, 
-            n_fun=n_fun, cluster_name=cluster_name, 
-            nearpd=nearpd, tran=tran, sep=sep, data=data, tol=tol, ...)
+            n_name=n_name, cor_var=cor_var, n=n, model.name=model.name,
+            n_fun=n_fun, cluster_name=cluster_name, run=run,
+            nearpd=nearpd, tran=tran, sep=sep, data=data, ...)
     
   } else {
-    
     
     dat_ <- if(is.null(data)) get_data_(rma_fit) else data
     
@@ -160,54 +160,37 @@ metasem_3m <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
     ok <- mod %in% names(dat_)
     if(!ok) stop("'moderator=' not found in the data.", call.=FALSE)
     
-    pp <- lavaanify(sem_model, auto.var=TRUE, std.lv=TRUE, fixed.x=FALSE)
-    
-    regs <- subset(pp, free!=0 & op %in% "~")
-    cors <- subset(pp, free!=0 & op %in% "~~")
-    lat <- subset(pp, free!=0 & op %in% "=~")
-    
     mod_lvls <- as.vector(na.omit(unique(dat_[[mod]])))
     
     mod_list <- lapply(mod_lvls, function(i) 
       suppressWarnings(update.rma(rma_fit, subset = get(mod) == i, data = dat_)))
-    
     
     mod_list <- lapply(1:length(mod_list), function(i) 
     { mod_list[[i]]$data <- filter(dat_, !!sym(mod) == mod_lvls[i]); 
     return(mod_list[[i]]) })
     
     mod_list <- lapply(mod_list, function(x) {x$call$subset <- NULL; return(x)})
-    
-    suf <- make.unique(rep(letters,1e1), sep="")
-    ll = setNames(lapply(1:length(mod_lvls), function(i) transform(pp, label = 
-                                                                     ifelse(free!=0 & op %in% "~", 
-                                                                            paste0("b",1:nrow(regs),suf[i]),
-                                                                            ifelse(free!=0 & op %in% "~~",
-                                                                                   paste0("r", 1:nrow(cors),suf[i]),
-                                                                                   ifelse(free!=0 & op %in% "=~",
-                                                                                          paste0("v", 1:nrow(lat),suf[i]),label))))),
-                  mod_lvls
-    )
-    
-    
+
     mod_lvls <- str_remove(mod_lvls, "[^[:alnum:]]+")
     
-    wls_list <- lapply(1:length(ll), function(i) metasem(rma_fit=mod_list[[i]], sem_model=ll[[i]], 
-                                                         n_name=n_name, cor_var=cor_var, n=n, data=data,
-                                                         n_fun=n_fun, cluster_name=cluster_name, tol=tol,
-                                                         nearpd=nearpd, tran=tran, sep=sep, model=mod_lvls[i], run=FALSE, ...=...))  
+    wls_list <- setNames(lapply(1:length(mod_lvls), 
+                                function(i) try(metasem(rma_fit=mod_list[[i]], 
+                                                        sem_model=sem_model, 
+                                                        n_name=n_name, cor_var=cor_var, n=n, data=data,
+                                                        n_fun=n_fun, cluster_name=cluster_name, 
+                                                        nearpd=nearpd, tran=tran, sep=sep, run=run,
+                                                        model.name=mod_lvls[i], ...=...), silent=TRUE)), mod_lvls)  
     
-    wls_model <- mxModel(model="combined", wls_list, mxFitFunctionMultigroup(mod_lvls))
     
-    wls_fit <- mxRun(wls_model, intervals=TRUE)
+    wls_list[sapply(wls_list, inherits, what="try-error")] <- NULL
     
-    ss <- summary(wls_fit)
+    if(length(wls_list)==0) stop("Likely, insufficient data for moderator analysis.
+                                 1) Try 'rerun(output_of_this_function)',
+                                 2) Try setting 'nearpd=TRUE'.", call.=FALSE)
     
-    res <- cbind(ss$parameters[-c(3:4,7:10)], ss$CI[c("lbound","ubound")])
+    if(run) class(wls_list) <- "wls.cluster"
     
-    names(res)[4:6] <- c("SE", "Lower", "Upper") 
-    
-    res
+    return(wls_list)
     
   }
   
