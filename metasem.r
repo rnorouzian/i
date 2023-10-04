@@ -137,7 +137,7 @@ ok_aCov <- !inherits(try(solve(aCov), silent=TRUE), "try-error")
                                   
 #==============================================================================
                                   
-sem_3m <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL, 
+metasem_3m <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL, 
                          n_fun=mean, cluster_name=NULL, model.name=NULL,
                          nearpd=FALSE, tran=NULL, ngroups=1L, run=TRUE,
                          sep="[^[:alnum:]]+", moderator=NULL, data=NULL, 
