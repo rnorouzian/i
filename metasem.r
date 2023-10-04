@@ -199,7 +199,7 @@ metasem_3m <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
 }
 #==============================================================================
 
-plot_sem3m <- function(x, ...){
+plot_sem3m <- function(x, reset=TRUE, ...){
   
   if (!requireNamespace("semPlot", quietly = TRUE)) 
     stop("\"semPlot\" package is required for this function.", call. = FALSE)
@@ -209,9 +209,11 @@ plot_sem3m <- function(x, ...){
   
   if(inherits(x, "wls")) x <- list(x)
   
-  graphics.off()             
-  org.par <- par(no.readonly = TRUE)
-  on.exit(par(org.par))
+  if(reset){
+    graphics.off()
+    org.par <- par(no.readonly = TRUE)
+    on.exit(par(org.par))
+  }
   
   set.margin <- function() 
   {
