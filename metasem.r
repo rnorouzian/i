@@ -137,7 +137,7 @@ ok_aCov <- !inherits(try(solve(aCov), silent=TRUE), "try-error")
                                   
 #==============================================================================
                                   
-metasem_3m <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL, 
+sem_3m <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL, 
                          n_fun=mean, cluster_name=NULL, model.name=NULL,
                          nearpd=FALSE, tran=NULL, ngroups=1L, run=TRUE,
                          sep="[^[:alnum:]]+", moderator=NULL, data=NULL, 
@@ -198,7 +198,39 @@ metasem_3m <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   
 }
 #==============================================================================
-                                  
+
+plot_sem3m <- function(x, ...){
+  
+  if (!requireNamespace("semPlot", quietly = TRUE)) 
+    stop("\"semPlot\" package is required for this function.", call. = FALSE)
+  
+  if (!inherits(x, c("wls","wls.cluster"))) 
+    stop("\"x\" must be an object of class \"wls\" or \"wls.cluster\".", call. = FALSE)
+  
+  if(inherits(x, "wls")) x <- list(x)
+  
+  graphics.off()             
+  org.par <- par(no.readonly = TRUE)
+  on.exit(par(org.par))
+  
+  set.margin <- function() 
+  {
+    par(mgp = c(1.5, 0.5, 0), mar = c(8, .5, .5, .5) + .1, 
+        tck = -0.02)
+  }
+  
+  h <- length(x)
+  par(mfrow = n2mfrow(h))
+  if(h>1) set.margin()
+  
+  invisible(lapply(1:h, \(i) 
+                   { plot.wls(x[[i]], ...=...);
+    if(h>1) title(names(x[i])) } ))
+  
+}                                
+
+#===============================================================================
+                                
 lavaan2RAM2 <- function (model, obs.variables = NULL, A.notation = "ON", S.notation = "WITH", 
                          M.notation = "mean", A.start = 0.1, S.start = 0.5, M.start = 0, 
                          auto.var = TRUE, std.lv = TRUE, ngroups = 1, ...) 
