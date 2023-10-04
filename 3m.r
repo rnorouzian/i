@@ -1280,7 +1280,7 @@ categorical moderators (a block of them) are equal to each other.")
     p.values <- as.numeric(out$"p-value")
     
     if(all(is.na(p.values))) { 
-     stop("Comparison(s) are non-estimable,\nlikely some combination of moderating or control variables are missing.\nTake those variables out of the model one by one and re-run.",
+     stop("Comparison(s)/moderator adjustments are non-estimable,\nlikely some combination of moderating or control variables are missing.\nTake those variables out of the model one by one and re-run.",
      call. = FALSE)
     }
     
