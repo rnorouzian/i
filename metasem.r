@@ -215,17 +215,11 @@ plot_sem3m <- function(x, reset=TRUE, ...){
     on.exit(par(org.par))
   }
   
-  set.margin <- function() 
-  {
-    par(mgp = c(1.5, 0.5, 0), mar = c(8, .5, .5, .5) + .1, 
-        tck = -0.02)
-  }
-  
   h <- length(x)
-  par(mfrow = n2mfrow(h))
-  if(h>1) set.margin()
+  if(h>1) { par(mfrow = n2mfrow(h), mgp = c(1.5, 0.5, 0), mar = c(8, .5, .5, .5) + .1, 
+        tck = -0.02) }
   
-  invisible(lapply(1:h, \(i) 
+  invisible(lapply(1:h, function(i) 
                    { plot.wls(x[[i]], ...=...);
     if(h>1) title(names(x[i])) } ))
   
