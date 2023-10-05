@@ -167,6 +167,9 @@ metasem_3m <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
           silent=TRUE)), mod_lvls)
     
     mod_list[sapply(mod_list, inherits, what="try-error")] <- NULL
+
+    lost <- setdiff(mod_lvls, names(mod_list))
+    if(length(lost)!=0) message(toString(dQuote(lost))," was/were dropped due to lack of data at 1st stage.")                             
     
     mod_lvls <- names(mod_list) 
     
@@ -190,9 +193,12 @@ metasem_3m <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
     wls_list[sapply(wls_list, inherits, what="try-error")] <- NULL
     
     if(length(wls_list)==0) stop("Likely, insufficient data for moderator analysis.
-                                 1) Try 'rerun(output_of_this_function)',
-                                 2) Try setting 'nearpd=TRUE'.", call.=FALSE)
-    
+                                  Try setting 'nearpd=TRUE'.", call.=FALSE)
+                                
+    lost <- setdiff(mod_lvls, names(wls_list))
+    if(length(lost)!=0) message(toString(dQuote(lost))," was/were dropped due to lack of data at 2nd stage.
+                        Try: rerun(output_of_this_function, extraTries=14)") 
+       
     if(run) class(wls_list) <- "wls.cluster"
     
     return(wls_list)
