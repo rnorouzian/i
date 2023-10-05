@@ -138,10 +138,10 @@ ok_aCov <- !inherits(try(solve(aCov), silent=TRUE), "try-error")
 #==============================================================================
                                   
 metasem_3m <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL, 
-                         n_fun=mean, cluster_name=NULL, model.name=NULL,
-                         nearpd=FALSE, tran=NULL, ngroups=1L, run=TRUE,
-                         sep="[^[:alnum:]]+", moderator=NULL, data=NULL, 
-                         ...){
+                       n_fun=mean, cluster_name=NULL, model.name=NULL,
+                       nearpd=FALSE, tran=NULL, ngroups=1L, run=TRUE,
+                       sep="[^[:alnum:]]+", moderator=NULL, data=NULL, 
+                       ...){
   
   no_mod <- is.null(moderator)
   
@@ -162,15 +162,20 @@ metasem_3m <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
     
     mod_lvls <- as.vector(na.omit(unique(dat_[[mod]])))
     
-    mod_list <- lapply(mod_lvls, function(i) 
-      suppressWarnings(update.rma(rma_fit, subset = get(mod) == i, data = dat_)))
+    mod_list <- setNames(lapply(mod_lvls, function(i) 
+      try(suppressWarnings(update.rma(rma_fit, subset = get(mod) == i, data = dat_)),
+          silent=TRUE)), mod_lvls)
+    
+    mod_list[sapply(mod_list, inherits, what="try-error")] <- NULL
+    
+    mod_lvls <- names(mod_list) 
     
     mod_list <- lapply(1:length(mod_list), function(i) 
     { mod_list[[i]]$data <- filter(dat_, !!sym(mod) == mod_lvls[i]); 
     return(mod_list[[i]]) })
     
     mod_list <- lapply(mod_list, function(x) {x$call$subset <- NULL; return(x)})
-
+    
     mod_lvls <- str_remove(mod_lvls, "[^[:alnum:]]+")
     
     wls_list <- setNames(lapply(1:length(mod_lvls), 
