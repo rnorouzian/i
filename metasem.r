@@ -131,7 +131,12 @@ ok_aCov <- !inherits(try(solve(aCov), silent=TRUE), "try-error")
   
     if(is.null(model.name)) model.name <- "TSSEM2 Correlation"
   
-  wls(Cov=Cov, aCov=aCov, n=n, RAM=RAM, model.name=model.name, run=run, ...)  
+   out <- wls(Cov=Cov, aCov=aCov, n=n, RAM=RAM, model.name=model.name, run=run, ...)  
+  
+ return(append(out, list(rma_fit=rma_fit, n_name=n_name, cor_var=cor_var,
+               sem_model=sem_model, cluster_name=cluster_name, 
+               sep=sep, model.name=model.name, n_fun=n_fun, 
+               nearpd=nearpd, tran=tran, run=run, data=data)))  
   
 }
                                   
