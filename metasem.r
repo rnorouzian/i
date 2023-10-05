@@ -205,7 +205,7 @@ metasem_3m <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
                                 
     lost <- setdiff(mod_lvls, names(wls_list))
     if(length(lost)!=0) message(toString(dQuote(lost))," dropped due to lack of data at 2nd stage.
-                        Try: rerun(output_of_this_function, extraTries=14)") 
+                           Try: rerun(output_of_this_function, extraTries=14)") 
        
     if(run) class(wls_list) <- "wls.cluster"
     
