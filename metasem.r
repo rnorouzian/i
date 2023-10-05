@@ -193,7 +193,7 @@ metasem_3m <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
     wls_list[sapply(wls_list, inherits, what="try-error")] <- NULL
     
     if(length(wls_list)==0) stop("Likely, insufficient data for moderator analysis.
-                            Try setting 'nearpd=TRUE'.", call.=FALSE)
+     Try setting 'nearpd=TRUE'.", call.=FALSE)
                                 
     lost <- setdiff(mod_lvls, names(wls_list))
     if(length(lost)!=0) message(toString(dQuote(lost))," dropped due to lack of data at 2nd stage.
