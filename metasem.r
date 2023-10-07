@@ -68,10 +68,11 @@ vcov_match <- function(r_mat, v_mat){
 
 #==============================================================================
 
-metasem <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL, 
+metasem_ <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL, 
                     n_fun=mean, cluster_name=NULL, model.name=NULL,
                     nearpd=FALSE, tran=NULL, run=TRUE,
-                    sep="[^[:alnum:]]+", data=NULL, tol=1e-06, ...){
+                    sep="[^[:alnum:]]+", data=NULL, tol=1e-06,
+                    std.lv=TRUE, auto.var=TRUE, RAM=NULL, ...){
   
   if(!inherits(rma_fit, "rma.mv")) stop("Model is not 'rma.mv()'.", call. = FALSE)
   
@@ -92,16 +93,16 @@ metasem <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
     names(mod_struct$level_dat)[which.min(mod_struct$level_dat)]
   } else cluster_name
   
-   ok <- trimws(cluster_name) %in% names(dat)
-   if(!ok) stop("'cluster_name=' is incorrect.", call.=FALSE)
+  ok <- trimws(cluster_name) %in% names(dat)
+  if(!ok) stop("'cluster_name=' is incorrect.", call.=FALSE)
   
   n_name <- trimws(n_name)
   ok <- n_name %in% names(dat)
   if(!ok) stop("'n_name=' is incorrect.", call.=FALSE)  
   
-   n <- if(is.null(n)) sum(sapply(group_split(dplyr::filter(dat, !is.na(!!!JziLw._) & !is.na(!!!n_name)), 
-                                              !!!cluster_name), function(i) 
-                                                n_fun(unique(i[[n_name]])))) else n
+  n <- if(is.null(n)) sum(sapply(group_split(dplyr::filter(dat, !is.na(!!!JziLw._) & !is.na(!!!n_name)), 
+                                             !!!cluster_name), function(i) 
+                                               n_fun(unique(i[[n_name]])))) else n
   
   post <- post_rma(fit=rma_fit, specs=cor_var, tran=tran, type="response", data=data)
   
@@ -112,11 +113,11 @@ metasem <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   
   aCov <- vcov_match(Cov, aCov)
   
-  RAM <- lavaan2RAM2(sem_model, rownames(Cov))
-
- ok_Cov <- !inherits(try(solve(Cov), silent=TRUE), "try-error")
-ok_aCov <- !inherits(try(solve(aCov), silent=TRUE), "try-error")                                 
-                                  
+  RAM <- if(is.null(RAM)) lavaan2RAM2(sem_model, colnames(Cov), std.lv=std.lv, auto.var=auto.var) else RAM
+  
+  ok_Cov <- !inherits(try(solve(Cov), silent=TRUE), "try-error")
+  ok_aCov <- !inherits(try(solve(aCov), silent=TRUE), "try-error")                                 
+  
   Cov <- if(is.pd(Cov, tol=tol) & ok_Cov) Cov else 
     if(nearpd) as.matrix(Matrix::nearPD(Cov, corr=TRUE)$mat) else 
       stop("r matrix not positive definite: 
@@ -129,18 +130,18 @@ ok_aCov <- !inherits(try(solve(aCov), silent=TRUE), "try-error")
            1) If no moderator or subsetting's involved, Don't remove NAs or/and use 'nearpd=TRUE'.
            2) If a moderator or subsetting's involved, available data is insufficient for moderator analysis.")
   
-    if(is.null(model.name)) model.name <- "TSSEM2 Correlation"
+  if(is.null(model.name)) model.name <- "TSSEM2 Correlation"
   
-   out <- wls(Cov=Cov, aCov=aCov, n=n, RAM=RAM, model.name=model.name, run=run, ...)  
+  out <- wls(Cov=Cov, aCov=aCov, n=n, RAM=RAM, model.name=model.name, run=run, ...)  
   
-   out <- append(out, list(rma_fit=rma_fit, post_rma_fit=post, 
-                         n_name=n_name, cor_var=cor_var,
-                         sem_model=sem_model, cluster_name=cluster_name, 
-                         sep=sep, model.name=model.name, n_fun=n_fun, 
-                         nearpd=nearpd, tran=tran, run=run, data=data))
- 
- class(out) <- "wls"
- return(out) 
+  out <- append(out, list(rma_fit=rma_fit, post_rma_fit=post, 
+                          n_name=n_name, cor_var=cor_var, RAM=RAM,
+                          sem_model=sem_model, cluster_name=cluster_name, 
+                          sep=sep, model.name=model.name, n_fun=n_fun, 
+                          nearpd=nearpd, tran=tran, run=run, data=data))
+  
+  class(out) <- "wls"
+  return(out) 
 }
                                   
 #==============================================================================
@@ -149,16 +150,15 @@ metasem_3m <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
                        n_fun=mean, cluster_name=NULL, model.name=NULL,
                        nearpd=FALSE, tran=NULL, ngroups=1L, run=TRUE,
                        sep="[^[:alnum:]]+", moderator=NULL, data=NULL, 
-                       ...){
+                       std.lv=TRUE, auto.var=TRUE, RAM=NULL, ...){
   
-  no_mod <- is.null(moderator)
-  
-  out <- if(no_mod) { 
+out <- if(is.null(moderator)) { 
     
-    metasem(rma_fit=rma_fit, sem_model=sem_model, 
+    metasem_(rma_fit=rma_fit, sem_model=sem_model, 
             n_name=n_name, cor_var=cor_var, n=n, model.name=model.name,
             n_fun=n_fun, cluster_name=cluster_name, run=run,
-            nearpd=nearpd, tran=tran, sep=sep, data=data, ...)
+            nearpd=nearpd, tran=tran, sep=sep, data=data, 
+            std.lv=std.lv, auto.var=auto.var, RAM=RAM, ...)
     
   } else {
     
@@ -175,10 +175,10 @@ metasem_3m <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
           silent=TRUE)), mod_lvls)
     
     mod_list[sapply(mod_list, inherits, what="try-error")] <- NULL
-                                
-   if(length(mod_list)==0) stop("Likely, insufficient data for moderator analysis.
+    
+    if(length(mod_list)==0) stop("Likely, insufficient data for moderator analysis.
      Try setting 'nearpd=TRUE'.", call.=FALSE)
-                                
+    
     lost <- setdiff(mod_lvls, names(mod_list))
     if(length(lost)!=0) message(toString(dQuote(lost))," dropped due to lack of data at 1st stage.\n")                             
     
@@ -193,31 +193,30 @@ metasem_3m <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
     mod_lvls <- str_remove(mod_lvls, "[^[:alnum:]]+")
     
     wls_list <- setNames(lapply(1:length(mod_lvls), 
-                                function(i) try(metasem(rma_fit=mod_list[[i]], 
+                                function(i) try(metasem_(rma_fit=mod_list[[i]], 
                                                         sem_model=sem_model, 
                                                         n_name=n_name, cor_var=cor_var, n=n, data=data,
                                                         n_fun=n_fun, cluster_name=cluster_name, 
                                                         nearpd=nearpd, tran=tran, sep=sep, run=run,
-                                                        model.name=mod_lvls[i], ...=...), silent=TRUE)), mod_lvls)  
+                                                        model.name=mod_lvls[i], std.lv=std.lv, 
+                                                        auto.var=auto.var, RAM=RAM, ...=...), silent=TRUE)), mod_lvls)  
     
     
     wls_list[sapply(wls_list, inherits, what="try-error")] <- NULL
     
     if(length(wls_list)==0) stop("Likely, insufficient data for moderator analysis.
      Try setting 'nearpd=TRUE'.", call.=FALSE)
-                                
+    
     lost <- setdiff(mod_lvls, names(wls_list))
     if(length(lost)!=0) message(toString(dQuote(lost))," dropped due to lack of data at 2nd stage.
-                           Try: rerun(output_of_this_function, extraTries=14)") 
-       
+                           Try: rerun(output_of_this_function, extraTries=15)") 
+    
     if(run) class(wls_list) <- "wls.cluster"
     
     return(wls_list)
     
   }
-  
   return(out)
-  
 }
 #==============================================================================
 
