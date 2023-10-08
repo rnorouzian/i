@@ -100,9 +100,9 @@ metasem_ <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   ok <- n_name %in% names(dat)
   if(!ok) stop("'n_name=' is incorrect.", call.=FALSE)  
   
-  n <- if(is.null(n)) sum(sapply(group_split(dplyr::filter(dat, !is.na(!!!JziLw._) & !is.na(!!!n_name)), 
-                                             !!!cluster_name), function(i) 
-                                               n_fun(unique(i[[n_name]])))) else n
+  n <- if(is.null(n)) sum(sapply(group_split(dplyr::filter(dat, !is.na(!!sym(JziLw._)) & !is.na(!!sym(n_name))), 
+                   !!sym(cluster_name)), function(i) 
+                         n_fun(unique(i[[n_name]])))) else n
   
   post <- post_rma(fit=rma_fit, specs=cor_var, tran=tran, type="response", data=data)
   
