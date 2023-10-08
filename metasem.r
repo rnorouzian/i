@@ -220,7 +220,9 @@ out <- if(is.null(moderator)) {
 }
 #==============================================================================
 
-plot_sem3m <- function(x, reset=TRUE, ...){
+plot_sem3m <- function(x, main=NA, reset=TRUE, 
+                   ...)
+  {
   
   if (!requireNamespace("semPlot", quietly = TRUE)) 
     stop("\"semPlot\" package is required for this function.", call. = FALSE)
@@ -237,15 +239,17 @@ plot_sem3m <- function(x, reset=TRUE, ...){
   }
   
   h <- length(x)
-  if(h>1) { par(mfrow = n2mfrow(h), mgp = c(1.5, 0.5, 0), mar = c(8, .5, .5, .5) + .1, 
-        tck = -0.02) }
-  
-  invisible(lapply(1:h, function(i) 
-                   { plot.wls(x[[i]], ...=...);
-    if(h>1) title(names(x[i])) } ))
-  
-}                                
+  if(h>1) { par(mfrow = n2mfrow(h), mgp = c(1.5,.5,0), mar = c(8,.5,.5,.5)+.1, 
+                tck = -.02) }
 
+  ff <- function(x, main, ...) { 
+    plot.wls(x=x, ...) 
+    graphics::title(main) }
+  
+  invisible(Map(ff, x=x, main=if(anyNA(main) & h>1) unname(sapply(x, '[[', "model.name")) else main, ...))
+  
+}
+                
 #===============================================================================
                                 
 lavaan2RAM2 <- function (model, obs.variables = NULL, A.notation = "ON", S.notation = "WITH", 
