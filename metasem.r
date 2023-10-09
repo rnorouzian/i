@@ -222,28 +222,28 @@ out <- if(is.null(moderator)) {
 
 plot_sem3m <- function(x, main=NA, reset=TRUE, 
                        index=NULL, line=NA, 
-                       outer=FALSE, ...)
+                       cex.main=1, mfrow=NULL, ...)
 {
   
   if (!requireNamespace("semPlot", quietly = TRUE)) 
     stop("\"semPlot\" package is required for this function.", call. = FALSE)
   
-  if (!inherits(x, c("wls","wls.cluster"))) 
-    stop("\"x\" must be an object of class \"wls\" or \"wls.cluster\".", call. = FALSE)
+  if (!inherits(x, c("wls","wls.cluster","list","character"))) 
+    stop("\"x\" must be an object of class \"wls\", \"wls.cluster\", \"list\", or \"character\".", call. = FALSE)
   
-  if(inherits(x, "wls")) x <- list(x)
+  if(inherits(x, c("wls","character"))) x <- list(x)
   
-if(inherits(x, "wls.cluster") & !is.null(index)) {
+  if(inherits(x, c("wls.cluster","list")) & !is.null(index)) {
     
-  LL <- length(x)
-
+    LL <- length(x)
+    
     index <- index[index <= LL & index >= 1]
     if(length(index)==0) index <- NULL
-
-  x <- if(is.null(index)) x else x[index]
     
-}
-
+    x <- if(is.null(index)) x else x[index]
+    
+  }
+  
   if(reset){
     graphics.off()
     org.par <- par(no.readonly = TRUE)
@@ -251,19 +251,24 @@ if(inherits(x, "wls.cluster") & !is.null(index)) {
   }
   
   h <- length(x)
-  if(h>1) { par(mfrow = n2mfrow(h), mgp = c(1.5,.5,0), mar = c(8,.5,.5,.5)+.1, 
+  if(h>1) { par(mfrow = if(is.null(mfrow)) n2mfrow(h) else mfrow, mgp = c(1.5,.5,0), mar = c(8,.5,.5,.5)+.1, 
                 tck = -.02, xpd = FALSE) }
   
   ff <- function(x, main, ...) { 
-    plot.wls(x=x, ...) 
-    graphics::title(main, line=line, 
-                    outer=outer) }
+    if(!inherits(x, "character")){
+    metaSEM::plot.wls(x=x, ...)}
+    else { metaSEM::plot.character(x=x, ...) }
+    graphics::title(main=main, line=line, 
+                    cex.main=cex.main) }
   
   x_nm <- names(x)
   
-  invisible(Map(ff, x=x, main=if(anyNA(main) & !is.null(x_nm)) x_nm
-                else if(anyNA(main) & is.null(x_nm)) unname(sapply(x, '[[', "model.name"))
-                else main, ...))
+  cls <- sapply(x, class)
+  
+  main <- if(anyNA(main) & length(x_nm)!=0) x_nm else if (
+    anyNA(main) & length(x_nm)==0 & !"character" %in% cls) unname(sapply(x, '[[', "model.name")) else main
+  
+  invisible(Map(ff, x=x, main=main, ...))
 }
                 
 #===============================================================================
