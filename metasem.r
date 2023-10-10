@@ -255,11 +255,10 @@ plot_sem3m <- function(x, main=NA, reset=TRUE,
                 tck = -.02, xpd = FALSE) }
   
   ff <- function(x, main, ...) { 
-    if(!inherits(x, "character")){
-    metaSEM::plot.wls(x=x, ...)}
-    else { metaSEM::plot.character(x=x, ...) }
+    plot(x=x, ...)
     graphics::title(main=main, line=line, 
-                    cex.main=cex.main) }
+                    cex.main=cex.main) 
+    }
   
   x_nm <- names(x)
   
