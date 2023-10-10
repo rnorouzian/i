@@ -254,7 +254,7 @@ plot_sem3m <- function(x, main=NA, reset=TRUE,
   if(h>1) { par(mfrow = if(is.null(mfrow)) n2mfrow(h) else mfrow, mgp = c(1.5,.5,0), mar = c(8,.5,.5,.5)+.1, 
                 tck = -.02, xpd = FALSE) }
   
-  ff <- function(x, main, ...) { 
+  ff <- function(x, main, line, cex.main, ...) { 
     plot(x=x, ...)
     graphics::title(main=main, line=line, 
                     cex.main=cex.main) 
@@ -267,7 +267,7 @@ plot_sem3m <- function(x, main=NA, reset=TRUE,
   main <- if(anyNA(main) & length(x_nm)!=0) x_nm else if (
     anyNA(main) & length(x_nm)==0 & !"character" %in% cls) unname(sapply(x, '[[', "model.name")) else main
   
-  invisible(Map(ff, x=x, main=main, ...))
+  invisible(Map(ff, x=x, main=main, line=line, cex.main=cex.main, ...))
 }
                 
 #===============================================================================
