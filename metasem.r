@@ -69,10 +69,10 @@ vcov_match <- function(r_mat, v_mat){
 #==============================================================================
 
 metasem_ <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL, 
-                    n_fun=mean, cluster_name=NULL, model.name=NULL,
-                    nearpd=FALSE, tran=NULL, run=TRUE,
-                    sep="[^[:alnum:]]+", data=NULL, tol=1e-06,
-                    std.lv=TRUE, auto.var=TRUE, RAM=NULL, ...){
+                     n_fun=mean, cluster_name=NULL, model.name=NULL,
+                     nearpd=FALSE, tran=NULL, run=TRUE,
+                     sep="[^[:alnum:]]+", data=NULL, tol=1e-06,
+                     std.lv=TRUE, auto.var=TRUE, RAM=NULL, ...){
   
   if(!inherits(rma_fit, "rma.mv")) stop("Model is not 'rma.mv()'.", call. = FALSE)
   
@@ -101,8 +101,8 @@ metasem_ <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   if(!ok) stop("'n_name=' is incorrect.", call.=FALSE)  
   
   n <- if(is.null(n)) sum(sapply(group_split(dplyr::filter(dat, !is.na(!!sym(JziLw._)) & !is.na(!!sym(n_name))), 
-                   !!sym(cluster_name)), function(i) 
-                         n_fun(unique(i[[n_name]])))) else n
+                                             !!sym(cluster_name)), function(i) 
+                                               n_fun(unique(i[[n_name]])))) else n
   
   post <- post_rma(fit=rma_fit, specs=cor_var, tran=tran, type="response", data=data)
   
@@ -134,11 +134,16 @@ metasem_ <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   
   out <- wls(Cov=Cov, aCov=aCov, n=n, RAM=RAM, model.name=model.name, run=run, ...)  
   
+  status <- out$mx.fit@output$status[[1]]
+  
+  if(!status %in% 0:1) warning("Lack of convergence: Try 'rerun(output_of_this_function, extraTries=15)'.",call.=FALSE)
+  
   out <- append(out, list(rma_fit=rma_fit, post_rma_fit=post, 
                           n_name=n_name, cor_var=cor_var, RAM=RAM,
                           sem_model=sem_model, cluster_name=cluster_name, 
                           sep=sep, model.name=model.name, n_fun=n_fun, 
-                          nearpd=nearpd, tran=tran, run=run, data=data))
+                          nearpd=nearpd, tran=tran, run=run, 
+                          status=status, data=data))
   
   class(out) <- "wls"
   return(out) 
