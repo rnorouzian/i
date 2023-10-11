@@ -134,18 +134,18 @@ metasem_ <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   
   out <- wls(Cov=Cov, aCov=aCov, n=n, RAM=RAM, model.name=model.name, run=run, ...)  
   
-  status <- out$mx.fit@output$status[[1]]
+  status <- if(run) out$mx.fit@output$status[[1]] else mxRun(out,suppressWarnings=TRUE)@output$status$code
   
   if(!status %in% 0:1) warning("Lack of convergence: Try 'rerun(output_of_this_function, extraTries=15)'.",call.=FALSE)
   
-  out <- append(out, list(rma_fit=rma_fit, post_rma_fit=post, 
+  if(run) out <- append(out, list(rma_fit=rma_fit, post_rma_fit=post, 
                           n_name=n_name, cor_var=cor_var, RAM=RAM,
                           sem_model=sem_model, cluster_name=cluster_name, 
                           sep=sep, model.name=model.name, n_fun=n_fun, 
                           nearpd=nearpd, tran=tran, run=run, 
                           status=status, data=data))
   
-  class(out) <- "wls"
+  if(run) class(out) <- "wls"
   return(out) 
 }
                                   
