@@ -74,7 +74,20 @@ get_vars_ <- function(gls_fit, as_fml = TRUE){
 
 is_qdrg <- function(rma_fit){ is.null(rma_fit$call$yi) }
 
+# H===============================================================================================================================
 
+make_nested <- function (x) 
+{
+  if (length(x) == 1) 
+    return(x)
+  y <- x
+  for (i in 2:length(x)) {
+    names(y)[i] <- paste(names(x)[1:i], collapse = "/")
+    y[i] <- do.call(paste, c(x[1:i], sep = "/"))
+  }
+  y
+}                 
+                 
 # H===============================================================================================================================
                  
 rma_clusters <- function (obj) 
