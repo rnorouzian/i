@@ -74,6 +74,46 @@ get_vars_ <- function(gls_fit, as_fml = TRUE){
 
 is_qdrg <- function(rma_fit){ is.null(rma_fit$call$yi) }
 
+
+# H===============================================================================================================================
+                 
+rma_clusters <- function (obj) 
+{
+  level_dat <- vector(mode = "integer")
+  cluster_dat <- data.frame(row.names = 1:obj$k)
+  if (obj$withG) {
+    level_dat[[obj$g.names[[2]]]] <- obj$g.nlevels[[2]]
+    cluster_dat[[obj$g.names[[2]]]] <- obj$mf.g$outer
+  }
+  if (obj$withH) {
+    level_dat[[obj$h.names[[2]]]] <- obj$h.nlevels[[2]]
+    cluster_dat[[obj$h.names[[2]]]] <- obj$mf.h$outer
+  }
+  if (obj$withS) {
+    s_levels <- obj$s.nlevels
+    names(s_levels) <- obj$s.names
+    level_dat <- c(level_dat, s_levels)
+    mf_r <- lapply(obj$mf.r, make_nested)
+    mf_all <- do.call(cbind, mf_r)
+    mf_s <- mf_all[obj$s.names]
+    cluster_dat <- cbind(cluster_dat, mf_s)
+    cluster_dat <- droplevels(cluster_dat)
+  }
+  list(level_dat = level_dat, cluster_dat = cluster_dat)
+}
+
+# H===============================================================================================================================
+
+is_nested <- function (cluster, fac) 
+{
+  if (is.list(fac)) {
+    res <- sapply(fac, is_nested, cluster = cluster)
+    return(res)
+  }
+  groupings <- tapply(cluster, fac, function(x) length(unique(x)))
+  all(groupings == 1L)
+}
+                      
 # M================================================================================================================================
 
 add_blank_row <- function(data, n_blank_row = 1, by = "study", 
@@ -288,12 +328,12 @@ get_error_rho <- function(fit){
 is_crossed <- function(obj){
   
   if(!inherits(obj, "rma.mv")) return(FALSE)
-  mod_struct <- clubSandwich:::parse_structure(obj)
+  mod_struct <- rma_clusters(obj)
   highest_cluster <- names(mod_struct$level_dat)[which.min(mod_struct$level_dat)]
   cluster <- mod_struct$cluster_dat[[highest_cluster]]
-  out <- !clubSandwich:::test_nested(cluster, fac = mod_struct$cluster_dat)
-  out[names(out) %in% obj$s.names]
-}
+  out <- !is_nested(cluster, fac = mod_struct$cluster_dat)
+  return(out)
+}      
 
 # H===============================================================================================================================
 
