@@ -1,45 +1,5 @@
 #==============================================================================
 
-make_nested <- function (x) 
-{
-  if (length(x) == 1) 
-    return(x)
-  y <- x
-  for (i in 2:length(x)) {
-    names(y)[i] <- paste(names(x)[1:i], collapse = "/")
-    y[i] <- do.call(paste, c(x[1:i], sep = "/"))
-  }
-  y
-}
-#==============================================================================
-
-rma_clusters <- function (obj) 
-{
-  level_dat <- vector(mode = "integer")
-  cluster_dat <- data.frame(row.names = 1:obj$k)
-  if (obj$withG) {
-    level_dat[[obj$g.names[[2]]]] <- obj$g.nlevels[[2]]
-    cluster_dat[[obj$g.names[[2]]]] <- obj$mf.g$outer
-  }
-  if (obj$withH) {
-    level_dat[[obj$h.names[[2]]]] <- obj$h.nlevels[[2]]
-    cluster_dat[[obj$h.names[[2]]]] <- obj$mf.h$outer
-  }
-  if (obj$withS) {
-    s_levels <- obj$s.nlevels
-    names(s_levels) <- obj$s.names
-    level_dat <- c(level_dat, s_levels)
-    mf_r <- lapply(obj$mf.r, make_nested)
-    mf_all <- do.call(cbind, mf_r)
-    mf_s <- mf_all[obj$s.names]
-    cluster_dat <- cbind(cluster_dat, mf_s)
-    cluster_dat <- droplevels(cluster_dat)
-  }
-  list(level_dat = level_dat, cluster_dat = cluster_dat)
-}
-
-#==============================================================================
-
 coef2mat <- function(coefs, sep="[^[:alnum:]]+"){
   row.col <- do.call(rbind, strsplit(names(coefs), sep))
   nm <- sort(unique(c(row.col)))
