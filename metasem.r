@@ -64,7 +64,7 @@ metasem_ <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   ok1 <- trimws(cluster_name) %in% names(dat) 
   ok2 <- trimws(cluster_name) %in% names(cr)
   if(!ok1) stop("'cluster_name=' not found in the data.", call.=FALSE)
-  if(!ok2) stop("'cluster_name=' not the one used in 'rma_fit'.", call.=FALSE)
+  if(!ok2) stop("'cluster_name=' not found in the 'rma_fit'.", call.=FALSE)
   
   n_name <- trimws(n_name)
   ok <- n_name %in% names(dat)
