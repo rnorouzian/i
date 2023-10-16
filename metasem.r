@@ -46,19 +46,29 @@ metasem_ <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   else cor_var
   
   ok <- as.character(cor_var)[2] %in% names(dat)
-  if(!ok) stop("Select an accurate 'cor_var= ~VARIABLE_NAME'.", call.=FALSE)
+  if(!ok) stop("Select an accurate 'cor_var= ~VARIABLE_NAME' from the data.", call.=FALSE)
+  
+  cr <- is_crossed(rma_fit)
+  
+  ok <- !any(cr)
+  
+  if(!ok & is.null(cluster_name)) stop("Specify the 'cluster_name=' (usually the 'study' variable).", call.=FALSE)
   
   cluster_name <- if(is.null(cluster_name)){ 
     mod_struct <- rma_clusters(rma_fit)
-    names(mod_struct$level_dat)[which.min(mod_struct$level_dat)]
+    cl_nm <- names(mod_struct$level_dat)[which.min(mod_struct$level_dat)]
+    message(paste0(dQuote(cl_nm), " was selected as 'cluster_name=' (usually the 'study' variable). If incorrect, please change it."))
+    cl_nm
   } else cluster_name
   
-  ok <- trimws(cluster_name) %in% names(dat)
-  if(!ok) stop("'cluster_name=' is incorrect.", call.=FALSE)
+  ok1 <- trimws(cluster_name) %in% names(dat) 
+  ok2 <- trimws(cluster_name) %in% names(cr)
+  if(!ok1) stop("'cluster_name=' not found in the data.", call.=FALSE)
+  if(!ok2) stop("'cluster_name=' not the one used in 'rma_fit'.", call.=FALSE)
   
   n_name <- trimws(n_name)
   ok <- n_name %in% names(dat)
-  if(!ok) stop("'n_name=' is incorrect.", call.=FALSE)  
+  if(!ok) stop("'n_name=' not found in the data.", call.=FALSE)  
   
   n <- if(is.null(n)) sum(sapply(group_split(dplyr::filter(dat, !is.na(!!sym(JziLw._)) & !is.na(!!sym(n_name))), 
                                              !!sym(cluster_name)), function(i) 
@@ -99,11 +109,11 @@ metasem_ <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   if(!status %in% 0:1) warning("Lack of convergence: Try 'rerun(output_of_this_function, extraTries=15)'.",call.=FALSE)
   
   if(run) out <- append(out, list(rma_fit=rma_fit, post_rma_fit=post, 
-                          n_name=n_name, cor_var=cor_var, RAM=RAM,
-                          sem_model=sem_model, cluster_name=cluster_name, 
-                          sep=sep, model.name=model.name, n_fun=n_fun, 
-                          nearpd=nearpd, tran=tran, run=run, 
-                          status=status, data=data))
+                                  n_name=n_name, cor_var=cor_var, RAM=RAM,
+                                  sem_model=sem_model, cluster_name=cluster_name, 
+                                  sep=sep, model.name=model.name, n_fun=n_fun, 
+                                  nearpd=nearpd, tran=tran, run=run, 
+                                  status=status, data=data))
   
   if(run) class(out) <- "wls"
   return(out) 
