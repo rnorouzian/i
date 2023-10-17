@@ -57,7 +57,7 @@ metasem_ <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   cluster_name <- if(is.null(cluster_name)){ 
     mod_struct <- rma_clusters(rma_fit)
     cl_nm <- names(mod_struct$level_dat)[which.min(mod_struct$level_dat)]
-    message(paste0(dQuote(cl_nm), " was selected as 'cluster_name=' (usually the 'study' variable). If incorrect, please change it."))
+    message(paste0("NOTE: ",dQuote(cl_nm), " was selected as 'cluster_name=' (usually the 'study' variable). If incorrect, please change it.\n"))
     cl_nm
   } else cluster_name
   
