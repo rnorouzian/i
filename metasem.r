@@ -37,6 +37,8 @@ metasem_ <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   if(!inherits(rma_fit, "rma.mv")) stop("Model is not 'rma.mv()'.", call. = FALSE)
   
   dat <- if(is.null(data)) get_data_(rma_fit) else data
+
+  nm_dat <- names(dat) 
   
   JziLw._ <- if(is.null(rma_fit$formula.yi)) as.character(rma_fit$call$yi) else 
     .all.vars(rma_fit$formula.yi)[1]
@@ -45,7 +47,7 @@ metasem_ <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
     as.formula(paste("~",(.all.vars(rma_fit$formula.mods)[1]), collapse = "~"))
   else cor_var
   
-  ok <- as.character(cor_var)[2] %in% names(dat)
+  ok <- as.character(cor_var)[2] %in% nm_dat
   if(!ok) stop("Select an accurate 'cor_var= ~VARIABLE_NAME' from the data.", call.=FALSE)
   
   cr <- is_crossed(rma_fit)
@@ -60,14 +62,16 @@ metasem_ <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
     message(paste0("NOTE: ",dQuote(cl_nm), " was selected as 'cluster_name=' (usually the 'study' variable). If incorrect, please change it.\n"))
     cl_nm
   } else cluster_name
+
+  cluster_name <- trimws(cluster_name)
   
-  ok1 <- trimws(cluster_name) %in% names(dat) 
-  ok2 <- trimws(cluster_name) %in% names(cr)
+  ok1 <- cluster_name %in% nm_dat 
+  ok2 <- cluster_name %in% names(cr)
   if(!ok1) stop("'cluster_name=' not found in the data.", call.=FALSE)
   if(!ok2) stop("'cluster_name=' not found in the 'rma_fit'.", call.=FALSE)
   
   n_name <- trimws(n_name)
-  ok <- n_name %in% names(dat)
+  ok <- n_name %in% nm_dat
   if(!ok) stop("'n_name=' not found in the data.", call.=FALSE)  
   
   n <- if(is.null(n)) sum(sapply(group_split(dplyr::filter(dat, !is.na(!!sym(JziLw._)) & !is.na(!!sym(n_name))), 
