@@ -941,7 +941,8 @@ results_rma <- function(fit, digits = 3, robust = TRUE, blank_sign = "",
   Sys.setlocale(locale = "Greek")
   
   if(fit$withS){
-    
+
+    cr <- cr[fit$s.names %in% names(cr)]
     d1 <- data.frame(Sigma = sqrt(fit$sigma2), 
                      row.names = paste0(names(cr), ifelse(cr," (crossed)"," (nested)"))) 
     
