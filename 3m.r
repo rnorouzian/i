@@ -942,7 +942,7 @@ results_rma <- function(fit, digits = 3, robust = TRUE, blank_sign = "",
   
   if(fit$withS){
 
-    cr <- cr[fit$s.names %in% names(cr)]
+    cr <- cr[names(cr) %in% fit$s.names]
     d1 <- data.frame(Sigma = sqrt(fit$sigma2), 
                      row.names = paste0(names(cr), ifelse(cr," (crossed)"," (nested)"))) 
     
