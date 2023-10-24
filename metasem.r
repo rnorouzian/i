@@ -17,8 +17,8 @@ vcov_match <- function(r_mat, v_mat){
   
   col.row <- outer(colnames(r_mat), rownames(r_mat), FUN=paste, sep=sep)
   
-  v.names <- strsplit(rownames(v_mat), "[^[:alnum:]]+") |>
-    lapply(sort, decreasing=TRUE) |>
+  v.names <- strsplit(rownames(v_mat), "[^[:alnum:]]+") %>%
+    lapply(sort, decreasing=TRUE) %>%
     sapply(paste, collapse=sep)              
   
   ord <- match(col.row[lower.tri(r_mat)], v.names)
