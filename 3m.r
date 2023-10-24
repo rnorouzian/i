@@ -94,13 +94,16 @@ rma_clusters <- function (obj)
 {
   level_dat <- vector(mode = "integer")
   cluster_dat <- data.frame(row.names = 1:obj$k)
+  
   if (obj$withG) {
-    level_dat[[obj$g.names[[2]]]] <- obj$g.nlevels[[2]]
-    cluster_dat[[obj$g.names[[2]]]] <- obj$mf.g$outer
+    g_nm <- tail(obj$g.names,1)
+    level_dat[[g_nm]] <- obj$g.nlevels[[2]]
+    cluster_dat[[g_nm]] <- obj$mf.g$outer
   }
   if (obj$withH) {
-    level_dat[[obj$h.names[[2]]]] <- obj$h.nlevels[[2]]
-    cluster_dat[[obj$h.names[[2]]]] <- obj$mf.h$outer
+    h_nm <- tail(obj$h.names,1)
+    level_dat[[h_nm]] <- obj$h.nlevels[[2]]
+    cluster_dat[[h_nm]] <- obj$mf.h$outer
   }
   if (obj$withS) {
     s_levels <- obj$s.nlevels
