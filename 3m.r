@@ -180,7 +180,7 @@ tran_detect <- function(rma_fit){
                  c("RR","OR","PETO","IRR","ROM",
                    "D2OR","D2ORL","D2ORN","CVR",
                    "VR","PLN","IRLN","SDLN","MNLN",
-                   "CVLN","ROMC","CVRC","VRC","REH"))) {
+                   "CVLN","ROMC","CVRC","VRC","REH","HRR"))) {
     "log"
   } else
     
