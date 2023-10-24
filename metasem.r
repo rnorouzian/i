@@ -127,7 +127,7 @@ metasem_ <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
                                   
 metasem_3m <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL, 
                        n_fun=mean, cluster_name=NULL, model.name=NULL,
-                       nearpd=FALSE, tran=NULL, ngroups=1L, run=TRUE,
+                       nearpd=FALSE, tran=NULL, run=TRUE,
                        sep="[^[:alnum:]]+", moderator=NULL, data=NULL, 
                        std.lv=TRUE, auto.var=TRUE, RAM=NULL, ...){
   
