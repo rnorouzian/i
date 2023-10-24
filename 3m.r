@@ -779,7 +779,7 @@ any_num_vec <- function(vec){
 
 # M=================================================================================================================================================    
 
-results_rma <- function(fit, digits = 3, robust = TRUE, blank_sign = "", 
+results_rma2 <- function(fit, digits = 3, robust = FALSE, blank_sign = "", 
                         cat_shown = 1, shift_up = NULL, shift_down = NULL, 
                         drop_rows = NULL, drop_cols = NULL, QM = TRUE, 
                         QE = FALSE, sig = TRUE, clean_names = NULL, 
@@ -940,19 +940,23 @@ results_rma <- function(fit, digits = 3, robust = TRUE, blank_sign = "",
   
   res <- rbind(res, "|RANDOM|" = NA)
   
-  on.exit(Sys.setlocale("LC_ALL"))                                    
-  Sys.setlocale(locale = "Greek")
+ # on.exit(Sys.setlocale("LC_ALL"))                                    
+ # Sys.setlocale(locale = "Greek")
   
   if(fit$withS){
-
+    
     cr <- cr[names(cr) %in% fit$s.names]
     d1 <- data.frame(Sigma = sqrt(fit$sigma2), 
                      row.names = paste0(names(cr), ifelse(cr," (crossed)"," (nested)"))) 
     
-    d1 <- setNames(d1, intToUtf8(963))
+    #d1 <- setNames(d1, intToUtf8(963))
   } else { d1 <- NULL}
   
   if(fit$withG){
+    
+    out_nm <- tail(fit$g.names,1)
+    
+    outer_nm <- paste(out_nm, if(out_nm %in% names(cr)) "[crossed]" else "[nested]") 
     
     h <- paste(fit$struct[1], "Corr.")
     is_un <- fit$struct[1] == "UN"
@@ -960,7 +964,7 @@ results_rma <- function(fit, digits = 3, robust = TRUE, blank_sign = "",
     is_diag <- fit$struct[1] == "DIAG"
     is_simple <- length(fit$tau2) == 1
     
-    rnm <- paste("Outer:", tail(fit$g.names,1))
+    rnm <- paste("Outer:", outer_nm)
     clnm <- clean_GH_names(fit)
     
     d2 <- data.frame(Tau = sqrt(fit$tau2), 
@@ -977,11 +981,15 @@ results_rma <- function(fit, digits = 3, robust = TRUE, blank_sign = "",
                      row.names = if(is_un || is_gen) apply(combn(clnm,2),2,paste0, collapse = "~") 
                      else paste0(h," (",shorten_(clnm, cat_shown),")")) 
     
-    d3 <- setNames(d3, intToUtf8(961))
+    #d3 <- setNames(d3, intToUtf8(961))
     
   } else { d2 <- NULL; d3 <- NULL}
   
   if(fit$withH){
+    
+    out_nm <- tail(fit$h.names,1)
+    
+    outer_nm <- paste(out_nm, if(out_nm %in% names(cr)) "[crossed]" else "[nested]") 
     
     h <- paste(fit$struct[2], "Corr.")
     is_un <- fit$struct[2] == "UN"
@@ -989,7 +997,7 @@ results_rma <- function(fit, digits = 3, robust = TRUE, blank_sign = "",
     is_diag <- fit$struct[2] == "DIAG"
     is_simple <- length(fit$gamma2) == 1
     
-    rnm <- paste("Outer:", paste0(tail(fit$h.names,1)," "))
+    rnm <- paste("Outer:", paste0(outer_nm," "))
     
     clnm <- clean_GH_names(fit, G=FALSE)
     
@@ -998,7 +1006,7 @@ results_rma <- function(fit, digits = 3, robust = TRUE, blank_sign = "",
                                         paste0(if(is_diag)" (Uncor. " 
                                                else " (Cor. ",if(!is_simple) paste0(" ",if(!is_gen)fit$h.names[1]),") "))) 
     
-    d4 <- setNames(d4, intToUtf8(933))
+    #d4 <- setNames(d4, intToUtf8(933))
     
     d4 <- rbind(NA, d4)
     rownames(d4)[1] <- rnm
@@ -1007,13 +1015,12 @@ results_rma <- function(fit, digits = 3, robust = TRUE, blank_sign = "",
                      row.names = if(is_un || is_gen) apply(combn(clnm,2),2,paste0, collapse = "~ ")
                      else paste0(h," (",shorten_(clnm, cat_shown),") "))
     
-    d5 <- setNames(d5, intToUtf8(966))
+   # d5 <- setNames(d5, intToUtf8(966))
     
   } else { d4 <- NULL; d5 <- NULL}
   
   out <- roundi(dplyr::bind_rows(res, d1, d2, d3, d4, d5, d6), digits = digits)
-  
-  
+
   out[out== blk] <- blank_sign
   
   if(sig){ 
@@ -1036,7 +1043,7 @@ results_rma <- function(fit, digits = 3, robust = TRUE, blank_sign = "",
   if(tidy) out <- cbind(Terms = rownames(out), set_rownames_(out, NULL))
   
   return(out)
-}                      
+}                                          
 
 # H=================================================================================================================================================                     
 
