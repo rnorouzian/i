@@ -1,4 +1,4 @@
-#==============================================================================
+# H==============================================================================
 
 coef2mat <- function(coefs, sep="[^[:alnum:]]+"){
   row.col <- do.call(rbind, strsplit(names(coefs), sep))
@@ -9,7 +9,7 @@ coef2mat <- function(coefs, sep="[^[:alnum:]]+"){
   return(corr)
 }
 
-#==============================================================================
+# H==============================================================================
 
 vcov_match <- function(r_mat, v_mat){
   
@@ -26,7 +26,7 @@ vcov_match <- function(r_mat, v_mat){
   return(v_mat[ord,ord])
 }
 
-#==============================================================================
+# H==============================================================================
 
 metasem_ <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL, 
                      n_fun=mean, cluster_name=NULL, model.name=NULL,
@@ -123,7 +123,7 @@ metasem_ <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   return(out) 
 }
                                   
-#==============================================================================
+# M==============================================================================
                                   
 metasem_3m <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL, 
                        n_fun=mean, cluster_name=NULL, model.name=NULL,
@@ -197,7 +197,9 @@ out <- if(is.null(moderator)) {
   }
   return(out)
 }
-#==============================================================================
+
+                                
+# M==============================================================================
 
 plot_sem3m <- function(x, main=NA, reset=TRUE, 
                        index=NULL, line=NA, 
@@ -249,7 +251,7 @@ plot_sem3m <- function(x, main=NA, reset=TRUE,
   invisible(Map(ff, x=x, main=main, line=line, cex.main=cex.main, ...))
 }
                 
-#===============================================================================
+# H===============================================================================
                                 
 lavaan2RAM2 <- function (model, obs.variables = NULL, A.notation = "ON", S.notation = "WITH", 
                          M.notation = "mean", A.start = 0.1, S.start = 0.5, M.start = 0, 
