@@ -779,7 +779,7 @@ any_num_vec <- function(vec){
 
 # M=================================================================================================================================================    
 
-results_rma2 <- function(fit, digits = 3, robust = FALSE, blank_sign = "", 
+results_rma <- function(fit, digits = 3, robust = FALSE, blank_sign = "", 
                         cat_shown = 1, shift_up = NULL, shift_down = NULL, 
                         drop_rows = NULL, drop_cols = NULL, QM = TRUE, 
                         QE = FALSE, sig = TRUE, clean_names = NULL, 
@@ -940,8 +940,8 @@ results_rma2 <- function(fit, digits = 3, robust = FALSE, blank_sign = "",
   
   res <- rbind(res, "|RANDOM|" = NA)
   
- # on.exit(Sys.setlocale("LC_ALL"))                                    
- # Sys.setlocale(locale = "Greek")
+  on.exit(Sys.setlocale("LC_ALL"))                                    
+  Sys.setlocale(locale = "Greek")
   
   if(fit$withS){
     
@@ -949,7 +949,7 @@ results_rma2 <- function(fit, digits = 3, robust = FALSE, blank_sign = "",
     d1 <- data.frame(Sigma = sqrt(fit$sigma2), 
                      row.names = paste0(names(cr), ifelse(cr," (crossed)"," (nested)"))) 
     
-    #d1 <- setNames(d1, intToUtf8(963))
+    d1 <- setNames(d1, intToUtf8(963))
   } else { d1 <- NULL}
   
   if(fit$withG){
