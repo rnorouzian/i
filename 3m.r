@@ -1414,10 +1414,10 @@ R2_rma <- function(..., robust = TRUE, digits = 3,
   
   null_res <- add_column(null_res, as.data.frame(t(sigmasn)), .after = "._A_.")
   
-  z <- function(nm) paste(intToUtf8(963),nm) 
+  z <- function(nm) paste("Sigma",nm) 
   
-  on.exit(Sys.setlocale("LC_ALL"))               
-  Sys.setlocale(locale = "Greek")
+#  on.exit(Sys.setlocale("LC_ALL"))               
+#  Sys.setlocale(locale = "Greek")
   
   f <- function(fit){
     
