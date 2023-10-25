@@ -972,7 +972,7 @@ results_rma <- function(fit, digits = 3, robust = FALSE, blank_sign = "",
                                         paste0(if(is_diag)" (Uncor. " 
                                                else " (Cor. ",if(!is_simple & !is_gen) paste0(" ", fit$g.names[1]),")")))
     
-    d2 <- setNames(d2, intToUtf8(964))
+    #d2 <- setNames(d2, intToUtf8(964))
     
     d2 <- rbind(NA, d2)
     rownames(d2)[1] <- rnm
