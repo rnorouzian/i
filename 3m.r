@@ -1323,7 +1323,7 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
   }, silent = TRUE)))
   
 
-  if(inherits(ems,"try-error")) return(message("Error: Wrong specification OR no relavant data for the comparisons found."))
+  if(inherits(ems,"try-error")) stop("Wrong specification OR no relavant data found for the comparisons.", call.=FALSE)
   
   
   con_methods <- c("pairwise","revpairwise","tukey","consec",
