@@ -415,7 +415,57 @@ cat_overlap <- function(data, study_id, ..., blank_sign = "-"){
   }), cat_nms)
 }           
 
-
+# M===============================================================================================================================
+       
+bet_with <- function(data, context_vars, group_id){
+  
+  all_names <- names(data)
+  
+  id <- grep("id|group|grp", all_names, value = TRUE, ignore.case = TRUE)
+  
+  if(!all(group_id %in% all_names)) { 
+    
+    stop(paste(toString(dQuote(group_id)), "not found for 'group_id' in the 'data'.", if(length(id)>0) 
+      paste("\nPossibly you meant to use", toString(dQuote(id)), "as 'group_id', no?")), call. = FALSE) 
+    
+    }
+  
+  ok <- context_vars %in% all_names
+  
+  if(!all(ok)) message(paste("\n", toString(dQuote(context_vars[!ok])), "not found in the 'data' thus ignored."))
+  
+  context_vars <- context_vars[ok] 
+  
+  dum_vars <- all_names[sapply(data, function(i)is.character(i)|is.factor(i))]
+  
+  dum_names <- context_vars[context_vars %in% dum_vars]
+  
+  is_dum <- length(dum_names) > 0
+  
+  num_names <- context_vars[!(context_vars %in% dum_vars)]
+  
+  is_num <- length(num_names) > 0
+  
+  
+  if(is_num){
+    data <- data %>%
+      group_by(across(all_of(group_id))) %>%                          
+      mutate(across(all_of(num_names), list(wthn = ~ . - mean(.), btw = ~ mean(.)))) %>% 
+      as.data.frame()
+  }
+  
+  
+  if(is_dum){
+    data <- data %>%
+      dummy_cols(select_columns = dum_names) %>% 
+      group_by(across(all_of(group_id))) %>%                          
+      mutate(across(starts_with(paste0(dum_names, "_")), list(wthn = ~ . - mean(.), btw = ~ mean(.)))) %>% 
+      as.data.frame()
+  }
+  
+  return(data)
+}
+       
 # H================================================================================================================================ 
 
 data.tree_ <- function(data, toplab = NULL, cex = 1, rowcount = FALSE, cex_top = 1, ...){
