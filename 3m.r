@@ -417,39 +417,39 @@ cat_overlap <- function(data, study_id, ..., blank_sign = "-"){
 
 # M===============================================================================================================================
        
-bet_with <- function(data, context_vars, group_id){
+bet_with <- function(data, cluster_name, var_names){
   
-  all_names <- names(data)
+  all_names <- trimws(names(data))
   
-  id <- grep("id|group|grp", all_names, value = TRUE, ignore.case = TRUE)
+  id <- grep("study", all_names, value=TRUE, ignore.case=TRUE)
   
-  if(!all(group_id %in% all_names)) { 
+  if(!all(cluster_name %in% all_names)) { 
     
-    stop(paste(toString(dQuote(group_id)), "not found for 'group_id' in the 'data'.", if(length(id)>0) 
-      paste("\nPossibly you meant to use", toString(dQuote(id)), "as 'group_id', no?")), call. = FALSE) 
+    stop(paste(toString(dQuote(cluster_name)), "not found for 'cluster_name' in the 'data'.", if(length(id)>0) 
+      paste("\nPossibly you meant to use", toString(dQuote(id)), "as 'cluster_name'?")), call. = FALSE) 
     
-    }
+  }
   
-  ok <- context_vars %in% all_names
+  ok <- var_names %in% all_names
   
-  if(!all(ok)) message(paste("\n", toString(dQuote(context_vars[!ok])), "not found in the 'data' thus ignored."))
+  if(!all(ok)) message(paste("\n", toString(dQuote(var_names[!ok])), "not found in the 'data' thus ignored."))
   
-  context_vars <- context_vars[ok] 
+  var_names <- var_names[ok] 
   
   dum_vars <- all_names[sapply(data, function(i)is.character(i)|is.factor(i))]
   
-  dum_names <- context_vars[context_vars %in% dum_vars]
+  dum_names <- var_names[var_names %in% dum_vars]
   
   is_dum <- length(dum_names) > 0
   
-  num_names <- context_vars[!(context_vars %in% dum_vars)]
+  num_names <- var_names[!(var_names %in% dum_vars)]
   
   is_num <- length(num_names) > 0
   
   
   if(is_num){
     data <- data %>%
-      group_by(across(all_of(group_id))) %>%                          
+      group_by(across(all_of(cluster_name))) %>%                          
       mutate(across(all_of(num_names), list(wthn = ~ . - mean(.), btw = ~ mean(.)))) %>% 
       as.data.frame()
   }
@@ -458,7 +458,7 @@ bet_with <- function(data, context_vars, group_id){
   if(is_dum){
     data <- data %>%
       dummy_cols(select_columns = dum_names) %>% 
-      group_by(across(all_of(group_id))) %>%                          
+      group_by(across(all_of(cluster_name))) %>%                          
       mutate(across(starts_with(paste0(dum_names, "_")), list(wthn = ~ . - mean(.), btw = ~ mean(.)))) %>% 
       as.data.frame()
   }
@@ -476,6 +476,16 @@ data.tree_ <- function(data, toplab = NULL, cex = 1, rowcount = FALSE, cex_top =
 }           
 
 # M===============================================================================================================================
+
+UN_cor_fixer <- function(data, left, right, min_cooccur=3) { 
+  
+mat <- crossprod(table(data[c(right,left)])>0)
+lower <- mat[lower.tri(mat)]
+ifelse(lower < min_cooccur, 0, NA)
+
+}
+                               
+# M===============================================================================================================================                               
 
 meta_tree <- function(data, ..., effect = TRUE, highest_level_name = NULL,  
                       structure = c("simple","typical","complex"), toplab = NULL, 
@@ -2112,7 +2122,7 @@ wcf <- read.csv("https://raw.githubusercontent.com/hkil/m/master/wcf.csv")
 
 #=================================================================================================================================================
 
-needzzsf <- c('metafor', 'clubSandwich', 'nlme', 'effects', 'lexicon', 'plotrix', 'rlang', 'emmeans','tidyverse')      
+needzzsf <- c('metafor', 'clubSandwich', 'nlme', 'effects', 'lexicon', 'plotrix', 'rlang', 'emmeans','tidyverse','fastDummies')      
 
 not.have23 <- needzzsf[!(needzzsf %in% installed.packages()[,"Package"])]
 if(length(not.have23)) install.packages(not.have23)
