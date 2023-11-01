@@ -63,34 +63,55 @@ rm.colrowNA <- function(X){
 
 # M===============================================================================================================================
                  
-# Functions for group assignment differences in studies
+# Functions for intact class assignment in studies
   
-d_cluster <- function(yi_adj,n,N,icc) { yi_adj*sqrt( 1-((2*(n-1)*icc)/(N-2)) ) }
-
-# M=================================================================================================================================================
+g_cluster <- function(gi, n1, n2, icc=.15, n_fun=mean) 
+  { 
   
-d_vi_cluster <- function(n, N, nT, nC, icc, w, yi){
+  n <- n_fun(c(n1,n2), na.rm=TRUE)
+  N <- sum(c(n1,n2), na.rm=TRUE)
   
-  eta <-  1 + ((n - 1)*icc)
-  
-  #  z <- ( ((N-2)-2*(n-1)*icc)^2 + n*(N-2*n)*icc^2 + 2*(N-2*n)*icc*(1-icc) )  / 
-   # (2*((N-2*n)*icc*(1-icc))^2)
-    
-    z <- (((N-2)*(1-icc)^2) + (n*(N-2*n)*icc^2) + (2*(N-2*n)*icc*(1-icc)))   / 
-         (2*((N-2) - 2*(n-1)*icc)^2)
-    
-    
-    (w*sqrt( (((nT+nC)/(nT*nC))*eta) + yi^2*z))^2
+  gi*sqrt( 1-((2*(n-1)*icc)/(N-2)) )  
 }
 
 # M=================================================================================================================================================
   
-LRR_vi_cluster <- function(n, icc, vi){
+gi_vi_cluster <- function(gi, n1, n2, icc=.15, n_fun=mean){
+  
+  N <- sum(c(n1,n2), na.rm = TRUE)
+  n <- n_fun(c(n1,n2), na.rm = TRUE)
+  
+  eta <-  1 + ((n - 1)*icc)
+  w <- w_factor(n1+n2-2)
+ 
+  #  z <- ( ((N-2)-2*(n-1)*icc)^2 + n*(N-2*n)*icc^2 + 2*(N-2*n)*icc*(1-icc) )  / 
+  # (2*((N-2*n)*icc*(1-icc))^2)
+  
+  z <- (((N-2)*(1-icc)^2) + (n*(N-2*n)*icc^2) + (2*(N-2*n)*icc*(1-icc)))   / 
+    (2*((N-2) - 2*(n-1)*icc)^2)
+  
+  (w*sqrt( (((n1+n2)/(n1*n2))*eta) + gi^2*z))^2
+}
+
+# M=================================================================================================================================================
+
+w_factor <- function (df) 
+{
+  w <- ifelse(df <= 1, NA_real_, exp(lgamma(df/2) - log(sqrt(df/2)) - 
+                                         lgamma((df - 1)/2)))
+  return(w)
+}                 
+# M=================================================================================================================================================
+  
+lrr_vi_cluster <- function(vi, n1, n2, icc=.15, n_fun=mean){
+  
+  n <- n_fun(c(n1,n2), na.rm=TRUE)
   
   DEF <- (n - 1) * icc + 1
   DEF*vi
 }  
-                 
+
+# End of functions for intact class assignment in studies                 
 # H===============================================================================================================================
 
 get_vars_ <- function(gls_fit, as_fml = TRUE){ 
