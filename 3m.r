@@ -76,7 +76,7 @@ g_cluster <- function(gi, n1, n2, icc=.15, n_fun=mean)
 
 # M=================================================================================================================================================
   
-gi_vi_cluster <- function(gi, n1, n2, icc=.15, n_fun=mean){
+g_vi_cluster <- function(gi, n1, n2, icc=.15, n_fun=mean){
   
   N <- sum(c(n1,n2), na.rm = TRUE)
   n <- n_fun(c(n1,n2), na.rm = TRUE)
