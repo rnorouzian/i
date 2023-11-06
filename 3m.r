@@ -78,14 +78,12 @@ gi * sqrt(1 - (2 * (n_bar - 1) *
 # M=================================================================================================================================================
   
 g_vi_cluster <- function(gi, n_class, N_tot, n1, n2, N1, N2, icc=.15){
-  
-  
+    
   n_bar <- N_tot / n_class 
   
   eta <-  1 + ((n_bar- 1)*icc)
   w <- w_factor(n1+n2-2)
-  
-  
+ 
   z <- (((N_tot-2)*(1-icc)^2) + (n_bar*(N_tot-2*n_bar)*icc^2) + (2*(N_tot-2*n_bar)*icc*(1-icc)))   / 
     (2*((N_tot-2) - 2*(n_bar-1)*icc)^2)
   
@@ -103,13 +101,13 @@ w_factor <- function (df)
                  
 # M=================================================================================================================================================
   
-lrr_vi_cluster <- function(vi, n1, n2, icc=.15, n_fun=mean){
+lrr_vi_cluster <- function(vi, n_class, N_tot, icc=.15){
   
-  n <- n_fun(c(n1,n2), na.rm=TRUE)
+  n_bar <- N_tot / n_class 
   
-  DEF <- (n - 1) * icc + 1
+  DEF <- (n_bar - 1) * icc + 1
   DEF*vi
-}  
+}
 
 # End of functions for intact class assignment in studies    
 
