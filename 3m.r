@@ -112,7 +112,71 @@ lrr_vi_cluster <- function(vi, n1, n2, icc=.15, n_fun=mean){
   DEF*vi
 }  
 
-# End of functions for intact class assignment in studies                 
+# End of functions for intact class assignment in studies    
+
+# H=================================================================================================================================================
+                 
+add_sig_funnel <- function(funnel, level=.05, col="magenta", 
+                           pch=21, bg="cyan", digits=2, refline = 0){
+  
+  right <- level/2   
+  
+  x <- funnel$x
+  y <- funnel$y
+  crit <- qnorm(right, mean=refline, lower.tail = FALSE)
+  
+  ci1 <- crit*y
+  x1 <- x[x > ci1]
+  y1 <- y[x > ci1]
+  
+  points(x1, y1, col=col, pch=pch, bg=bg)
+  
+  ci2 <- -crit*y
+  x2 <- x[x < ci2]
+  y2 <- y[x < ci2]
+  
+  total <- c(x1,x2)  
+  
+  points(x2, y2, col=col, pch=pch, bg=bg)
+  
+  out <- data.frame(total = length(total), total_perc=length(total)/length(x)*100, left = length(x2), perc_left = length(x2) / length(x)*100,
+                    right = length(x1), perc_right = length(x1) / length(x)*100)
+  
+  round(setNames(out, c("Total","Total(%)","Left","Left(%)","Right","Right(%)")), digits = digits)
+}
+
+
+# M=================================================================================================================================================
+
+contour_funnel <- function(fit = NULL, x, y, level = c(95, 99),
+                           shade = c("white","gray50"),
+                           xlab = "Effect Size", yaxis = "sei",
+                           sig = FALSE, sig_level=.05,
+                           sig_col = "magenta", 
+                           sig_pch=21, sig_bg="cyan", 
+                           sig_digits=2, refline = 0, ...){
+  
+  yaxis <- if(sig) "sei" else yaxis
+  x <- if(!is.null(fit)) fit$yi else x
+  y <- if(!is.null(fit)) fit$vi else y
+  
+  if(refline!=0 & sig) {
+    message("'refline' reset to '0'.")
+    refline <- 0
+  }
+  
+  f1 <- metafor::funnel.default(    x = x,
+                                   vi = y,
+                                level = level, 
+                                shade = shade,
+                                 xlab = xlab, 
+                                yaxis = yaxis,
+                                refline = refline, ...)
+  
+  if(sig) add_sig_funnel(f1, refline=refline, level=sig_level, col=sig_col, 
+                         pch=sig_pch, bg=sig_bg, digits=sig_digits)
+}
+                 
 # H===============================================================================================================================
 
 get_vars_ <- function(gls_fit, as_fml = TRUE){ 
