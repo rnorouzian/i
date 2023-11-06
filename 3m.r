@@ -65,32 +65,31 @@ rm.colrowNA <- function(X){
                  
 # Functions for intact class assignment in studies
   
-g_cluster <- function(gi, n1, n2, icc=.15, n_fun=mean) 
-  { 
+g_cluster <- function(g, n_class, N_tot, icc=.15) 
+{ 
+
+n_bar <- N_tot / n_class    
   
-  n <- n_fun(c(n1,n2), na.rm=TRUE)
-  N <- sum(c(n1,n2), na.rm=TRUE)
-  
-  gi*sqrt( 1-((2*(n-1)*icc)/(N-2)) )  
+gi * sqrt(1 - (2 * (n_bar - 1) *
+              icc / (n_bar * n_class - 2)))  
+
 }
 
 # M=================================================================================================================================================
   
-g_vi_cluster <- function(gi, n1, n2, icc=.15, n_fun=mean){
+g_vi_cluster <- function(gi, n_class, N_tot, n1, n2, N1, N2, icc=.15){
   
-  N <- sum(c(n1,n2), na.rm = TRUE)
-  n <- n_fun(c(n1,n2), na.rm = TRUE)
   
-  eta <-  1 + ((n - 1)*icc)
+  n_bar <- N_tot / n_class 
+  
+  eta <-  1 + ((n_bar- 1)*icc)
   w <- w_factor(n1+n2-2)
- 
-  #  z <- ( ((N-2)-2*(n-1)*icc)^2 + n*(N-2*n)*icc^2 + 2*(N-2*n)*icc*(1-icc) )  / 
-  # (2*((N-2*n)*icc*(1-icc))^2)
   
-  z <- (((N-2)*(1-icc)^2) + (n*(N-2*n)*icc^2) + (2*(N-2*n)*icc*(1-icc)))   / 
-    (2*((N-2) - 2*(n-1)*icc)^2)
   
-  (w*sqrt( (((n1+n2)/(n1*n2))*eta) + gi^2*z))^2
+  z <- (((N_tot-2)*(1-icc)^2) + (n_bar*(N_tot-2*n_bar)*icc^2) + (2*(N_tot-2*n_bar)*icc*(1-icc)))   / 
+    (2*((N_tot-2) - 2*(n_bar-1)*icc)^2)
+  
+  (w*sqrt( (((N1+N2)/(N1*N2))*eta) + gi^2*z))^2
 }
 
 # H=================================================================================================================================================
