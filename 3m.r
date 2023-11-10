@@ -101,7 +101,7 @@ w_factor <- function (df)
                  
 # M=================================================================================================================================================
   
-lrr_vi_cluster <- function(vi, n_class, N_tot, icc=.15){
+LRR_vi_cluster <- function(vi, n_class, N_tot, icc=.15){
   
   n_bar <- N_tot / n_class 
   
