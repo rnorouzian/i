@@ -137,9 +137,9 @@ add_sig_funnel <- function(funnel, level=.05, col="magenta", sig_cex=1,
   points(x2, y2, col=col, pch=pch, bg=bg, cex=sig_cex)
   
   out <- data.frame(total = length(total), total_perc=length(total)/length(x)*100, left = length(x2), perc_left = length(x2) / length(x)*100,
-                    right = length(x1), perc_right = length(x1) / length(x)*100)
+                    right = length(x1), perc_right = length(x1) / length(x)*100, sig = level)
   
-  round(setNames(out, c("Total","Total(%)","Left","Left(%)","Right","Right(%)")), digits = digits)
+  round(setNames(out, c("Total","Total(%)","Left","Left(%)","Right","Right(%)","Sig.")), digits = digits)
 }
 
 
