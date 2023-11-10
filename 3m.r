@@ -113,7 +113,7 @@ LRR_vi_cluster <- function(vi, n_class, N_tot, icc=.15){
 
 # H=================================================================================================================================================
                  
-add_sig_funnel <- function(funnel, level=.05, col="magenta", 
+add_sig_funnel <- function(funnel, level=.05, col="magenta", sig_cex=1,
                            pch=21, bg="cyan", digits=2, refline = 0){
   
   right <- level/2   
@@ -126,7 +126,7 @@ add_sig_funnel <- function(funnel, level=.05, col="magenta",
   x1 <- x[x > ci1]
   y1 <- y[x > ci1]
   
-  points(x1, y1, col=col, pch=pch, bg=bg)
+  points(x1, y1, col=col, pch=pch, bg=bg, cex=sig_cex)
   
   ci2 <- -crit*y
   x2 <- x[x < ci2]
@@ -134,7 +134,7 @@ add_sig_funnel <- function(funnel, level=.05, col="magenta",
   
   total <- c(x1,x2)  
   
-  points(x2, y2, col=col, pch=pch, bg=bg)
+  points(x2, y2, col=col, pch=pch, bg=bg, cex=sig_cex)
   
   out <- data.frame(total = length(total), total_perc=length(total)/length(x)*100, left = length(x2), perc_left = length(x2) / length(x)*100,
                     right = length(x1), perc_right = length(x1) / length(x)*100)
@@ -145,17 +145,17 @@ add_sig_funnel <- function(funnel, level=.05, col="magenta",
 
 # M=================================================================================================================================================
 
-contour_funnel <- function(fit = NULL, x, y, level = c(95),
+contour_funnel <- function(fit = NULL, x, vi, level = c(95),
                            shade = c("white"),
                            xlab = "Effect Size", yaxis = "sei",
                            sig = FALSE, sig_level=.05,
-                           sig_col = "magenta", 
+                           sig_col = "magenta", sig_cex=1,
                            sig_pch=21, sig_bg="cyan", 
                            sig_digits=2, refline = 0, ...){
   
   yaxis <- if(sig) "sei" else yaxis
   x <- if(!is.null(fit)) fit$yi else x
-  y <- if(!is.null(fit)) fit$vi else y
+  y <- if(!is.null(fit)) fit$vi else vi
   
   if(refline!=0 & sig) {
     message("'refline' reset to '0'.")
@@ -163,15 +163,15 @@ contour_funnel <- function(fit = NULL, x, y, level = c(95),
   }
   
   f1 <- metafor::funnel.default(    x = x,
-                                   vi = y,
-                                level = level, 
-                                shade = shade,
-                                 xlab = xlab, 
-                                yaxis = yaxis,
-                                refline = refline, ...)
+                                    vi = y,
+                                    level = level, 
+                                    shade = shade,
+                                    xlab = xlab, 
+                                    yaxis = yaxis,
+                                    refline = refline, ...)
   
   if(sig) add_sig_funnel(f1, refline=refline, level=sig_level, col=sig_col, 
-                         pch=sig_pch, bg=sig_bg, digits=sig_digits)
+                         pch=sig_pch, bg=sig_bg, sig_cex=sig_cex, digits=sig_digits)
 }
                  
 # H===============================================================================================================================
