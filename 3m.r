@@ -145,8 +145,8 @@ add_sig_funnel <- function(funnel, level=.05, col="magenta",
 
 # M=================================================================================================================================================
 
-contour_funnel <- function(fit = NULL, x, y, level = c(95, 99),
-                           shade = c("white","gray50"),
+contour_funnel <- function(fit = NULL, x, y, level = c(95),
+                           shade = c("white"),
                            xlab = "Effect Size", yaxis = "sei",
                            sig = FALSE, sig_level=.05,
                            sig_col = "magenta", 
