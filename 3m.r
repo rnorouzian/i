@@ -485,7 +485,7 @@ pluralify_ <- function (x, keep.original = FALSE,
 
 # M================================================================================================================================     
 
-cat_overlap <- function(data, study_id, ..., blank_sign = "-"){
+cat_overlap <- function(data, study_id, ..., blank_sign = "*"){
   
   data <- full_clean(data)
   study_id <- rlang::ensym(study_id)
