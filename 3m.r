@@ -585,7 +585,7 @@ bw <- function(data, cluster_name, var_names){
 
 # M================================================================================================================================
 
-lo_ave_up <- function(data = NULL, vars, vals = NULL, digits = 1){
+lo_ave_up <- function(data, vars, vals = NULL, digits = 1){
 
  data <- full_clean(data)
  
