@@ -578,7 +578,24 @@ bw <- function(data, cluster_name, var_names){
   
   return(data)
 }
-       
+
+# M================================================================================================================================
+
+lo_ave_up <- function(data = NULL, vars, vals = NULL, digits = 1){
+
+ data <- full_clean(data)
+ 
+  if(is.null(vals)){
+    sapply(vars, function(x) 
+      round(setNames(mean(data[[x]], na.rm=TRUE) + c(-1, 0, 1)*sd(data[[x]], na.rm=TRUE), 
+                     paste0(x, c('-1SD', '.Mean', '+1SD'))), digits), simplify = FALSE) 
+  } else {
+    
+    setNames(lapply(vars, function(i) vals), vars)
+  }
+}
+                               
+                               
 # H================================================================================================================================ 
 
 data.tree_ <- function(data, toplab = NULL, cex = 1, rowcount = FALSE, cex_top = 1, ...){
