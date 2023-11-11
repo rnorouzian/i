@@ -530,7 +530,7 @@ cat_pattern <- function(data, study_id, ..., blank_sign = "*"){
 
 # M===============================================================================================================================
        
-bet_with <- function(data, cluster_name, var_names){
+bw <- function(data, cluster_name, var_names){
   
   all_names <- trimws(names(data))
   
