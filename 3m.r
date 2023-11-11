@@ -585,17 +585,17 @@ bw <- function(data, cluster_name, var_names){
 
 # M================================================================================================================================
 
-lo_ave_up <- function(data, vars, vals = NULL, digits = 1){
-
- data <- full_clean(data)
- 
+lo_ave_up <- function(data, var_names, vals = NULL, digits = 1){
+  
+  data <- full_clean(data)
+  
   if(is.null(vals)){
-    sapply(vars, function(x) 
+    sapply(var_names, function(x) 
       round(setNames(mean(data[[x]], na.rm=TRUE) + c(-1, 0, 1)*sd(data[[x]], na.rm=TRUE), 
                      paste0(x, c('-1SD', '.Mean', '+1SD'))), digits), simplify = FALSE) 
   } else {
     
-    setNames(lapply(vars, function(i) vals), vars)
+    setNames(lapply(var_names, function(i) vals), var_names)
   }
 }
                                
