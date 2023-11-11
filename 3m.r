@@ -149,9 +149,9 @@ contour_funnel <- function(fit = NULL, x, vi, level = c(95),
                            shade = c("white"),
                            xlab = "Effect Size", yaxis = "sei",
                            sig = FALSE, sig_level=.05,
-                           sig_col = "magenta", sig_cex=1,
+                           sig_col = "magenta", sig_cex=NULL,
                            sig_pch=21, sig_bg="cyan", 
-                           sig_digits=2, refline = 0, ...){
+                           sig_digits=2, refline = 0, cex=1, ...){
   
   yaxis <- if(sig) "sei" else yaxis
   x <- if(!is.null(fit)) fit$yi else x
@@ -162,13 +162,17 @@ contour_funnel <- function(fit = NULL, x, vi, level = c(95),
     refline <- 0
   }
   
+  
+  if(is.null(sig_cex)) sig_cex <- cex
+  
   f1 <- metafor::funnel.default(    x = x,
                                     vi = y,
                                     level = level, 
                                     shade = shade,
                                     xlab = xlab, 
                                     yaxis = yaxis,
-                                    refline = refline, ...)
+                                    refline = refline,
+                                    cex = cex, ...)
   
   if(sig) add_sig_funnel(f1, refline=refline, level=sig_level, col=sig_col, 
                          pch=sig_pch, bg=sig_bg, sig_cex=sig_cex, digits=sig_digits)
