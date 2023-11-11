@@ -485,10 +485,10 @@ pluralify_ <- function (x, keep.original = FALSE,
 
 # M================================================================================================================================     
 
-cat_pattern <- function(data, study_id, ..., blank_sign = "*"){
+cat_pattern <- function(data, cluster, ..., blank_sign = "*"){
   
   data <- full_clean(data)
-  study_id <- rlang::ensym(study_id)
+  cluster <- rlang::ensym(cluster)
   cat_mod <- rlang::ensyms(...)
   cat_nms <- purrr::map_chr(cat_mod, rlang::as_string)
   
@@ -499,14 +499,14 @@ cat_pattern <- function(data, study_id, ..., blank_sign = "*"){
     
     studies_cats <- 
       data %>%
-      dplyr::group_by(!!study_id, !!.x) %>%
+      dplyr::group_by(!!cluster, !!.x) %>%
       dplyr::summarise(effects = n(), .groups = 'drop')
     nm1 <- rlang::as_string(.x)
     cat_names <- paste0(nm1, c(".x", ".y"))
     
     studies_cats <- 
       studies_cats %>%
-      dplyr::inner_join(studies_cats, by = rlang::as_string(study_id)) %>%
+      dplyr::inner_join(studies_cats, by = rlang::as_string(cluster)) %>%
       dplyr::group_by(!!!rlang::syms(cat_names)) %>%
       dplyr::summarise(
         studies = n(),
@@ -526,7 +526,7 @@ cat_pattern <- function(data, study_id, ..., blank_sign = "*"){
     dplyr::bind_cols(out1[1],out2)
     
   }), cat_nms)
-}           
+} 
 
 # M===============================================================================================================================
        
