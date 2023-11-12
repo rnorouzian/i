@@ -611,12 +611,14 @@ data.tree_ <- function(data, toplab = NULL, cex = 1, rowcount = FALSE, cex_top =
 
 # M===============================================================================================================================
 
-UN_cor_fixer <- function(data, left, right, min_cooccur=3) { 
+UN_cor_fixer <- function(data, inner, outer, min_cooccur=3) { 
   
-mat <- crossprod(table(data[c(right,left)])>0)
-lower <- mat[lower.tri(mat)]
-ifelse(lower < min_cooccur, 0, NA)
-
+  data <- full_clean(data)
+  
+  mat <- crossprod(table(data[c(outer,inner)])>0)
+  lower <- mat[lower.tri(mat)]
+  ifelse(lower < min_cooccur, 0, NA)
+  
 }
                                
 # M===============================================================================================================================                               
