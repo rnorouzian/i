@@ -67,12 +67,12 @@ rm.colrowNA <- function(X){
   
 g_cluster <- function(g, n_class, N_tot, icc=.15) 
 { 
-
-n_bar <- N_tot / n_class    
   
-g * sqrt(1 - (2 * (n_bar - 1) *
-              icc / (n_bar * n_class - 2)))  
-
+  n_bar <- N_tot / n_class    
+  
+  g * sqrt(1 - ((2 * (n_bar - 1) * icc) / 
+                (n_class * n_bar - 2)))  
+  
 }
 
 # M=================================================================================================================================================
