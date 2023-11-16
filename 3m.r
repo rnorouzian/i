@@ -707,7 +707,7 @@ meta_tree <- function(data, ..., effect = TRUE, highest_level_name = NULL,
     
     main_no. <- sapply(res, function(i) length(unique(i[[sss]])))
     
-    typic <- function(vec) vec[ceiling(length(vec)/2)]
+    typic <- function(vec) round(median(vec)) # vec[ceiling(length(vec)/2)]
     
     nms <- lapply(res, function(i){
       nr <- sapply(split(i, i[[sss]]), nrow);
