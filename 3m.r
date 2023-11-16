@@ -63,11 +63,14 @@ rm.colrowNA <- function(X){
 
 # M===============================================================================================================================
                  
-# Functions for intact class assignment in studies
+# Functions for intact class assignment in studies (Hedges, 2007)
   
-g_cluster <- function(g, n_class, N_tot, icc=.15) 
+g_cluster <- function(g, n_class, 
+                      Nt, Nc, 
+                      icc = .15) 
 { 
-  
+
+  N_tot <- Nt + Nc
   n_bar <- N_tot / n_class    
   
   g * sqrt(1 - ((2 * (n_bar - 1) * icc) / 
@@ -77,25 +80,45 @@ g_cluster <- function(g, n_class, N_tot, icc=.15)
 
 # M=================================================================================================================================================
   
-g_vi_cluster <- function(g, n_class, Nt, Nc, icc=.15){
+#g_vi_cluster <- function(g, n_class, 
+                          Nt, Nc, 
+                          icc = .15){
 
-  N_tot <- Nt + Nc
-  n_bar <- N_tot / n_class 
+#  N_tot <- Nt + Nc
+#  n_bar <- N_tot / n_class 
   
-  eta <-  1 + ((n_bar- 1)*icc)
+#  eta <-  1 + ((n_bar- 1)*icc)
   
 #  DF <- (( (N_tot-2)-((2 * ((N_tot/n_class)-1))*icc)   )^2) /
 #    ((N_tot-2)*((1-icc)^2))+((N_tot/n_class)*(N_tot-(2*(N_tot/n_class)) )*icc^2)+
 #    (2* ( N_tot-(2*(N_tot/n_class)) )*icc*(1-icc) )
   
-  w <- 1 # w_factor(DF)
+#  w <- 1 # w_factor(DF)
   
-  z <- (((N_tot-2)*(1-icc)^2) + (n_bar*(N_tot-2*n_bar)*icc^2) + (2*(N_tot-2*n_bar)*icc*(1-icc))) / 
-    (2*((N_tot-2) - 2*(n_bar-1)*icc)^2)
+#  z <- (((N_tot-2)*(1-icc)^2) + (n_bar*(N_tot-2*n_bar)*icc^2) + (2*(N_tot-2*n_bar)*icc*(1-icc))) / 
+#   (2*((N_tot-2) - 2*(n_bar-1)*icc)^2)
   
-  (w*sqrt( (((Nt+Nc)/(Nt*Nc))*eta) + g^2*z))^2
-}
+# (w*sqrt( (((Nt+Nc)/(Nt*Nc))*eta) + g^2*z))^2
+#}
+                 
+# M=================================================================================================================================================
 
+g_vi_cluster <- function(g, n_class, 
+                         Nt, Nc, 
+                         icc = .15){
+  
+  N_tot <- Nt + Nc
+  n_bar <- N_tot / n_class 
+  
+  ((Nt+Nc)/(Nt*Nc))*(1 + ((n_bar- 1)*icc)) +
+    ( g^2 * ( 
+      (((N_tot -2)*(1-icc)^2 ) + (n_bar*(N_tot - 2*n_bar)*icc^2) +
+         (2* (N_tot - 2*n_bar) * icc * (1 - icc)) ) /
+        ((2* (N_tot-2)) * ( (N_tot-2) - (2* (n_bar-1)*icc) )) 
+    )  )
+  
+}
+                 
 # H=================================================================================================================================================
 
 w_factor <- function (df) 
@@ -107,8 +130,12 @@ w_factor <- function (df)
                  
 # M=================================================================================================================================================
   
-LRR_vi_cluster <- function(vi, n_class, N_tot, icc=.15){
-  
+LRR_vi_cluster <- function(vi, n_class, 
+                           Nt, Nc, 
+                           icc = .15)
+{
+
+  N_tot <- Nt + Nc
   n_bar <- N_tot / n_class 
   
   DEF <- (n_bar - 1) * icc + 1
