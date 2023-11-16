@@ -84,11 +84,11 @@ g_vi_cluster <- function(g, n_class, Nt, Nc, icc=.15){
   
   eta <-  1 + ((n_bar- 1)*icc)
   
-  DF <- (( (N_tot-2)-((2 * ((N_tot/n_class)-1))*icc)   )^2) /
-    ((N_tot-2)*((1-icc)^2))+((N_tot/n_class)*(N_tot-(2*(N_tot/n_class)) )*icc^2)+
-    (2* ( N_tot-(2*(N_tot/n_class)) )*icc*(1-icc) )
+#  DF <- (( (N_tot-2)-((2 * ((N_tot/n_class)-1))*icc)   )^2) /
+#    ((N_tot-2)*((1-icc)^2))+((N_tot/n_class)*(N_tot-(2*(N_tot/n_class)) )*icc^2)+
+#    (2* ( N_tot-(2*(N_tot/n_class)) )*icc*(1-icc) )
   
-  w <- w_factor(DF)
+  w <- 1 # w_factor(DF)
   
   z <- (((N_tot-2)*(1-icc)^2) + (n_bar*(N_tot-2*n_bar)*icc^2) + (2*(N_tot-2*n_bar)*icc*(1-icc))) / 
     (2*((N_tot-2) - 2*(n_bar-1)*icc)^2)
