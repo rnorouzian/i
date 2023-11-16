@@ -65,16 +65,16 @@ rm.colrowNA <- function(X){
                  
 # Functions for intact class assignment in studies (Hedges, 2007)
   
-g_cluster <- function(g, n_class, 
+g_cluster <- function(g, n_cluster, 
                       Nt, Nc, 
                       icc = .15) 
 { 
-
+  
   N_tot <- Nt + Nc
-  n_bar <- N_tot / n_class    
+  n_bar <- N_tot / n_cluster    
   
   g * sqrt(1 - ((2 * (n_bar - 1) * icc) / 
-                (n_class * n_bar - 2)))  
+                  (n_cluster * n_bar - 2)))  
   
 }
 
@@ -103,12 +103,12 @@ g_cluster <- function(g, n_class,
                  
 # M=================================================================================================================================================
 
-g_vi_cluster <- function(g, n_class, 
+g_vi_cluster <- function(g, n_cluster, 
                          Nt, Nc, 
                          icc = .15){
   
   N_tot <- Nt + Nc
-  n_bar <- N_tot / n_class 
+  n_bar <- N_tot / n_cluster 
   
   ((Nt+Nc)/(Nt*Nc))*(1 + ((n_bar- 1)*icc)) +
     ( g^2 * ( 
@@ -130,13 +130,13 @@ w_factor <- function (df)
                  
 # M=================================================================================================================================================
   
-LRR_vi_cluster <- function(vi, n_class, 
+LRR_vi_cluster <- function(vi, n_cluster, 
                            Nt, Nc, 
                            icc = .15)
 {
-
+  
   N_tot <- Nt + Nc
-  n_bar <- N_tot / n_class 
+  n_bar <- N_tot / n_cluster 
   
   DEF <- (n_bar - 1) * icc + 1
   DEF*vi
