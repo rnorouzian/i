@@ -77,13 +77,18 @@ g_cluster <- function(g, n_class, N_tot, icc=.15)
 
 # M=================================================================================================================================================
   
-g_vi_cluster <- function(g, n_class, N_tot, nt, nc, Nt, Nc, icc=.15){
-
+g_vi_cluster <- function(g, n_class, N_tot, Nt, Nc, icc=.15){
+  
   n_bar <- N_tot / n_class 
   
   eta <-  1 + ((n_bar- 1)*icc)
-  w <- w_factor(nt+nc-2)
-
+  
+  DF <- (( (N_tot-2)-((2 * ((N_tot/n_class)-1))*icc)   )^2) /
+    ((N_tot-2)*((1-icc)^2))+((N_tot/n_class)*(N_tot-(2*(N_tot/n_class)) )*icc^2)+
+    (2* ( N_tot-(2*(N_tot/n_class)) )*icc*(1-icc) )
+  
+  w <- w_factor(DF)
+  
   z <- (((N_tot-2)*(1-icc)^2) + (n_bar*(N_tot-2*n_bar)*icc^2) + (2*(N_tot-2*n_bar)*icc*(1-icc))) / 
     (2*((N_tot-2) - 2*(n_bar-1)*icc)^2)
   
