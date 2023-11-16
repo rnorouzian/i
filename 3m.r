@@ -77,8 +77,9 @@ g_cluster <- function(g, n_class, N_tot, icc=.15)
 
 # M=================================================================================================================================================
   
-g_vi_cluster <- function(g, n_class, N_tot, Nt, Nc, icc=.15){
-  
+g_vi_cluster <- function(g, n_class, Nt, Nc, icc=.15){
+
+  N_tot <- Nt + Nc
   n_bar <- N_tot / n_class 
   
   eta <-  1 + ((n_bar- 1)*icc)
