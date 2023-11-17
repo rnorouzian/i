@@ -2111,7 +2111,7 @@ plot_rma <- function(fit, formula, ylab, CIs = TRUE, CIarg = list(lwd = .5, alph
     
     is_post_rma <- FALSE
     fit <- fit$rma.mv_fit
-    cov.reduce <- if(is.null(cov.reduce)) quantile else cov.reduce
+    cov.reduce <- if(is.null(cov.reduce)) range else cov.reduce
   }
   
   if(is.null(cov.reduce)) cov.reduce <- mean
