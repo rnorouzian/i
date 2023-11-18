@@ -2085,7 +2085,7 @@ con_rma <- function(post_rma_fit, method, type,
   }  
   if(na.rm) out <- na.omit(out)
   
-  out <- roundi(out, digits = digits, round_except=round_except)
+  out <- roundi(out, digits = digits, except=round_except)
   
   out <- list(table = out, specs = post_rma_fit$specs, call = post_rma_fit$call, fit = post_rma_fit$fit, rma.mv_fit = post_rma_fit$rma.mv_fit, ems = post_rma_fit$ems,
               tran. = post_rma_fit$tran., type. = post_rma_fit$type., con = con, digits = digits)
