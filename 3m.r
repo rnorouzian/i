@@ -1374,7 +1374,7 @@ smooth_vi <- function(data, study, vi, digits = 8, fun = sd, ylab = "Studies", x
 # M=================================================================================================================================================
 
 post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRUE, ci = TRUE, block_vars_contrast = NULL, block_vars_null = NULL,
-                     adjust = "none", mutos = FALSE, mutos_contrast = FALSE, compare = FALSE, plot_pairwise = FALSE,
+                     adjust = "none", mutos_null = FALSE, mutos_contrast = FALSE, compare = FALSE, plot_pairwise = FALSE,
                      reverse = FALSE, digits = 3, xlab = "Estimated Effect", shift_up = NULL, shift_down = NULL, 
                      drop_rows = NULL, mutos_name = "(M)UTOS Term", drop_cols = NULL, contrast_contrasts = FALSE, 
                      na.rm = TRUE, robust = FALSE, cluster, show0df = FALSE, sig = TRUE, contr, horiz = TRUE,
@@ -1394,7 +1394,7 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
     
     message("Note: Only 'block_vars_null' results are shown.")
     block_vars_contrast <- NULL
-  
+    
   }
   
   if(!is.null(block_vars_null)) specs <- block_vars_null
@@ -1548,7 +1548,7 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
       
       joint_tests(fit_used, by = by, adjust = adjust, show0df = show0df, tran = tran., ...)
       
-    } else if (mutos){
+    } else if (mutos_null){
       
       message("Testing jointly if EMMs for levels of each categorical moderator are equal to their null (e.g., 0).")
       
@@ -1567,6 +1567,8 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
       
     } else if(!is.null(block_vars_contrast)){ 
       
+      if(length(block_vars_contrast) < 2) stop("A block needs at least two moderators.", call. = FALSE)
+      
       com <- comb_facs(ems, block_vars_contrast)
       
       message("Testing jointly if the EMMs *across* multiple
@@ -1576,17 +1578,19 @@ categorical moderators (a block of them) are equal to each other.")
       
     } else if(!is.null(block_vars_null)) {
       
+      if(length(block_vars_null) < 2) stop("A block needs at least two moderators.", call. = FALSE)
+      
       com <- comb_facs(ems, block_vars_null)
       
       message("Testing jointly if the EMMs *across* multiple
 categorical moderators (a block of them) are equal to their null (e.g., 0).")
       
-    zz <- cbind(mod=paste0(block_vars_null, collapse="."), as.data.frame(emmeans::test(com, joint=TRUE)))
-    names(zz)[1] <- "Block Term"
-    zz
-  
+      zz <- cbind(mod=paste0(block_vars_null, collapse="."), as.data.frame(emmeans::test(com, joint=TRUE)))
+      names(zz)[1] <- "Block Term"
+      zz
+      
     }
-
+    
     else {
       
       ems
