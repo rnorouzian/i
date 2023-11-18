@@ -1373,13 +1373,13 @@ smooth_vi <- function(data, study, vi, digits = 8, fun = sd, ylab = "Studies", x
 
 # M=================================================================================================================================================
 
-post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRUE, ci = TRUE, block_vars = NULL,
-                      adjust = "none", mutos = FALSE, mutos_contrast = FALSE, compare = FALSE, plot_pairwise = FALSE,
-                      reverse = FALSE, digits = 3, xlab = "Estimated Effect", shift_up = NULL, shift_down = NULL, 
-                      drop_rows = NULL, mutos_name = "(M)UTOS Term", drop_cols = NULL, contrast_contrasts = FALSE, 
-                      na.rm = TRUE, robust = FALSE, cluster, show0df = FALSE, sig = TRUE, contr, horiz = TRUE,
-                      get_rows = NULL, get_cols = NULL, df = NULL, tran = NULL, sigma=NULL, data=NULL, ...)
-  {
+post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRUE, ci = TRUE, block_vars_contrast = NULL, block_vars_null = NULL,
+                     adjust = "none", mutos = FALSE, mutos_contrast = FALSE, compare = FALSE, plot_pairwise = FALSE,
+                     reverse = FALSE, digits = 3, xlab = "Estimated Effect", shift_up = NULL, shift_down = NULL, 
+                     drop_rows = NULL, mutos_name = "(M)UTOS Term", drop_cols = NULL, contrast_contrasts = FALSE, 
+                     na.rm = TRUE, robust = FALSE, cluster, show0df = FALSE, sig = TRUE, contr, horiz = TRUE,
+                     get_rows = NULL, get_cols = NULL, df = NULL, tran = NULL, sigma=NULL, data=NULL, ...)
+{
   
   if(!inherits(fit, c("rma.uni", "rma.mv"))) stop("Model is not 'rma()/rma.mv()'.", call. = FALSE)
   
@@ -1387,6 +1387,18 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
   dot_args_nm <- names(dot_args)
   
   cl <- match.call()
+  
+  if(!is.null(block_vars_contrast)) block_vars_null <- NULL
+  if(!is.null(block_vars_null)) block_vars_contrast <- NULL
+  if(!is.null(block_vars_null) & !is.null(block_vars_contrast)) { 
+    
+    message("Note: Only 'block_vars_null' results are shown.")
+    block_vars_contrast <- NULL
+  
+  }
+  
+  if(!is.null(block_vars_null)) specs <- block_vars_null
+  if(!is.null(block_vars_contrast)) specs <- block_vars_contrast
   
   data_. <- if(is.null(data)) get_data_(fit) else data
   
@@ -1458,7 +1470,7 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
               Df1="df1", Df2="df2","F"="F.ratio",Term="model term",
               Lower="asymp.LCL", Upper="asymp.UCL", z="z.ratio", Ratio = "ratio")
   
-  if(!is.null(block_vars)) names(lookup)[13] <- "Block Term"
+  if(!is.null(block_vars_contrast) || !is.null(block_vars_null)) names(lookup)[13] <- "Block Term"
   
   fit <- rma2gls(fit)
   
@@ -1466,7 +1478,7 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
   specs_org <- specs
   
   if(!is.null(specs) & !is.character(specs) & !is_formula(specs, scoped=TRUE)) {stop("The 'specs' must be either a character or a formula containing '~'.", call.=FALSE)}
- 
+  
   if(is.null(specs)) {specs <- as.formula(bquote(~.(terms(fit)[[3]])))}
   
   if(robust) { 
@@ -1475,10 +1487,11 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
     colnames(vcov_.)[colnames(vcov_.) %in% "intrcpt"] <- "(Intercept)"
     
     fit$varBeta <- vcov_. 
-    }
+  }
   
-
+  
   is_contr <- !missing(contr)            
+  
   
   ems <- suppressWarnings(suppressMessages(try(if(is.null(cont_var)){
     
@@ -1498,7 +1511,7 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
     
   }, silent = TRUE)))
   
-
+  
   if(inherits(ems,"try-error")) stop("Wrong specification OR no relavant data found for the comparisons.", call.=FALSE)
   
   
@@ -1510,7 +1523,7 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
   
   if(!is.null(cont_var) & is_pair) names(lookup)[2] <- paste0(cont_var,".dif")
   
-out <- if(is_pair){
+  out <- if(is_pair){
     
     methd <- as.character(specs[2])
     
@@ -1547,21 +1560,34 @@ out <- if(is_pair){
         
       } else { 
         
-       zz <- cbind(mod=if(is.character(specs)) specs else as.character(specs)[2],as.data.frame(emmeans::test(ems, joint=TRUE)))
-       names(zz)[1] <- mutos_name
-       zz
+        zz <- cbind(mod=if(is.character(specs)) specs else as.character(specs)[2],as.data.frame(emmeans::test(ems, joint=TRUE)))
+        names(zz)[1] <- mutos_name
+        zz
       }
       
-    } else if(!is.null(block_vars)){ 
+    } else if(!is.null(block_vars_contrast)){ 
       
-      com <- comb_facs(ems, block_vars)
+      com <- comb_facs(ems, block_vars_contrast)
       
       message("Testing jointly if the EMMs *across* multiple
 categorical moderators (a block of them) are equal to each other.")
       
       joint_tests(com)
       
-    } else {
+    } else if(!is.null(block_vars_null)) {
+      
+      com <- comb_facs(ems, block_vars_null)
+      
+      message("Testing jointly if the EMMs *across* multiple
+categorical moderators (a block of them) are equal to their null (e.g., 0).")
+      
+    zz <- cbind(mod=paste0(block_vars_null, collapse="."), as.data.frame(emmeans::test(com, joint=TRUE)))
+    names(zz)[1] <- "Block Term"
+    zz
+  
+    }
+
+    else {
       
       ems
     }
@@ -1571,7 +1597,9 @@ categorical moderators (a block of them) are equal to each other.")
     dplyr::rename(tidyselect::any_of(lookup)) %>% 
     dplyr::select(-tidyselect::any_of("note"))
   
-  if(!is.null(block_vars)) out <- filter(out,`Block Term`==paste0(block_vars, collapse="."))
+  return(out)
+  
+  if(!is.null(block_vars_contrast)) out <- filter(out,`Block Term`==paste0(block_vars_contrast, collapse="."))
   
   out <- set_rownames_(out,NULL)
   
@@ -1580,8 +1608,8 @@ categorical moderators (a block of them) are equal to each other.")
     p.values <- as.numeric(out$"p-value")
     
     if(all(is.na(p.values))) { 
-     stop("Comparison(s)/moderator adjustments are non-estimable,\nlikely some combination of moderating or control variables are missing.\nTake those variables out of the model one by one and re-run.",
-     call. = FALSE)
+      stop("Comparison(s)/moderator adjustments are non-estimable,\nlikely some combination of moderating or control variables are missing.\nTake those variables out of the model one by one and re-run.",
+           call. = FALSE)
     }
     
     if(sig){
@@ -1611,7 +1639,7 @@ categorical moderators (a block of them) are equal to each other.")
   
   class(out) <- "post_rma"
   return(out)
-}                
+}                 
 
 # M=================================================================================================================================================
 
