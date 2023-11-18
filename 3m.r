@@ -2079,9 +2079,22 @@ contrast_rma <- function(post_rma_fit, con_list, ...)
 
 # M======================================================================================================================================================  
 
-plot_rma <- function(fit, formula, ylab, CIs = TRUE, CIarg = list(lwd = .5, alpha = 1), cov.reduce = NULL, tran = NULL, sigma = NULL, df = NULL, ...){
+plot_rma <- function(fit, formula, ylab, CIs=TRUE, PIs=FALSE, 
+                      CIarg = list(lwd = .5, alpha = 1), 
+                      PIarg = list(lwd = 1.25, alpha = 0.33),
+                      linearg = list(linetype = "solid"),
+                      cov.reduce = NULL, tran = NULL, 
+                      sigma = NULL, df = NULL, 
+                      interpolate=FALSE, ...){
   
   if(!inherits(fit, c("post_rma", "rma.mv", "rma.uni"))) stop("fit is not 'post_rma()','rma.mv()' or 'rma.uni()'.", call. = FALSE)
+  
+  dot_nms <- names(list(...))
+  cl <- match.call()
+  
+  no_ciarg <- is.null(cl$CIarg)
+  no_piarg <- is.null(cl$PIarg)
+  no_linearg <- is.null(cl$linearg)
   
   is_post_rma <- inherits(fit, "post_rma")
   
@@ -2098,9 +2111,9 @@ plot_rma <- function(fit, formula, ylab, CIs = TRUE, CIarg = list(lwd = .5, alph
   
   
   sigma. <-  if (is.null(sigma)) {
-
+    
     if(!is_post_rma) sigma_detect(fit) else fit$sigma.
-  
+    
   } else {
     
     sigma
@@ -2111,22 +2124,35 @@ plot_rma <- function(fit, formula, ylab, CIs = TRUE, CIarg = list(lwd = .5, alph
     
     is_post_rma <- FALSE
     fit <- fit$rma.mv_fit
-    cov.reduce <- if(is.null(cov.reduce)) range else cov.reduce
+    cov.reduce <- if(is.null(cov.reduce) & interpolate) \(x) seq(min(x),max(x),length.out=200) else if(is.null(cov.reduce) & !interpolate) range else cov.reduce
   }
+  
+  
+  if("cont_var" %in% dot_nms || "var" %in% dot_nms) {
+    
+  cov.reduce <- if(is.null(cov.reduce) & interpolate) \(x) seq(min(x),max(x),length.out=200) else if(is.null(cov.reduce) & !interpolate) range else cov.reduce
+    
+  } 
   
   if(is.null(cov.reduce)) cov.reduce <- mean
   
   if(missing(ylab)) ylab <- paste0("Effect Size (",as.character(fixed_form_rma(if(is_post_rma) fit$rma.mv_fit else fit))[2],")")
   
+  if(no_ciarg & CIs & interpolate) CIarg <- list(lwd = 3, alpha = 0.1)
+  if(no_piarg & PIs & interpolate) PIarg <- list(lwd = 3, alpha = 0.1)
+  if(no_linearg & CIs & interpolate||no_linearg & PIs & interpolate) linearg <- list(size=1,alpha=1,linetype = "solid")
+  
   fit <- if(!is_post_rma) { 
     
-   ref_grid(rma2gls(fit), cov.reduce = cov.reduce, df = df., sigma = sigma., tran = tran., ...)
-   
+    ref_grid(rma2gls(fit), cov.reduce = cov.reduce, df = df., sigma = sigma., tran = tran., ...)
+    
   } else fit
   
-  emmip(object=if(is_post_rma) fit$ems else fit, formula=formula, ylab=ylab, CIs=CIs, CIarg=CIarg, cov.reduce=cov.reduce, tran = tran., ...)
+  emmip(object=if(is_post_rma) fit$ems else fit, formula=formula, 
+        ylab=ylab, CIs=CIs, PIs=PIs, CIarg=CIarg, PIarg=PIarg,
+        linearg=linearg, cov.reduce=cov.reduce, tran=tran., ...)
   
-}                
+}
                                 
 # M===============================================================================================================================================
 
