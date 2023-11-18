@@ -1373,12 +1373,13 @@ smooth_vi <- function(data, study, vi, digits = 8, fun = sd, ylab = "Studies", x
 
 # M=================================================================================================================================================
 
-post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRUE, ci = TRUE, block_vars_contrast = NULL, block_vars_null = NULL,
-                     adjust = "none", mutos_null = FALSE, mutos_contrast = FALSE, compare = FALSE, plot_pairwise = FALSE,
-                     reverse = FALSE, digits = 3, xlab = "Estimated Effect", shift_up = NULL, shift_down = NULL, 
-                     drop_rows = NULL, mutos_name = "(M)UTOS Term", drop_cols = NULL, contrast_contrasts = FALSE, 
+post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRUE, ci = TRUE, block_vars_contrast = NULL, 
+                     block_vars_null = NULL, adjust = "none", mutos_null = FALSE, mutos_contrast = FALSE, compare = FALSE, 
+                     plot_pairwise = FALSE, reverse = FALSE, digits = 3, xlab = "Estimated Effect", shift_up = NULL, 
+                     shift_down = NULL, drop_rows = NULL, mutos_name = "(M)UTOS Term", drop_cols = NULL, contrast_contrasts=FALSE, 
                      na.rm = TRUE, robust = FALSE, cluster, show0df = FALSE, sig = TRUE, contr, horiz = TRUE,
-                     get_rows = NULL, get_cols = NULL, df = NULL, tran = NULL, sigma=NULL, data=NULL, ...)
+                     get_rows = NULL, get_cols = NULL, df = NULL, tran = NULL, sigma=NULL, data=NULL, round_except=NULL,
+                     ...)
 {
   
   if(!inherits(fit, c("rma.uni", "rma.mv"))) stop("Model is not 'rma()/rma.mv()'.", call. = FALSE)
@@ -1601,7 +1602,7 @@ categorical moderators (a block of them) are equal to their null (e.g., 0).")
     dplyr::rename(tidyselect::any_of(lookup)) %>% 
     dplyr::select(-tidyselect::any_of("note"))
   
- # if(!is.null(block_vars_contrast)) out <- filter(out,`Block Term`==paste0(block_vars_contrast, collapse="."))
+  # if(!is.null(block_vars_contrast)) out <- filter(out,`Block Term`==paste0(block_vars_contrast, collapse="."))
   
   out <- set_rownames_(out,NULL)
   
@@ -1626,7 +1627,7 @@ categorical moderators (a block of them) are equal to their null (e.g., 0).")
   
   if(na.rm) out <- na.omit(out)
   
-  out <- roundi(out, digits = digits)
+  out <- roundi(out, digits = digits, except = round_except)
   
   if(!is.null(shift_up)) out <- shift_rows(out, shift_up)
   if(!is.null(shift_down)) out <- shift_rows(out, shift_down, up = FALSE)
@@ -1641,7 +1642,7 @@ categorical moderators (a block of them) are equal to their null (e.g., 0).")
   
   class(out) <- "post_rma"
   return(out)
-}                 
+}                  
 
 # M=================================================================================================================================================
 
