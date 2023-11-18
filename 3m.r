@@ -1283,17 +1283,17 @@ results_rma <- function(fit, digits = 3, robust = FALSE, blank_sign = "",
 
 # H=================================================================================================================================================                     
 
-roundi <- function(x, digits = 7){
+roundi <- function(x, digits = 7, except = NULL){
   
   if(!inherits(x, c("data.frame","tibble","matrix"))) stop("'x' must be a 'data.frame' or a 'matrix'.", call. = FALSE)
   if(inherits(x,"matrix")) x <- as.data.frame(x)
   
-  num <- sapply(x, is.numeric)
+  num <- names(Filter(function(i) is.numeric(i), x[setdiff(names(x), except)]))
   
   x[num] <- lapply(x[num], function(i) formatC(round(i, digits), digits, format = "f"))
   
   return(x)
-}                      
+}                       
 
 # H=================================================================================================================================================
 
