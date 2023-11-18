@@ -1601,9 +1601,7 @@ categorical moderators (a block of them) are equal to their null (e.g., 0).")
     dplyr::rename(tidyselect::any_of(lookup)) %>% 
     dplyr::select(-tidyselect::any_of("note"))
   
-  return(out)
-  
-  if(!is.null(block_vars_contrast)) out <- filter(out,`Block Term`==paste0(block_vars_contrast, collapse="."))
+ # if(!is.null(block_vars_contrast)) out <- filter(out,`Block Term`==paste0(block_vars_contrast, collapse="."))
   
   out <- set_rownames_(out,NULL)
   
