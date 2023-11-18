@@ -618,8 +618,15 @@ bw <- function(data, cluster_name, var_names){
 
 # M================================================================================================================================
 
-lo_ave_up <- function(data, var_names, vals = NULL, digits = 1){
+lo_ave_up <- function(x, var_names, vals = NULL, digits = 1){
   
+data <- if(inherits(x, c("rma.uni", "rma.mv"))) { get_data_(x) }
+
+  else if(inherits(x, c("data.frame","tibble"))){ x } else {
+    
+    stop("'x' must be either a 'data.frame' or an 'rma.uni'/'rma.mv' object.")
+  }
+
   data <- full_clean(data)
   
   if(is.null(vals)){
