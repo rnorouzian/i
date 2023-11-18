@@ -2047,7 +2047,7 @@ sense_rma <- function(post_rma_fit = NULL, var_name, fit = NULL,
 con_rma <- function(post_rma_fit, method, type,
                     digits = 3, ci = TRUE, 
                     p_value = TRUE, adjust = "none",
-                    na.rm = TRUE, sig = TRUE, ...){
+                    na.rm = TRUE, sig = TRUE, round_except=NULL, ...){
   
   if(!inherits(post_rma_fit, "post_rma")) stop("post_rma_fit is not 'post_rma()'.", call. = FALSE)
   
@@ -2085,7 +2085,7 @@ con_rma <- function(post_rma_fit, method, type,
   }  
   if(na.rm) out <- na.omit(out)
   
-  out <- roundi(out, digits = digits)
+  out <- roundi(out, digits = digits, round_except=round_except)
   
   out <- list(table = out, specs = post_rma_fit$specs, call = post_rma_fit$call, fit = post_rma_fit$fit, rma.mv_fit = post_rma_fit$rma.mv_fit, ems = post_rma_fit$ems,
               tran. = post_rma_fit$tran., type. = post_rma_fit$type., con = con, digits = digits)
