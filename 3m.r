@@ -692,7 +692,7 @@ meta_tree <- function(data, ..., effect = TRUE, highest_level_name = NULL,
   sss <- str_cols[1]
   
   idx <- str_cols %in% names(data)
-  if(!all(idx)) return(message("Error: ",toString(dQuote(str_cols[!idx]))," not found in the data."))
+  if(!all(idx)) stop(toString(dQuote(str_cols[!idx])," not found in the data."), call. = FALSE)
   
   main_org <- main
   
@@ -787,7 +787,7 @@ meta_tree <- function(data, ..., effect = TRUE, highest_level_name = NULL,
     
     idx <- highest_level_name %in% highest_level_names 
     
-    if(!all(idx)) return(message("Error: ",toString(dQuote(highest_level_name[!idx]))," not found in the ", paste0("'",sss,"'", " data column.")))
+    if(!all(idx)) stop(toString(dQuote(highest_level_name[!idx]))," not found in variable ", paste0("'",sss,"'", "."), call. = FALSE)
     
     list2plot <- lapply(highest_level_name, function(i) filter(data, !!ss == i))
     
@@ -810,10 +810,8 @@ meta_tree <- function(data, ..., effect = TRUE, highest_level_name = NULL,
       
     }
     
-   # invisible(lapply(list2plot, data.tree_, toplab, cex, rowcount, cex.main = cex_main, main = main, cex_top = cex_top))
-    
     invisible(lapply(seq_along(list2plot), function(i) data.tree_(list2plot[[i]], main = main[i], toplab, cex, rowcount, cex.main = cex_main, cex_top = cex_top)))
-
+    
     invisible(list2plot)
   }
 }
