@@ -2357,6 +2357,54 @@ r2z_tran <- list(
 
 wcf <- read.csv("https://raw.githubusercontent.com/hkil/m/master/wcf.csv")
 
+dat_design <- structure(list(Participant = c(1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
+1L, 1L, 1L, 1L, 51L, 51L, 51L, 51L, 51L, 51L, 51L, 51L, 51L, 
+51L, 51L, 51L, 51L, 51L, 51L, 51L, 51L, 51L, 51L, 51L, 51L, 51L, 
+51L, 51L, 51L, 51L, 51L, 51L), Order = c("s2c", "s2c", "s2c", 
+"s2c", "s2c", "s2c", "s2c", "s2c", "s2c", "s2c", "s2c", "s2c", 
+"s2c", "s2c", "s2c", "s2c", "s2c", "s2c", "s2c", "s2c", "s2c", 
+"s2c", "s2c", "s2c", "s2c", "s2c", "s2c", "s2c", "c2s", "c2s", 
+"c2s", "c2s", "c2s", "c2s", "c2s", "c2s", "c2s", "c2s", "c2s", 
+"c2s", "c2s", "c2s", "c2s", "c2s", "c2s", "c2s", "c2s", "c2s", 
+"c2s", "c2s", "c2s", "c2s", "c2s", "c2s", "c2s", "c2s"), Time = c(1L, 
+1L, 1L, 1L, 1L, 1L, 1L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 3L, 3L, 3L, 
+3L, 3L, 3L, 3L, 4L, 4L, 4L, 4L, 4L, 4L, 4L, 1L, 1L, 1L, 1L, 1L, 
+1L, 1L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 3L, 3L, 3L, 3L, 3L, 3L, 3L, 
+4L, 4L, 4L, 4L, 4L, 4L, 4L), Task = c("simple", "simple", "simple", 
+"simple", "simple", "simple", "simple", "complex", "complex", 
+"complex", "complex", "complex", "complex", "complex", "simple", 
+"simple", "simple", "simple", "simple", "simple", "simple", "complex", 
+"complex", "complex", "complex", "complex", "complex", "complex", 
+"complex", "complex", "complex", "complex", "complex", "complex", 
+"complex", "simple", "simple", "simple", "simple", "simple", 
+"simple", "simple", "complex", "complex", "complex", "complex", 
+"complex", "complex", "complex", "simple", "simple", "simple", 
+"simple", "simple", "simple", "simple"), Questionnaire = c("Motiv./Eng.", 
+"Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", 
+"Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", 
+"Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", 
+"Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", 
+"Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", 
+"Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", 
+"Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", 
+"Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", 
+"Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", 
+"Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", 
+"Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng.", "Motiv./Eng."
+), Outcomes = c("com_MLTU", "com_DC/T", "com_CN/T", "com_CN/C", 
+"ac_EFC/C", "lex_Vocd", "lex_WRDFRQmc", "com_MLTU", "com_DC/T", 
+"com_CN/T", "com_CN/C", "ac_EFC/C", "lex_Vocd", "lex_WRDFRQmc", 
+"com_MLTU", "com_DC/T", "com_CN/T", "com_CN/C", "ac_EFC/C", "lex_Vocd", 
+"lex_WRDFRQmc", "com_MLTU", "com_DC/T", "com_CN/T", "com_CN/C", 
+"ac_EFC/C", "lex_Vocd", "lex_WRDFRQmc", "com_MLTU", "com_DC/T", 
+"com_CN/T", "com_CN/C", "ac_EFC/C", "lex_Vocd", "lex_WRDFRQmc", 
+"com_MLTU", "com_DC/T", "com_CN/T", "com_CN/C", "ac_EFC/C", "lex_Vocd", 
+"lex_WRDFRQmc", "com_MLTU", "com_DC/T", "com_CN/T", "com_CN/C", 
+"ac_EFC/C", "lex_Vocd", "lex_WRDFRQmc", "com_MLTU", "com_DC/T", 
+"com_CN/T", "com_CN/C", "ac_EFC/C", "lex_Vocd", "lex_WRDFRQmc"
+)), class = "data.frame", row.names = c(NA, -56L))
+                                                                               
 #=================================================================================================================================================
 
 needzzsf <- c('metafor', 'clubSandwich', 'nlme', 'effects', 'lexicon', 'plotrix', 'rlang', 'emmeans','tidyverse','fastDummies')      
