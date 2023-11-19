@@ -663,7 +663,7 @@ UN_cor_fixer <- function(data, inner, outer, min_cooccur=3) {
                                
 # M===============================================================================================================================                               
 
-meta_tree2 <- function(data, ..., effect = TRUE, highest_level_name = NULL,  
+meta_tree <- function(data, ..., effect = TRUE, highest_level_name = NULL,  
                       structure = c("simple","typical","complex"), toplab = NULL, 
                       main = NULL, main_extra = NULL, rowcount = FALSE, 
                       abb_names = FALSE, abb_length = 6, abb_except = NULL, 
