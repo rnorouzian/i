@@ -925,7 +925,7 @@ interactive_outlier <- function(fit, cook = NULL, st_del_res_z = NULL,
 }   
 # H=================================================================================================================================================
 
-term_names <- function(post_rma_fit, sep = get_emm_option("sep")){
+term_names_ <- function(post_rma_fit, sep = get_emm_option("sep")){
   
 if(!inherits(post_rma_fit, c("post_rma","contrast_rma"))) stop("post_rma_fit is not 'post_rma()' or 'contrast_rma()'.", call. = FALSE)  
   
