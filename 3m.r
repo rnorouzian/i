@@ -2107,7 +2107,7 @@ con_rma <- function(post_rma_fit, method, type,
 contrast_rma <- function(post_rma_fit, con_list, ...)
 {
   
-  if(is.numeric(con_list)) con_list <- list(unnamed = con_list)
+  if(is.numeric(con_list)) con_list <- list(con_list)
   
   con_methods <- c("pairwise","revpairwise","tukey","consec",
                    "poly","trt.vs.ctrl","trt.vs.ctrlk","trt.vs.ctrl1",
