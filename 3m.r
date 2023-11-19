@@ -663,7 +663,7 @@ UN_cor_fixer <- function(data, inner, outer, min_cooccur=3) {
                                
 # M===============================================================================================================================                               
 
-meta_tree <- function(data, ..., effect = TRUE, highest_level_name = NULL,  
+meta_tree2 <- function(data, ..., effect = TRUE, highest_level_name = NULL,  
                       structure = c("simple","typical","complex"), toplab = NULL, 
                       main = NULL, main_extra = NULL, rowcount = FALSE, 
                       abb_names = FALSE, abb_length = 6, abb_except = NULL, 
@@ -810,7 +810,11 @@ meta_tree <- function(data, ..., effect = TRUE, highest_level_name = NULL,
       
     }
     
-    invisible(lapply(list2plot, data.tree_, toplab, cex, rowcount, cex.main = cex_main, main = main, cex_top = cex_top))
+   # invisible(lapply(list2plot, data.tree_, toplab, cex, rowcount, cex.main = cex_main, main = main, cex_top = cex_top))
+    
+    invisible(lapply(seq_along(list2plot), function(i) data.tree_(list2plot[[i]], main = main[i], toplab, cex, rowcount, cex.main = cex_main, cex_top = cex_top)))
+
+    invisible(list2plot)
   }
 }
                         
