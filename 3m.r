@@ -1869,19 +1869,14 @@ prob_rma <- function(post_rma_fit, target_effect = 0, condition = c("or larger",
   specs <- post_rma_fit$specs
   
   digits <- post_rma_fit$digits
-  
+
+  Term <- term_names_(post_rma_fit=post_rma_fit, sep=sep)
+ 
   ems <- if(inherits(post_rma_fit, "post_rma")) post_rma_fit$ems else 
     post_rma_fit$con
   
   post_rma_fit <- type.convert(post_rma_fit$table, as.is=TRUE)
-  
-  disp <- if(is.null(ems@misc$display)) seq_len(nrow(ems@linfct)) else ems@misc$display
-  
-  largs <- as.list(ems@grid[disp, seq_along(ems@levels), drop = FALSE])
-  largs$sep <- sep
-  Term <- do.call(paste, largs)
-  
-  
+
   cond <- match.arg(condition)  
   
   lower.tail <- switch(cond, 
@@ -1968,12 +1963,7 @@ sense_rma <- function(post_rma_fit = NULL, var_name, fit = NULL,
     type. <- post_rma_fit$type.
     specs <- post_rma_fit$specs
     ems <- post_rma_fit$ems
-   
-   disp <- if(is.null(ems@misc$display)) seq_len(nrow(ems@linfct)) else ems@misc$display
-   largs <- as.list(ems@grid[disp, seq_along(ems@levels), drop = FALSE])
-   largs$sep <- sep
-   Term <- do.call(paste, largs)
-      
+    Term <- term_names_(post_rma_fit=post_rma_fit, sep=sep)      
   }
   
   cluster_name <- if(is.null(cluster)) strsplit(fit$s.names,"/",fixed=TRUE)[[1]] else cluster
@@ -2228,12 +2218,7 @@ coef.post_rma <- function(post_rma_fit, ..., sep = get_emm_option("sep")){
     stop("post_rma_fit can be either from 'post_rma()' or 'contrast_rma()'.", call. = FALSE)
   
   ems <- post_rma_fit$ems
-  
-  disp <- if(is.null(ems@misc$display)) seq_len(nrow(ems@linfct)) else ems@misc$display
-  
-  largs <- as.list(ems@grid[disp, seq_along(ems@levels), drop = FALSE])
-  largs$sep <- sep
-  Term <- do.call(paste, largs)
+  Term <- term_names_(post_rma_fit=post_rma_fit, sep=sep)
   
   setNames(predict(ems), Term) 
 } 
@@ -2245,13 +2230,8 @@ coef.contrast_rma <- function(post_rma_fit, ..., sep = get_emm_option("sep")){
   if(!inherits(post_rma_fit, "contrast_rma"))
     stop("post_rma_fit can be either from 'post_rma()' or 'contrast_rma()'.", call. = FALSE)
   
-  ems <- post_rma_fit$con
-  
-  disp <- if(is.null(ems@misc$display)) seq_len(nrow(ems@linfct)) else ems@misc$display
-  
-  largs <- as.list(ems@grid[disp, seq_along(ems@levels), drop = FALSE])
-  largs$sep <- sep
-  Term <- do.call(paste, largs)
+  ems <- post_rma_fit$con 
+ Term <- term_names_(post_rma_fit=post_rma_fit, sep=sep)
   
   setNames(predict(ems), Term) 
 } 
