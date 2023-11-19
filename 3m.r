@@ -2114,9 +2114,23 @@ con_rma <- function(post_rma_fit, method, type,
   return(out)
 }      
 
-#M================================================================================================================================================
-                                
-contrast_rma <- function(post_rma_fit, con_list, ...)
+
+# H================================================================================================================================================
+
+add_signs <- function(post_rma_fit, con_index, sep = get_emm_option("sep")) 
+{
+  
+  term_names <- term_names_(post_rma_fit=post_rma_fit, sep=sep)
+  
+  merged <- paste(ifelse(con_index < 0, '-', '+'), 
+                  term_names[abs(con_index)], 
+                  collapse = sep)
+  sub('^\\+ ', '', merged)
+}                              
+                              
+# M================================================================================================================================================       
+                              
+contrast_rma <- function(post_rma_fit, con_list, ..., auto_name=FALSE, sep=get_emm_option("sep"))
 {
   
   if(is.numeric(con_list)) con_list <- list(con_list)
@@ -2130,8 +2144,27 @@ contrast_rma <- function(post_rma_fit, con_list, ...)
          ".", call. = FALSE)
   
   con_indx <- if(is.list(con_list)) {
+    
+con_list <- if(auto_name) { 
+  
+  sapply(seq_along(con_list), function(i) {
+      
+ nm <- if(is.null(names(con_list)[i]) || names(con_list)[i] == "") { 
+   
+   add_signs(post_rma_fit, con_list[[i]], sep=sep)
+ }
+ else { names(con_list)[i] }
+ 
+    return(setNames(con_list[i], nm))
+    }) 
+  
+  } else 
+      { con_list }
+
     lapply(con_list, contr_rma, post_rma_fit = post_rma_fit)
-  } else { con_list }
+    
+  } else 
+    { con_list }
   
   con_rma(post_rma_fit, con_indx, ...)
 }
