@@ -923,7 +923,22 @@ interactive_outlier <- function(fit, cook = NULL, st_del_res_z = NULL,
   return(list(removed = removed, 
               new_data = new_data))
 }   
+# H=================================================================================================================================================
 
+term_names <- function(post_rma_fit, sep = get_emm_option("sep")){
+  
+if(!inherits(post_rma_fit, c("post_rma","contrast_rma"))) stop("post_rma_fit is not 'post_rma()' or 'contrast_rma()'.", call. = FALSE)  
+  
+ems <- post_rma_fit$ems  
+  
+disp <- if(is.null(ems@misc$display)) seq_len(nrow(ems@linfct)) else ems@misc$display
+largs <- as.list(ems@grid[disp, seq_along(ems@levels), drop = FALSE])
+largs$sep <- sep
+do.call(paste, largs)
+
+}
+
+         
 # H=================================================================================================================================================
 
 fixed_form_rma <- function(fit){ 
