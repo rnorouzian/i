@@ -2100,11 +2100,13 @@ con_rma <- function(post_rma_fit, method, type,
 contrast_rma <- function(post_rma_fit, con_list, ...)
 {
   
+  if(is.numeric(con_list)) con_list <- list(unnamed = con_list)
+  
   con_methods <- c("pairwise","revpairwise","tukey","consec",
                    "poly","trt.vs.ctrl","trt.vs.ctrlk","trt.vs.ctrl1",
                    "dunnett","mean_chg","eff","del.eff","identity")
   
-  if(is.character(con_list) && !con_list %in% con_methods) 
+  if(is.character(con_list) && any(!con_list %in% con_methods)) 
     stop("If not a list, 'con_list' can be one of: ", toString(dQuote(con_methods)),
          ".", call. = FALSE)
   
