@@ -636,6 +636,9 @@ lo_ave_up <- function(var_names, x, vals = NULL, digits = 0){
   
   data <- full_clean(data)
   
+  var_names <- if(is_bare_formula(var_names, lhs=FALSE)) .all.vars(var_names) else if(is.character(var_names)) var_names 
+  else stop("'var_names=' can be either a character vector (ex. "year") or a one-sided formula (ex. ~year).", call. = FALSE)
+  
   if(is.null(vals)){
     sapply(var_names, function(x) 
       round(setNames(mean(data[[x]], na.rm=TRUE) + c(-1, 0, 1)*sd(data[[x]], na.rm=TRUE), 
