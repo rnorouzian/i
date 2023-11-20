@@ -2138,11 +2138,24 @@ add_signs <- function(post_rma_fit, con_index, sep = get_emm_option("sep"))
   
   term_names <- term_names_(post_rma_fit=post_rma_fit, sep=sep)
   
+  uniq <- unique(con_index)
+  uniq_abs <- unique(abs(uniq))
+  same_val <- length(uniq_abs)==1
+  last_sgn <- tail(sign(uniq), 1)
+  
+  if(same_val & last_sgn > 0) return({ 
+    message("Note: No contrast made, only the following coefficient from the EMM table returned.\n")
+    term_names[uniq_abs] }) 
+  
+  if(same_val & last_sgn < 0) return({ 
+    message("Note: No contrast made, only the following 'Estimate' from the EMM table changed sign.\n")
+    paste("*-", term_names[uniq_abs]) })
+  
   merged <- paste(ifelse(con_index < 0, '-', '+'), 
                   term_names[abs(con_index)], 
                   collapse = sep)
   sub('^\\+ ', '', merged)
-}                              
+}                               
                               
 # M================================================================================================================================================       
                               
