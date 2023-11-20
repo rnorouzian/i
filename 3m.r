@@ -2131,11 +2131,11 @@ add_signs <- function(post_rma_fit, con_index, sep = get_emm_option("sep"))
   last_sgn <- tail(sign(uniq), 1)
   
   if(same_val & last_sgn > 0) return({ 
-    message("Note: No contrast made, only the following 'Estimate' from the inputted EMM table returned.\n")
-    term_names[uniq_abs] }) 
+    message("Note: No contrast made, only the starred 'Estimate' from the inputted EMM table returned.\n")
+    paste("*", term_names[uniq_abs]) }) 
   
   if(same_val & last_sgn < 0) return({ 
-    message("Note: No contrast made, only the following 'Estimate' from the inputted EMM table changed sign.\n")
+    message("Note: No contrast made, only the starred 'Estimate' from the inputted EMM table changed sign.\n")
     paste("*-", term_names[uniq_abs]) })
   
   merged <- paste(ifelse(con_index < 0, '-', '+'), 
