@@ -618,15 +618,22 @@ bw <- function(data, cluster_name, var_names){
 
 # M================================================================================================================================
 
-lo_ave_up <- function(x, var_names, vals = NULL, digits = 1){
+lo_ave_up <- function(var_names, x, vals = NULL, digits = 1){
   
-data <- if(inherits(x, c("rma.uni", "rma.mv"))) { get_data_(x) }
-
+  if(missing(x)) {
+    
+    f <- function(x) lo_ave_up(var_names=var_names, x=x, vals=vals, digits=digits)
+    
+    return(f)
+  }
+  
+  data <- if(inherits(x, c("rma.uni", "rma.mv"))) { get_data_(x) }
+  
   else if(inherits(x, c("data.frame","tibble"))){ x } else {
     
     stop("'x' must be either a 'data.frame' or an 'rma.uni'/'rma.mv' object.")
   }
-
+  
   data <- full_clean(data)
   
   if(is.null(vals)){
@@ -1406,7 +1413,7 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
                      block_vars_null = NULL, adjust = "none", mutos_null = FALSE, mutos_contrast = FALSE, compare = FALSE, 
                      plot_pairwise = FALSE, reverse = FALSE, digits = 3, xlab = "Estimated Effect", shift_up = NULL, 
                      shift_down = NULL, drop_rows = NULL, mutos_name = "(M)UTOS Term", drop_cols = NULL, contrast_contrasts=FALSE, 
-                     na.rm = TRUE, robust = FALSE, cluster, show0df = FALSE, sig = TRUE, contr, horiz = TRUE,
+                     na.rm = TRUE, robust = FALSE, cluster, show0df = FALSE, sig = TRUE, contr, horiz = TRUE, at=NULL,
                      get_rows = NULL, get_cols = NULL, df = NULL, tran = NULL, sigma=NULL, data=NULL, round_except=NULL,
                      ...)
 {
@@ -1472,6 +1479,12 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
   
   type. <- if('type' %in% dot_args_nm) dot_args$type else FALSE
   
+ if(!is.null(at)) {
+    
+   at <- if(inherits(at, "function")) at(data_.) else at
+    
+  }
+  
   df. <- if(is.null(df)) {
     
     df_detect(rma.mv_fit)
@@ -1525,17 +1538,17 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
   
   ems <- suppressWarnings(suppressMessages(try(if(is.null(cont_var)){
     
-    if(!isFALSE(tran.)) emmeans(object = fit, specs = specs, infer = infer, adjust = adjust, contr = contr, data = data_., tran = tran., sigma = sigma., df = df., ...)
-    else emmeans(object = fit, specs = specs, infer = infer, adjust = adjust, contr = contr, data = data_., sigma = sigma., df = df., ...)
+    if(!isFALSE(tran.)) emmeans(object = fit, specs = specs, infer = infer, adjust = adjust, contr = contr, data = data_., tran = tran., sigma = sigma., df = df., at=at, ...)
+    else emmeans(object = fit, specs = specs, infer = infer, adjust = adjust, contr = contr, data = data_., sigma = sigma., df = df., at=at, ...)
   } else {
     
     if(!is_contr){ 
       
-      emtrends(object = fit, specs = specs, var = cont_var, infer = infer, adjust = adjust, data = data_., tran = tran., sigma = sigma., df = df., ...)
+      emtrends(object = fit, specs = specs, var = cont_var, infer = infer, adjust = adjust, data = data_., tran = tran., sigma = sigma., df = df., at=at, ...)
       
     } else {
       
-      emtrends(object = fit, specs = specs, var = cont_var, infer = infer, adjust = adjust, contr = contr, data = data_., tran = tran., sigma = sigma., df = df., ...)
+      emtrends(object = fit, specs = specs, var = cont_var, infer = infer, adjust = adjust, contr = contr, data = data_., tran = tran., sigma = sigma., df = df., at=at, ...)
       
     }
     
@@ -1671,7 +1684,7 @@ categorical moderators (a block of them) are equal to their null (e.g., 0).")
   
   class(out) <- "post_rma"
   return(out)
-}                  
+}                 
 
 # M=================================================================================================================================================
 
