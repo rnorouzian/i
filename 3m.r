@@ -618,7 +618,7 @@ bw <- function(data, cluster_name, var_names){
 
 # M================================================================================================================================
 
-lo_ave_up <- function(var_names, x, vals = NULL, digits = 1){
+lo_ave_up <- function(var_names, x, vals = NULL, digits = 0){
   
   if(missing(x)) {
     
