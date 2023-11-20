@@ -2193,7 +2193,7 @@ plot_rma <- function(fit, formula, ylab, CIs=TRUE, PIs=FALSE,
                      linearg = list(linetype = "solid"),
                      cov.reduce = NULL, tran = NULL, 
                      sigma = NULL, df = NULL, at = NULL,
-                     interpolate=FALSE, ...){
+                     interpolate=FALSE, interpolate_length = 150, ...){
   
   if(!inherits(fit, c("post_rma", "rma.mv", "rma.uni"))) stop("fit is not 'post_rma()','rma.mv()' or 'rma.uni()'.", call. = FALSE)
   
@@ -2241,13 +2241,13 @@ plot_rma <- function(fit, formula, ylab, CIs=TRUE, PIs=FALSE,
     
     is_post_rma <- FALSE
     fit <- fit$rma.mv_fit
-    cov.reduce <- if(is.null(cov.reduce) & interpolate) \(x) seq(min(x),max(x),length.out=200) else if(is.null(cov.reduce) & !interpolate) range else cov.reduce
+    cov.reduce <- if(is.null(cov.reduce) & interpolate) \(x) seq(min(x),max(x),length.out=interpolate_length) else if(is.null(cov.reduce) & !interpolate) range else cov.reduce
   }
   
   
   if("cont_var" %in% dot_nms || "var" %in% dot_nms) {
     
-    cov.reduce <- if(is.null(cov.reduce) & interpolate) \(x) seq(min(x),max(x),length.out=200) else if(is.null(cov.reduce) & !interpolate) range else cov.reduce
+    cov.reduce <- if(is.null(cov.reduce) & interpolate) \(x) seq(min(x),max(x),length.out=interpolate_length) else if(is.null(cov.reduce) & !interpolate) range else cov.reduce
     
   } 
   
@@ -2255,8 +2255,8 @@ plot_rma <- function(fit, formula, ylab, CIs=TRUE, PIs=FALSE,
   
   if(missing(ylab)) ylab <- paste0("Effect Size (",as.character(fixed_form_rma(if(is_post_rma) fit$rma.mv_fit else fit))[2],")")
   
-  if(no_ciarg & CIs & interpolate) CIarg <- list(lwd = 3, alpha = 0.05)
-  if(no_piarg & PIs & interpolate) PIarg <- list(lwd = 3, alpha = 0.05)
+  if(no_ciarg & CIs & interpolate) CIarg <- list(lwd = 3, alpha = 0.03)
+  if(no_piarg & PIs & interpolate) PIarg <- list(lwd = 3, alpha = 0.03)
   if(no_linearg & CIs & interpolate||no_linearg & PIs & interpolate) linearg <- list(size=1,alpha=1,linetype = "solid")
   
   fit <- if(!is_post_rma) { 
