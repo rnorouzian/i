@@ -648,20 +648,7 @@ lo_ave_up <- function(var_names, x, vals = NULL, digits = 0){
     setNames(lapply(var_names, function(i) vals), var_names)
   }
 }
-                               
-# H================================================================================================================================
-
-add_signs <- function(post_rma_fit, con_index, sep = get_emm_option("sep")) 
-  {
-  
-  term_names <- term_names_(post_rma_fit=post_rma_fit, sep=sep)
-  
-  merged <- paste(ifelse(con_index < 0, '-', '+'), 
-                  term_names[abs(con_index)], 
-                  collapse = sep)
-  sub('^\\+', '', merged)
-}                    
-                    
+                                                
 # H================================================================================================================================ 
 
 data.tree_ <- function(data, toplab = NULL, cex = 1, rowcount = FALSE, cex_top = 1, ...){
