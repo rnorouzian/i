@@ -2188,12 +2188,12 @@ con_list <- if(auto_name) {
 # M======================================================================================================================================================  
 
 plot_rma <- function(fit, formula, ylab, CIs=TRUE, PIs=FALSE, 
-                      CIarg = list(lwd = .5, alpha = 1), 
-                      PIarg = list(lwd = 1.25, alpha = 0.33),
-                      linearg = list(linetype = "solid"),
-                      cov.reduce = NULL, tran = NULL, 
-                      sigma = NULL, df = NULL, 
-                      interpolate=FALSE, ...){
+                     CIarg = list(lwd = .5, alpha = 1), 
+                     PIarg = list(lwd = 1.25, alpha = 0.33),
+                     linearg = list(linetype = "solid"),
+                     cov.reduce = NULL, tran = NULL, 
+                     sigma = NULL, df = NULL, at = NULL,
+                     interpolate=FALSE, ...){
   
   if(!inherits(fit, c("post_rma", "rma.mv", "rma.uni"))) stop("fit is not 'post_rma()','rma.mv()' or 'rma.uni()'.", call. = FALSE)
   
@@ -2209,6 +2209,15 @@ plot_rma <- function(fit, formula, ylab, CIs=TRUE, PIs=FALSE,
   df. <- if(is.null(df)) {
     if(!is_post_rma) df_detect(fit) else fit$df.
   } else { df }
+  
+  
+  if(!is.null(at)) {
+    
+    data_. <- if(is_post_rma) get_data_(fit$rma.mv_fit) else get_data_(fit)
+    
+    at <- if(inherits(at, "function")) at(data_.) else at
+    
+  }
   
   
   tran. <- if(is.null(tran)) {
@@ -2238,7 +2247,7 @@ plot_rma <- function(fit, formula, ylab, CIs=TRUE, PIs=FALSE,
   
   if("cont_var" %in% dot_nms || "var" %in% dot_nms) {
     
-  cov.reduce <- if(is.null(cov.reduce) & interpolate) \(x) seq(min(x),max(x),length.out=200) else if(is.null(cov.reduce) & !interpolate) range else cov.reduce
+    cov.reduce <- if(is.null(cov.reduce) & interpolate) \(x) seq(min(x),max(x),length.out=200) else if(is.null(cov.reduce) & !interpolate) range else cov.reduce
     
   } 
   
@@ -2252,13 +2261,13 @@ plot_rma <- function(fit, formula, ylab, CIs=TRUE, PIs=FALSE,
   
   fit <- if(!is_post_rma) { 
     
-    ref_grid(rma2gls(fit), cov.reduce = cov.reduce, df = df., sigma = sigma., tran = tran., ...)
+    ref_grid(rma2gls(fit), cov.reduce = cov.reduce, df = df., sigma = sigma., tran = tran., at = at, ...)
     
   } else fit
   
   emmip(object=if(is_post_rma) fit$ems else fit, formula=formula, 
         ylab=ylab, CIs=CIs, PIs=PIs, CIarg=CIarg, PIarg=PIarg,
-        linearg=linearg, cov.reduce=cov.reduce, tran=tran., ...)
+        linearg=linearg, cov.reduce=cov.reduce, tran=tran., at=at, ...)
   
 }
                                 
