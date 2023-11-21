@@ -632,23 +632,27 @@ lo_ave_up <- function(var_names, x, vals = NA, digits = 0){
   var_names <- if(is_bare_formula(var_names, lhs=FALSE)) .all.vars(var_names) else if(is.character(var_names)) var_names 
   else stop("'var_names=' can be either a character vector (ex. 'year') or a one-sided formula (ex. ~year).", call. = FALSE)
   
-  num_var_names <- names(Filter(function(i) is.numeric(i), data[var_names]))
+  num_var_names <- names(Filter(is.numeric, data[var_names]))
   
-  if(all(is.na(vals))) vals <- rep(vals, length(num_var_names))
+  if(all(is.na(vals)) & length(vals) != length(var_names)) vals <- rep(vals, length(var_names))
   
-  out <- ifelse(is.na(vals),
+out <- ifelse(is.na(vals) & var_names %in% num_var_names,
                 
                 sapply(num_var_names, function(x)
                   round(setNames(mean(data[[x]], na.rm=TRUE) + c(-1, 0, 1)*sd(data[[x]], na.rm=TRUE),
                                  paste0(x, c('-1SD', '.Mean', '+1SD'))), digits), simplify = FALSE)
-                ,
+                , 
                 
-                lapply(seq_along(num_var_names), function(i) vals[i])
+              type.convert(lapply(seq_along(var_names), function(i) vals[i]), as.is=TRUE)
                 
   )
   
- if(length(out)==0) NULL else setNames(out, num_var_names)
-  
+out <- if(length(out)==0) NULL else setNames(out, var_names)
+
+out <- Filter(Negate(anyNA), out)
+
+if(all(sapply(out, inherits, "list"))) unlist(out, recursive=FALSE) else out
+
 }
                                                 
 # H================================================================================================================================ 
