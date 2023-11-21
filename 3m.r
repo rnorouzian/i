@@ -631,7 +631,10 @@ lo_ave_up <- function(var_names, x, vals = NA, digits = 0){
   
   var_names <- if(is_bare_formula(var_names, lhs=FALSE)) .all.vars(var_names) else if(is.character(var_names)) var_names 
   else stop("'var_names=' can be either a character vector (ex. 'year') or a one-sided formula (ex. ~year).", call. = FALSE)
-  
+
+idx <- var_names %in% names(data)
+if(!all(idx)) stop(toString(dQuote(var_names[!idx])," not found in the data."), call. = FALSE)
+   
   num_var_names <- names(Filter(is.numeric, data[var_names]))
   
   if(all(is.na(vals)) & length(vals) != length(var_names)) vals <- rep(vals, length(var_names))
