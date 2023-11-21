@@ -1405,7 +1405,7 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
                      block_vars_null = NULL, adjust = "none", mutos_null = FALSE, mutos_contrast = FALSE, compare = FALSE, 
                      plot_pairwise = FALSE, reverse = FALSE, digits = 3, xlab = "Estimated Effect", shift_up = NULL, 
                      shift_down = NULL, drop_rows = NULL, mutos_name = "(M)UTOS Term", drop_cols = NULL, contrast_contrasts=FALSE, 
-                     na.rm = TRUE, robust = FALSE, cluster, show0df = FALSE, sig = TRUE, contr, horiz = TRUE, at=NULL,
+                     na.rm = TRUE, robust = FALSE, cluster, show0df = FALSE, sig = TRUE, contr, horiz = TRUE, at=NULL, at_vals=NA,
                      get_rows = NULL, get_cols = NULL, df = NULL, tran = NULL, sigma=NULL, data=NULL, round_except=NULL,
                      ...)
 {
@@ -1471,12 +1471,17 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
   
   type. <- if('type' %in% dot_args_nm) dot_args$type else FALSE
   
- if(!is.null(at)) {
+
+  if(!is.null(at)) {
     
-   at <- if(inherits(at, "function")) at(data_.) else at
+    at <- if(is_bare_formula(at, lhs=FALSE) || is.character(at)) { 
+        
+      lo_ave_up(at, data_., at_vals)
+       
+    } else at
     
   }
-  
+ 
   df. <- if(is.null(df)) {
     
     df_detect(rma.mv_fit)
@@ -1512,7 +1517,7 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
   fit_org <- fit  
   specs_org <- specs
   
-  if(!is.null(specs) & !is.character(specs) & !is_formula(specs, scoped=TRUE)) {stop("The 'specs' must be either a character or a formula containing '~'.", call.=FALSE)}
+  if(!is.null(specs) & !is.character(specs) & !is_bare_formula(specs)) {stop("The 'specs' must be either a character or a formula containing '~'.", call.=FALSE)}
   
   if(is.null(specs)) {specs <- as.formula(bquote(~.(terms(fit)[[3]])))}
   
@@ -1636,8 +1641,7 @@ categorical moderators (a block of them) are equal to their null (e.g., 0).")
     dplyr::rename(tidyselect::any_of(lookup)) %>% 
     dplyr::select(-tidyselect::any_of("note"))
   
-  # if(!is.null(block_vars_contrast)) out <- filter(out,`Block Term`==paste0(block_vars_contrast, collapse="."))
-  
+
   out <- set_rownames_(out,NULL)
   
   if(p_value){
@@ -1676,7 +1680,7 @@ categorical moderators (a block of them) are equal to their null (e.g., 0).")
   
   class(out) <- "post_rma"
   return(out)
-}                 
+}                                  
 
 # M=================================================================================================================================================
 
@@ -2194,7 +2198,7 @@ plot_rma <- function(fit, formula, ylab, CIs=TRUE, PIs=FALSE,
                      PIarg = list(lwd = 1.25, alpha = 0.33),
                      linearg = list(linetype = "solid"),
                      cov.reduce = NULL, tran = NULL, 
-                     sigma = NULL, df = NULL, at = NULL,
+                     sigma = NULL, df = NULL, at = NULL, at_vals = NA,
                      interpolate=FALSE, interpolate_length = 150, ...){
   
   if(!inherits(fit, c("post_rma", "rma.mv", "rma.uni"))) stop("fit is not 'post_rma()','rma.mv()' or 'rma.uni()'.", call. = FALSE)
@@ -2215,13 +2219,17 @@ plot_rma <- function(fit, formula, ylab, CIs=TRUE, PIs=FALSE,
   
   if(!is.null(at)) {
     
-    data_. <- if(is_post_rma) get_data_(fit$rma.mv_fit) else get_data_(fit)
-    
-    at <- if(inherits(at, "function")) at(data_.) else at
+    at <- if(is_bare_formula(at, lhs=FALSE) || is.character(at)) { 
+      
+data_. <- if(is_post_rma) get_data_(fit$rma.mv_fit) else get_data_(fit)
+
+      lo_ave_up(at, data_., at_vals)
+      
+    } else at
     
   }
   
-  
+
   tran. <- if(is.null(tran)) {
     
     if(!is_post_rma) tran_detect(fit) else fit$tran.
