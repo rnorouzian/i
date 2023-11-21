@@ -616,16 +616,9 @@ bw <- function(data, cluster_name, var_names){
   return(data)
 }
 
-# M================================================================================================================================
+# H================================================================================================================================
 
-lo_ave_up <- function(var_names, x, vals = NULL, digits = 0){
-  
-  if(missing(x)) {
-    
-    f <- function(x) lo_ave_up(var_names=var_names, x=x, vals=vals, digits=digits)
-    
-    return(f)
-  }
+lo_ave_up <- function(var_names, x, vals = NA, digits = 0){
   
   data <- if(inherits(x, c("rma.uni", "rma.mv"))) { get_data_(x) }
   
@@ -639,14 +632,23 @@ lo_ave_up <- function(var_names, x, vals = NULL, digits = 0){
   var_names <- if(is_bare_formula(var_names, lhs=FALSE)) .all.vars(var_names) else if(is.character(var_names)) var_names 
   else stop("'var_names=' can be either a character vector (ex. 'year') or a one-sided formula (ex. ~year).", call. = FALSE)
   
-  if(is.null(vals)){
-    sapply(var_names, function(x) 
-      round(setNames(mean(data[[x]], na.rm=TRUE) + c(-1, 0, 1)*sd(data[[x]], na.rm=TRUE), 
-                     paste0(x, c('-1SD', '.Mean', '+1SD'))), digits), simplify = FALSE) 
-  } else {
-    
-    setNames(lapply(var_names, function(i) vals), var_names)
-  }
+  num_var_names <- names(Filter(function(i) is.numeric(i), data[var_names]))
+  
+  if(all(is.na(vals))) vals <- rep(vals, length(num_var_names))
+  
+  out <- ifelse(is.na(vals),
+                
+                sapply(num_var_names, function(x)
+                  round(setNames(mean(data[[x]], na.rm=TRUE) + c(-1, 0, 1)*sd(data[[x]], na.rm=TRUE),
+                                 paste0(x, c('-1SD', '.Mean', '+1SD'))), digits), simplify = FALSE)
+                ,
+                
+                lapply(seq_along(num_var_names), function(i) vals[i])
+                
+  )
+  
+ if(length(out)==0) NULL else setNames(out, num_var_names)
+  
 }
                                                 
 # H================================================================================================================================ 
