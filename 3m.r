@@ -654,7 +654,7 @@ lo_ave_up <- function(var_names, x, at_vals = NA, digits = 0){
   
   out <- Filter(Negate(anyNA), out)
   
-  if(all(sapply(out, inherits, "list"))) unlist(out, recursive=FALSE) else out
+ lapply(out, function(i) if(inherits(i, "list")) unlist(i, recursive=FALSE) else i)
   
 }
                                                 
