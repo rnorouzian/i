@@ -2141,7 +2141,7 @@ add_signs <- function(post_rma_fit, con_index, sep = get_emm_option("sep"))
   uniq <- unique(con_index)
   uniq_abs <- unique(abs(uniq))
   same_val <- length(uniq_abs)==1
-  last_sgn <- tail(sign(uniq), 1)
+  last_sgn <- tail(sign(con_index), 1)
   
   if(same_val & last_sgn > 0) return({ 
     message("Note: No contrast made for the 'Estimate' with a (??), it returned from the inputted EMM table.\n")
