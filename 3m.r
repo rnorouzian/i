@@ -2155,11 +2155,11 @@ add_signs <- function(post_rma_fit, con_index, sep = get_emm_option("sep"))
     paste("-", term_names[uniq_abs]) })
 
   if(rps & last_sgn > 0) { 
-    message("Note: No contrast made for ", toString(dQuote(unique(term_names[ind_abs[dup]]))) ,", just returned from the inputted EMM table.\n")
+    message("Note: No contrast made for ", toString(dQuote(unique(term_names[ind_abs[dup]]))) ,", just used from the inputted EMM table.\n")
     } 
  
   if(rps & last_sgn < 0) { 
-    message("Note: No contrast made for ", toString(dQuote(unique(term_names[ind_abs[dup]]))), ", just returned with opposite sign from the inputted EMM table.\n")
+    message("Note: No contrast made for ", toString(dQuote(unique(term_names[ind_abs[dup]]))), ", just used with opposite sign from the inputted EMM table.\n")
      }
  
   merged <- paste(ifelse(con_index < 0, '-', '+'), 
