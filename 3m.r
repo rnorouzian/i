@@ -1408,13 +1408,14 @@ smooth_vi <- function(data, study, vi, digits = 8, fun = sd, ylab = "Studies", x
 
 # M=================================================================================================================================================
 
-post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRUE, ci = TRUE, block_vars_contrast = NULL, 
-                     block_vars_null = NULL, adjust = "none", mutos_null = FALSE, mutos_contrast = FALSE, compare = FALSE, 
-                     plot_pairwise = FALSE, reverse = FALSE, digits = 3, xlab = "Estimated Effect", shift_up = NULL, 
-                     shift_down = NULL, drop_rows = NULL, mutos_name = "(M)UTOS Term", drop_cols = NULL, contrast_contrasts=FALSE, 
-                     na.rm = TRUE, robust = FALSE, cluster, show0df = FALSE, sig = TRUE, contr, horiz = TRUE, at=NULL, at_vals=NA,
-                     get_rows = NULL, get_cols = NULL, df = NULL, tran = NULL, sigma=NULL, data=NULL, round_except=NULL,
-                     ...)
+post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRUE, ci = TRUE, mutos_vars_null = NULL, 
+                      mutos_vars_contrast = NULL, block = FALSE, adjust = "none", compare = FALSE, plot_pairwise = FALSE, 
+                      reverse = FALSE, digits = 3, xlab = "Estimated Effect", shift_up = NULL, shift_down = NULL, 
+                      drop_rows = NULL, drop_cols = NULL, contrast_contrasts=FALSE, 
+                      na.rm = TRUE, robust = FALSE, cluster, show0df = FALSE, sig = TRUE, contr, horiz = TRUE, at=NULL, 
+                      at_vals=NA, get_rows = NULL, get_cols = NULL, df = NULL, tran = NULL, sigma=NULL, data=NULL, 
+                      round_except=NULL,
+                      ...)
 {
   
   if(!inherits(fit, c("rma.uni", "rma.mv"))) stop("Model is not 'rma()/rma.mv()'.", call. = FALSE)
@@ -1424,17 +1425,14 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
   
   cl <- match.call()
   
-  if(!is.null(block_vars_contrast)) block_vars_null <- NULL
-  if(!is.null(block_vars_null)) block_vars_contrast <- NULL
-  if(!is.null(block_vars_null) & !is.null(block_vars_contrast)) { 
+  if(!is.null(mutos_vars_contrast)) mutos_vars_null <- NULL
+  if(!is.null(mutos_vars_null)) mutos_vars_contrast <- NULL
+  if(!is.null(mutos_vars_null) & !is.null(mutos_vars_contrast)) { 
     
-    message("Note: Only 'block_vars_null' results are shown.")
-    block_vars_contrast <- NULL
+    message("Note: Only 'mutos_vars_null' results are shown.")
+    mutos_vars_contrast <- NULL
     
   }
-  
-  if(!is.null(block_vars_null)) specs <- block_vars_null
-  if(!is.null(block_vars_contrast)) specs <- block_vars_contrast
   
   data_. <- if(is.null(data)) get_data_(fit) else data
   
@@ -1478,17 +1476,16 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
   
   type. <- if('type' %in% dot_args_nm) dot_args$type else FALSE
   
-
   if(!is.null(at)) {
     
     at <- if(is_bare_formula(at, lhs=FALSE) || is.character(at)) { 
-        
+      
       lo_ave_up(at, data_., at_vals)
-       
+      
     } else at
     
   }
- 
+  
   df. <- if(is.null(df)) {
     
     df_detect(rma.mv_fit)
@@ -1517,16 +1514,15 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
               Df1="df1", Df2="df2","F"="F.ratio",Term="model term",
               Lower="asymp.LCL", Upper="asymp.UCL", z="z.ratio", Ratio = "ratio")
   
-  if(!is.null(block_vars_contrast) || !is.null(block_vars_null)) names(lookup)[13] <- "Block Term"
+  if(!is.null(mutos_vars_contrast) & block || !is.null(mutos_vars_null) & block) names(lookup)[13] <- "Block Term"
+  if(!is.null(mutos_vars_contrast) & !block || !is.null(mutos_vars_null) & !block) names(lookup)[13] <- "(M)UTOS Term"
   
   fit <- rma2gls(fit)
   
-  fit_org <- fit  
-  specs_org <- specs
-  
   if(!is.null(specs) & !is.character(specs) & !is_bare_formula(specs)) {stop("The 'specs' must be either a character or a formula containing '~'.", call.=FALSE)}
   
-  if(is.null(specs)) {specs <- as.formula(bquote(~.(terms(fit)[[3]])))}
+  if(is.null(specs)) specs <- as.formula(bquote(~.(terms(fit)[[3]])))
+  
   
   if(robust) { 
     
@@ -1587,68 +1583,71 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
   
   else {
     
-    if(mutos_contrast) {  
+    if(!is.null(mutos_vars_contrast)) {
       
+mutos_vars_contrast <- if(is_bare_formula(mutos_vars_contrast, lhs=FALSE)) .all.vars(mutos_vars_contrast) else 
+  if(is.character(mutos_vars_contrast)) mutos_vars_contrast      
+      
+      if(!block){
+        
       message("Testing jointly if EMMs for levels of each categorical moderator are equal to each other.")
       
-      fit_used <- if(is.null(specs_org)) ref_grid(fit, tran = tran., sigma = sigma., df = df., ...) else ems
-      
-      joint_tests(fit_used, by = by, adjust = adjust, show0df = show0df, tran = tran., ...)
-      
-    } else if (mutos_null){
-      
-      message("Testing jointly if EMMs for levels of each categorical moderator are equal to their null (e.g., 0).")
-      
-      if(is.null(specs_org)){
+      joint_tests(ems, by = by, adjust = adjust, show0df = show0df, tran = tran., ...)
+     
+       } else {
         
-        zz <- cbind(mod=get_vars_(fit_org,as_fml=FALSE),as.data.frame(map_dfr(get_vars_(fit_org),~emmeans::test(emmeans(ems,.),joint=TRUE))))
-        names(zz)[1] <- mutos_name
-        zz 
+        if(length(mutos_vars_contrast) < 2) stop("A block needs at least two categorical moderators.", call. = FALSE)
         
-      } else { 
+        com <- comb_facs(ems, mutos_vars_contrast)
         
-        zz <- cbind(mod=if(is.character(specs)) specs else as.character(specs)[2],as.data.frame(emmeans::test(ems, joint=TRUE)))
-        names(zz)[1] <- mutos_name
-        zz
+        message("Testing jointly if the EMMs *across* multiple
+categorical moderators (a block of them) are equal to each other.")
+        
+        joint_tests(com)
+        
       }
       
-    } else if(!is.null(block_vars_contrast)){ 
+ 
+    } else if (!is.null(mutos_vars_null)){
+  
+  is_fm <- is_bare_formula(mutos_vars_null, lhs=FALSE)    
+
+mutos_vars_null <- if(is_fm) .all.vars(mutos_vars_null) else 
+  if(is.character(mutos_vars_null)) mutos_vars_null      
       
-      if(length(block_vars_contrast) < 2) stop("A block needs at least two moderators.", call. = FALSE)
+    if(!block){  
+
+      zz <- cbind(mod=mutos_vars_null, as.data.frame(map_dfr(mutos_vars_null,~emmeans::test(emmeans(ems,.),joint=TRUE))))
+      names(zz)[1] <- "(M)UTOS Term"
+      message("Testing jointly if EMMs for levels of each categorical moderator are equal to their null (e.g., 0).")
       
-      com <- comb_facs(ems, block_vars_contrast)
+      zz 
       
-      message("Testing jointly if the EMMs *across* multiple
-categorical moderators (a block of them) are equal to each other.")
+    } else {
       
-      joint_tests(com)
+      if(length(mutos_vars_null) < 2) stop("A block needs at least two categorical moderators.", call. = FALSE)
       
-    } else if(!is.null(block_vars_null)) {
-      
-      if(length(block_vars_null) < 2) stop("A block needs at least two moderators.", call. = FALSE)
-      
-      com <- comb_facs(ems, block_vars_null)
-      
+      zz <- cbind(mod=paste0(mutos_vars_null, collapse="."), as.data.frame(emmeans::test(ems, joint=TRUE)))
+      names(zz)[1] <- "Block Term"
       message("Testing jointly if the EMMs *across* multiple
 categorical moderators (a block of them) are equal to their null (e.g., 0).")
       
-      zz <- cbind(mod=paste0(block_vars_null, collapse="."), as.data.frame(emmeans::test(com, joint=TRUE)))
-      names(zz)[1] <- "Block Term"
       zz
       
-    }
+    }     
+  }
     
     else {
       
       ems
     }
   }
-  
+ 
   out <- as.data.frame(out, adjust = adjust, infer = infer, tran = tran., ...) %>%
     dplyr::rename(tidyselect::any_of(lookup)) %>% 
     dplyr::select(-tidyselect::any_of("note"))
   
-
+  
   out <- set_rownames_(out,NULL)
   
   if(p_value){
