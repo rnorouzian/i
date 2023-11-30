@@ -2143,29 +2143,29 @@ add_signs <- function(post_rma_fit, con_index, sep = get_emm_option("sep"))
   same_val <- length(uniq_abs)==1
   dup <- duplicated(ind_abs)
   rps <- any(dup)
-  if(rps) last_sgn <- tail(sign(con_index[dup|duplicated(ind_abs, fromLast=TRUE)]), 1)
+  last_sgn <- if(rps) tail(sign(con_index[dup|duplicated(ind_abs, fromLast=TRUE)]), 1) else FALSE
   
   if(same_val & last_sgn > 0) return({ 
     message("Note: No contrast made for ", toString(dQuote(unique(term_names[ind_abs[dup]]))) ,", just returned from the inputted EMM table.\n")
     term_names[uniq_abs] }) 
-
+  
   if(same_val & last_sgn < 0) return({ 
     message("Note: No contrast made for ", toString(dQuote(unique(term_names[ind_abs[dup]]))), ", just returned with opposite sign from the inputted EMM table.\n")
     paste("-", term_names[uniq_abs]) })
-
+  
   if(rps & last_sgn > 0) { 
     message("Note: No contrast made for ", toString(dQuote(unique(term_names[ind_abs[dup]]))) ,", just used from the inputted EMM table.\n")
-    } 
- 
+  } 
+  
   if(rps & last_sgn < 0) { 
     message("Note: No contrast made for ", toString(dQuote(unique(term_names[ind_abs[dup]]))), ", just used with opposite sign from the inputted EMM table.\n")
-     }
- 
+  }
+  
   merged <- paste(ifelse(con_index < 0, '-', '+'), 
                   term_names[abs(con_index)], 
                   collapse = sep)
   sub('^\\+ ', '', merged)
-}                               
+}                     
                               
 # M================================================================================================================================================       
                               
