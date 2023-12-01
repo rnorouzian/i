@@ -840,9 +840,9 @@ interactive_outlier <- function(fit, cook = NULL, st_del_res_z = NULL,
                                 cex_add_point = .5, cex_multi_point = 1.2,
                                 whisker_coef = 2.5, cex_text_outlier = .6,
                                 cex_main = .9, parallel = "no", ncpus = 1, 
-                                reestimate = FALSE, save = FALSE, 
-                                file_name_cook = "cooks1",
-                                file_name_res_z = "rstudent1",
+                                reestimate = FALSE, 
+                                file_name_cook = NULL,
+                                file_name_res_z = NULL,
                                 view = 1, pos = 2)
 {
   
@@ -859,7 +859,7 @@ interactive_outlier <- function(fit, cook = NULL, st_del_res_z = NULL,
                                   ncpus = ncpus, 
                                   reestimate = reestimate)
     
-    if(save){
+    if(!is.null(file_name_cook)){
       
       filenm <- paste0(file_name_cook,".rds")
       saveRDS(cook, filenm)
@@ -875,7 +875,9 @@ interactive_outlier <- function(fit, cook = NULL, st_del_res_z = NULL,
                                     ncpus = ncpus, 
                                     reestimate = reestimate)$z
     
-    if(save){
+    st_del_res_z <- setNames(st_del_res_z, seq_along(st_del_res_z))
+    
+    if(!is.null(file_name_res_z)){
       
       filenm <- paste0(file_name_res_z,".rds")
       saveRDS(st_del_res_z, filenm)
@@ -940,7 +942,8 @@ interactive_outlier <- function(fit, cook = NULL, st_del_res_z = NULL,
   
   return(list(removed = removed, 
               new_data = new_data))
-}   
+}      
+  
 # H=================================================================================================================================================
 
 term_names_ <- function(post_rma_fit, sep = get_emm_option("sep")){
