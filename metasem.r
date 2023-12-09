@@ -30,14 +30,14 @@ vcov_match <- function(r_mat, v_mat){
 
 metasem_ <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL, 
                      n_fun=mean, cluster_name=NULL, model.name=NULL,
-                     nearpd=FALSE, tran=NULL, run=TRUE,
+                     nearpd=FALSE, tran=NULL, run=TRUE, weights="proportional",
                      sep="[^[:alnum:]]+", data=NULL, tol=1e-06,
                      std.lv=TRUE, auto.var=TRUE, RAM=NULL, ...){
   
   if(!inherits(rma_fit, "rma.mv")) stop("Model is not 'rma.mv()'.", call. = FALSE)
   
   dat <- if(is.null(data)) get_data_(rma_fit) else data
-
+  
   nm_dat <- names(dat) 
   
   JziLw._ <- if(is.null(rma_fit$formula.yi)) as.character(rma_fit$call$yi) else 
@@ -62,7 +62,7 @@ metasem_ <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
     message(paste0("NOTE: ",dQuote(cl_nm), " was selected as 'cluster_name=' (usually the 'study' variable). If incorrect, please change it.\n"))
     cl_nm
   } else cluster_name
-
+  
   cluster_name <- trimws(cluster_name)
   
   ok1 <- cluster_name %in% nm_dat 
@@ -78,7 +78,8 @@ metasem_ <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
                                              !!sym(cluster_name)), function(i) 
                                                n_fun(unique(i[[n_name]])))) else n
   
-  post <- post_rma(fit=rma_fit, specs=cor_var, tran=tran, type="response", data=data)
+  post <- post_rma(fit=rma_fit, specs=cor_var, tran=tran, type="response", 
+                   weights=weights, data=data)
   
   Rs <- coef(post)
   
@@ -122,22 +123,22 @@ metasem_ <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   if(run) class(out) <- "wls"
   return(out) 
 }
-                                  
+
 # M==============================================================================
-                                  
+
 metasem_3m <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL, 
                        n_fun=mean, cluster_name=NULL, model.name=NULL,
-                       nearpd=FALSE, tran=NULL, run=TRUE,
+                       nearpd=FALSE, tran=NULL, run=TRUE, weights="proportional",
                        sep="[^[:alnum:]]+", moderator=NULL, data=NULL, 
                        std.lv=TRUE, auto.var=TRUE, RAM=NULL, ...){
   
-out <- if(is.null(moderator)) { 
+  out <- if(is.null(moderator)) { 
     
     metasem_(rma_fit=rma_fit, sem_model=sem_model, 
-            n_name=n_name, cor_var=cor_var, n=n, model.name=model.name,
-            n_fun=n_fun, cluster_name=cluster_name, run=run,
-            nearpd=nearpd, tran=tran, sep=sep, data=data, 
-            std.lv=std.lv, auto.var=auto.var, RAM=RAM, ...)
+             n_name=n_name, cor_var=cor_var, n=n, model.name=model.name,
+             n_fun=n_fun, cluster_name=cluster_name, run=run,
+             nearpd=nearpd, tran=tran, sep=sep, data=data, weights=weights,
+             std.lv=std.lv, auto.var=auto.var, RAM=RAM, ...)
     
   } else {
     
@@ -173,12 +174,12 @@ out <- if(is.null(moderator)) {
     
     wls_list <- setNames(lapply(1:length(mod_lvls), 
                                 function(i) try(metasem_(rma_fit=mod_list[[i]], 
-                                                        sem_model=sem_model, 
-                                                        n_name=n_name, cor_var=cor_var, n=n, data=data,
-                                                        n_fun=n_fun, cluster_name=cluster_name, 
-                                                        nearpd=nearpd, tran=tran, sep=sep, run=run,
-                                                        model.name=mod_lvls[i], std.lv=std.lv, 
-                                                        auto.var=auto.var, RAM=RAM, ...=...), silent=TRUE)), mod_lvls)  
+                                                         sem_model=sem_model, 
+                                                         n_name=n_name, cor_var=cor_var, n=n, data=data,
+                                                         n_fun=n_fun, cluster_name=cluster_name, weights=weights,
+                                                         nearpd=nearpd, tran=tran, sep=sep, run=run,
+                                                         model.name=mod_lvls[i], std.lv=std.lv, 
+                                                         auto.var=auto.var, RAM=RAM, ...=...), silent=TRUE)), mod_lvls)  
     
     
     wls_list[sapply(wls_list, inherits, what="try-error")] <- NULL
@@ -198,7 +199,7 @@ out <- if(is.null(moderator)) {
   return(out)
 }
 
-                                
+                               
 # M==============================================================================
 
 plot_sem3m <- function(x, main=NA, reset=TRUE, 
