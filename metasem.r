@@ -47,14 +47,18 @@ metasem_ <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
     as.formula(paste("~",(.all.vars(rma_fit$formula.mods)[1]), collapse = "~"))
   else cor_var
   
-  ok <- as.character(cor_var)[2] %in% nm_dat
-  if(!ok) stop("Select an accurate 'cor_var= ~VARIABLE_NAME' from the data.", call.=FALSE)
+  if(!is_bare_formula(cor_var, lhs=FALSE) || length(.all.vars(cor_var))>1) {
+    stop("Select an accurate formula 'cor_var= ~VARIABLE_NAME' consisting of only 1 variable.", call. = FALSE)
+  }
+  
+  ok <- .all.vars(cor_var) %in% nm_dat
+  if(!ok) stop("'cor_var= ~VARIABLE_NAME' not found in the data.", call.=FALSE)
   
   cr <- is_crossed(rma_fit)
   
   ok <- !any(cr)
   
-  if(!ok & is.null(cluster_name)) stop("Specify the 'cluster_name=' (usually the 'study' variable).", call.=FALSE)
+  if(!ok & is.null(cluster_name)) stop("Specify the 'cluster_name=' (the 'study' variable).", call.=FALSE)
   
   cluster_name <- if(is.null(cluster_name)){ 
     mod_struct <- rma_clusters(rma_fit)
