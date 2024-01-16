@@ -58,7 +58,7 @@ metasem_ <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   
   ok <- !any(cr)
   
-  if(!ok & is.null(cluster_name)) stop("Specify the 'cluster_name=' (the 'study' variable).", call.=FALSE)
+  if(!ok & is.null(cluster_name)) stop("Specify the 'cluster_name=' ('study' variable).", call.=FALSE)
   
   cluster_name <- if(is.null(cluster_name)){ 
     mod_struct <- rma_clusters(rma_fit)
