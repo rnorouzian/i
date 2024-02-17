@@ -1412,13 +1412,13 @@ smooth_vi <- function(data, study, vi, digits = 8, fun = sd, ylab = "Studies", x
 # M=================================================================================================================================================
 
 post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRUE, ci = TRUE, mutos_vars_null = NULL, 
-                      mutos_vars_contrast = NULL, block = FALSE, adjust = "none", compare = FALSE, plot_pairwise = FALSE, 
-                      reverse = FALSE, digits = 3, xlab = "Estimated Effect", shift_up = NULL, shift_down = NULL, 
-                      drop_rows = NULL, drop_cols = NULL, contrast_contrasts=FALSE, 
-                      na.rm = TRUE, robust = FALSE, cluster, show0df = FALSE, sig = TRUE, contr, horiz = TRUE, at=NULL, 
-                      at_vals=NA, get_rows = NULL, get_cols = NULL, df = NULL, tran = NULL, sigma=NULL, data=NULL, 
-                      round_except=NULL,
-                      ...)
+                     mutos_vars_contrast = NULL, block = FALSE, adjust = "none", compare = FALSE, plot_pairwise = FALSE, 
+                     reverse = FALSE, digits = 3, xlab = "Estimated Effect", shift_up = NULL, shift_down = NULL, 
+                     drop_rows = NULL, drop_cols = NULL, contrast_contrasts=FALSE, 
+                     na.rm = TRUE, robust = FALSE, cluster, show0df = FALSE, sig = TRUE, contr, horiz = TRUE, at=NULL, 
+                     at_vals=NA, get_rows = NULL, get_cols = NULL, df = NULL, tran = NULL, sigma=NULL, data=NULL, 
+                     round_except=NULL,
+                     ...)
 {
   
   if(!inherits(fit, c("rma.uni", "rma.mv"))) stop("Model is not 'rma()/rma.mv()'.", call. = FALSE)
@@ -1428,14 +1428,31 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
   
   cl <- match.call()
   
-  if(!is.null(mutos_vars_contrast)) mutos_vars_null <- NULL
-  if(!is.null(mutos_vars_null)) mutos_vars_contrast <- NULL
   if(!is.null(mutos_vars_null) & !is.null(mutos_vars_contrast)) { 
     
     message("Note: Only 'mutos_vars_null' results are shown.")
     mutos_vars_contrast <- NULL
     
   }
+   
+  if(!is.null(mutos_vars_contrast)) { 
+    
+    mutos_vars_null <- NULL 
+  
+    specs <- mutos_vars_contrast <- if(is_bare_formula(mutos_vars_contrast, lhs=FALSE)) 
+      .all.vars(mutos_vars_contrast) else 
+        if(is.character(mutos_vars_contrast)) mutos_vars_contrast
+  }
+  
+  if(!is.null(mutos_vars_null)) { 
+    
+    mutos_vars_contrast <- NULL 
+    
+    specs <- mutos_vars_null <- if(is_bare_formula(mutos_vars_null, lhs=FALSE)) .all.vars(mutos_vars_null) else 
+      if(is.character(mutos_vars_null)) mutos_vars_null
+    
+    }
+  
   
   data_. <- if(is.null(data)) get_data_(fit) else data
   
@@ -1588,16 +1605,16 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
     
     if(!is.null(mutos_vars_contrast)) {
       
-mutos_vars_contrast <- if(is_bare_formula(mutos_vars_contrast, lhs=FALSE)) .all.vars(mutos_vars_contrast) else 
-  if(is.character(mutos_vars_contrast)) mutos_vars_contrast      
+      mutos_vars_contrast <- if(is_bare_formula(mutos_vars_contrast, lhs=FALSE)) .all.vars(mutos_vars_contrast) else 
+        if(is.character(mutos_vars_contrast)) mutos_vars_contrast      
       
       if(!block){
         
-      message("Testing jointly if EMMs for levels of each categorical moderator are equal to each other.")
-      
-      joint_tests(ems, by = by, adjust = adjust, show0df = show0df, tran = tran., ...)
-     
-       } else {
+        message("Testing jointly if EMMs for levels of each categorical moderator are equal to each other.")
+        
+        joint_tests(ems, by = by, adjust = adjust, show0df = show0df, tran = tran., ...)
+        
+      } else {
         
         if(length(mutos_vars_contrast) < 2) stop("A block needs at least two categorical moderators.", call. = FALSE)
         
@@ -1610,42 +1627,42 @@ categorical moderators (a block of them) are equal to each other.")
         
       }
       
- 
+      
     } else if (!is.null(mutos_vars_null)){
-  
-  is_fm <- is_bare_formula(mutos_vars_null, lhs=FALSE)    
-
-mutos_vars_null <- if(is_fm) .all.vars(mutos_vars_null) else 
-  if(is.character(mutos_vars_null)) mutos_vars_null      
       
-    if(!block){  
-
-      zz <- cbind(mod=mutos_vars_null, as.data.frame(map_dfr(mutos_vars_null,~emmeans::test(emmeans(ems,.),joint=TRUE))))
-      names(zz)[1] <- "(M)UTOS Term"
-      message("Testing jointly if EMMs for levels of each categorical moderator are equal to their null (e.g., 0).")
+      is_fm <- is_bare_formula(mutos_vars_null, lhs=FALSE)    
       
-      zz 
+      mutos_vars_null <- if(is_fm) .all.vars(mutos_vars_null) else 
+        if(is.character(mutos_vars_null)) mutos_vars_null      
       
-    } else {
-      
-      if(length(mutos_vars_null) < 2) stop("A block needs at least two categorical moderators.", call. = FALSE)
-      
-      zz <- cbind(mod=paste0(mutos_vars_null, collapse="."), as.data.frame(emmeans::test(ems, joint=TRUE)))
-      names(zz)[1] <- "Block Term"
-      message("Testing jointly if the EMMs *across* multiple
+      if(!block){  
+        
+        zz <- cbind(mod=mutos_vars_null, as.data.frame(map_dfr(mutos_vars_null,~emmeans::test(emmeans(ems,.),joint=TRUE))))
+        names(zz)[1] <- "(M)UTOS Term"
+        message("Testing jointly if EMMs for levels of each categorical moderator are equal to their null (e.g., 0).")
+        
+        zz 
+        
+      } else {
+        
+        if(length(mutos_vars_null) < 2) stop("A block needs at least two categorical moderators.", call. = FALSE)
+        
+        zz <- cbind(mod=paste0(mutos_vars_null, collapse="."), as.data.frame(emmeans::test(ems, joint=TRUE)))
+        names(zz)[1] <- "Block Term"
+        message("Testing jointly if the EMMs *across* multiple
 categorical moderators (a block of them) are equal to their null (e.g., 0).")
-      
-      zz
-      
-    }     
-  }
+        
+        zz
+        
+      }     
+    }
     
     else {
       
       ems
     }
   }
- 
+  
   out <- as.data.frame(out, adjust = adjust, infer = infer, tran = tran., ...) %>%
     dplyr::rename(tidyselect::any_of(lookup)) %>% 
     dplyr::select(-tidyselect::any_of("note"))
