@@ -1415,7 +1415,7 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
                      mutos_vars_contrast = NULL, block = FALSE, adjust = "none", compare = FALSE, plot_pairwise = FALSE, 
                      reverse = FALSE, digits = 3, xlab = "Estimated Effect", shift_up = NULL, shift_down = NULL, 
                      drop_rows = NULL, drop_cols = NULL, contrast_contrasts=FALSE, 
-                     na.rm = FALSE, robust = FALSE, cluster, show0df = FALSE, sig = TRUE, contr, horiz = TRUE, at=NULL, 
+                     na.rm = TRUE, robust = FALSE, cluster, show0df = FALSE, sig = TRUE, contr, horiz = TRUE, at=NULL, 
                      at_vals=NA, get_rows = NULL, get_cols = NULL, df = NULL, tran = NULL, sigma=NULL, data=NULL, 
                      round_except=NULL,
                      ...)
