@@ -1434,11 +1434,11 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
     mutos_vars_contrast <- NULL
     
   }
-   
+  
   if(!is.null(mutos_vars_contrast)) { 
     
     mutos_vars_null <- NULL 
-  
+    
     specs <- mutos_vars_contrast <- if(is_bare_formula(mutos_vars_contrast, lhs=FALSE)) 
       .all.vars(mutos_vars_contrast) else 
         if(is.character(mutos_vars_contrast)) mutos_vars_contrast
@@ -1451,7 +1451,7 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
     specs <- mutos_vars_null <- if(is_bare_formula(mutos_vars_null, lhs=FALSE)) .all.vars(mutos_vars_null) else 
       if(is.character(mutos_vars_null)) mutos_vars_null
     
-    }
+  }
   
   
   data_. <- if(is.null(data)) get_data_(fit) else data
@@ -1689,6 +1689,7 @@ categorical moderators (a block of them) are equal to their null (e.g., 0).")
     }
   }  
   
+  out0 <- out
   if(na.rm) out <- na.omit(out)
   
   out <- roundi(out, digits = digits, except = round_except)
@@ -1701,12 +1702,12 @@ categorical moderators (a block of them) are equal to their null (e.g., 0).")
   if(!is.null(drop_cols)) out <- dplyr::select(out, -tidyselect::all_of(drop_cols))
   if(!is.null(get_cols)) out <- dplyr::select(out, tidyselect::all_of(get_cols))
   
-  out <- list(table = out, specs = specs, call = cl, fit = fit, rma.mv_fit = rma.mv_fit, ems = ems,
+  out <- list(table = out, table0 = out0, specs = specs, call = cl, fit = fit, rma.mv_fit = rma.mv_fit, ems = ems,
               tran. = tran., type. = type., df. = df., sigma. = sigma., digits = digits)
   
   class(out) <- "post_rma"
   return(out)
-}                                  
+}                                 
 
 # M=================================================================================================================================================
 
@@ -1893,7 +1894,7 @@ contr_rma <- function(post_rma_fit, contr_index){
   
   if(!inherits(post_rma_fit, "post_rma")) stop("post_rma_fit is not 'post_rma()'.", call. = FALSE)
   
-  post_rma_fit <- post_rma_fit$table
+  post_rma_fit <- post_rma_fit$table0
   
   ind <- rep(0, nrow(post_rma_fit))
   
