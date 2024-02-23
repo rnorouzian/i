@@ -2091,7 +2091,7 @@ sense_rma <- function(post_rma_fit = NULL, var_name, fit = NULL,
     axis(1, at = axTicks(1), labels = xaxis_lab, ...)
   }  
   out <- rbind(output, Total_variation_in_SD = total_hetros)
-  out <- cbind(out, sd = apply(out, 1, sd))
+  out <- cbind(out, sd = apply(out, 1, sd, na.rm = TRUE))
   na.omit(roundi(rownames_to_column(out, "Term"), digits = digits))
 } 
                                               
