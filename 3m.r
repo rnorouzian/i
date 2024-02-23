@@ -2467,46 +2467,51 @@ r2z_tran <- list(
 )                                        
 # M=================================================================================================================================================
 
-con_gain_list <- function(post_rma_fit, pretest_name = "baseline", 
-         posttest_base_name = "posttest", dif_gain = FALSE,
-         posttest_suffix = "\\d+", sep = get_emm_option("sep")){
-
-tms <- unlist(strsplit(term_names_(post_rma_fit), split = sep)) 
+con_gain_list <- function(post_rma_fit, pretest_name = "baseline", brief=FALSE,
+                          posttest_base_name = "posttest", dif_gain = FALSE,
+                          posttest_suffix = "\\d+", sep = get_emm_option("sep")){
   
-specs <- post_rma_fit$specs 
-
-if(!pretest_name %in% tms) stop("Wrong 'pretest_name='.", call. = FALSE)
-if(!posttest_base_name %in% str_remove(tms, posttest_suffix)) stop("Wrong 'posttest_base_name=' or 'posttest_suffix'.", call. = FALSE)
-
-varis <- if(is_bare_formula(specs, lhs=FALSE)) 
+  tms <- unlist(strsplit(term_names_(post_rma_fit), split = sep)) 
+  
+  specs <- post_rma_fit$specs 
+  
+  if(!pretest_name %in% tms) stop("Wrong 'pretest_name='.", call. = FALSE)
+  if(!posttest_base_name %in% str_remove(tms, posttest_suffix)) stop("Wrong 'posttest_base_name=' or 'posttest_suffix'.", call. = FALSE)
+  
+  varis <- if(is_bare_formula(specs, lhs=FALSE)) 
     .all.vars(specs) else 
       if(is.character(specs)) specs else stop("Only models with '~moderator1 * moderator2' are acceptable.", call. = FALSE)
-
-if(length(varis) > 2) stop("Only models with TWO interacting variables are acceptable.", call. = FALSE)
   
-tab <- type.convert(post_rma_fit$table0, as.is=TRUE)[varis]
-
-DATA <- mutate(tab, Variables = apply(tab, 1, paste, collapse="_"),
-               Row = 1:nrow(tab))
-
-gain <- DATA %>%
-  filter(!endsWith(Variables, pretest_name)) %>%
-  mutate(Variables2 = sub(paste0(posttest_base_name,posttest_suffix), pretest_name, Variables),
-         Variables = paste0("(", Variables, " - ", Variables2, ")")) %>%
-  right_join(filter(DATA, endsWith(Variables, pretest_name)), 
-             by = c("Variables2" = "Variables"), suffix = c("_post", "_pre")) %>%
-  group_by(Variables) %>%
-  summarize(Variables, Row = list(c(Row_post, -Row_pre))) %>%
-  tibble::deframe()
-
-if(dif_gain){
-do.call(c, combn(length(gain), 2, 
-                 FUN = function(i)
-                   setNames(list(c(gain[[i[1]]], -gain[[i[2]]])),
-                            paste(names(gain)[i], collapse = " - ")), 
-                 simplify = FALSE))
-} else { gain }
-
+  if(length(varis) != 2) stop("Only models with TWO interacting variables are acceptable.", call. = FALSE)
+  
+  tab <- type.convert(post_rma_fit$table0, as.is=TRUE)[varis]
+  
+  DATA <- mutate(tab, Variables = apply(tab, 1, paste, collapse="_"),
+                 Row = 1:nrow(tab))
+  
+  gain <- DATA %>%
+    filter(!endsWith(Variables, pretest_name)) %>%
+    mutate(Variables2 = sub(paste0(posttest_base_name,posttest_suffix), pretest_name, Variables),
+           Variables = paste0("(", Variables, " - ", Variables2, ")")) %>%
+    right_join(filter(DATA, endsWith(Variables, pretest_name)), 
+               by = c("Variables2" = "Variables"), suffix = c("_post", "_pre")) %>%
+    group_by(Variables) %>%
+    summarize(Variables, Row = list(c(Row_post, -Row_pre))) %>%
+    tibble::deframe()
+  
+if(brief){  
+ nms <- sub("^.([^_]+)\\D+(\\d+).*", "Gain\\2(\\1)", names(gain))
+gain <- setNames(gain, nms)
+}
+  
+  if(dif_gain){
+    do.call(c, combn(length(gain), 2, 
+                     FUN = function(i)
+                       setNames(list(c(gain[[i[1]]], -gain[[i[2]]])),
+                                paste(names(gain)[i], collapse = " - ")), 
+                     simplify = FALSE))
+  } else { gain }
+  
 }
 #======================== WCF Meta Dataset ======================================================================================================                
 
