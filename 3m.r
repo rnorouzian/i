@@ -2468,8 +2468,10 @@ r2z_tran <- list(
 # M=================================================================================================================================================
 
 con_gain_list <- function(post_rma_fit, pretest_name = "baseline", brief=FALSE,
-                          posttest_base_name = "posttest", dif_gain = FALSE,
-                          posttest_suffix = "\\d+", sep = get_emm_option("sep")){
+                          posttest_base_name = "posttest", gain_dif = FALSE, 
+                          same_gain_dif=FALSE,
+                          posttest_suffix = "\\d+", 
+                          sep = get_emm_option("sep")){
   
   tms <- unlist(strsplit(term_names_(post_rma_fit), split = sep)) 
   
@@ -2499,17 +2501,30 @@ con_gain_list <- function(post_rma_fit, pretest_name = "baseline", brief=FALSE,
     summarize(Variables, Row = list(c(Row_post, -Row_pre))) %>%
     tibble::deframe()
   
-if(brief){  
- nms <- sub("^.([^_]+)\\D+(\\d+).*", "Gain\\2(\\1)", names(gain))
-gain <- setNames(gain, nms)
-}
+  if(brief){  
+    nms <- sub("^.([^_]+)\\D+(\\d+).*", "Gain\\2(\\1)", names(gain))
+    gain <- setNames(gain, nms)
+  }
   
-  if(dif_gain){
-    do.call(c, combn(length(gain), 2, 
+  
+  if(gain_dif){
+    
+   gd_ <- do.call(c, combn(length(gain), 2, 
                      FUN = function(i)
                        setNames(list(c(gain[[i[1]]], -gain[[i[2]]])),
                                 paste(names(gain)[i], collapse = " - ")), 
                      simplify = FALSE))
+    
+    if(same_gain_dif & brief){
+      
+  samegain <- strcapture("Gain([0-9]+).*Gain([0-9]+)", names(gd_), list(g1=0L, g2=0L)) %>% 
+        with(g1 == g2)
+  
+  gd_[samegain]
+  
+    } else { gd_ }
+      
+      
   } else { gain }
   
 }
