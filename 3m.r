@@ -1689,7 +1689,7 @@ categorical moderators (a block of them) are equal to their null (e.g., 0).")
     }
   }  
   
-  out0 <- out
+  out0 <- roundi(out, digits = digits, except=round_except)
   if(na.rm) out <- na.omit(out)
   
   out <- roundi(out, digits = digits, except = round_except)
@@ -2137,12 +2137,14 @@ con_rma <- function(post_rma_fit, method, type,
       
       out <- tibble::add_column(out, Sig. = Signif, .after = "p-value")
     }
-  }  
+  } 
+
+  out0 <- roundi(out, digits = digits, except=round_except)
   if(na.rm) out <- na.omit(out)
   
   out <- roundi(out, digits = digits, except=round_except)
   
-  out <- list(table = out, specs = post_rma_fit$specs, call = post_rma_fit$call, fit = post_rma_fit$fit, rma.mv_fit = post_rma_fit$rma.mv_fit, ems = post_rma_fit$ems,
+  out <- list(table = out, table0 = out0, specs = post_rma_fit$specs, call = post_rma_fit$call, fit = post_rma_fit$fit, rma.mv_fit = post_rma_fit$rma.mv_fit, ems = post_rma_fit$ems,
               tran. = post_rma_fit$tran., type. = post_rma_fit$type., con = con, digits = digits)
   
   class(out) <- "contrast_rma"
