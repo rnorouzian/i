@@ -946,18 +946,20 @@ interactive_outlier <- function(fit, cook = NULL, st_del_res_z = NULL,
   
 # H=================================================================================================================================================
 
-term_names_ <- function(post_rma_fit, sep = get_emm_option("sep")){
+term_names_ <- function(post_rma_fit, sep = get_emm_option("sep"), na.rm =TRUE){
   
   if(!inherits(post_rma_fit, c("post_rma","contrast_rma"))) stop("post_rma_fit is not 'post_rma()' or 'contrast_rma()'.", call. = FALSE)  
   
   ems <- if(inherits(post_rma_fit, "post_rma")) post_rma_fit$ems else 
     post_rma_fit$con 
   
-  disp <- if(is.null(ems@misc$display)) seq_len(nrow(ems@linfct)) else ems@misc$display
-  largs <- as.list(ems@grid[disp, seq_along(ems@levels), drop = FALSE])
-  largs$sep <- sep
-  do.call(paste, largs)
+  if(na.rm) nas <- is.na(predict(ems))
   
+   disp <- if(is.null(ems@misc$display)) seq_len(nrow(ems@linfct)) else ems@misc$display
+   if(na.rm) disp <- disp[!nas]
+   largs <- as.list(ems@grid[disp, seq_along(ems@levels), drop = FALSE])
+   largs$sep <- sep
+   do.call(paste, largs)  
 }       
 # H=================================================================================================================================================
 
@@ -1904,10 +1906,11 @@ contr_rma <- function(post_rma_fit, contr_index){
 
 #===================================================================================================================================================
 
-prob_rma <- function(post_rma_fit, target_effect = 0, condition = c("or larger", "or smaller"), gain = FALSE, ..., sep = get_emm_option("sep")){
+prob_rma <- function(post_rma_fit, target_effect = 0, condition = c("or larger", "or smaller"), 
+                     gain = FALSE, ..., sep = get_emm_option("sep")){
   
-  Term <- term_names_(post_rma_fit=post_rma_fit, sep=sep)
-
+  Term <- term_names_(post_rma_fit=post_rma_fit, sep=sep, na.rm = TRUE)
+  
   fit <- post_rma_fit$rma.mv_fit
   
   if(fit$withG || fit$withH || fit$withR) stop("These models not yet supported.", call. = FALSE)
@@ -1915,7 +1918,7 @@ prob_rma <- function(post_rma_fit, target_effect = 0, condition = c("or larger",
   specs <- post_rma_fit$specs
   
   digits <- post_rma_fit$digits
-    
+  
   ems <- if(inherits(post_rma_fit, "post_rma")) post_rma_fit$ems else 
     post_rma_fit$con
   
