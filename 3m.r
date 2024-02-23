@@ -2482,9 +2482,9 @@ con_gain_list <- function(post_rma_fit, pretest_name = "baseline", brief=FALSE,
   
   varis <- if(is_bare_formula(specs, lhs=FALSE)) 
     .all.vars(specs) else 
-      if(is.character(specs)) specs else stop("Only models with '~moderator1 * moderator2' are acceptable.", call. = FALSE)
+      if(is.character(specs)) specs else stop("Only models with '~moderator * Time' are acceptable.", call. = FALSE)
   
-  if(length(varis) != 2) stop("Only models with TWO interacting variables are acceptable.", call. = FALSE)
+  if(length(varis) != 2) stop("Only models with TWO interacting variables (~moderator * Time) are acceptable.", call. = FALSE)
   
   tab <- type.convert(post_rma_fit$table0, as.is=TRUE)[varis]
   
