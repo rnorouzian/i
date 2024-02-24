@@ -2094,10 +2094,9 @@ sense_rma <- function(post_rma_fit = NULL, var_name, fit = NULL,
   }  
   
   out <- na.omit(rbind(output, Total_variation_in_SD = total_hetros))
-  
-  rate <- unname(apply(out, 1, \(i) coef(lm(i~r))[2]))
-  
-  out <- cbind(out, sd = apply(out, 1, sd, na.rm = TRUE), change_rate=rate)
+    
+  out <- cbind(out, sd =apply(out, 1, sd), change_rate =apply(out, 1, function(i) coef(lm(i~r))[2]))
+
   roundi(rownames_to_column(out, "Term"), digits = digits)
 } 
                                               
