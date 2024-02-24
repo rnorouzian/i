@@ -2031,13 +2031,14 @@ sense_rma <- function(post_rma_fit = NULL, var_name, fit = NULL,
     
     par(mfrow = c(2,1), mgp = c(1.5, 0.14, 0), mar = c(1.5, 2.6, 1.5, .5), 
         tck = -0.02)
+
   }  
   
   output <- if(regression){
     
     fixed_eff_list <- lapply(model_list, function(i) setNames(coef(summary(i))$estimate, rownames(fit$b)))
     
-    if(plot_coef){    
+    if(plot_coef){  
       
       matplot(t(as.data.frame(fixed_eff_list)), type = "l", xaxt = "n", ylab = "Estimates", ...)
       
@@ -2070,7 +2071,7 @@ sense_rma <- function(post_rma_fit = NULL, var_name, fit = NULL,
       
       matplot(t(as.data.frame(post_rma_list)), type = 'l', xaxt = "n", ylab = "Mean Effect", xlab = NA,...)
       
-      axis(1, at = axTicks(1), labels = xaxis_lab,...)
+      axis(1, at = axTicks(1), labels = xaxis_lab, ...)
       
       mn <- mean(seq_len(length(post_rma_list)))
       
@@ -2090,8 +2091,12 @@ sense_rma <- function(post_rma_fit = NULL, var_name, fit = NULL,
     plot(total_hetros, type = "l", ylim = rng+c(-mrng,mrng), xaxt = "n", xlab = NA, ylab = "Total Variation (SD)",...)
     axis(1, at = axTicks(1), labels = xaxis_lab, ...)
   }  
+  
   out <- na.omit(rbind(output, Total_variation_in_SD = total_hetros))
-  out <- cbind(out, sd = apply(out, 1, sd, na.rm = TRUE))
+  
+  rate <- unname(apply(out, 1, \(i) coef(lm(i~c(1:ncol(out))))[2]))
+  
+  out <- cbind(out, sd = apply(out, 1, sd, na.rm = TRUE), change_rate=rate)
   roundi(rownames_to_column(out, "Term"), digits = digits)
 } 
                                               
