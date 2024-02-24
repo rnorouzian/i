@@ -2005,12 +2005,12 @@ sense_rma <- function(post_rma_fit = NULL, var_name, fit = NULL,
   }   
   
   if(!is.null(post_rma_fit)){
-
+    
     tran. <- post_rma_fit$tran.
     type. <- post_rma_fit$type.
     specs <- post_rma_fit$specs
     ems <- post_rma_fit$ems
-    Term <- term_names_(post_rma_fit=post_rma_fit, sep=sep)      
+    Term <- term_names_(post_rma_fit=post_rma_fit, sep=sep, na.rm=FALSE)      
   }
   
   cluster_name <- if(is.null(cluster)) strsplit(fit$s.names,"/",fixed=TRUE)[[1]] else cluster
@@ -2023,11 +2023,11 @@ sense_rma <- function(post_rma_fit = NULL, var_name, fit = NULL,
   
   total_hetros <- sapply(model_list, function(i) sqrt(sum(i$sigma2)))
   
+  graphics.off()
+  org.par <- par(no.readonly = TRUE)
+  on.exit(par(org.par))
+  
   if(plot_coef & plot_hetro){
-    
-    graphics.off()
-    org.par <- par(no.readonly = TRUE)
-    on.exit(par(org.par))
     
     par(mfrow = c(2,1), mgp = c(1.5, 0.14, 0), mar = c(1.5, 2.6, 1.5, .5), 
         tck = -0.02)
@@ -2090,9 +2090,9 @@ sense_rma <- function(post_rma_fit = NULL, var_name, fit = NULL,
     plot(total_hetros, type = "l", ylim = rng+c(-mrng,mrng), xaxt = "n", xlab = NA, ylab = "Total Variation (SD)",...)
     axis(1, at = axTicks(1), labels = xaxis_lab, ...)
   }  
-  out <- rbind(output, Total_variation_in_SD = total_hetros)
+  out <- na.omit(rbind(output, Total_variation_in_SD = total_hetros))
   out <- cbind(out, sd = apply(out, 1, sd, na.rm = TRUE))
-  na.omit(roundi(rownames_to_column(out, "Term"), digits = digits))
+  roundi(rownames_to_column(out, "Term"), digits = digits)
 } 
                                               
 
