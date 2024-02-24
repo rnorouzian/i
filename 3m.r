@@ -2023,15 +2023,16 @@ sense_rma <- function(post_rma_fit = NULL, var_name, fit = NULL,
   
   total_hetros <- sapply(model_list, function(i) sqrt(sum(i$sigma2)))
   
+
+  if(plot_coef & plot_hetro){
+    
   graphics.off()
   org.par <- par(no.readonly = TRUE)
   on.exit(par(org.par))
   
-  if(plot_coef & plot_hetro){
-    
     par(mfrow = c(2,1), mgp = c(1.5, 0.14, 0), mar = c(1.5, 2.6, 1.5, .5), 
         tck = -0.02)
-
+    
   }  
   
   output <- if(regression){
