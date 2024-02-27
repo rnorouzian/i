@@ -2472,7 +2472,8 @@ r2z_tran <- list(
   name = "r2z"
 )                                        
 # M=================================================================================================================================================
-
+# Requires posttest_base_name followed by a number with no space
+                                                                               
 con_gain_list <- function(post_rma_fit, pretest_name = "baseline", brief=FALSE,
                           posttest_base_name = "posttest", gain_dif = FALSE, 
                           gain_dif_type = c("all","same","different"),
