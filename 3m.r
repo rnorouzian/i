@@ -2475,13 +2475,16 @@ r2z_tran <- list(
 
 con_gain_list <- function(post_rma_fit, pretest_name = "baseline", brief=FALSE,
                           posttest_base_name = "posttest", gain_dif = FALSE, 
-                          same_gain_dif=FALSE,
-                          posttest_suffix = "\\d+", 
+                          gain_dif_type = c("all","same","different"),
                           sep = get_emm_option("sep")){
   
   tms <- unlist(strsplit(term_names_(post_rma_fit), split = sep)) 
   
   specs <- post_rma_fit$specs 
+  
+  cond <- match.arg(gain_dif_type) 
+  
+  posttest_suffix <- "\\d+"
   
   if(!pretest_name %in% tms) stop("Wrong 'pretest_name='.", call. = FALSE)
   if(!posttest_base_name %in% str_remove(tms, posttest_suffix)) stop("Wrong 'posttest_base_name=' or 'posttest_suffix'.", call. = FALSE)
@@ -2492,45 +2495,53 @@ con_gain_list <- function(post_rma_fit, pretest_name = "baseline", brief=FALSE,
   
   if(length(varis) != 2) stop("Only models with TWO interacting variables (~moderator * Time) are acceptable.", call. = FALSE)
   
-  tab <- type.convert(post_rma_fit$table0, as.is=TRUE)[varis]
+  DAT <- get_data_(post_rma_fit$rma.mv_fit)
+  
+  sec <- names(which(sapply(DAT, function(i) pretest_name %in% i)))
+  
+  varis <- varis[order(varis == sec)]
+
+  tab <- post_rma_fit$table0[varis]
   
   DATA <- mutate(tab, Variables = apply(tab, 1, paste, collapse="_"),
                  Row = 1:nrow(tab))
   
   gain <- DATA %>%
-    filter(!endsWith(Variables, pretest_name)) %>%
+    filter(!grepl(pretest_name, Variables)) %>%
     mutate(Variables2 = sub(paste0(posttest_base_name,posttest_suffix), pretest_name, Variables),
            Variables = paste0("(", Variables, " - ", Variables2, ")")) %>%
-    right_join(filter(DATA, endsWith(Variables, pretest_name)), 
+    right_join(filter(DATA, grepl(pretest_name, Variables)), 
                by = c("Variables2" = "Variables"), suffix = c("_post", "_pre")) %>%
     group_by(Variables) %>%
     summarize(Variables, Row = list(c(Row_post, -Row_pre))) %>%
     tibble::deframe()
   
+  
   if(brief){  
-    nms <- sub("^.([^_]+)\\D+(\\d+).*", "Gain\\2(\\1)", names(gain))
+    nms <- sub(paste0("^.([^_]+)\\D+(", posttest_suffix, ").*"), "Gain\\2(\\1)", names(gain))
     gain <- setNames(gain, nms)
   }
-  
+
   
   if(gain_dif){
     
-   gd_ <- do.call(c, combn(length(gain), 2, 
-                     FUN = function(i)
-                       setNames(list(c(gain[[i[1]]], -gain[[i[2]]])),
-                                paste(names(gain)[i], collapse = " - ")), 
-                     simplify = FALSE))
+    gd_all <- do.call(c, combn(length(gain), 2, 
+                            FUN = function(i)
+                              setNames(list(c(gain[[i[1]]], -gain[[i[2]]])),
+                                       paste(names(gain)[i], collapse = " - ")), 
+                            simplify = FALSE))
     
-    if(same_gain_dif & brief){
+    if(brief){
       
-  samegain <- strcapture("Gain([0-9]+).*Gain([0-9]+)", names(gd_), list(g1=0L, g2=0L)) %>% 
-        with(g1 == g2)
-  
-  gd_[samegain]
-  
-    } else { gd_ }
+      typ <- strcapture("Gain([0-9]+).*Gain([0-9]+)", names(gd_all), list(g1=0L, g2=0L)) 
+   
+      if(cond=="all") { gd_all
+         } else if(cond=="same") { gd_all[with(typ, g1==g2)] 
+      } else { gd_all[with(typ, g1!=g2)] }
       
-      
+    }
+    
+    
   } else { gain }
   
 }
