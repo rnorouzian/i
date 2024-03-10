@@ -2196,42 +2196,49 @@ add_signs <- function(post_rma_fit, con_index, sep = get_emm_option("sep"))
                               
 # M================================================================================================================================================       
                               
-contrast_rma <- function(post_rma_fit, con_list, ..., auto_name=FALSE, sep=get_emm_option("sep"))
+contrast_rma <- function(post_rma_fit, con_list, ..., 
+                         auto_name=FALSE, sep=get_emm_option("sep"))
 {
   
-  if(is.numeric(con_list)) con_list <- list(con_list)
+  if(inherits(post_rma_fit, "gain_list")) {
+    
+    con_list <- post_rma_fit$con_list
+    post_rma_fit <- post_rma_fit$post_rma_fit
+  }
   
+  if(is.numeric(con_list)) con_list <- list(con_list)
+
   con_methods <- c("pairwise","revpairwise","tukey","consec",
                    "poly","trt.vs.ctrl","trt.vs.ctrlk","trt.vs.ctrl1",
                    "dunnett","mean_chg","eff","del.eff","identity")
-  
-  if(is.character(con_list) && any(!con_list %in% con_methods)) 
+
+  if(is.character(con_list) && any(!con_list %in% con_methods))
     stop("If not a list, 'con_list' can be one of: ", toString(dQuote(con_methods)),
          ".", call. = FALSE)
-  
+
   con_indx <- if(is.list(con_list)) {
-    
-con_list <- if(auto_name) { 
-  
-  sapply(seq_along(con_list), function(i) {
-      
- nm <- if(is.null(names(con_list)[i]) || names(con_list)[i] == "") { 
-   
-   add_signs(post_rma_fit, con_list[[i]], sep=sep)
- }
- else { names(con_list)[i] }
- 
-    return(setNames(con_list[i], nm))
-    }) 
-  
-  } else 
-      { con_list }
+
+    con_list <- if(auto_name) {
+
+      sapply(seq_along(con_list), function(i) {
+
+        nm <- if(is.null(names(con_list)[i]) || names(con_list)[i] == "") {
+
+          add_signs(post_rma_fit, con_list[[i]], sep=sep)
+        }
+        else { names(con_list)[i] }
+
+        return(setNames(con_list[i], nm))
+      })
+
+    } else
+    { con_list }
 
     lapply(con_list, contr_rma, post_rma_fit = post_rma_fit)
-    
-  } else 
-    { con_list }
-  
+
+  } else
+  { con_list }
+
   con_rma(post_rma_fit, con_indx, ...)
 }
 
@@ -2501,7 +2508,7 @@ con_gain_list <- function(post_rma_fit, pretest_name = "baseline", brief=FALSE,
   sec <- names(which(sapply(DAT, function(i) pretest_name %in% i)))
   
   varis <- varis[order(varis == sec)]
-
+  
   tab <- post_rma_fit$table0[varis]
   
   DATA <- mutate(tab, Variables = apply(tab, 1, paste, collapse="_"),
@@ -2522,28 +2529,33 @@ con_gain_list <- function(post_rma_fit, pretest_name = "baseline", brief=FALSE,
     nms <- sub(paste0("^.([^_]+)\\D+(", posttest_suffix, ").*"), "Gain\\2(\\1)", names(gain))
     gain <- setNames(gain, nms)
   }
-
   
-  if(gain_dif){
+  
+out <- if(gain_dif){
     
     gd_all <- do.call(c, combn(length(gain), 2, 
-                            FUN = function(i)
-                              setNames(list(c(gain[[i[1]]], -gain[[i[2]]])),
-                                       paste(names(gain)[i], collapse = " - ")), 
-                            simplify = FALSE))
+                               FUN = function(i)
+                                 setNames(list(c(gain[[i[1]]], -gain[[i[2]]])),
+                                          paste(names(gain)[i], collapse = " - ")), 
+                               simplify = FALSE))
     
     if(brief){
       
       typ <- strcapture("Gain([0-9]+).*Gain([0-9]+)", names(gd_all), list(g1=0L, g2=0L)) 
-   
+      
       if(cond=="all") { gd_all
-         } else if(cond=="same") { gd_all[with(typ, g1==g2)] 
+      } else if(cond=="same") { gd_all[with(typ, g1==g2)] 
       } else { gd_all[with(typ, g1!=g2)] }
       
     }
     
     
-  } else { gain }
+} else { gain }
+
+
+res <- list(post_rma_fit = post_rma_fit, con_list = out)
+class(res) <- "gain_list"
+return(res)
   
 }
 #======================== WCF Meta Dataset ======================================================================================================                
