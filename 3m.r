@@ -2197,48 +2197,54 @@ add_signs <- function(post_rma_fit, con_index, sep = get_emm_option("sep"))
 # M================================================================================================================================================       
                               
 contrast_rma <- function(post_rma_fit, con_list, ..., 
-                         auto_name=FALSE, sep=get_emm_option("sep"))
+                         auto_name=FALSE, sep=get_emm_option("sep"),
+                         pretest_name = "baseline", brief=FALSE,
+                         posttest_base_name = "posttest", gain_dif = FALSE, 
+                         gain_dif_type = c("all","same","different"))
 {
   
-  if(inherits(post_rma_fit, "gain_list")) {
+  if(missing(con_list)) {
     
-    con_list <- post_rma_fit$con_list
-    post_rma_fit <- post_rma_fit$post_rma_fit
+    con_list <- con_gain_list(post_rma_fit, pretest_name, 
+                              brief, posttest_base_name, gain_dif, 
+                              gain_dif_type, sep)$con_list
+    
+    
   }
   
   if(is.numeric(con_list)) con_list <- list(con_list)
-
+  
   con_methods <- c("pairwise","revpairwise","tukey","consec",
                    "poly","trt.vs.ctrl","trt.vs.ctrlk","trt.vs.ctrl1",
                    "dunnett","mean_chg","eff","del.eff","identity")
-
+  
   if(is.character(con_list) && any(!con_list %in% con_methods))
     stop("If not a list, 'con_list' can be one of: ", toString(dQuote(con_methods)),
          ".", call. = FALSE)
-
+  
   con_indx <- if(is.list(con_list)) {
-
+    
     con_list <- if(auto_name) {
-
+      
       sapply(seq_along(con_list), function(i) {
-
+        
         nm <- if(is.null(names(con_list)[i]) || names(con_list)[i] == "") {
-
+          
           add_signs(post_rma_fit, con_list[[i]], sep=sep)
         }
         else { names(con_list)[i] }
-
+        
         return(setNames(con_list[i], nm))
       })
-
+      
     } else
     { con_list }
-
+    
     lapply(con_list, contr_rma, post_rma_fit = post_rma_fit)
-
+    
   } else
   { con_list }
-
+  
   con_rma(post_rma_fit, con_indx, ...)
 }
 
