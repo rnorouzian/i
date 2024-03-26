@@ -2564,6 +2564,28 @@ class(res) <- "gain_list"
 return(res)
   
 }
+#================================================================================================================================================
+
+effect_count <- function(data, cluster, ..., arrange_by = NULL){
+  
+   data <- full_clean(data)
+cluster <- rlang::ensym(cluster)
+cat_mod <- rlang::ensyms(...)
+cat_nms <- purrr::map_chr(cat_mod, rlang::as_string)  
+
+idx <- cat_nms %in% names(data)
+if(!all(idx)) stop(toString(dQuote(cat_nms[!idx]))," not found in the 'data'.", call. = FALSE)
+  
+data %>% 
+  count(!!cluster, !!!rlang::syms(cat_nms)) %>% 
+  group_by(!!!rlang::syms(cat_nms)) %>% 
+  summarize(`n study` = n(),
+            `n effect` = sum(n)) %>% 
+   ungroup() %>%  
+  tidyr::complete(!!!rlang::syms(cat_nms), fill = list(`n study` = 0, `n effect` = 0)) %>% 
+  arrange(across(if(is.null(arrange_by)) all_of(cat_nms) else all_of(arrange_by)))
+}                            
+                            
 #======================== WCF Meta Dataset ======================================================================================================                
 
 wcf <- read.csv("https://raw.githubusercontent.com/hkil/m/master/wcf.csv")
