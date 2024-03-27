@@ -528,9 +528,11 @@ cat_pattern <- function(data, cluster, ..., blank_sign = "*"){
   cluster <- rlang::ensym(cluster)
   cat_mod <- rlang::ensyms(...)
   cat_nms <- purrr::map_chr(cat_mod, rlang::as_string)
+  c_nm <- as_string(cluster)
+  nms <- c(c_nm, cat_nms)
   
-  idx <- cat_nms %in% names(data)
-  if(!all(idx)) stop(toString(dQuote(cat_nms[!idx]))," not found in the 'data'.", call. = FALSE)
+  idx <- nms %in% names(data)
+  if(!all(idx)) stop(toString(dQuote(nms[!idx]))," not found in the 'data'.", call. = FALSE)
   
   setNames(purrr::map(cat_mod,  ~ {
     
