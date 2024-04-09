@@ -2202,8 +2202,11 @@ contrast_rma <- function(post_rma_fit, con_list, ...,
                          auto_name=FALSE, sep=get_emm_option("sep"),
                          pretest_name = "baseline", brief=FALSE,
                          posttest_base_name = "posttest", gain_dif = FALSE, 
-                         gain_dif_type = c("all","same","different"))
+                         gain_dif_type = c("all","same","different"),
+                         emm_style=FALSE)
 {
+  
+if(!emm_style){  
   
   if(missing(con_list)) {
     
@@ -2248,6 +2251,12 @@ contrast_rma <- function(post_rma_fit, con_list, ...,
   { con_list }
   
   con_rma(post_rma_fit, con_indx, ...)
+
+} else {
+    
+  con_rma(post_rma_fit, con_list, ...)
+  
+  }
 }
 
 # M======================================================================================================================================================  
