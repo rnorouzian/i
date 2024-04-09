@@ -1020,7 +1020,7 @@ rma2gls <- function(fit){
   rownames(fit$vb)[rownames(fit$vb) %in% "intrcpt"] <- "(Intercept)"
   colnames(fit$vb)[colnames(fit$vb) %in% "intrcpt"] <- "(Intercept)"
   
-  fit2 <- nlme::gls(form_., data = data_., method = fit$method, na.action = "na.omit",
+  fit2 <- nlme::gls(form_., data = data_., na.action = "na.omit",
                     control = glsControl(singular.ok = TRUE))
   
   fit2$call$model <- form_.
