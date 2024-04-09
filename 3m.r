@@ -2194,8 +2194,17 @@ add_signs <- function(post_rma_fit, con_index, sep = get_emm_option("sep"))
                   term_names[abs(con_index)], 
                   collapse = sep)
   sub('^\\+ ', '', merged)
-}                     
-                              
+}              
+                                                              
+# H===============================================================================================================================================
+                                                              
+not.integer_ <- function(x) { 
+  
+  f <- function(y) (abs((y) - floor((y) + .5)) > 1e-7)
+  
+  if(is.list(x)) lapply(x, f) else f(x)
+}
+                                                              
 # M================================================================================================================================================       
                               
 contrast_rma <- function(post_rma_fit, con_list, ..., 
@@ -2206,56 +2215,63 @@ contrast_rma <- function(post_rma_fit, con_list, ...,
                          emm_style=FALSE)
 {
   
-if(!emm_style){  
   
-  if(missing(con_list)) {
+  if(!missing(con_list) & !emm_style) {
     
-    con_list <- con_gain_list(post_rma_fit, pretest_name, 
-                              brief, posttest_base_name, gain_dif, 
-                              gain_dif_type, sep)$con_list
-    
+    emm_style <- any(sapply(not.integer_(con_list), any))
     
   }
   
-  if(is.numeric(con_list)) con_list <- list(con_list)
-  
-  con_methods <- c("pairwise","revpairwise","tukey","consec",
-                   "poly","trt.vs.ctrl","trt.vs.ctrlk","trt.vs.ctrl1",
-                   "dunnett","mean_chg","eff","del.eff","identity")
-  
-  if(is.character(con_list) && any(!con_list %in% con_methods))
-    stop("If not a list, 'con_list' can be one of: ", toString(dQuote(con_methods)),
-         ".", call. = FALSE)
-  
-  con_indx <- if(is.list(con_list)) {
+  if(!emm_style){  
     
-    con_list <- if(auto_name) {
+    if(missing(con_list)) {
       
-      sapply(seq_along(con_list), function(i) {
+      con_list <- con_gain_list(post_rma_fit, pretest_name, 
+                                brief, posttest_base_name, gain_dif, 
+                                gain_dif_type, sep)$con_list
+      
+      
+    }
+    
+    if(is.numeric(con_list)) con_list <- list(con_list)
+    
+    con_methods <- c("pairwise","revpairwise","tukey","consec",
+                     "poly","trt.vs.ctrl","trt.vs.ctrlk","trt.vs.ctrl1",
+                     "dunnett","mean_chg","eff","del.eff","identity")
+    
+    if(is.character(con_list) && any(!con_list %in% con_methods))
+      stop("If not a list, 'con_list' can be one of: ", toString(dQuote(con_methods)),
+           ".", call. = FALSE)
+    
+    con_indx <- if(is.list(con_list)) {
+      
+      con_list <- if(auto_name) {
         
-        nm <- if(is.null(names(con_list)[i]) || names(con_list)[i] == "") {
+        sapply(seq_along(con_list), function(i) {
           
-          add_signs(post_rma_fit, con_list[[i]], sep=sep)
-        }
-        else { names(con_list)[i] }
+          nm <- if(is.null(names(con_list)[i]) || names(con_list)[i] == "") {
+            
+            add_signs(post_rma_fit, con_list[[i]], sep=sep)
+          }
+          else { names(con_list)[i] }
+          
+          return(setNames(con_list[i], nm))
+        })
         
-        return(setNames(con_list[i], nm))
-      })
+      } else
+      { con_list }
+      
+      lapply(con_list, contr_rma, post_rma_fit = post_rma_fit)
       
     } else
     { con_list }
     
-    lapply(con_list, contr_rma, post_rma_fit = post_rma_fit)
+    con_rma(post_rma_fit, con_indx, ...)
     
-  } else
-  { con_list }
-  
-  con_rma(post_rma_fit, con_indx, ...)
-
-} else {
+  } else {
     
-  con_rma(post_rma_fit, con_list, ...)
-  
+    con_rma(post_rma_fit, con_list, ...)
+    
   }
 }
 
