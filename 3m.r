@@ -2198,12 +2198,12 @@ add_signs <- function(post_rma_fit, con_index, sep = get_emm_option("sep"))
                                                               
 # H===============================================================================================================================================
                                                               
-not.integer_ <- function(x) { 
+#not.integer_ <- function(x) { 
   
-  f <- function(y) (abs((y) - floor((y) + .5)) > 1e-7)
+#  f <- function(y) (abs((y) - floor((y) + .5)) > 1e-7)
   
-  if(is.list(x)) lapply(x, f) else f(x)
-}
+#  if(is.list(x)) lapply(x, f) else f(x)
+#}
                                                               
 # M================================================================================================================================================       
                               
@@ -2216,11 +2216,11 @@ contrast_rma <- function(post_rma_fit, con_list, ...,
 {
   
   
-  if(!missing(con_list) & !emm_style) {
+ # if(!missing(con_list) & !emm_style) {
     
-    emm_style <- any(sapply(not.integer_(con_list), any))
+ #   emm_style <- any(sapply(not.integer_(con_list), any))
     
-  }
+ # }
   
   if(!emm_style){  
     
