@@ -2534,7 +2534,7 @@ con_gain_list <- function(post_rma_fit, pretest_name = "baseline", brief=FALSE,
     .all.vars(specs) else 
       if(is.character(specs)) specs else stop("Only models with '~moderator * Time' are acceptable.", call. = FALSE)
   
-  if(length(varis) != 2) stop("Only models with TWO interacting variables (~moderator * Time) are acceptable.", call. = FALSE)
+  if(length(varis) > 2) stop("Only models with no more than TWO interacting variables (~moderator * Time) are acceptable.", call. = FALSE)
   
   DAT <- get_data_(post_rma_fit$rma.mv_fit)
   
