@@ -1920,7 +1920,7 @@ prob_rma <- function(post_rma_fit, target_effect = 0, condition = c("or larger",
   
   fit <- post_rma_fit$rma.mv_fit
   
-  if(fit$withG || fit$withH || fit$withR) stop("These models not yet supported.", call. = FALSE)
+  if(fit$withG || fit$withH || fit$withR || is.null(i$random)) stop("Model not supported.", call. = FALSE)
   
   specs <- post_rma_fit$specs
   
@@ -1976,7 +1976,7 @@ sense_rma <- function(post_rma_fit = NULL, var_name, fit = NULL,
   if(!is.null(fit) & !inherits(fit, "rma.mv")) stop("Model is not 'rma.mv()'.", call. = FALSE)
   if(is.null(fit)) fit <- post_rma_fit$rma.mv_fit
   if(!is.null(post_rma_fit) & !inherits(post_rma_fit, "post_rma")) stop("post_rma_fit is not 'post_rma()'.", call. = FALSE) 
-  if(fit$withG || fit$withH || fit$withR) stop("These models not yet supported.", call. = FALSE)
+  if(fit$withG || fit$withH || fit$withR || is.null(i$random)) stop("Model not supported.", call. = FALSE)
   
   
   dat <- get_data_(fit)
