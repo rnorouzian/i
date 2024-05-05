@@ -1900,7 +1900,9 @@ contr_rma <- function(post_rma_fit, contr_index){
   
   if(!inherits(post_rma_fit, "post_rma")) stop("post_rma_fit is not 'post_rma()'.", call. = FALSE)
   
-  post_rma_fit <- post_rma_fit$table0
+  is_contr <- post_rma_fit$is_contr
+  
+  post_rma_fit <- if(!is_contr) post_rma_fit$table0 else filter(post_rma_fit$table0, Contrast == ".")
   
   ind <- rep(0, nrow(post_rma_fit))
   
