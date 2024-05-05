@@ -1726,9 +1726,9 @@ R2_rma <- function(..., robust = TRUE, digits = 3,
   LL <- list(...)
   if(!all(sapply(LL,inherits,"rma.mv"))) stop("All models must be 'rma.mv()'.", call. = FALSE)
   
-  bad <- sapply(LL, function(i) i$withG || i$withH || i$withR)
+  bad <- sapply(LL, function(i) i$withG || i$withH || i$withR || is.null(i$random))
   
-  if(any(bad)) stop("These models not yet supported.", call. = FALSE)
+  if(any(bad)) stop("Model not supported.", call. = FALSE)
   
   ok <- length(unique(map(LL,~map_chr(strsplit(.$s.names,"/",fixed=TRUE),tail,1))))==1
   
@@ -1754,8 +1754,8 @@ R2_rma <- function(..., robust = TRUE, digits = 3,
   
   z <- function(nm) paste0("Sigma(",nm,")") 
   
-#  on.exit(Sys.setlocale("LC_ALL"))               
-#  Sys.setlocale(locale = "Greek")
+  #  on.exit(Sys.setlocale("LC_ALL"))               
+  #  Sys.setlocale(locale = "Greek")
   
   f <- function(fit){
     
@@ -1802,7 +1802,7 @@ R2_rma <- function(..., robust = TRUE, digits = 3,
   res[res == blk] <- blank_sign
   
   return(res)
-}                                                                        
+}                                                                         
 
 
 # H=================================================================================================================================================
