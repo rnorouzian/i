@@ -1709,7 +1709,7 @@ categorical moderators (a block of them) are equal to their null (e.g., 0).")
   if(!is.null(get_cols)) out <- dplyr::select(out, tidyselect::all_of(get_cols))
   
   out <- list(table = out, table0 = out0, specs = specs, call = cl, fit = fit, rma.mv_fit = rma.mv_fit, ems = ems,
-              tran. = tran., type. = type., df. = df., sigma. = sigma., digits = digits)
+              tran. = tran., type. = type., df. = df., sigma. = sigma., digits = digits, is_contr = is_contr)
   
   class(out) <- "post_rma"
   return(out)
