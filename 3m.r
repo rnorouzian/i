@@ -1920,7 +1920,7 @@ prob_rma <- function(post_rma_fit, target_effect = 0, condition = c("or larger",
   
   fit <- post_rma_fit$rma.mv_fit
   
-  if(fit$withG || fit$withH || fit$withR || is.null(i$random)) stop("Model not supported.", call. = FALSE)
+  if(fit$withG || fit$withH || fit$withR || is.null(fit$random)) stop("Model not supported.", call. = FALSE)
   
   specs <- post_rma_fit$specs
   
