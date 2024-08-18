@@ -2391,7 +2391,7 @@ plot_rma <- function(fit, formula, ylab, CIs=TRUE, PIs=FALSE,
                      linearg = list(linetype = "solid"),
                      cov.reduce = NULL, tran = NULL, 
                      sigma = NULL, df = NULL, at = NULL, at_vals = NA,
-                     interpolate=FALSE, interpolate_length = 150, , dodge=.15, ...){
+                     interpolate=FALSE, interpolate_length = 150, dodge=.15, ...){
   
   if(!inherits(fit, c("post_rma", "rma.mv", "rma.uni"))) stop("fit is not 'post_rma()','rma.mv()' or 'rma.uni()'.", call. = FALSE)
   
