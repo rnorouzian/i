@@ -1910,7 +1910,111 @@ contr_rma <- function(post_rma_fit, contr_index){
   
   return(ind)
 }                
+#===================================================================================================================================================
+## From clubSandwich package kept as the function is get depricated.
+                
+impute_covariance_matrix <-
+function (vi, cluster, r, ti, ar1, smooth_vi = FALSE, subgroup = NULL, 
+          return_list = identical(as.factor(cluster), sort(as.factor(cluster))), 
+          check_PD = TRUE) 
+{
+  cluster <- droplevels(as.factor(cluster))
+  vi_list <- split(vi, cluster)
 
+unblock <- function (A, block = attr(A, "groups")) 
+{
+  if (is.null(block)) 
+    block <- factor(rep(names(A), times = sapply(A, function(x) dim(x)[1])))
+  n <- length(block)
+  mat <- matrix(0, n, n)
+  for (i in levels(block)) {
+    index <- i == block
+    mat[index, index] <- A[[i]]
+  }
+  return(mat)
+}
+
+isPosDef <- function (x) 
+  {
+    x_na <- is.na(x)
+    mis_rows <- apply(x_na, 1, all)
+    mis_cols <- apply(x_na, 2, all)
+    if (all(mis_rows) | all(mis_cols)) 
+      return(TRUE)
+    x_nomiss <- x[!mis_rows, !mis_cols]
+    x_eig <- eigen(x_nomiss)
+    all(x_eig$values > 0)
+  }
+
+
+check_PD <-
+function (vcov_list) 
+{
+  PD <- sapply(vcov_list, isPosDef)
+  if (!all(PD)) {
+    NPD_clusters <- names(vcov_list)[!PD]
+    warn_text <- paste(c("The following clusters have non-positive definite covariance matrices:", 
+                         NPD_clusters), collapse = "\n")
+    warning(warn_text)
+  }
+  else {
+    NULL
+  }
+}                                                 
+                                                 
+  if (smooth_vi) 
+    vi_list <- lapply(vi_list, function(x) rep(mean(x, na.rm = TRUE), 
+                                               length(x)))
+  if (missing(r) & missing(ar1)) 
+    stop("You must specify a value for r or for ar1.")
+  if (!missing(r)) {
+    r_list <- rep_len(r, length(vi_list))
+    if (missing(ar1)) {
+      vcov_list <- Map(function(V, rho) (rho + diag(1 - 
+                                                      rho, nrow = length(V))) * tcrossprod(sqrt(V)), 
+                       V = vi_list, rho = r_list)
+    }
+  }
+  if (!missing(ar1)) {
+    if (missing(ti)) 
+      stop("If you specify a value for ar1, you must provide a vector for ti.")
+    ti_list <- split(ti, cluster)
+    ar_list <- rep_len(ar1, length(vi_list))
+    if (missing(r)) {
+      vcov_list <- Map(function(V, time, phi) (phi^as.matrix(stats::dist(time))) * 
+                         tcrossprod(sqrt(V)), V = vi_list, time = ti_list, 
+                       phi = ar_list)
+    }
+    else {
+      vcov_list <- Map(function(V, rho, time, phi) (rho + 
+                                                      (1 - rho) * phi^as.matrix(stats::dist(time))) * 
+                         tcrossprod(sqrt(V)), V = vi_list, rho = r_list, 
+                       time = ti_list, phi = ar_list)
+    }
+    vcov_list <- lapply(vcov_list, function(x) {
+      attr(x, "dimnames") <- NULL
+      x
+    })
+  }
+  if (!is.null(subgroup)) {
+    si_list <- split(subgroup, cluster)
+    subgroup_list <- lapply(si_list, function(x) sapply(x, 
+                                                        function(y) y == x))
+    vcov_list <- Map(function(V, S) V * S, V = vcov_list, 
+                     S = subgroup_list)
+  }
+  if (check_PD) 
+    check_PD(vcov_list)
+  if (return_list) {
+    return(vcov_list)
+  }
+  else {
+    vcov_mat <- unblock(vcov_list)
+    cluster_index <- order(order(cluster))
+    return(vcov_mat[cluster_index, cluster_index])
+  }
+}
+                
 #===================================================================================================================================================
 
 prob_rma <- function(post_rma_fit, target_effect = 0, condition = c("or larger", "or smaller"), 
