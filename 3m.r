@@ -2457,8 +2457,8 @@ data_. <- if(is_post_rma) get_data_(fit$rma.mv_fit) else get_data_(fit)
   
   if(missing(ylab)) ylab <- paste0("Effect Size (",as.character(fixed_form_rma(if(is_post_rma) fit$rma.mv_fit else fit))[2],")")
   
-  if(no_ciarg & CIs & interpolate) CIarg <- list(lwd = 3, alpha = 0.04)
-  if(no_piarg & PIs & interpolate) PIarg <- list(lwd = 3, alpha = 0.04)
+  if(no_ciarg & CIs & interpolate) CIarg <- list(lwd = 5, alpha = 0.1)
+  if(no_piarg & PIs & interpolate) PIarg <- list(lwd = 5, alpha = 0.1)
   if(no_linearg & CIs & interpolate||no_linearg & PIs & interpolate) linearg <- list(size=1,alpha=1,linetype = "solid")
   
   fit <- if(!is_post_rma) { 
