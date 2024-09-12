@@ -2386,16 +2386,18 @@ contrast_rma <- function(post_rma_fit, con_list, ...,
 # M======================================================================================================================================================  
 
 plot_rma <- function(fit, formula, ylab, CIs=TRUE, PIs=FALSE, 
-                     CIarg = list(lwd = .5, alpha = 1), 
+                     CIarg = list(lwd = .5, alpha = 1),
                      PIarg = list(lwd = 1.25, alpha = 0.33),
-                     linearg = list(linetype = "solid"),
-                     cov.reduce = NULL, tran = NULL, 
-                     sigma = NULL, df = NULL, at = NULL, at_vals = NA,
-                     interpolate=FALSE, interpolate_length = 150, dodge=.15, ...){
+                     linearg = list(lwd = .5, linetype = "solid"),
+                     cov.reduce = TRUE, tran = NULL, 
+                     sigma = NULL, df = NULL, at = NULL, 
+                     at_vals = NA, interpolate_length = 150,
+                     dodge=.15, ...){
   
   if(!inherits(fit, c("post_rma", "rma.mv", "rma.uni"))) stop("fit is not 'post_rma()','rma.mv()' or 'rma.uni()'.", call. = FALSE)
   
-  dot_nms <- names(list(...))
+  dots <- list(...)
+  dot_nms <- names(dots)
   cl <- match.call()
   
   no_ciarg <- is.null(cl$CIarg)
@@ -2409,19 +2411,20 @@ plot_rma <- function(fit, formula, ylab, CIs=TRUE, PIs=FALSE,
   } else { df }
   
   
+  data_. <- if(is_post_rma) get_data_(fit$rma.mv_fit) else get_data_(fit)
+  
+  
   if(!is.null(at)) {
     
     at <- if(is_bare_formula(at, lhs=FALSE) || is.character(at)) { 
       
-data_. <- if(is_post_rma) get_data_(fit$rma.mv_fit) else get_data_(fit)
-
       lo_ave_up(at, data_., at_vals)
       
     } else at
     
   }
   
-
+  
   tran. <- if(is.null(tran)) {
     
     if(!is_post_rma) tran_detect(fit) else fit$tran.
@@ -2439,28 +2442,55 @@ data_. <- if(is_post_rma) get_data_(fit$rma.mv_fit) else get_data_(fit)
     
   }
   
-  if(is_post_rma & "cont_var" %in% names(as.list(fit$call))) { 
+  is_var1 <- is_post_rma & "cont_var" %in% names(as.list(fit$call))
+ 
+   if(is_var1) { 
+    
+    var <- fit$call$cont_var
+    
+    if(length(var)>1) stop("Only one continous variable can be supplied to 'var='/'cont_var='.", call. = FALSE)
     
     is_post_rma <- FALSE
     fit <- fit$rma.mv_fit
-    cov.reduce <- if(is.null(cov.reduce) & interpolate) \(x) seq(min(x),max(x),length.out=interpolate_length) else if(is.null(cov.reduce) & !interpolate) range else cov.reduce
+    num_var <- data_.[[var]]
+    
+    at_add <- setNames(list(seq(min(num_var, na.rm=TRUE),max(num_var, na.rm=TRUE),length.out=interpolate_length)), var)
+    
+    at <- c(at, at_add)
   }
   
+    
+  is_var2 <- any(c("cont_var","var") %in% dot_nms)
   
-  if("cont_var" %in% dot_nms || "var" %in% dot_nms) {
+  if(is_var2) {
     
-    cov.reduce <- if(is.null(cov.reduce) & interpolate) \(x) seq(min(x),max(x),length.out=interpolate_length) else if(is.null(cov.reduce) & !interpolate) range else cov.reduce
+    var <- if(!is.null(cl$cont_var)) cl$cont_var else cl$var
+      
+    var <- if(is.character(var)) var else 
+      stop("'var='/'cont_var=' must be a single-element character vector (ex. 'year').", call. = FALSE)
     
+    if(length(var)>1) stop("Only one continous variable can be supplied to 'var='/'cont_var='.", call. = FALSE)
+    
+    num_var <- data_.[[var]]
+    
+    is_num_var <- is.numeric(num_var)
+    
+    at_add <- if(is_num_var)  
+      setNames(list(seq(min(num_var, na.rm=TRUE),max(num_var, na.rm=TRUE),length.out=interpolate_length)), var)
+    else stop("'var='/'cont_var=' must be a continous variable.")
+    
+    at <- c(at, at_add)
   } 
   
-  if(is.null(cov.reduce)) cov.reduce <- mean
   
   if(missing(ylab)) ylab <- paste0("Effect Size (",as.character(fixed_form_rma(if(is_post_rma) fit$rma.mv_fit else fit))[2],")")
   
-  if(no_ciarg & CIs & interpolate) CIarg <- list(lwd = 5, alpha = 0.1)
-  if(no_piarg & PIs & interpolate) PIarg <- list(lwd = 5, alpha = 0.1)
-  if(no_linearg & CIs & interpolate||no_linearg & PIs & interpolate) linearg <- list(size=1,alpha=1,linetype = "solid")
+  is_var <- any(is_var1, is_var2)
   
+  if(no_ciarg & CIs & is_var) CIarg <- list(lwd = 2, alpha = 0.08)
+  if(no_piarg & PIs & is_var) PIarg <- list(lwd = 5, alpha = 0.08)
+  if(no_linearg & CIs & is_var || no_linearg & PIs & is_var) linearg <- list(size=1, alpha=1, linetype="solid")
+   
   fit <- if(!is_post_rma) { 
     
     ref_grid(rma2gls(fit), cov.reduce = cov.reduce, df = df., sigma = sigma., tran = tran., at = at, ...)
@@ -2469,7 +2499,8 @@ data_. <- if(is_post_rma) get_data_(fit$rma.mv_fit) else get_data_(fit)
   
   emmip(object=if(is_post_rma) fit$ems else fit, formula=formula, 
         ylab=ylab, CIs=CIs, PIs=PIs, CIarg=CIarg, PIarg=PIarg,
-        linearg=linearg, cov.reduce=cov.reduce, tran=tran., at=at, dodge=dodge, ...)
+        linearg=linearg, cov.reduce=cov.reduce, tran=tran., at=at, 
+        dodge=dodge, ...)
   
 }
                                 
