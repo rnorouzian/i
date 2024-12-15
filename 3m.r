@@ -2820,7 +2820,15 @@ dat_design <- structure(list(Participant = c(1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L,
 "ac_EFC/C", "lex_Vocd", "lex_WRDFRQmc", "com_MLTU", "com_DC/T", 
 "com_CN/T", "com_CN/C", "ac_EFC/C", "lex_Vocd", "lex_WRDFRQmc"
 )), class = "data.frame", row.names = c(NA, -56L))
-                                                                               
+
+#================================================================================================================================================
+dat_quasi <- read.table(header=TRUE, text=
+"Group time          n  mpre sdpre mpost sdpost  r
+ C     pre-post1    25  1.44  1.08  1.08   1.12 .5
+ C     pre-post2    25  1.44  1.08  1.48   1.08 .5
+ T     pre-post1    25  1.68  1.07  7.4    2.22 .5
+ T     pre-post2    25  1.68  1.07  8.08   1.75 .5")                         
+                         
 #=================================================================================================================================================
 
 needzzsf <- c('metafor', 'clubSandwich', 'nlme', 'effects', 'lexicon', 'plotrix', 'rlang', 'emmeans','tidyverse','fastDummies')      
