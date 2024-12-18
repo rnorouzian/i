@@ -130,7 +130,7 @@ w_factor <- function (df)
                  
 # M=================================================================================================================================================
   
-LRR_vi_cluster <- function(vi, n_cluster, 
+gen_vi_cluster <- function(vi, n_cluster, 
                            Nt, Nc, 
                            icc = .15)
 {
