@@ -2891,8 +2891,8 @@ dat_ROM <- structure(list(mT = c(0.896193771626298, 0.496153846153846, 0.8558823
 
 needzzsf <- c('metafor', 'clubSandwich', 'nlme', 'effects', 'lexicon', 'plotrix', 'rlang', 'emmeans','tidyverse','fastDummies')      
 
-not.have23 <- needzzsf[!(needzzsf %in% installed.packages()[,"Package"])]
-if(length(not.have23)) install.packages(not.have23)
+not.have23_. <- needzzsf[!(needzzsf %in% installed.packages()[,"Package"])]
+if(length(not.have23_.)) install.packages(not.have23_.)
 
 suppressWarnings(
   suppressMessages({ 
