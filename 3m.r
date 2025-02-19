@@ -2532,6 +2532,9 @@ coef.contrast_rma <- function(post_rma_fit, ..., sep = get_emm_option("sep")){
   
   if(!inherits(post_rma_fit, "contrast_rma"))
     stop("post_rma_fit can be either from 'post_rma()' or 'contrast_rma()'.", call. = FALSE)
+
+  if(inherits(post_rma_fit, "post_rma") & post_rma_fit$is_contr)
+    stop("Use contrast_rma() instead of 'contr=' in post_rma().", call. = FALSE)
   
   ems <- post_rma_fit$con 
  Term <- term_names_(post_rma_fit=post_rma_fit, sep=sep)
@@ -2545,6 +2548,9 @@ vcov.post_rma <- function(post_rma_fit, ..., sep = get_emm_option("sep")){
   
   if(!inherits(post_rma_fit, "post_rma"))
       stop("post_rma_fit can be either from 'post_rma()' or 'contrast_rma()'.", call. = FALSE)
+
+  if(inherits(post_rma_fit, "post_rma") & post_rma_fit$is_contr)
+    stop("Use contrast_rma() instead of 'contr=' in post_rma().", call. = FALSE)
   
   object <- post_rma_fit$ems
   
