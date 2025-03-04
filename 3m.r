@@ -2774,7 +2774,77 @@ effect_count <- function(data, cluster, ..., arrange_by = NULL, show0 = TRUE,
   
   dat %>% arrange(across(if(is.null(arrange_by)) all_of(cat_nms) else all_of(arrange_by)))    
 }                              
-                            
+
+#=================================================================================================================================================  
+# To get SDs for each group, the best choice is the first formula (https://doi.org/10.1186/1471-2288-5-13):
+
+range_iqr_n2sd <- function(min, max, q1, q3, n, dat) { ( (max-min) / (4*qnorm( (n-.375)/(n+.25)))) + 
+    ( (q3-q1) / (4*qnorm( (n*.75-.125)/(n+.25))) ) } 
+
+range_n2sd <- function(min, max, n) ( (max-min) / (2*qnorm( (n-.375)/(n+.25))))
+
+iqr_n2sd <- function(q1, q3, n) ( (q3-q1) / (2*qnorm( (n*.75-.125)/(n+.25))) )
+
+iqr_sd_cochrane <- function(q1, q3) (q3-q1)/1.35
+
+range_f2sd <- function(min, max, f) f * (max-min)
+
+#=================================================================================================================================================
+
+# To get Means for each group, the best choice is the first formula:
+
+med_range_iqr_n2mean <- function(min, max, q1, q3, n, median) {
+  
+  ((2.2/(2.2+n^.75))*((min+max)/2))+((.7-(.72/n^.55))*((q1+q3)/2))+((.3+(.72/n^.55)-(2.2/(2.2+n^.75)))*median)
+  
+}  
+
+#=================================================================================================================================================
+
+# Missing standard deviation and no other measure of variability: The Cochrane Handbook (6.5.2.3)
+# Note that this SD is the average of the SDs of the two groups and so it this same SD should be 
+# inputted into the meta-analysis for both groups.
+
+mdifSE_n2sd <- function(mdifSE, n1, n2)  { mdifSE / ( sqrt ( (1/n1) + (1/n2) ) ) }  
+
+#=================================================================================================================================================
+
+cfactor <- function(df) exp(lgamma(df/2)-log(sqrt(df/2)) - lgamma((df-1)/2))
+
+#=================================================================================================================================================
+
+t2d <- function(t, n1, n2 = NA, g = TRUE){
+  
+  df <- ifelse(is.na(n2), n1 - 1, n1 + n2 - 2)
+  N <- ifelse(is.na(n2), n1, (n1 * n2)/(n1 + n2))
+ d <- t/sqrt(N)
+ ifelse(g==TRUE, cfactor(df)*d, d)
+}
+
+#=================================================================================================================================================
+
+v_d <- function(d, n1, n2 = NA, g = FALSE, r = .5, cont.grp = FALSE){
+  
+  df <- ifelse(is.na(n2), n1 - 1, n1 + n2 - 2)
+  
+  v <- if(is.na(n2) & !cont.grp) (1/n1) + ((d^2)/(2*n1)) 
+  else if(is.na(n2) & cont.grp) ((2*(1-r))/n1) + ((d^2)/(2*n1)) 
+  else ((n1 + n2)/(n1 * n2)) + ((d^2)/(2 * (n1+n2)))
+  
+  
+  ifelse(g == TRUE, cfactor(df)^2 * v, v)
+}
+
+#=================================================================================================================================================
+
+t2smd <- function(t, n1, n2 = NA, g = TRUE, r = .5, cont_sd = FALSE){
+  
+  d <- t2d(t, n1, n2, g)
+  v <- v_d(d, n1, n2, g, r, cont_sd)
+res <- data.frame(g = d, v_g = v)
+if(!g) setNames(res, c("d","v_d")) else res
+}
+                         
 #======================== WCF Meta Dataset ======================================================================================================                
 
 wcf <- read.csv("https://raw.githubusercontent.com/hkil/m/master/wcf.csv")
