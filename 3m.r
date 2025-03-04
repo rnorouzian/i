@@ -2844,7 +2844,7 @@ t2smd <- function(t, n1, n2 = NA, g = TRUE, r = .5, cont_sd = FALSE, d_given=NA,
    
   v <- ifelse(!is.na(g_given), v_d(d, n1, n2, g=TRUE, r, cont_sd), 
               v_d(d, n1, n2, g, r, cont_sd))
-  c(yi = d, vi = v)
+  data.frame(yi = d, vi = v)
 }
                          
 #======================== WCF Meta Dataset ======================================================================================================                
