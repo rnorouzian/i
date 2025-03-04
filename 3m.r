@@ -2839,9 +2839,12 @@ v_d <- function(d, n1, n2 = NA, g = FALSE, r = .5, cont.grp = FALSE){
 
 t2smd <- function(t, n1, n2 = NA, g = TRUE, r = .5, cont_sd = FALSE, d_given=NA, g_given=NA){
   
+  df <- ifelse(is.na(n2), n1 - 1, n1 + n2 - 2)
+  
   d <- ifelse(is.na(d_given) & is.na(g_given), t2d(t, n1, n2, g), 
-              ifelse(!is.na(g_given), g_given, d_given))
-   
+              ifelse(!is.na(g_given), g_given, 
+                     ifelse(!is.na(d_given) & g==TRUE, cfactor(df)*d_given, d_given)))
+  
   v <- ifelse(!is.na(g_given), v_d(d, n1, n2, g=TRUE, r, cont_sd), 
               v_d(d, n1, n2, g, r, cont_sd))
   data.frame(yi = d, vi = v)
