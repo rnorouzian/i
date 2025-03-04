@@ -2837,12 +2837,14 @@ v_d <- function(d, n1, n2 = NA, g = FALSE, r = .5, cont.grp = FALSE){
 
 #=================================================================================================================================================
 
-t2smd <- function(t, n1, n2 = NA, g = TRUE, r = .5, cont_sd = FALSE){
+t2smd <- function(t, n1, n2 = NA, g = TRUE, r = .5, cont_sd = FALSE, d_given=NA, g_given=NA){
   
-  d <- t2d(t, n1, n2, g)
-  v <- v_d(d, n1, n2, g, r, cont_sd)
-res <- data.frame(g = d, v_g = v)
-if(!g) setNames(res, c("d","v_d")) else res
+  d <- ifelse(is.na(d_given) & is.na(g_given), t2d(t, n1, n2, g), 
+              ifelse(!is.na(g_given), g_given, d_given))
+   
+  v <- ifelse(!is.na(g_given), v_d(d, n1, n2, g=TRUE, r, cont_sd), 
+              v_d(d, n1, n2, g, r, cont_sd))
+  data.frame(yi = d, vi = v)
 }
                          
 #======================== WCF Meta Dataset ======================================================================================================                
