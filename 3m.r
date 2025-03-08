@@ -1423,7 +1423,7 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
                      drop_rows = NULL, drop_cols = NULL, contrast_contrasts=FALSE, 
                      na.rm = TRUE, robust = FALSE, cluster, show0df = FALSE, sig = TRUE, contr, horiz = TRUE, at=NULL, 
                      at_vals=NA, get_rows = NULL, get_cols = NULL, df = NULL, tran = NULL, sigma=NULL, data=NULL, 
-                     round_except=NULL,
+                     round_except=NULL, var=NULL,
                      ...)
 {
   
@@ -1561,13 +1561,15 @@ post_rma <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRU
   
   is_contr <- !missing(contr)            
   
-  
-  ems <- suppressWarnings(suppressMessages(try(if(is.null(cont_var)){
+  ems <- suppressWarnings(suppressMessages(try(if(is.null(cont_var) & is.null(var)){
     
     if(!isFALSE(tran.)) emmeans(object = fit, specs = specs, infer = infer, adjust = adjust, contr = contr, data = data_., tran = tran., sigma = sigma., df = df., at=at, ...)
     else emmeans(object = fit, specs = specs, infer = infer, adjust = adjust, contr = contr, data = data_., sigma = sigma., df = df., at=at, ...)
-  } else {
-    
+ 
+     } else {
+       
+       cont_var <- if(!is.null(cont_var)) cont_var else var
+       
     if(!is_contr){ 
       
       emtrends(object = fit, specs = specs, var = cont_var, infer = infer, adjust = adjust, data = data_., tran = tran., sigma = sigma., df = df., at=at, ...)
