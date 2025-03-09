@@ -2444,11 +2444,11 @@ plot_rma <- function(fit, formula, ylab, CIs=TRUE, PIs=FALSE,
     
   }
   
-  is_var1 <- is_post_rma & "cont_var" %in% names(as.list(fit$call))
+  is_var1 <- is_post_rma & "cont_var" %in% names(as.list(fit$call)) || is_post_rma & "var" %in% names(as.list(fit$call))
  
    if(is_var1) { 
     
-    var <- fit$call$cont_var
+    var <- if("cont_var" %in% names(as.list(fit$call))) fit$call$cont_var else fit$call$var
     
     if(length(var)>1) stop("Only one continous variable can be supplied to 'var='/'cont_var='.", call. = FALSE)
     
