@@ -2851,7 +2851,111 @@ t2smd <- function(t, n1, n2 = NA, g = TRUE, r = .5, cont_sd = FALSE, d_given=NA,
               v_d(d, n1, n2, g, r, cont_sd))
   data.frame(yi = d, vi = v)
 }
-                         
+#================================================================================================================================================
+
+mod_check <- function(pattern_mat, file_name = NULL, pub_date_var = NULL) {
+  
+  word_verb <- function(n) if (n == 1) c("study", "was") else c("studies", "were")
+  
+  describe_matrix_feature <- function(m, var_name) tryCatch({
+    row_labels <- m[[1]]
+    col_labels <- names(m)[-1]
+    
+    # --- Check for capitalization duplicates ---
+    lower_labels <- tolower(col_labels)
+    has_cap_issue <- any(duplicated(lower_labels)) && length(unique(lower_labels)) < length(col_labels)
+    cap_note <- if (has_cap_issue) "--Capitalization issue detected!" else ""
+    
+    # --- Extract numeric counts ---
+    numeric_mat <- as.data.frame(lapply(m[-1], function(col) as.numeric(sub(" .*", "", col))))
+    nr <- NROW(m); nc <- NCOL(m)
+    diag_vals <- diag(as.matrix(numeric_mat))
+    note <- if (nr == 1 && nc == 2) "--!*!Note: This is not a variable!*!" else ""
+    
+    # --- Check for year co-occurrence issues only if var_name matches pub_date_var ---
+    year_note <- ""
+    if (!is.null(pub_date_var) && var_name == pub_date_var) {
+      co_idx <- which(!is.na(as.matrix(numeric_mat)) & as.matrix(numeric_mat) > 0, arr.ind = TRUE)
+      co_idx <- co_idx[co_idx[,1] != co_idx[,2], , drop = FALSE]
+      if (nrow(co_idx) > 0) {
+        years_involved <- unique(c(col_labels[co_idx[,1]], col_labels[co_idx[,2]]))
+        if (length(years_involved) > 1) {
+          year_note <- "--Same authors for different years must be corrected or suffixed like Jon_a, Jon_b, etc.!"
+        }
+      }
+    }
+    
+    # --- Build diagonal descriptions ---
+    diag_desc <- mapply(function(lbl, val) {
+      if (is.na(val) || val <= 0) return(NULL)
+      wv <- word_verb(val)
+      paste0(val, " ", wv[1], " ", wv[2], " coded \"", lbl, "\"", note)
+    }, col_labels, diag_vals, SIMPLIFY = FALSE)
+    
+    diag_desc <- Filter(Negate(is.null), diag_desc)
+    
+    # --- Header with both capitalization & year warnings ---
+    desc <- if (length(diag_desc)) 
+      paste0("**", var_name, "(n_category=", nr, cap_note, year_note, ")**: ",
+             paste(diag_desc, collapse = "; "), ".") 
+    else ""
+    
+    # --- Build co-occurrence descriptions ---
+    co_idx <- which(!is.na(as.matrix(numeric_mat)) & as.matrix(numeric_mat) > 0, arr.ind = TRUE)
+    co_idx <- co_idx[co_idx[,1] != co_idx[,2], , drop = FALSE]
+    
+    if (nrow(co_idx) > 0) {
+      co_desc <- apply(co_idx, 1, function(idx) {
+        val <- numeric_mat[idx[1], idx[2]]
+        wv <- word_verb(val)
+        paste0(val, " ", wv[1], " ", wv[2],
+               " coded both \"", col_labels[idx[2]], "\" and \"", row_labels[idx[1]], "\"")
+      })
+      desc <- paste(desc, paste(co_desc, collapse = "; "), ".")
+    }
+    
+    desc
+  }, error = function(e) paste0("**", var_name, ".** Could not generate description: ", e$message))
+  
+  paragraphs <- Filter(nzchar, Map(describe_matrix_feature, pattern_mat, names(pattern_mat)))
+  res_df <- data.frame(Description = unlist(paragraphs, use.names = FALSE), stringsAsFactors = FALSE)
+  
+  if (!is.null(file_name)) {
+    file_name <- trimws(file_name)
+    nm <- paste0(file_name, ".csv")
+    if (inherits(try(write.csv(res_df, nm, row.names = FALSE), silent = TRUE), "try-error"))
+      stop(sprintf("\nClose the Excel file '%s' and try again OR pick another file name.", nm), call. = FALSE)
+    message(sprintf("\nNote: Check folder '%s' at: %s for the Excel file '%s'.\n",
+                    basename(getwd()), getwd(), nm))
+  }
+  
+  res_df
+}
+#================================================================================================================================================
+
+find_mixup <- function(data, cluster, moderators) {
+  results_list <- lapply(moderators, function(moderator) {
+    filtered_data <- data %>%
+      group_by(.data[[cluster]]) %>%
+      summarize(unique_values = paste(sort(unique(.data[[moderator]])), collapse = ", "), .groups = "drop") %>%
+      filter(lengths(strsplit(unique_values, ", ")) > 1) %>%
+      rename(!!moderator := unique_values)
+    
+    if (nrow(filtered_data) > 0) {
+      return(filtered_data)
+    } else {
+      return(NULL)  # Returns NULL if no valid studies for a moderator
+    }
+  })
+  
+  # Remove NULL elements (moderators with no studies having multiple values)
+  results_list <- results_list[!sapply(results_list, is.null)]
+  
+  # Assign moderator names to the list
+  names(results_list) <- moderators
+  
+  return(results_list)
+}                                        
 #======================== WCF Meta Dataset ======================================================================================================                
 
 wcf <- read.csv("https://raw.githubusercontent.com/hkil/m/master/wcf.csv")
