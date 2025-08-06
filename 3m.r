@@ -2942,7 +2942,7 @@ find_mixup <- function(data, cluster, moderators) {
       rename(!!moderator := unique_values)
     
     if (nrow(filtered_data) > 0) {
-      return(filtered_data)
+      return(as.data.frame(filtered_data))
     } else {
       return(NULL)  # Returns NULL if no valid studies for a moderator
     }
