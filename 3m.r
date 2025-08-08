@@ -2933,7 +2933,6 @@ mod_check <- function(pattern_mat, file_name = NULL, pub_date_var = NULL) {
 }
 #================================================================================================================================================
 
-# Example Usage
 find_mixup <- function(data, cluster, moderators) {
   results_list <- lapply(moderators, function(moderator) {
     filtered_data <- data %>%
