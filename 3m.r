@@ -2933,29 +2933,33 @@ mod_check <- function(pattern_mat, file_name = NULL, pub_date_var = NULL) {
 }
 #================================================================================================================================================
 
+# Example Usage
 find_mixup <- function(data, cluster, moderators) {
   results_list <- lapply(moderators, function(moderator) {
     filtered_data <- data %>%
+      mutate(.mod_value = ifelse(is.na(.data[[moderator]]), "NA", as.character(.data[[moderator]]))) %>%
       group_by(.data[[cluster]]) %>%
-      summarize(unique_values = paste(sort(unique(.data[[moderator]])), collapse = ", "), .groups = "drop") %>%
+      summarize(unique_values = paste(sort(unique(.mod_value)), collapse = ", "), .groups = "drop") %>%
       filter(lengths(strsplit(unique_values, ", ")) > 1) %>%
       rename(!!moderator := unique_values)
     
     if (nrow(filtered_data) > 0) {
       return(as.data.frame(filtered_data))
     } else {
-      return(NULL)  # Returns NULL if no valid studies for a moderator
+      return(NULL)
     }
   })
   
-  # Remove NULL elements (moderators with no studies having multiple values)
   results_list <- results_list[!sapply(results_list, is.null)]
   
-  # Assign moderator names to the list
-  names(results_list) <- moderators
+  if (length(results_list) == 0) {
+    stop("No mixups detected — all clusters have consistent moderator values (including NA).")
+  }
+  
+  names(results_list) <- moderators[!sapply(results_list, is.null)]
   
   return(results_list)
-}                                        
+}                                       
 #======================== WCF Meta Dataset ======================================================================================================                
 
 wcf <- read.csv("https://raw.githubusercontent.com/hkil/m/master/wcf.csv")
