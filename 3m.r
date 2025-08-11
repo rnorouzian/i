@@ -2958,7 +2958,48 @@ find_mixup <- function(data, cluster, moderators) {
   names(results_list) <- moderators[!sapply(results_list, is.null)]
   
   return(results_list)
-}                                       
+}  
+
+#================================================================================================================================================
+
+estimate_sd <- function(
+    min = NA, max = NA, q1 = NA, q3 = NA,
+    n = NA, f = 0.25,
+    mdifSE = NA, n1 = NA, n2 = NA
+) {
+  
+  # Use mdifSE with exact n1 and n2 if all available
+  if (!is.na(mdifSE) && !is.na(n1) && !is.na(n2)) {
+    return(mdifSE_n2sd(mdifSE, n1, n2))
+  }
+  
+  # Calculate average n if separate group sizes exist and n is missing
+  if (is.na(n) && !is.na(n1) && !is.na(n2)) {
+    n_avg <- mean(c(n1, n2))
+  } else {
+    n_avg <- n
+  }
+  
+  # Then fallback to other formulas, using n_avg when needed
+  if (!is.na(min) && !is.na(max) && !is.na(q1) && !is.na(q3) && !is.na(n_avg)) {
+    return(range_iqr_n2sd(min, max, q1, q3, n_avg))
+  }
+  if (!is.na(min) && !is.na(max) && !is.na(n_avg)) {
+    return(range_n2sd(min, max, n_avg))
+  }
+  if (!is.na(q1) && !is.na(q3) && !is.na(n_avg)) {
+    return(iqr_n2sd(q1, q3, n_avg))
+  }
+  if (!is.na(q1) && !is.na(q3)) {
+    return(iqr_sd_cochrane(q1, q3))
+  }
+  if (!is.na(min) && !is.na(max) && !is.na(f)) {
+    return(range_f2sd(min, max, f))
+  }
+  
+  return(NA) # Nothing available
+}                                        
+                                        
 #======================== WCF Meta Dataset ======================================================================================================                
 
 wcf <- read.csv("https://raw.githubusercontent.com/hkil/m/master/wcf.csv")
