@@ -2744,13 +2744,13 @@ effect_count <- function(data, cluster, ..., arrange_by = NULL, show0 = TRUE,
                          na.rm = FALSE, subset){
   
   data <- full_clean(data)
-  
-  if(!missing(subset)) {
-    
-    s <- substitute(subset)
-    data <- filter(data, eval(s))
-  }
-  
+
+if(!missing(subset)) {
+  s <- substitute(subset)
+  data <- filter(data, eval(s, envir = parent.frame()))
+}
+
+ 
   cluster <- rlang::ensym(cluster)
   cat_mod <- rlang::ensyms(...)
   cat_nms <- purrr::map_chr(cat_mod, rlang::as_string)  
