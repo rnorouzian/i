@@ -3030,6 +3030,33 @@ estimate_sd <- function(
   
   return(out)
 }                                        
+#================================================================================================================================================
+p2g <- function(p, n1, n2 = NA, m1 = NA, m2 = NA, direction = NA, 
+                g_given = NA, v_g_given = NA, g = TRUE, r = 0.5) {
+  
+  # If both g_given and v_g_given exist, just return them
+  g_out   <- ifelse(!is.na(g_given) & !is.na(v_g_given), g_given, NA)
+  v_g_out <- ifelse(!is.na(g_given) & !is.na(v_g_given), v_g_given, NA)
+  
+  # Only calculate where g_out is still NA
+  missing <- is.na(g_out)
+  
+  if (any(missing)) {
+    # compute t from p if needed
+    t_val <- qt(1 - p[missing]/2, df = ifelse(is.na(n2[missing]), n1[missing]-1, n1[missing]+n2[missing]-2))
+    
+    # determine sign from means or user-specified direction
+    sign_val <- ifelse(!is.na(direction[missing]), sign(direction[missing]),
+                       ifelse(!is.na(m2[missing]) & !is.na(m1[missing]), sign(m2[missing] - m1[missing]), 1))
+    
+    d_val <- sign_val * t2d(t_val, n1[missing], n2[missing], g = g)
+    
+    g_out[missing] <- d_val
+    v_g_out[missing] <- v_d(d_val, n1[missing], n2[missing], g = g, r = r)
+  }
+  
+  data.frame(g = g_out, v_g = v_g_out)
+}
                                         
 #======================== WCF Meta Dataset ======================================================================================================                
 
