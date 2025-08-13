@@ -2844,10 +2844,11 @@ v_d <- function(d, n1, n2 = NA, g = FALSE, r = 0.5, cont.grp = FALSE) {
 
 #=================================================================================================================================================
 
+
 t2smd <- function(t = NA, n1, n2 = NA, g = TRUE, r = .5, cont_sd = FALSE, 
                   d_given = NA, g_given = NA, mean_dif = NA, std_error = NA) {
   
-  mapply(function(t, n1, n2, d_given, g_given, mean_dif, std_error) {
+  res <- mapply(function(t, n1, n2, d_given, g_given, mean_dif, std_error) {
     # calculate t if not given
     if (is.na(t) && !is.na(mean_dif) && !is.na(std_error)) {
       t <- mean_dif / std_error
@@ -2869,6 +2870,8 @@ t2smd <- function(t = NA, n1, n2 = NA, g = TRUE, r = .5, cont_sd = FALSE,
     v <- if (!is.na(g_given)) v_d(d, n1, n2, g=TRUE, r, cont_sd) else v_d(d, n1, n2, g, r, cont_sd)
     c(yi = d, vi = v)
   }, t, n1, n2, d_given, g_given, mean_dif, std_error, SIMPLIFY = TRUE)
+  
+  as.data.frame(t(res))  # transpose and convert to data.frame
 }
 #================================================================================================================================================
 
