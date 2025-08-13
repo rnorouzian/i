@@ -2986,51 +2986,29 @@ estimate_sd <- function(
     n = NA, f = 0.25,
     mdifSE = NA, n1 = NA, n2 = NA
 ) {
-  # Calculate average n if separate group sizes exist and n is missing
-  n_avg <- ifelse(is.na(n) & !is.na(n1) & !is.na(n2),
-                  (n1 + n2) / 2,
-                  n)
-  
-  # First condition: mdifSE with exact n1 and n2
-  out <- ifelse(
-    !is.na(mdifSE) & !is.na(n1) & !is.na(n2),
-    mdifSE_n2sd(mdifSE, n1, n2),
+  mapply(function(min, max, q1, q3, n, f, mdifSE, n1, n2) {
+    # Calculate average n if separate group sizes exist and n is missing
+    n_avg <- if (is.na(n) && !is.na(n1) && !is.na(n2)) (n1 + n2) / 2 else n
     
-    # Next: all min, max, q1, q3, n_avg
-    ifelse(
-      !is.na(min) & !is.na(max) & !is.na(q1) & !is.na(q3) & !is.na(n_avg),
-      range_iqr_n2sd(min, max, q1, q3, n_avg),
-      
-      # Next: min, max, n_avg
-      ifelse(
-        !is.na(min) & !is.na(max) & !is.na(n_avg),
-        range_n2sd(min, max, n_avg),
-        
-        # Next: q1, q3, n_avg
-        ifelse(
-          !is.na(q1) & !is.na(q3) & !is.na(n_avg),
-          iqr_n2sd(q1, q3, n_avg),
-          
-          # Next: q1, q3 only
-          ifelse(
-            !is.na(q1) & !is.na(q3),
-            iqr_sd_cochrane(q1, q3),
-            
-            # Next: min, max, f
-            ifelse(
-              !is.na(min) & !is.na(max) & !is.na(f),
-              range_f2sd(min, max, f),
-              
-              NA_real_ # Nothing available
-            )
-          )
-        )
-      )
-    )
-  )
-  
-  return(out)
-}                                        
+    # Nested conditions exactly as in your original code
+    if (!is.na(mdifSE) && !is.na(n1) && !is.na(n2)) {
+      mdifSE_n2sd(mdifSE, n1, n2)
+    } else if (!is.na(min) && !is.na(max) && !is.na(q1) && !is.na(q3) && !is.na(n_avg)) {
+      range_iqr_n2sd(min, max, q1, q3, n_avg)
+    } else if (!is.na(min) && !is.na(max) && !is.na(n_avg)) {
+      range_n2sd(min, max, n_avg)
+    } else if (!is.na(q1) && !is.na(q3) && !is.na(n_avg)) {
+      iqr_n2sd(q1, q3, n_avg)
+    } else if (!is.na(q1) && !is.na(q3)) {
+      iqr_sd_cochrane(q1, q3)
+    } else if (!is.na(min) && !is.na(max) && !is.na(f)) {
+      range_f2sd(min, max, f)
+    } else {
+      NA_real_
+    }
+  }, min, max, q1, q3, n, f, mdifSE, n1, n2)
+}
+                 
 #================================================================================================================================================
 p2g <- function(p, n1, n2 = NA, m1 = NA, m2 = NA, direction = NA,
                 g_given = NA, v_g_given = NA, g = TRUE, r = 0.5) {
