@@ -895,7 +895,7 @@ interactive_outlier <- function(fit, cook = NULL, st_del_res_z = NULL,
   cex <- cex_add_point+cex_multi_point*sqrt(if(view == 1)cook else hat)
   
   outlier_limits <- qnorm(c(.025,.5,.975))
-  ylim <- range(c(outlier_limits, st_del_res_z))
+  ylim <- range(c(outlier_limits, st_del_res_z), na.rm = TRUE)
   
   # Plot Leverage against Studentized residuals proportioned on cook's distances
   plot(if(view == 1) hat else cook, st_del_res_z, cex=cex, las=1, mgp=c(1.5,.3,0),
