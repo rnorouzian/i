@@ -3032,31 +3032,45 @@ estimate_sd <- function(
   return(out)
 }                                        
 #================================================================================================================================================
-p2g <- function(p, n1, n2 = NA, m1 = NA, m2 = NA, direction = NA, 
+p2g <- function(p, n1, n2 = NA, m1 = NA, m2 = NA, direction = NA,
                 g_given = NA, v_g_given = NA, g = TRUE, r = 0.5) {
   
-  # If both g_given and v_g_given exist, just return them
-  g_out   <- ifelse(!is.na(g_given) & !is.na(v_g_given), g_given, NA)
-  v_g_out <- ifelse(!is.na(g_given) & !is.na(v_g_given), v_g_given, NA)
-  
-  # Only calculate where g_out is still NA
-  missing <- is.na(g_out)
-  
-  if (any(missing)) {
-    # compute t from p if needed
-    t_val <- qt(1 - p[missing]/2, df = ifelse(is.na(n2[missing]), n1[missing]-1, n1[missing]+n2[missing]-2))
+  # Define scalar version inside p2g
+  p2g_scalar <- function(p, n1, n2, m1, m2, direction, g_given, v_g_given, g, r) {
+    # If g and v_g already provided, just return them
+    if (!is.na(g_given) && !is.na(v_g_given)) {
+      return(c(g = g_given, v_g = v_g_given))
+    }
     
-    # determine sign from means or user-specified direction
-    sign_val <- ifelse(!is.na(direction[missing]), sign(direction[missing]),
-                       ifelse(!is.na(m2[missing]) & !is.na(m1[missing]), sign(m2[missing] - m1[missing]), 1))
+    # Compute degrees of freedom and t from p
+    df <- ifelse(is.na(n2), n1 - 1, n1 + n2 - 2)
+    t_val <- qt(1 - p/2, df = df)
     
-    d_val <- sign_val * t2d(t_val, n1[missing], n2[missing], g = g)
+    # Determine sign from direction or means if available
+    sign_val <- if (!is.na(direction)) {
+      sign(direction)
+    } else if (!is.na(m2) && !is.na(m1)) {
+      sign(m2 - m1)
+    } else {
+      1
+    }
     
-    g_out[missing] <- d_val
-    v_g_out[missing] <- v_d(d_val, n1[missing], n2[missing], g = g, r = r)
+    # Convert t to g and its variance
+    d_val <- sign_val * t2d(t_val, n1, n2, g = g)
+    v_val <- v_d(d_val, n1, n2, g = g, r = r)
+    
+    c(g = d_val, v_g = v_val)
   }
   
-  data.frame(g = g_out, v_g = v_g_out)
+  # Vectorize over all inputs
+  out <- mapply(
+    p2g_scalar, p, n1, n2, m1, m2, direction,
+    g_given, v_g_given,
+    MoreArgs = list(g = g, r = r),
+    SIMPLIFY = TRUE
+  )
+  
+  data.frame(t(out), row.names = NULL)
 }
                                         
 #======================== WCF Meta Dataset ======================================================================================================                
