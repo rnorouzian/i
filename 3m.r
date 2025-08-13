@@ -2741,16 +2741,16 @@ return(res)
 #================================================================================================================================================
 
 effect_count <- function(data, cluster, ..., arrange_by = NULL, show0 = TRUE,
-                         na.rm = FALSE, subset){
+                         na.rm = FALSE, subset, at = NULL){
   
   data <- full_clean(data)
-
-if(!missing(subset)) {
-  s <- substitute(subset)
-  data <- filter(data, eval(s, envir = parent.frame()))
-}
-
- 
+  
+  if(!missing(subset)) {
+    s <- substitute(subset)
+    data <- filter(data, eval(s, envir = list2env(list(at = at), parent = environment())))
+  }
+  
+  
   cluster <- rlang::ensym(cluster)
   cat_mod <- rlang::ensyms(...)
   cat_nms <- purrr::map_chr(cat_mod, rlang::as_string)  
@@ -2775,7 +2775,7 @@ if(!missing(subset)) {
   }
   
   dat %>% arrange(across(if(is.null(arrange_by)) all_of(cat_nms) else all_of(arrange_by)))    
-}                              
+}                                                          
 
 #=================================================================================================================================================  
 # To get SDs for each group, the best choice is the first formula (https://doi.org/10.1186/1471-2288-5-13):
