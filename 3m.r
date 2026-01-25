@@ -2015,7 +2015,121 @@ impute_covariance_matrix <- function (vi, cluster, r, ti, ar1, smooth_vi = FALSE
       return(vcov_mat[cluster_index, cluster_index])
     }
   }
-                
+
+#------------------------------------------------------------------------------------------------------
+                                                          
+pattern_covariance_matrix <- function (vi, cluster, pattern_level, r_pattern, r, smooth_vi = FALSE, 
+          subgroup = NULL, return_list = identical(as.factor(cluster), 
+                                                   sort(as.factor(cluster))), check_PD = TRUE) 
+{
+  if (missing(pattern_level)) 
+    stop("You must specify a vector for pattern_level.")
+  if (any(is.na(pattern_level[!is.na(vi)]))) 
+    stop("The pattern_level vector cannot have missing values.")
+  pattern_level <- as.factor(pattern_level)
+  if (!identical(rownames(r_pattern), colnames(r_pattern))) 
+    stop("Row names of r_pattern must be identical to column names.")
+  mat_levels <- rownames(r_pattern)
+  p_levels <- levels(pattern_level)
+  if (!all(p_levels %in% mat_levels)) {
+    if (missing(r)) 
+      stop("At least one pattern_level is not available in r_pattern. Please specify a value for the r argument.")
+    np_levels <- nlevels(pattern_level)
+    r_pattern_full <- matrix(r, nrow = np_levels, ncol = np_levels)
+    rownames(r_pattern_full) <- colnames(r_pattern_full) <- p_levels
+    included_levels <- intersect(mat_levels, p_levels)
+    r_pattern_full[included_levels, included_levels] <- r_pattern[included_levels, 
+                                                                  included_levels]
+    r_pattern <- r_pattern_full
+  }
+  cluster <- droplevels(as.factor(cluster))
+  pattern_list <- split(pattern_level, cluster)
+  cor_list <- lapply(pattern_list, function(x) {
+    res <- r_pattern[x, x, drop = FALSE]
+    diag(res) <- 1
+    res
+  })
+  vi_list <- split(vi, cluster)
+  if (smooth_vi) 
+    vi_list <- lapply(vi_list, function(x) rep(mean(x, na.rm = TRUE), 
+                                               length(x)))
+  vcov_list <- Map(function(V, r_mat) r_mat * tcrossprod(sqrt(V)), 
+                   V = vi_list, r_mat = cor_list)
+  if (!is.null(subgroup)) {
+    si_list <- split(subgroup, cluster)
+    subgroup_list <- lapply(si_list, function(x) sapply(x, 
+                                                        function(y) y == x))
+    vcov_list <- Map(function(V, S) V * S, V = vcov_list, 
+                     S = subgroup_list)
+  }
+  if (check_PD) 
+    check_PD(vcov_list)
+  if (return_list) {
+    return(vcov_list)
+  }
+  else {
+    vcov_mat <- unblock(vcov_list)
+    cluster_index <- order(order(cluster))
+    return(vcov_mat[cluster_index, cluster_index])
+  }
+}
+
+function (vi, cluster, pattern_level, r_pattern, r, smooth_vi = FALSE, 
+    subgroup = NULL, return_list = identical(as.factor(cluster), 
+        sort(as.factor(cluster))), check_PD = TRUE) 
+{
+    if (missing(pattern_level)) 
+        stop("You must specify a vector for pattern_level.")
+    if (any(is.na(pattern_level[!is.na(vi)]))) 
+        stop("The pattern_level vector cannot have missing values.")
+    pattern_level <- as.factor(pattern_level)
+    if (!identical(rownames(r_pattern), colnames(r_pattern))) 
+        stop("Row names of r_pattern must be identical to column names.")
+    mat_levels <- rownames(r_pattern)
+    p_levels <- levels(pattern_level)
+    if (!all(p_levels %in% mat_levels)) {
+        if (missing(r)) 
+            stop("At least one pattern_level is not available in r_pattern. Please specify a value for the r argument.")
+        np_levels <- nlevels(pattern_level)
+        r_pattern_full <- matrix(r, nrow = np_levels, ncol = np_levels)
+        rownames(r_pattern_full) <- colnames(r_pattern_full) <- p_levels
+        included_levels <- intersect(mat_levels, p_levels)
+        r_pattern_full[included_levels, included_levels] <- r_pattern[included_levels, 
+            included_levels]
+        r_pattern <- r_pattern_full
+    }
+    cluster <- droplevels(as.factor(cluster))
+    pattern_list <- split(pattern_level, cluster)
+    cor_list <- lapply(pattern_list, function(x) {
+        res <- r_pattern[x, x, drop = FALSE]
+        diag(res) <- 1
+        res
+    })
+    vi_list <- split(vi, cluster)
+    if (smooth_vi) 
+        vi_list <- lapply(vi_list, function(x) rep(mean(x, na.rm = TRUE), 
+            length(x)))
+    vcov_list <- Map(function(V, r_mat) r_mat * tcrossprod(sqrt(V)), 
+        V = vi_list, r_mat = cor_list)
+    if (!is.null(subgroup)) {
+        si_list <- split(subgroup, cluster)
+        subgroup_list <- lapply(si_list, function(x) sapply(x, 
+            function(y) y == x))
+        vcov_list <- Map(function(V, S) V * S, V = vcov_list, 
+            S = subgroup_list)
+    }
+    if (check_PD) 
+        check_PD(vcov_list)
+    if (return_list) {
+        return(vcov_list)
+    }
+    else {
+        vcov_mat <- unblock(vcov_list)
+        cluster_index <- order(order(cluster))
+        return(vcov_mat[cluster_index, cluster_index])
+    }
+}
+                                                          
 #===================================================================================================================================================
 
 prob_rma <- function(post_rma_fit, target_effect = 0, condition = c("or larger", "or smaller"), 
