@@ -1719,10 +1719,10 @@ categorical moderators (a block of them) are equal to their null (e.g., 0).")
 
 # M=================================================================================================================================================
 
-R2_rma <- function(..., robust = TRUE, digits = 3, 
-                   model_names = NULL, null_model = NULL,
-                   level_names = NULL, blank_sign = "", 
-                   null_name = "No (M)UTOS", tol_large = 1e4)
+R2_rma <- function(..., robust = TRUE, digits = 3,
+                    model_names = NULL, null_model = NULL,
+                    level_names = NULL, blank_sign = "",
+                    null_name = "No (M)UTOS", tol_large = 1e4)
 {
   
   LL <- list(...)
@@ -1742,6 +1742,8 @@ R2_rma <- function(..., robust = TRUE, digits = 3,
   
   .zolqui_. <- as.formula(paste0(as.character(fixed_form_rma(first))[2],"~1"))
   
+  null_label <- if(!is.null(null_model)) deparse(substitute(null_model)) else null_name
+  
   null_fit <- if(is.null(null_model)) update.rma(first, yi = .zolqui_.) else null_model
   
   lvl_names <- if(is.null(level_names)) sapply(strsplit(null_fit$s.names,"/",fixed=TRUE),tail,1) else level_names
@@ -1750,36 +1752,33 @@ R2_rma <- function(..., robust = TRUE, digits = 3,
   
   sigma_totaln <- sqrt(sum(sigmasn^2))
   
-  null_res <- data.frame(Model = null_name,._A_.= sigma_totaln,._D_.=NA,R2=NA)
+  null_res <- data.frame(Model = null_label, ._A_.= sigma_totaln, ._D_.=NA, R2=NA)
   
   null_res <- add_column(null_res, as.data.frame(t(sigmasn)), .after = "._A_.")
   
-  z <- function(nm) paste0("Sigma(",nm,")") 
-  
-  #  on.exit(Sys.setlocale("LC_ALL"))               
-  #  Sys.setlocale(locale = "Greek")
+  z <- function(nm) paste0("Sigma(",nm,")")
   
   f <- function(fit){
     
     if(robust){
       
-      mc <- try(clubSandwich::Wald_test(fit, constrain_zero(fit$btt), "CR2"), silent=TRUE)   
+      mc <- try(clubSandwich::Wald_test(fit, constrain_zero(fit$btt), "CR2"), silent=TRUE)
       
       bad <- inherits(mc,"try-error")
       
-      if(bad || !bad && is.na(mc$p_val)) { 
+      if(bad || !bad && is.na(mc$p_val)) {
         robust <- FALSE
         message("Note: Robust QM unavailable,likely: \n1- Some moderators in <2 clusters OR/AND \n2- High # of coefficients vs. # of highest clusters.\n3- Some combination of variables in the interactive model are missing.\nQM results are model-based.\n")
       }
       
-      if(!bad && mc$Fstat>tol_large) { message("Note: Robust estimation seems unfit for the model (use 'robust=FALSE').") } 
+      if(!bad && mc$Fstat>tol_large) { message("Note: Robust estimation seems unfit for the model (use 'robust=FALSE').") }
     }
     
     p <- if(robust) mc$p_val else fit$QMp
     
-    sigmas <- setNames(sqrt(fit$sigma2), lvl_names) 
+    sigmas <- setNames(sqrt(fit$sigma2), lvl_names)
     
-    sigma_total <- sqrt(sum(sigmas^2)) 
+    sigma_total <- sqrt(sum(sigmas^2))
     
     R2 <- (sigma_totaln - sigma_total) / sigma_totaln*1e2
     
@@ -1787,7 +1786,7 @@ R2_rma <- function(..., robust = TRUE, digits = 3,
     
     R2 <- if(R2>0) R2 else 0
     
-    c(._A_.=sigma_total,sigmas,._D_.=p, R2=R2)
+    c(._A_.=sigma_total, sigmas, ._D_.=p, R2=R2)
   }
   
   out <- map_dfr(LL, f) %>% as.data.frame() %>%
@@ -1804,7 +1803,7 @@ R2_rma <- function(..., robust = TRUE, digits = 3,
   res[res == blk] <- blank_sign
   
   return(res)
-}                                                                         
+}                   
 
 
 # H=================================================================================================================================================
