@@ -4,8 +4,8 @@ coef2mat <- function(coefs, sep="[^[:alnum:]]+"){
   row.col <- do.call(rbind, strsplit(names(coefs), sep))
   nm <- sort(unique(c(row.col)))
   corr <- matrix(NA, length(nm), length(nm), dimnames=list(nm, nm))
-  diag(corr) <- 1
   corr[rbind(row.col, row.col[,2:1])] <- coefs
+  diag(corr) <- 1
   return(corr)
 }
 
