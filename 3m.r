@@ -1717,6 +1717,519 @@ categorical moderators (a block of them) are equal to their null (e.g., 0).")
   return(out)
 }                                 
 
+#===================================================================================================================================   
+# Experimental
+   
+.post_rma2_align <- function(V, coef_names) {
+  if (is.null(coef_names) || anyDuplicated(coef_names))
+    stop("GLS surrogate has missing or duplicated coefficient names.")
+  canonical <- function(x) {
+    x[x == "intrcpt"] <- "(Intercept)"
+    x
+  }
+  coef_names <- canonical(coef_names)
+  rn <- canonical(rownames(V))
+  cn <- canonical(colnames(V))
+  if (is.null(rn) || is.null(cn) ||
+      anyDuplicated(rn) || anyDuplicated(cn) ||
+      !setequal(rn, coef_names) || !setequal(cn, coef_names))
+    stop("CR2 covariance and GLS coefficients do not have identical names. ",
+         "Inspect the model matrix and rma2gls() coefficient order.")
+  rownames(V) <- rn
+  colnames(V) <- cn
+  V[coef_names, coef_names, drop = FALSE]
+}
+
+   
+.post_rma2_df <- function(k, dfargs) {
+  k <- as.numeric(k)
+  if (length(k) != ncol(dfargs$V) || any(!is.finite(k)))
+    return(NA_real_)
+  if (all(abs(k) < 1e-12)) return(Inf)
+  L <- matrix(k, nrow = 1L)
+  colnames(L) <- colnames(dfargs$V)
+  # Translate GLS's '(Intercept)' back to metafor's 'intrcpt', and
+  # reorder the constraint into the original fitted-model coefficient order.
+  canonical <- function(x) { x[x == "intrcpt"] <- "(Intercept)"; x }
+  raw_names <- colnames(dfargs$V_raw)
+  idx <- match(canonical(raw_names), colnames(L))
+  if (anyNA(idx)) stop("Cannot align contrast with original metafor coefficients.")
+  L <- L[, idx, drop = FALSE]
+  colnames(L) <- raw_names
+  # clubSandwich computes the small-sample denominator df for THIS
+  # particular linear combination, rather than combining coefficient df.
+  test <- tryCatch(
+    clubSandwich::Wald_test(
+      dfargs$fit, constraints = L, vcov = dfargs$V_raw,
+      test = "HTZ", tidy = TRUE),
+    error = function(e) e
+  )
+  if (inherits(test, "error"))
+    stop("CR2 small-sample df failed: ", conditionMessage(test))
+  if (!"df_denom" %in% names(test))
+    stop("clubSandwich::Wald_test() did not return df_denom.")
+  as.numeric(test$df_denom[1L])
+}
+
+   
+.post_rma2_install <- function(x, fit, V, V_raw) {
+  if (inherits(x, "emm_list")) {
+    for (j in seq_along(x))
+      x[[j]] <- .post_rma2_install(x[[j]], fit, V, V_raw)
+    return(x)
+  }
+  if (!inherits(x, "emmGrid"))
+    stop("Expected an emmGrid or emm_list from emmeans/emtrends.")
+  # Check that emmeans accepted the CR2 covariance supplied via GLS.
+  if (!isTRUE(all.equal(unname(x@V), unname(V), tolerance = 1e-8)))
+    stop("emmeans did not retain the injected CR2 covariance.")
+  if (ncol(x@linfct) != ncol(V))
+    stop("emmeans linear-function matrix is not conformable with CR2.")
+  x@dffun <- .post_rma2_df
+  x@dfargs <- list(fit = fit, V = V, V_raw = V_raw)
+  x
+}
+
+# CR2/HTZ joint tests use the ORIGINAL fitted model and the vcovCR object.
+# Never substitute a conventional emmeans joint F test when robust=TRUE.
+.post_rma2_constraint <- function(L, V_raw) {
+  L <- as.matrix(L)
+  if (!is.numeric(L) || any(!is.finite(L)))
+    stop("Non-finite or nonnumeric joint constraint matrix.")
+  raw <- colnames(V_raw)
+  canon <- function(x) { x[x == "intrcpt"] <- "(Intercept)"; x }
+  if (is.null(colnames(L)) || is.null(raw))
+    stop("Cannot align unnamed joint constraints to CR2 coefficients.")
+  idx <- match(canon(raw), canon(colnames(L)))
+  if (anyNA(idx)) stop("Joint constraints do not match fitted coefficients.")
+  L <- L[, idx, drop = FALSE]
+  colnames(L) <- raw
+  if (!nrow(L)) stop("Joint test contains no constraints.")
+  if (qr(t(L))$rank < nrow(L))
+    stop("Joint constraints are linearly dependent; cannot run HTZ test safely.")
+  L
+}
+
+   
+.post_rma2_wald <- function(L, fit, V_raw) {
+  L <- .post_rma2_constraint(L, V_raw)
+  z <- clubSandwich::Wald_test(fit, constraints = L,
+                               vcov = V_raw, test = "HTZ", tidy = TRUE)
+  if (!all(c("Fstat", "df_num", "df_denom", "p_val") %in% names(z)))
+    stop("Unexpected clubSandwich Wald_test columns: ",
+         paste(names(z), collapse = ", "))
+  data.frame(df1 = as.numeric(z$df_num[1]),
+             df2 = as.numeric(z$df_denom[1]),
+             F.ratio = as.numeric(z$Fstat[1]),
+             p.value = as.numeric(z$p_val[1]))
+}
+
+   
+.post_rma2_joint_grid <- function(grid, fit, V_raw) {
+  if (!inherits(grid, "emmGrid")) stop("Expected an emmGrid.")
+  L <- grid@linfct
+  if (!is.null(grid@misc$display))
+    L <- L[grid@misc$display, , drop = FALSE]
+  # Exclude non-estimable or identically zero rows; reject other missing values.
+  est <- estimability::is.estble(L, grid@nbasis,
+                                tol = emmeans::get_emm_option("estble.tol"))
+  L <- L[est & rowSums(abs(L) > 1e-12) > 0, , drop = FALSE]
+  if (!nrow(L)) stop("No estimable constraints for robust joint test.")
+  .post_rma2_wald(L, fit, V_raw)
+}
+
+   
+.post_rma2_joint_terms <- function(grid, fit, V_raw, by = NULL,
+                                   show0df = FALSE) {
+  jt <- emmeans::joint_tests(grid, by = by, show0df = show0df,
+                             est.fcns = TRUE)
+  funcs <- attr(jt, "est.fcns")
+  if (is.null(funcs) || !length(funcs))
+    stop("joint_tests() did not supply est.fcns; cannot claim robust joint tests.")
+  if (length(funcs) != nrow(jt))
+    stop("Cannot safely associate joint test constraints with displayed terms.")
+  ans <- lapply(seq_len(nrow(jt)), function(i) {
+    L <- funcs[[i]]
+    if (is.null(L) || !length(L)) {
+      if (show0df) return(data.frame(df1=0, df2=NA_real_,
+                                      F.ratio=NA_real_, p.value=NA_real_))
+      stop("Missing constraints for joint term: ", i)
+    }
+    .post_rma2_wald(L, fit, V_raw)
+  })
+  cbind(as.data.frame(jt)[, setdiff(names(jt),
+          c("df1", "df2", "F.ratio", "p.value")), drop=FALSE],
+        do.call(rbind, ans))
+}
+
+# Resolve study-level cluster from the fitted random-effects hierarchy,
+# or accept an explicit column name / aligned vector.
+.post_rma2_cluster <- function(cluster = NULL, data, fit) {
+  if (!inherits(fit, "rma.mv"))
+    stop("Automatic study-level clustering currently requires an rma.mv model.")
+  fixed_eff <- is.null(fit$random)
+  crossed <- if (!fixed_eff) is_crossed(fit) else FALSE
+  if (fixed_eff || any(crossed, na.rm = TRUE))
+    stop("CR2 robust inference is unavailable for models with ",
+         if (fixed_eff) "only fixed effects." else "crossed random effects.",
+         call. = FALSE)
+
+  # rma_clusters() uses the fitted model's mf.r/mf.g/mf.h, so its
+  # grouping vectors already exclude observations omitted by metafor.
+  structure <- rma_clusters(fit)
+  groups <- structure$cluster_dat
+  k <- length(fit$yi)
+  if (nrow(groups) != k)
+    stop("Fitted random-effects grouping data are not aligned with fit$yi.")
+
+  if (is.null(cluster)) {
+    lev <- structure$level_dat
+    if (!length(lev) || anyNA(lev))
+      stop("Cannot infer study cluster from the model. Specify cluster='study'.")
+    cluster <- names(lev)[which.min(lev)]
+    message("NOTE: ", dQuote(cluster), " was selected as 'cluster='. If incorrect, modify it.")
+  }
+
+  if (is.character(cluster) && length(cluster) == 1L && !is.na(cluster)) {
+    nm <- trimws(cluster)
+    if (!nm %in% names(groups))
+      stop("'cluster=' is not a fitted random-effects grouping variable: ", nm,
+           ". Available: ", paste(names(groups), collapse = ", "), call. = FALSE)
+    # IMPORTANT: do not use data[[nm]] here. get_data_(fit) can have
+    # more rows than the effects retained in the fitted model.
+    cluster <- groups[[nm]]
+  } else {
+    if (length(cluster) != k) {
+      # metafor stores the observation-inclusion mask for original data.
+      # Only use it when its length matches the supplied vector exactly.
+      mask <- fit$not.na
+      if (!is.null(mask) && is.logical(mask) &&
+          length(mask) == length(cluster) && sum(mask) == k) {
+        cluster <- cluster[mask]
+      } else {
+        stop("Explicit cluster vector has ", length(cluster),
+             " values, but the fitted model uses ", k,
+             ". Supply cluster='study' to use the fitted grouping variable.",
+             call. = FALSE)
+      }
+    }
+  }
+  if (length(cluster) != k || anyNA(cluster))
+    stop("Cluster values are missing or not aligned with the fitted effects.")
+  if (length(unique(cluster)) < 2L)
+    stop("CR2 requires at least two distinct clusters.")
+  cluster
+}
+
+#=========================================================================================================================================
+         
+post_rma2 <- function(fit, specs = NULL, cont_var = NULL, by = NULL,p_value = TRUE, ci = TRUE, mutos_vars_null = NULL, 
+                     mutos_vars_contrast = NULL, block = FALSE, adjust = "none", compare = FALSE, plot_pairwise = FALSE, 
+                     reverse = FALSE, digits = 3, xlab = "Estimated Effect", shift_up = NULL, shift_down = NULL, 
+                     drop_rows = NULL, drop_cols = NULL, contrast_contrasts=FALSE, 
+                     na.rm = TRUE, robust = FALSE, cluster = NULL, robust_test = "HTZ", show0df = FALSE, sig = TRUE, contr, horiz = TRUE, at=NULL, 
+                     at_vals=NA, get_rows = NULL, get_cols = NULL, df = NULL, tran = NULL, sigma=NULL, data=NULL, 
+                     round_except=NULL, var=NULL,
+                     ...)
+{
+  
+  if(!inherits(fit, c("rma.uni", "rma.mv"))) stop("Model is not 'rma()/rma.mv()'.", call. = FALSE)
+  
+  dot_args <- list(...)
+  dot_args_nm <- names(dot_args)
+  
+  cl <- match.call()
+  
+  if(!is.null(mutos_vars_null) & !is.null(mutos_vars_contrast)) { 
+    
+    message("Note: Only 'mutos_vars_null' results are shown.")
+    mutos_vars_contrast <- NULL
+    
+  }
+  
+  if(!is.null(mutos_vars_contrast)) { 
+    
+    mutos_vars_null <- NULL 
+    
+    specs <- mutos_vars_contrast <- if(is_bare_formula(mutos_vars_contrast, lhs=FALSE)) 
+      .all.vars(mutos_vars_contrast) else 
+        if(is.character(mutos_vars_contrast)) mutos_vars_contrast
+  }
+  
+  if(!is.null(mutos_vars_null)) { 
+    
+    mutos_vars_contrast <- NULL 
+    
+    specs <- mutos_vars_null <- if(is_bare_formula(mutos_vars_null, lhs=FALSE)) .all.vars(mutos_vars_null) else 
+      if(is.character(mutos_vars_null)) mutos_vars_null
+    
+  }
+  
+  
+  data_. <- if(is.null(data)) get_data_(fit) else data
+  
+  infer <- c(ci, p_value)
+  
+  # CR2 covariance and contrast-specific small-sample inference.
+  # No silent fallback to model-based results.
+  V_CR2 <- NULL
+  V_CR2_raw <- NULL
+  if (robust) {
+    cluster <- .post_rma2_cluster(cluster, data_., fit)
+    if (!identical(robust_test, "HTZ"))
+      stop("Currently robust_test must be 'HTZ'.")
+    V_CR2_raw <- clubSandwich::vcovCR(
+      fit, cluster = cluster, type = "CR2")
+    V_CR2 <- as.matrix(V_CR2_raw)
+    if (!isSymmetric(V_CR2, tol = 1e-8) || any(!is.finite(V_CR2)))
+      stop("CR2 covariance is not a finite symmetric matrix.")
+  }
+
+  rma.mv_fit <- fit
+  
+  type. <- if('type' %in% dot_args_nm) dot_args$type else FALSE
+  
+  if(!is.null(at)) {
+    
+    at <- if(is_bare_formula(at, lhs=FALSE) || is.character(at)) { 
+      
+      lo_ave_up(at, data_., at_vals)
+      
+    } else at
+    
+  }
+  
+  if (robust && !is.null(df))
+    warning("Ignoring df= under robust=TRUE; using contrast-specific HTZ df.")
+  df. <- if (robust) NULL else if(is.null(df)) {
+    
+    df_detect(rma.mv_fit)
+    
+  } else df
+  
+  tran. <- if(is.null(tran)) {
+    
+    tran_detect(rma.mv_fit)
+    
+  } else { tran }
+  
+  
+  sigma. <- if (is.null(sigma)) {
+    
+    sigma_detect(rma.mv_fit)
+    
+  } else {
+    
+    sigma
+    
+  }
+  
+  lookup <- c(Contrast="contrast",Estimate="estimate",Mean="emmean",Response="response",t="t.ratio",
+              Df="df","p-value"="p.value",Lower="lower.CL",Upper="upper.CL",
+              Df1="df1", Df2="df2","F"="F.ratio",Term="model term",
+              Lower="asymp.LCL", Upper="asymp.UCL", z="z.ratio", Ratio = "ratio")
+  
+  if(!is.null(mutos_vars_contrast) & block || !is.null(mutos_vars_null) & block) names(lookup)[13] <- "Block Term"
+  if(!is.null(mutos_vars_contrast) & !block || !is.null(mutos_vars_null) & !block) names(lookup)[13] <- "(M)UTOS Term"
+  
+  fit <- rma2gls(fit)
+  
+  if(!is.null(specs) & !is.character(specs) & !is_bare_formula(specs)) {stop("The 'specs' must be either a character or a formula containing '~'.", call.=FALSE)}
+  
+  if(is.null(specs)) specs <- as.formula(bquote(~.(terms(fit)[[3]])))
+  
+  
+  if (robust) {
+    # The GLS surrogate is used solely for its reference-grid machinery.
+    # Ensure the covariance is in exactly its coefficient order.
+    V_CR2 <- .post_rma2_align(V_CR2, names(stats::coef(fit)))
+    fit$varBeta <- V_CR2
+  }
+
+  is_contr <- !missing(contr)            
+  
+  ems <- tryCatch(if(is.null(cont_var) & is.null(var)){
+    
+    if (!isFALSE(tran.)) {
+      if (is_contr) emmeans(object = fit, specs = specs, infer = infer, adjust = adjust,
+                            contr = contr, data = data_., tran = tran., sigma = sigma., df = df., at = at, ...)
+      else emmeans(object = fit, specs = specs, infer = infer, adjust = adjust,
+                   data = data_., tran = tran., sigma = sigma., df = df., at = at, ...)
+    } else {
+      if (is_contr) emmeans(object = fit, specs = specs, infer = infer, adjust = adjust,
+                            contr = contr, data = data_., sigma = sigma., df = df., at = at, ...)
+      else emmeans(object = fit, specs = specs, infer = infer, adjust = adjust,
+                   data = data_., sigma = sigma., df = df., at = at, ...)
+    }
+ 
+     } else {
+       
+       cont_var <- if(!is.null(cont_var)) cont_var else var
+       
+    if(!is_contr){ 
+      
+      emtrends(object = fit, specs = specs, var = cont_var, infer = infer, adjust = adjust, data = data_., tran = tran., sigma = sigma., df = df., at=at, ...)
+      
+    } else {
+      
+      emtrends(object = fit, specs = specs, var = cont_var, infer = infer, adjust = adjust, contr = contr, data = data_., tran = tran., sigma = sigma., df = df., at=at, ...)
+      
+    }
+    
+  }, error = function(e) stop("emmeans/emtrends failed: ", conditionMessage(e), call. = FALSE))
+
+  if (robust) {
+    # emmeans may return an emm_list (e.g., specs = pairwise ~ factor).
+    # Install the df function on every grid BEFORE contrasts or summaries.
+    ems <- .post_rma2_install(ems, rma.mv_fit, V_CR2, V_CR2_raw)
+  }
+
+  
+  
+  con_methods <- c("pairwise","revpairwise","tukey","consec",
+                   "poly","trt.vs.ctrl","trt.vs.ctrlk","trt.vs.ctrl1",
+                   "dunnett","mean_chg","eff","del.eff","identity")
+  
+  is_pair <- any(con_methods %in% as.character(specs))
+  
+  if(!is.null(cont_var) & is_pair) names(lookup)[2] <- paste0(cont_var,".dif")
+  
+  out <- if(is_pair){
+    
+    methd <- as.character(specs[2])
+    
+    ems <- ems[[if(!contrast_contrasts) 1 else 2]]
+    
+    if(plot_pairwise) print(plot(ems, by = by, comparisons = compare, horizontal = horiz, adjust = adjust, xlab = xlab)) 
+    
+    pp <- if(isFALSE(tran.)) contrast(ems, method = methd, each="simple", infer=infer, reverse=reverse, adjust=adjust,...) 
+    else contrast(ems, method = methd, each="simple", infer=infer, reverse=reverse, adjust=adjust,tran = tran.,...)
+    
+    if(!is_contr) pp else if(!isFALSE(tran.)) contrast(pp, contr, tran = tran.,...) else contrast(pp, contr, ...)
+    
+  }
+  
+  else {
+    
+    if(!is.null(mutos_vars_contrast)) {
+      
+      mutos_vars_contrast <- if(is_bare_formula(mutos_vars_contrast, lhs=FALSE)) .all.vars(mutos_vars_contrast) else 
+        if(is.character(mutos_vars_contrast)) mutos_vars_contrast      
+      
+      if(!block){
+        
+        message("Testing jointly if EMMs for levels of each categorical moderator are equal to each other.")
+        
+        if (robust) .post_rma2_joint_terms(ems, rma.mv_fit, V_CR2_raw, by = by, show0df = show0df) else joint_tests(ems, by = by, adjust = adjust, show0df = show0df, tran = tran., ...)
+        
+      } else {
+        
+        if(length(mutos_vars_contrast) < 2) stop("A block needs at least two categorical moderators.", call. = FALSE)
+        
+        com <- comb_facs(ems, mutos_vars_contrast)
+        
+        message("Testing jointly if the EMMs *across* multiple
+categorical moderators (a block of them) are equal to each other.")
+        
+        if (robust) .post_rma2_joint_terms(com, rma.mv_fit, V_CR2_raw, show0df = show0df) else joint_tests(com)
+        
+      }
+      
+      
+    } else if (!is.null(mutos_vars_null)){
+      
+      is_fm <- is_bare_formula(mutos_vars_null, lhs=FALSE)    
+      
+      mutos_vars_null <- if(is_fm) .all.vars(mutos_vars_null) else 
+        if(is.character(mutos_vars_null)) mutos_vars_null      
+      
+      if(!block){  
+        
+        zz <- if (robust) {
+          dplyr::bind_rows(lapply(mutos_vars_null, function(mod) {
+            g <- emmeans::emmeans(ems, specs = mod)
+            cbind(mod = mod, .post_rma2_joint_grid(g, rma.mv_fit, V_CR2_raw))
+          }))
+        } else cbind(mod=mutos_vars_null, as.data.frame(map_dfr(mutos_vars_null,~emmeans::test(emmeans(ems,.),joint=TRUE))))
+        names(zz)[1] <- "(M)UTOS Term"
+        message("Testing jointly if EMMs for levels of each categorical moderator are equal to their null (e.g., 0).")
+        
+        zz 
+        
+      } else {
+        
+        if(length(mutos_vars_null) < 2) stop("A block needs at least two categorical moderators.", call. = FALSE)
+        
+        zz <- if (robust) {
+          cbind(mod = paste0(mutos_vars_null, collapse="."),
+                .post_rma2_joint_grid(ems, rma.mv_fit, V_CR2_raw))
+        } else cbind(mod=paste0(mutos_vars_null, collapse="."), as.data.frame(emmeans::test(ems, joint=TRUE)))
+        names(zz)[1] <- "Block Term"
+        message("Testing jointly if the EMMs *across* multiple
+categorical moderators (a block of them) are equal to their null (e.g., 0).")
+        
+        zz
+        
+      }     
+    }
+    
+    else {
+      
+      ems
+    }
+  }
+  
+  out <- as.data.frame(out, adjust = adjust, infer = infer, tran = tran., ...) %>%
+    dplyr::rename(tidyselect::any_of(lookup)) %>% 
+    dplyr::select(-tidyselect::any_of("note"))
+  
+  
+  out <- set_rownames_(out,NULL)
+  
+  if(p_value && "p-value" %in% names(out)){
+    
+    p.values <- as.numeric(out$"p-value")
+    
+    if(all(is.na(p.values))) { 
+      stop("Comparison(s)/moderator adjustments are non-estimable,\nlikely some combination of moderating or control variables are missing.\nTake those variables out of the model one by one and re-run.",
+           call. = FALSE)
+    }
+    
+    if(sig){
+      Signif <- symnum(p.values, corr = FALSE, 
+                       na = FALSE, cutpoints = 
+                         c(0, 0.001, 0.01, 0.05, 0.1, 1), 
+                       symbols = c("***", "**", "*", ".", " "))
+      
+      out <- tibble::add_column(out, Sig. = Signif, .after = "p-value")
+    }
+  }  
+  
+  out0 <- roundi(out, digits = digits, except=round_except)
+  if(na.rm) out <- na.omit(out)
+  
+  out <- roundi(out, digits = digits, except = round_except)
+  
+  if(!is.null(shift_up)) out <- shift_rows(out, shift_up)
+  if(!is.null(shift_down)) out <- shift_rows(out, shift_down, up = FALSE)
+  if(!is.null(drop_rows)) out <- out[-drop_rows, ]
+  if(!is.null(get_rows)) out <- out[get_rows, ]
+  
+  if(!is.null(drop_cols)) out <- dplyr::select(out, -tidyselect::all_of(drop_cols))
+  if(!is.null(get_cols)) out <- dplyr::select(out, tidyselect::all_of(get_cols))
+  
+  out <- list(table = out, table0 = out0, specs = specs, call = cl, fit = fit, rma.mv_fit = rma.mv_fit, ems = ems,
+              tran. = tran., type. = type., df. = df., sigma. = sigma., digits = digits, is_contr = is_contr)
+  
+  out$robust <- robust
+  out$robust_test <- if (robust) robust_test else NULL
+  out$V_CR2 <- V_CR2
+  out$V_CR2_raw <- V_CR2_raw
+  out$inference <- if (robust) "CR2 covariance; contrast-specific HTZ; joint HTZ" else "model-based"
+  class(out) <- "post_rma"
+  return(out)
+} 
+   
 # M=================================================================================================================================================
 
 R2_rma <- function(..., robust = TRUE, digits = 3,
