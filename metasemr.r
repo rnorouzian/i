@@ -1,17 +1,3 @@
-Break = "<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>\n"
-
-notice = " R programs for Multivariate Multilevel Meta-Analytic Structural Equation Modeling (metasem_3m).
- Copyright (C) 2023-present  Reza Norouzian, rnorouzian@gmail.com\n"
-
-message(Break, notice, Break)
-
-Break = "\n***********************************************************************************\n"
-
-cite <- "TBD"
-
-message(Break, cite, Break)
-
-
 # H==============================================================================
 
 coef2mat <- function(coefs, sep="[^[:alnum:]]+"){
@@ -505,3 +491,14 @@ suppressWarnings(
     invisible(lapply(needzzsf, base::require, character.only = TRUE))
     
   }))
+
+#==============================================================================
+                
+Break = "<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>\n"
+
+notice = " R programs for Multivariate Multilevel Meta-Analytic Structural Equation Modeling (metasem_3m).
+ Copyright (C) 2023-present  Reza Norouzian, rnorouzian@gmail.com\n"
+
+message(Break, notice, Break)
+
+                
