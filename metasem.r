@@ -88,7 +88,17 @@ metasem_ <- function(rma_fit, sem_model, n_name, cor_var=NULL, n=NULL,
   Rs <- coef(post)
   
   Cov <- coef2mat(Rs, sep = sep)
-  aCov <- vcov(post)
+  # aCov <- vcov(post)
+
+  aCov <- as.matrix(vcov(post))
+
+if (isTRUE(rma_fit$measure %in%
+    c("ZPHI", "ZTET", "ZPB", "ZBIS",
+      "ZCOR", "ZPCOR", "ZSPCOR"))) {
+
+  D <- diag(1 - as.numeric(Rs)^2)
+  aCov <- D %*% aCov %*% D
+}                               
   
   aCov <- vcov_match(Cov, aCov)
   
