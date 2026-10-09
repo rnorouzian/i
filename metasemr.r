@@ -470,6 +470,12 @@ lavaan2RAM2 <- function (model, obs.variables = NULL, A.notation = "ON", S.notat
   }
   out
 }
+
+# DATASETS ==============================================================================
+
+dat_metasem <- read.csv("https://raw.githubusercontent.com/rnorouzian/i/refs/heads/master/metasem_dat.csv", na="")
+                
+                
 #==============================================================================
                                  
 source("https://raw.githubusercontent.com/rnorouzian/i/master/3m.r")
